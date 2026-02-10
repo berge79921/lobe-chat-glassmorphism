@@ -39,6 +39,173 @@
 
   var scheduled = false;
 
+  function installAudioCaptureGuard() {
+    if (window.__legalchatAudioGuardInstalled) return;
+    window.__legalchatAudioGuardInstalled = true;
+
+    var activeStreams = [];
+    var activeRecorders = [];
+
+    function hasAudioTrack(stream) {
+      if (!stream || typeof stream.getAudioTracks !== 'function') return false;
+      var tracks = stream.getAudioTracks() || [];
+      return tracks.length > 0;
+    }
+
+    function removeFromList(list, item) {
+      var index = list.indexOf(item);
+      if (index !== -1) list.splice(index, 1);
+    }
+
+    function stopStream(stream) {
+      if (!stream || typeof stream.getTracks !== 'function') return;
+      var tracks = stream.getTracks();
+      for (var i = 0; i < tracks.length; i += 1) {
+        try {
+          tracks[i].stop();
+        } catch (_trackStopError) {}
+      }
+    }
+
+    function registerStream(stream) {
+      if (!stream || activeStreams.indexOf(stream) !== -1 || !hasAudioTrack(stream)) return stream;
+      activeStreams.push(stream);
+
+      var cleanup = function () {
+        removeFromList(activeStreams, stream);
+      };
+      if (stream.addEventListener) stream.addEventListener('inactive', cleanup, { once: true });
+      if (stream.addTrack && stream.removeTrack) {
+        try {
+          var tracks = stream.getTracks ? stream.getTracks() : [];
+          for (var i = 0; i < tracks.length; i += 1) {
+            if (tracks[i] && tracks[i].addEventListener) {
+              tracks[i].addEventListener('ended', cleanup, { once: true });
+            }
+          }
+        } catch (_trackAttachError) {}
+      }
+
+      if (STT_MAX_RECORDING_MS > 0) {
+        window.setTimeout(function () {
+          if (activeStreams.indexOf(stream) !== -1) stopStream(stream);
+        }, STT_MAX_RECORDING_MS + 1500);
+      }
+
+      return stream;
+    }
+
+    function registerRecorder(recorder) {
+      if (!recorder || activeRecorders.indexOf(recorder) !== -1) return recorder;
+      activeRecorders.push(recorder);
+
+      var recorderTimer = 0;
+      function clearRecorderTimer() {
+        if (!recorderTimer) return;
+        window.clearTimeout(recorderTimer);
+        recorderTimer = 0;
+      }
+      function armRecorderTimer() {
+        if (STT_MAX_RECORDING_MS <= 0) return;
+        clearRecorderTimer();
+        recorderTimer = window.setTimeout(function () {
+          try {
+            recorder.stop();
+          } catch (_recorderStopError) {}
+          if (recorder.stream) stopStream(recorder.stream);
+        }, STT_MAX_RECORDING_MS);
+      }
+
+      if (recorder.addEventListener) {
+        recorder.addEventListener('start', armRecorderTimer);
+        recorder.addEventListener('pause', clearRecorderTimer);
+        recorder.addEventListener('resume', armRecorderTimer);
+        recorder.addEventListener('stop', function () {
+          clearRecorderTimer();
+          removeFromList(activeRecorders, recorder);
+        });
+        recorder.addEventListener('error', function () {
+          clearRecorderTimer();
+          removeFromList(activeRecorders, recorder);
+        });
+      }
+
+      var originalStart = recorder.start && recorder.start.bind(recorder);
+      if (originalStart) {
+        recorder.start = function () {
+          armRecorderTimer();
+          return originalStart.apply(recorder, arguments);
+        };
+      }
+
+      var originalStop = recorder.stop && recorder.stop.bind(recorder);
+      if (originalStop) {
+        recorder.stop = function () {
+          clearRecorderTimer();
+          return originalStop.apply(recorder, arguments);
+        };
+      }
+
+      return recorder;
+    }
+
+    function stopAllAudioCapture() {
+      for (var i = 0; i < activeRecorders.length; i += 1) {
+        var recorder = activeRecorders[i];
+        try {
+          recorder.stop();
+        } catch (_recorderStopError) {}
+      }
+      for (var j = 0; j < activeStreams.length; j += 1) {
+        stopStream(activeStreams[j]);
+      }
+      activeRecorders = [];
+      activeStreams = [];
+    }
+
+    if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+      var originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+      navigator.mediaDevices.getUserMedia = function (constraints) {
+        return originalGetUserMedia(constraints).then(function (stream) {
+          var wantsAudio =
+            constraints &&
+            typeof constraints === 'object' &&
+            (constraints.audio === true || typeof constraints.audio === 'object');
+          if (wantsAudio) registerStream(stream);
+          return stream;
+        });
+      };
+    }
+
+    if (typeof window.MediaRecorder === 'function') {
+      var BaseMediaRecorder = window.MediaRecorder;
+      function WrappedMediaRecorder(stream, options) {
+        // eslint-disable-next-line new-cap
+        var recorder = new BaseMediaRecorder(stream, options);
+        registerStream(stream);
+        return registerRecorder(recorder);
+      }
+      WrappedMediaRecorder.prototype = BaseMediaRecorder.prototype;
+      try {
+        Object.setPrototypeOf(WrappedMediaRecorder, BaseMediaRecorder);
+      } catch (_setPrototypeError) {}
+      if (typeof BaseMediaRecorder.isTypeSupported === 'function') {
+        WrappedMediaRecorder.isTypeSupported = BaseMediaRecorder.isTypeSupported.bind(BaseMediaRecorder);
+      }
+      window.MediaRecorder = WrappedMediaRecorder;
+    }
+
+    window.__legalchatStopAudioCapture = stopAllAudioCapture;
+
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') stopAllAudioCapture();
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopAllAudioCapture();
+    });
+  }
+
   function installSpeechRecognitionGuard() {
     if (window.__legalchatSpeechGuardInstalled) return;
 
@@ -179,12 +346,58 @@
     };
 
     window.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') stopAllRecognitions(true);
+      if (event.key === 'Escape') {
+        stopAllRecognitions(true);
+        if (typeof window.__legalchatStopAudioCapture === 'function') {
+          window.__legalchatStopAudioCapture();
+        }
+      }
     });
 
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stopAllRecognitions(false);
+      if (document.hidden) {
+        stopAllRecognitions(false);
+        if (typeof window.__legalchatStopAudioCapture === 'function') {
+          window.__legalchatStopAudioCapture();
+        }
+      }
     });
+  }
+
+  function attachOverlayForceStopButton() {
+    var allNodes = document.querySelectorAll('div,section,article');
+    for (var i = 0; i < allNodes.length; i += 1) {
+      var node = allNodes[i];
+      if (!node || !node.textContent) continue;
+      if (node.querySelector('.legalchat-stt-force-stop')) continue;
+
+      var text = node.textContent.replace(/\s+/g, ' ').trim();
+      if (!/(Spra(?:ch|c)heingabe|Speech input|Voice input)/i.test(text)) continue;
+      if (!/\b\d{2}:\d{2}\b/.test(text)) continue;
+
+      var rect = node.getBoundingClientRect ? node.getBoundingClientRect() : null;
+      if (!rect || rect.width < 120 || rect.width > 520 || rect.height < 70 || rect.height > 420) continue;
+
+      var computed = window.getComputedStyle(node);
+      if (computed && computed.display === 'none') continue;
+
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'legalchat-stt-force-stop';
+      button.textContent = 'Stop Aufnahme';
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof window.__legalchatStopSpeechRecognition === 'function') {
+          window.__legalchatStopSpeechRecognition();
+        }
+        if (typeof window.__legalchatStopAudioCapture === 'function') {
+          window.__legalchatStopAudioCapture();
+        }
+      });
+      node.appendChild(button);
+      return;
+    }
   }
 
   function rewriteText(value) {
@@ -461,7 +674,9 @@
   }
 
   function applyBranding() {
+    installAudioCaptureGuard();
     installSpeechRecognitionGuard();
+    attachOverlayForceStopButton();
     rewriteTitle();
     rewriteHeadMetadata();
     rewriteWelcomeBlocks();
