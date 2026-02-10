@@ -7,6 +7,7 @@
  */
 
 const http = require('http');
+const https = require('https');
 
 const TARGET_HOST = process.env.LOBECHAT_HOST || 'lobe-chat-glass';
 const TARGET_PORT = Number(process.env.LOBECHAT_PORT || 3210);
@@ -15,6 +16,27 @@ const APP_PUBLIC_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3210';
 
 const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
 const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
+const OPENAI_TTS_PATH = '/webapi/tts/openai';
+const EDGE_TTS_PATH = '/webapi/tts/edge';
+const EDGE_TTS_FALLBACK_ENABLED = process.env.TTS_EDGE_FALLBACK === '1';
+const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
+const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
+const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
+const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
+const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
+const OPENAI_TO_EDGE_VOICE_MAP = {
+  alloy: 'en-US-JennyNeural',
+  ash: 'en-US-GuyNeural',
+  ballad: 'en-US-AriaNeural',
+  coral: 'en-US-AnaNeural',
+  echo: 'en-US-EricNeural',
+  fable: 'en-US-ChristopherNeural',
+  nova: 'en-US-MichelleNeural',
+  onyx: 'en-US-SteffanNeural',
+  sage: 'en-US-RogerNeural',
+  shimmer: 'en-US-JennyNeural',
+  verse: 'en-US-AriaNeural',
+};
 
 const textEncoder = new TextEncoder();
 const BRANDING_INJECTION = [
@@ -137,6 +159,190 @@ const requestTarget = ({ method, path, headers = {}, body = '' }) =>
     upstreamReq.end();
   });
 
+const readRequestBody = (req) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+
+const buildUpstreamHeaders = ({ req, forwardingHost, forwardingProto, bodyBuffer }) => {
+  const headers = {
+    ...req.headers,
+    host: req.headers.host || forwardingHost,
+    'x-forwarded-host': forwardingHost,
+    'x-forwarded-proto': forwardingProto,
+  };
+
+  if (typeof bodyBuffer !== 'undefined') {
+    headers['content-length'] = String(bodyBuffer.length);
+    delete headers['transfer-encoding'];
+  }
+
+  return headers;
+};
+
+const getLocaleDefaultEdgeVoice = (locale) => {
+  if (typeof locale !== 'string') return DEFAULT_EDGE_VOICE;
+  const lowerLocale = locale.toLowerCase();
+  if (lowerLocale.startsWith('de')) return 'de-DE-KatjaNeural';
+  if (lowerLocale.startsWith('fr')) return 'fr-FR-DeniseNeural';
+  if (lowerLocale.startsWith('es')) return 'es-ES-ElviraNeural';
+  if (lowerLocale.startsWith('ja')) return 'ja-JP-NanamiNeural';
+  if (lowerLocale.startsWith('zh')) return 'zh-CN-XiaoxiaoNeural';
+  return DEFAULT_EDGE_VOICE;
+};
+
+const mapOpenAIVoiceToEdgeVoice = ({ locale, voice }) => {
+  const localeDefault = getLocaleDefaultEdgeVoice(locale);
+  if (!voice || typeof voice !== 'string') return localeDefault;
+  return OPENAI_TO_EDGE_VOICE_MAP[voice.toLowerCase()] || localeDefault;
+};
+
+const parseTtsPayload = (rawBodyBuffer) => {
+  try {
+    return JSON.parse(rawBodyBuffer.toString('utf8'));
+  } catch {
+    return null;
+  }
+};
+
+const createEdgeTtsPayload = (rawBodyBuffer) => {
+  const payload = parseTtsPayload(rawBodyBuffer);
+  if (!payload) return rawBodyBuffer;
+
+  const options = payload && typeof payload.options === 'object' ? payload.options : {};
+  const edgePayload = {
+    ...payload,
+    options: {
+      ...options,
+      voice: mapOpenAIVoiceToEdgeVoice({
+        locale: options.locale,
+        voice: options.voice,
+      }),
+    },
+  };
+
+  return Buffer.from(JSON.stringify(edgePayload), 'utf8');
+};
+
+const normalizeLocaleForGoogleTts = (locale) => {
+  if (typeof locale !== 'string' || locale.length === 0) return 'en';
+  return locale.replaceAll('_', '-');
+};
+
+const splitTextForGoogleTts = (input, maxChars = GOOGLE_TTS_MAX_CHARS) => {
+  const text = String(input || '').replace(/\s+/g, ' ').trim();
+  if (!text) return [];
+  if (text.length <= maxChars) return [text];
+
+  const chunks = [];
+  const sentences = text.split(/(?<=[.!?;:])\s+/);
+  let current = '';
+
+  for (const sentence of sentences) {
+    const part = sentence.trim();
+    if (!part) continue;
+
+    if (!current) {
+      if (part.length <= maxChars) {
+        current = part;
+      } else {
+        for (let i = 0; i < part.length; i += maxChars) {
+          chunks.push(part.slice(i, i + maxChars));
+        }
+      }
+      continue;
+    }
+
+    const merged = `${current} ${part}`;
+    if (merged.length <= maxChars) {
+      current = merged;
+      continue;
+    }
+
+    chunks.push(current);
+    if (part.length <= maxChars) {
+      current = part;
+      continue;
+    }
+
+    for (let i = 0; i < part.length; i += maxChars) {
+      chunks.push(part.slice(i, i + maxChars));
+    }
+    current = '';
+  }
+
+  if (current) chunks.push(current);
+  return chunks;
+};
+
+const requestGoogleTtsChunk = ({ locale, text }) =>
+  new Promise((resolve, reject) => {
+    const params = new URLSearchParams({
+      client: GOOGLE_TTS_CLIENT,
+      ie: 'UTF-8',
+      q: text,
+      tl: normalizeLocaleForGoogleTts(locale),
+    });
+
+    const upstreamReq = https.request(
+      {
+        hostname: GOOGLE_TTS_HOST,
+        method: 'GET',
+        path: `/translate_tts?${params.toString()}`,
+        port: 443,
+        headers: {
+          accept: 'audio/mpeg,*/*',
+          'user-agent': 'Mozilla/5.0 (compatible; LegalChatTTS/1.0)',
+        },
+      },
+      (upstreamRes) => {
+        const chunks = [];
+        upstreamRes.on('data', (chunk) => chunks.push(chunk));
+        upstreamRes.on('end', () => {
+          resolve({
+            body: Buffer.concat(chunks),
+            statusCode: upstreamRes.statusCode || 500,
+          });
+        });
+      },
+    );
+
+    upstreamReq.on('error', reject);
+    upstreamReq.end();
+  });
+
+const requestGoogleTtsAudio = async ({ locale, text }) => {
+  const chunks = splitTextForGoogleTts(text, GOOGLE_TTS_MAX_CHARS);
+  if (chunks.length === 0) return null;
+
+  const audioBuffers = [];
+  for (const chunk of chunks) {
+    const response = await requestGoogleTtsChunk({ locale, text: chunk });
+    if (!responseStatusIsSuccess(response.statusCode) || response.body.length === 0) {
+      return null;
+    }
+    audioBuffers.push(response.body);
+  }
+
+  return Buffer.concat(audioBuffers);
+};
+
+const responseStatusIsSuccess = (statusCode) => statusCode >= 200 && statusCode < 300;
+const isOpenAITtsPath = (pathname) =>
+  /(^|\/)webapi\/tts\/openai\/?$/.test(pathname || '');
+
+const sendUpstreamResponse = ({ req, res, upstream }) => {
+  const responseHeaders = { ...upstream.headers };
+  if (responseHeaders.location) {
+    responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
+  }
+  res.writeHead(upstream.statusCode, responseHeaders);
+  res.end(upstream.body);
+};
+
 const buildHelperHtml = () => {
   const callbackUrl = APP_PUBLIC_URL.endsWith('/') ? APP_PUBLIC_URL : `${APP_PUBLIC_URL}/`;
   const loginHref = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
@@ -258,6 +464,98 @@ const handleProviderSigninGet = async (req, res, parsedUrl) => {
   }
 };
 
+const handleOpenAITtsWithEdgeFallback = async (req, res) => {
+  try {
+    console.log(`[LegalChat] TTS intercept: ${req.method} ${req.url}`);
+
+    const forwardingHost = getPublicHost(req);
+    const forwardingProto = getForwardedProtocol(req);
+    const requestBody = await readRequestBody(req);
+    const originalPayload = parseTtsPayload(requestBody);
+
+    const openaiHeaders = buildUpstreamHeaders({
+      req,
+      bodyBuffer: requestBody,
+      forwardingHost,
+      forwardingProto,
+    });
+
+    const openaiResponse = await requestTarget({
+      body: requestBody,
+      headers: openaiHeaders,
+      method: 'POST',
+      path: req.url,
+    });
+    console.log(`[LegalChat] TTS primary status: ${openaiResponse.statusCode}`);
+
+    if (responseStatusIsSuccess(openaiResponse.statusCode)) {
+      sendUpstreamResponse({ req, res, upstream: openaiResponse });
+      return;
+    }
+
+    if (EDGE_TTS_FALLBACK_ENABLED) {
+      const edgePayload = createEdgeTtsPayload(requestBody);
+      const edgePath = req.url.replace(OPENAI_TTS_PATH, EDGE_TTS_PATH);
+      const edgeHeaders = buildUpstreamHeaders({
+        req,
+        bodyBuffer: edgePayload,
+        forwardingHost,
+        forwardingProto,
+      });
+
+      const edgeResponse = await requestTarget({
+        body: edgePayload,
+        headers: edgeHeaders,
+        method: 'POST',
+        path: edgePath,
+      });
+      console.log(`[LegalChat] TTS fallback status (edge): ${edgeResponse.statusCode}`);
+
+      if (responseStatusIsSuccess(edgeResponse.statusCode)) {
+        const edgeHeadersWithMarker = {
+          ...edgeResponse.headers,
+          'x-legalchat-tts-fallback': 'edge',
+        };
+
+        res.writeHead(edgeResponse.statusCode, edgeHeadersWithMarker);
+        res.end(edgeResponse.body);
+        console.log('[LegalChat] TTS fallback active: openai -> edge');
+        return;
+      }
+    }
+
+    if (GOOGLE_TTS_FALLBACK_ENABLED && originalPayload && typeof originalPayload.input === 'string') {
+      const locale =
+        originalPayload.options && typeof originalPayload.options === 'object'
+          ? originalPayload.options.locale
+          : undefined;
+
+      const googleAudio = await requestGoogleTtsAudio({
+        locale,
+        text: originalPayload.input,
+      });
+
+      if (googleAudio && googleAudio.length > 0) {
+        res.writeHead(200, {
+          'cache-control': 'no-store',
+          'content-length': googleAudio.length,
+          'content-type': 'audio/mpeg',
+          'x-legalchat-tts-fallback': 'google',
+        });
+        res.end(googleAudio);
+        console.log('[LegalChat] TTS fallback active: openai -> google');
+        return;
+      }
+    }
+
+    sendUpstreamResponse({ req, res, upstream: openaiResponse });
+  } catch (error) {
+    console.error('TTS fallback proxy failed:', error);
+    res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('TTS proxy error');
+  }
+};
+
 // Inject branding into HTML responses
 const injectBrandingIntoHTML = (body) => {
   const html = body.toString('utf8');
@@ -376,6 +674,11 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && SIGNIN_GET_PATTERN.test(parsedUrl.pathname)) {
     await handleProviderSigninGet(req, res, parsedUrl);
+    return;
+  }
+
+  if (req.method === 'POST' && isOpenAITtsPath(parsedUrl.pathname)) {
+    await handleOpenAITtsWithEdgeFallback(req, res);
     return;
   }
 
