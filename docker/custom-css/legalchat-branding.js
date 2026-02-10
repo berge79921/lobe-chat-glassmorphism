@@ -109,6 +109,9 @@
       '[class*="session" i] img',
       '[class*="assistant" i] img',
       '[class*="avatar" i] img',
+      'img[src*="npmmirror" i]',
+      'img[src*="assets-logo" i]',
+      'img[alt*="LobeHub" i]',
       'img[alt*="assistant" i]',
       'img[alt*="bot" i]',
       'img[alt*="ai" i]',
@@ -118,9 +121,10 @@
 
     for (var i = 0; i < avatars.length; i += 1) {
       var img = avatars[i];
-      if (!img || img.dataset.legalchatAvatar === '1') continue;
+      if (!img) continue;
 
       var src = img.getAttribute('src') || '';
+      if (img.dataset.legalchatAvatar === '1' && src.includes('george-avatar.jpg')) continue;
       var alt = (img.getAttribute('alt') || '').toLowerCase();
       var width = img.width || 0;
       var height = img.height || 0;
@@ -133,6 +137,8 @@
 
       if (!src.includes('george-avatar.jpg')) {
         img.src = AVATAR_URL;
+        img.setAttribute('src', AVATAR_URL);
+        img.setAttribute('srcset', '');
       }
 
       img.alt = 'George - KI Jurist';
@@ -183,7 +189,7 @@
 
   observer.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ['class', 'title', 'aria-label', 'alt', 'placeholder'],
+    attributeFilter: ['class', 'title', 'aria-label', 'alt', 'placeholder', 'src', 'srcset'],
     childList: true,
     subtree: true,
   });

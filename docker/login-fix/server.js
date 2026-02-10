@@ -621,9 +621,10 @@ const proxyRequest = async (req, res) => {
   // Only rewrite first-party HTML pages.
   const parsedUrl = new URL(req.url, `${getForwardedProtocol(req)}://${getPublicHost(req)}`);
   const pathname = parsedUrl.pathname;
+  const isUiPath =
+    pathname === '/' || /(?:^|\/)(chat|welcome|settings)(?:\/|$)/i.test(pathname);
   const isPageRequest =
-    (req.method === 'GET' || req.method === 'HEAD') &&
-    (pathname === '/' || pathname.startsWith('/chat') || pathname.startsWith('/welcome'));
+    (req.method === 'GET' || req.method === 'HEAD') && isUiPath;
   const isBrandingAssetRequest =
     (req.method === 'GET' || req.method === 'HEAD') &&
     (pathname === '/custom.css' || pathname === '/legalchat-branding.js');
