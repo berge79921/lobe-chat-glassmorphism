@@ -76,6 +76,35 @@
     }
   }
 
+  function rewriteHeadMetadata() {
+    var title = document.querySelector('head title');
+    if (title && title.textContent) {
+      var rewrittenTitle = rewriteText(title.textContent);
+      if (rewrittenTitle !== title.textContent) title.textContent = rewrittenTitle;
+    }
+
+    var metaSelectors = [
+      'meta[name="description"]',
+      'meta[name="apple-mobile-web-app-title"]',
+      'meta[property="og:title"]',
+      'meta[property="og:description"]',
+      'meta[property="og:site_name"]',
+      'meta[property="og:image:alt"]',
+      'meta[name="twitter:title"]',
+      'meta[name="twitter:description"]',
+    ];
+
+    var metas = document.querySelectorAll(metaSelectors.join(','));
+    for (var i = 0; i < metas.length; i += 1) {
+      var meta = metas[i];
+      var content = meta.getAttribute('content');
+      var rewrittenContent = rewriteText(content);
+      if (rewrittenContent !== content) {
+        meta.setAttribute('content', rewrittenContent);
+      }
+    }
+  }
+
   function replaceWordmarkSvg() {
     var svgs = document.querySelectorAll(WORDMARK_SELECTOR);
 
@@ -104,6 +133,7 @@
   }
 
   function setGeorgeAvatar() {
+    var isChatRoute = /(?:^|\/)chat(?:\/|$)/i.test(window.location.pathname || '');
     var selectors = [
       'aside img',
       '[class*="session" i] img',
@@ -141,6 +171,24 @@
         img.setAttribute('srcset', '');
       }
 
+      if (isChatRoute) {
+        var rect = img.getBoundingClientRect();
+        var isChatWindowAvatar =
+          !img.closest('aside') &&
+          !img.closest('button,.ant-btn') &&
+          rect &&
+          rect.x > 220 &&
+          rect.y > 30 &&
+          rect.width >= 32;
+        if (isChatWindowAvatar) {
+          img.classList.add('legalchat-chat-avatar');
+        } else {
+          img.classList.remove('legalchat-chat-avatar');
+        }
+      } else {
+        img.classList.remove('legalchat-chat-avatar');
+      }
+
       img.alt = 'George - KI Jurist';
       img.dataset.legalchatAvatar = '1';
       img.classList.add('legalchat-avatar-img');
@@ -156,6 +204,7 @@
 
   function applyBranding() {
     rewriteTitle();
+    rewriteHeadMetadata();
     rewriteTextNodes(document.body);
     rewriteAttributes();
     replaceWordmarkSvg();

@@ -26,6 +26,7 @@ const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
 const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-10-04';
 const DISABLE_SERVICE_WORKER = process.env.LEGALCHAT_DISABLE_SERVICE_WORKER !== '0';
 const BRANDING_CACHE_CONTROL = 'no-store, no-cache, must-revalidate, proxy-revalidate';
+const HTML_BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
   alloy: 'en-US-JennyNeural',
@@ -596,9 +597,31 @@ const handleOpenAITtsWithEdgeFallback = async (req, res) => {
   }
 };
 
+const rewriteHeadBrandingMetadata = (html) => {
+  const headOpen = html.indexOf('<head');
+  const headClose = html.indexOf('</head>');
+  if (headOpen === -1 || headClose === -1 || headClose <= headOpen) return html;
+
+  const headHtml = html.slice(headOpen, headClose);
+  let rewrittenHead = headHtml;
+
+  rewrittenHead = rewrittenHead.replace(
+    /<title[^>]*>[\s\S]*?<\/title>/gi,
+    (tag) => tag.replace(HTML_BRAND_PATTERN, 'LegalChat'),
+  );
+
+  rewrittenHead = rewrittenHead.replace(
+    /<meta\b[^>]*(?:name|property)=["'](?:description|apple-mobile-web-app-title|og:title|og:description|og:site_name|og:image:alt|twitter:title|twitter:description)["'][^>]*>/gi,
+    (tag) => tag.replace(HTML_BRAND_PATTERN, 'LegalChat'),
+  );
+
+  return html.slice(0, headOpen) + rewrittenHead + html.slice(headClose);
+};
+
 // Inject branding into HTML responses
 const injectBrandingIntoHTML = (body) => {
-  const html = body.toString('utf8');
+  let html = body.toString('utf8');
+  html = rewriteHeadBrandingMetadata(html);
   if (html.includes('data-legalchat-branding="1"')) return html;
 
   // Find </head> to inject before
