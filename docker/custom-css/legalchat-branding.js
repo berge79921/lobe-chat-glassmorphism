@@ -1,119 +1,149 @@
-/**
- * LegalChat Branding Customization
- * Replaces LobeChat branding with LegalChat and sets George as avatar
- */
-
-(function() {
+(function () {
   'use strict';
 
-  const CONFIG = {
-    appName: 'LegalChat',
-    avatarUrl: '/custom-assets/george-avatar.jpg',
-    subtitle: 'Ihr intelligenter KI-Jurist'
-  };
+  var APP_NAME = 'LegalChat';
+  var AVATAR_URL = '/custom-assets/george-avatar.jpg';
+  var BRAND_PATTERN = /LobeChat|LobeHub/g;
+  var WELCOME_PATTERN = /persönlicher intelligenter Assistent/gi;
+  var scheduled = false;
 
-  // Replace text content
-  function replaceText(node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      if (node.textContent.includes('LobeChat')) {
-        node.textContent = node.textContent.replace(/LobeChat/g, CONFIG.appName);
-      }
-      return;
+  function rewriteText(value) {
+    if (!value) return value;
+    return value.replace(BRAND_PATTERN, APP_NAME).replace(WELCOME_PATTERN, 'persönlicher KI-Jurist');
+  }
+
+  function rewriteTitle() {
+    var next = rewriteText(document.title);
+    if (next && next !== document.title) {
+      document.title = next;
     }
-    
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      // Skip script and style elements
-      if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
-      
-      // Check for placeholder attributes
-      if (node.placeholder && node.placeholder.includes('LobeChat')) {
-        node.placeholder = node.placeholder.replace(/LobeChat/g, CONFIG.appName);
-      }
-      
-      // Check title and alt attributes
-      if (node.title && node.title.includes('LobeChat')) {
-        node.title = node.title.replace(/LobeChat/g, CONFIG.appName);
-      }
-      if (node.alt && node.alt.includes('LobeChat')) {
-        node.alt = node.alt.replace(/LobeChat/g, CONFIG.appName);
+  }
+
+  function rewriteTextNodes(root) {
+    if (!root) return;
+
+    var walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function (node) {
+          if (!node || !node.nodeValue) return NodeFilter.FILTER_REJECT;
+          var parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          var tag = parent.tagName;
+          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (!/LobeChat|LobeHub|persönlicher intelligenter Assistent/i.test(node.nodeValue)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      },
+    );
+
+    var current;
+    while ((current = walker.nextNode())) {
+      var rewritten = rewriteText(current.nodeValue);
+      if (rewritten !== current.nodeValue) {
+        current.nodeValue = rewritten;
       }
     }
   }
 
-  // Walk DOM and replace text
-  function walkDOM(node) {
-    replaceText(node);
-    node.childNodes.forEach(walkDOM);
+  function rewriteAttributes() {
+    var candidates = document.querySelectorAll('[placeholder],[title],[aria-label],[alt]');
+    for (var i = 0; i < candidates.length; i += 1) {
+      var el = candidates[i];
+      var attrs = ['placeholder', 'title', 'aria-label', 'alt'];
+      for (var j = 0; j < attrs.length; j += 1) {
+        var attr = attrs[j];
+        if (!el.hasAttribute(attr)) continue;
+        var current = el.getAttribute(attr);
+        var rewritten = rewriteText(current);
+        if (rewritten !== current) {
+          el.setAttribute(attr, rewritten);
+        }
+      }
+    }
   }
 
-  // Set George avatar for assistant/user
   function setGeorgeAvatar() {
-    // Find avatar images and replace with George
-    const avatarSelectors = [
-      'img[alt*="assistant"]',
-      'img[alt*="AI"]',
-      '.assistant-avatar',
+    var selectors = [
       '[class*="avatar"] img',
-      '.message-assistant img',
-      '.chat-assistant-avatar'
+      'img[class*="avatar"]',
+      'img[alt*="assistant" i]',
+      'img[alt*="ai" i]',
+      'img[alt*="bot" i]',
     ];
+    var avatars = document.querySelectorAll(selectors.join(','));
 
-    document.querySelectorAll(avatarSelectors.join(', ')).forEach(img => {
-      img.src = CONFIG.avatarUrl;
-      img.alt = 'George - KI Jurist';
-    });
-  }
+    for (var i = 0; i < avatars.length; i += 1) {
+      var img = avatars[i];
+      if (!img || img.dataset.legalchatAvatar === '1') continue;
 
-  // Update page title
-  function updatePageTitle() {
-    if (document.title.includes('LobeChat')) {
-      document.title = document.title.replace(/LobeChat/g, CONFIG.appName);
-    }
-  }
-
-  // Update meta tags
-  function updateMetaTags() {
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription && metaDescription.content.includes('LobeChat')) {
-      metaDescription.content = metaDescription.content.replace(/LobeChat/g, CONFIG.appName);
-    }
-  }
-
-  // Main branding function
-  function applyBranding() {
-    walkDOM(document.body);
-    updatePageTitle();
-    updateMetaTags();
-    setGeorgeAvatar();
-  }
-
-  // Run on load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyBranding);
-  } else {
-    applyBranding();
-  }
-
-  // Re-apply on dynamic content changes (React app)
-  const observer = new MutationObserver((mutations) => {
-    let shouldUpdate = false;
-    mutations.forEach(mutation => {
-      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        shouldUpdate = true;
+      var src = img.getAttribute('src') || '';
+      if (src.includes('george-avatar.jpg')) {
+        img.dataset.legalchatAvatar = '1';
+        img.classList.add('legalchat-avatar-img');
+        continue;
       }
-    });
-    if (shouldUpdate) {
-      applyBranding();
+
+      img.src = AVATAR_URL;
+      img.alt = 'George - KI Jurist';
+      img.dataset.legalchatAvatar = '1';
+      img.classList.add('legalchat-avatar-img');
     }
+  }
+
+  function markWelcomeHeadline() {
+    var candidates = document.querySelectorAll('h1,h2,h3,p,span,div');
+    for (var i = 0; i < candidates.length; i += 1) {
+      var el = candidates[i];
+      var text = el.textContent || '';
+      if (!text) continue;
+      if (text.includes('Guten') || text.includes('Good')) {
+        el.classList.add('legalchat-welcome');
+      }
+      if (text.includes(APP_NAME)) {
+        el.classList.add('legalchat-brand-text');
+      }
+    }
+  }
+
+  function applyBranding() {
+    rewriteTitle();
+    rewriteTextNodes(document.body);
+    rewriteAttributes();
+    setGeorgeAvatar();
+    markWelcomeHeadline();
+  }
+
+  function scheduleApply() {
+    if (scheduled) return;
+    scheduled = true;
+    window.setTimeout(function () {
+      scheduled = false;
+      try {
+        applyBranding();
+      } catch (error) {
+        console.error('[LegalChat] Branding apply failed:', error);
+      }
+    }, 150);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleApply, { once: true });
+  } else {
+    scheduleApply();
+  }
+
+  var observer = new MutationObserver(function () {
+    scheduleApply();
   });
 
-  observer.observe(document.body, {
+  observer.observe(document.documentElement, {
     childList: true,
-    subtree: true
+    subtree: true,
   });
-
-  // Periodic check for avatars (React re-renders)
-  setInterval(setGeorgeAvatar, 1000);
-
-  console.log('[LegalChat] Branding applied - George is ready!');
 })();

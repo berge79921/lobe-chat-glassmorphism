@@ -1,171 +1,23 @@
-/* LegalChat Custom Theme - Glassmorphism Style */
-/* Based on Kostenrechner Design System */
-
 :root {
-  --legalchat-primary: #3b82f6;
-  --legalchat-accent: #6366f1;
-  --legalchat-bg: #020617;
-  --legalchat-card-bg: rgba(30, 41, 59, 0.6);
-  --legalchat-border-radius: 2.5rem;
-  --legalchat-blur: blur(24px);
+  --legalchat-primary: #2563eb;
+  --legalchat-accent: #4f46e5;
 }
 
-/* Hide original LobeChat branding elements */
-[class*="logo"][class*="lobe"],
-[class*="brand"][class*="lobe"],
-img[alt*="LobeChat"],
-[class*="title"]:has-text("LobeChat") {
-  display: none !important;
-}
-
-/* Inject LegalChat Branding via CSS content */
-[class*="welcome"][class*="title"]::before,
-[class*="chat"][class*="welcome"]::before,
-[class*="empty"][class*="placeholder"]::before {
-  content: "Willkommen bei LegalChat" !important;
-  font-size: 2rem;
-  font-weight: 600;
-  background: linear-gradient(135deg, var(--legalchat-primary), var(--legalchat-accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* George Avatar styling for assistant messages */
-[class*="message"][class*="assistant"] [class*="avatar"],
-[class*="assistant"] > [class*="avatar"],
-[class*="chat-item"][class*="assistant"] img {
-  content: url("/custom-assets/george-avatar.jpg") !important;
-  border-radius: 50% !important;
+/* Defensive styling only: no global hiding or invalid selectors. */
+.legalchat-avatar-img {
   border: 2px solid var(--legalchat-primary) !important;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
 }
 
-/* Glassmorphism cards */
-[class*="card"],
-[class*="panel"],
-[class*="sidebar"],
-[class*="chat-list"] {
-  background: var(--legalchat-card-bg) !important;
-  backdrop-filter: var(--legalchat-blur) !important;
-  -webkit-backdrop-filter: var(--legalchat-blur) !important;
-  border-radius: var(--legalchat-border-radius) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
-}
-
-/* Main background */
-body,
-[class*="layout"],
-[class*="main"],
-[class*="container"] {
-  background: var(--legalchat-bg) !important;
-}
-
-/* Gradient accent buttons */
-[class*="button"][class*="primary"],
-[class*="send"],
-[class*="submit"] {
-  background: linear-gradient(135deg, var(--legalchat-primary), var(--legalchat-accent)) !important;
-  border: none !important;
-  border-radius: 1rem !important;
-  transition: all 0.3s ease !important;
-}
-
-[class*="button"][class*="primary"]:hover,
-[class*="send"]:hover,
-[class*="submit"]:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4) !important;
-}
-
-/* LegalChat Header Branding */
-[class*="header"] [class*="title"]::after,
-[class*="navbar"] [class*="brand"]::after {
-  content: "LegalChat" !important;
-  font-weight: 600;
-  font-size: 1.5rem;
+.legalchat-brand-text {
   background: linear-gradient(135deg, var(--legalchat-primary), var(--legalchat-accent));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent !important;
 }
 
-/* Input styling */
-[class*="input"],
-[class*="textarea"],
-[class*="chat-input"] {
-  background: rgba(30, 41, 59, 0.4) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 1.5rem !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-/* George signature style for assistant messages */
-[class*="message"][class*="assistant"] [class*="name"]::before,
-[class*="assistant"] [class*="sender"]::before {
-  content: "George • " !important;
-  color: var(--legalchat-primary);
-  font-weight: 500;
-}
-
-/* Subtitle styling */
-[class*="subtitle"],
-[class*="description"] {
-  color: #94a3b8 !important;
-}
-
-/* Decorative gradient blobs */
-[class*="background"]::before {
-  content: "";
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: var(--legalchat-primary);
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  top: -100px;
-  left: -100px;
-  pointer-events: none;
-}
-
-[class*="background"]::after {
-  content: "";
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: var(--legalchat-accent);
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  bottom: -50px;
-  right: -50px;
-  pointer-events: none;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(30, 41, 59, 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--legalchat-primary), var(--legalchat-accent));
-  border-radius: 4px;
-}
-
-/* Legal notice badge */
-[class*="footer"]::before,
-[class*="legal-notice"] {
-  content: "⚖️ LegalChat - KI-gestützte Rechtsberatung (kein Ersatz für einen Anwalt)";
-  display: block;
-  text-align: center;
-  padding: 0.5rem;
-  font-size: 0.75rem;
-  color: #64748b;
-  background: rgba(30, 41, 59, 0.4);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+/* Keep welcome text readable if app theme changes. */
+.legalchat-welcome {
+  color: inherit !important;
 }

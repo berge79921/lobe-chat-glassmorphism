@@ -17,128 +17,11 @@ const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
 const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
 
 const textEncoder = new TextEncoder();
-
-// HTML Injection for LegalChat branding
-const BRANDING_INJECTION = `
-<!-- LegalChat Branding Start -->
-<style>
-/* LegalChat Branding - Glassmorphism Theme */
-:root {
-  --legalchat-primary: #3b82f6;
-  --legalchat-accent: #6366f1;
-}
-
-/* George Avatar for Assistant */
-[class*="assistant"] [class*="avatar"] img,
-[class*="message"][class*="assistant"] img[class*="avatar"] {
-  content: url("/custom-assets/george-avatar.jpg") !important;
-  border: 2px solid #3b82f6 !important;
-  border-radius: 50% !important;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
-}
-
-/* Glassmorphism Theme */
-body {
-  background: #020617 !important;
-}
-
-[class*="sidebar"], [class*="chat-list"] {
-  background: rgba(30, 41, 59, 0.6) !important;
-  backdrop-filter: blur(24px) !important;
-}
-</style>
-<script>
-(function() {
-  'use strict';
-  
-  const CONFIG = {
-    appName: 'LegalChat',
-    avatarUrl: '/custom-assets/george-avatar.jpg'
-  };
-
-  // Replace text in node
-  function replaceText(node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      var text = node.textContent;
-      // Replace LobeChat/LobeHub
-      if (text.indexOf('LobeChat') !== -1 || text.indexOf('LobeHub') !== -1) {
-        node.textContent = text.replace(/LobeChat|LobeHub/g, CONFIG.appName);
-      }
-      // Replace welcome message
-      if (text.indexOf('persönlicher intelligenter Assistent') !== -1) {
-        node.textContent = text.replace('persönlicher intelligenter Assistent', 'persönlicher KI-Jurist');
-      }
-      return;
-    }
-    
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      // Check attributes
-      if (node.placeholder && (node.placeholder.indexOf('LobeChat') !== -1 || node.placeholder.indexOf('LobeHub') !== -1)) {
-        node.placeholder = node.placeholder.replace(/LobeChat|LobeHub/g, CONFIG.appName);
-      }
-      if (node.title && (node.title.indexOf('LobeChat') !== -1 || node.title.indexOf('LobeHub') !== -1)) {
-        node.title = node.title.replace(/LobeChat|LobeHub/g, CONFIG.appName);
-      }
-    }
-  }
-
-  // Walk DOM tree
-  function walkDOM(node) {
-    replaceText(node);
-    var children = node.childNodes;
-    for (var i = 0; i < children.length; i++) {
-      walkDOM(children[i]);
-    }
-  }
-
-  // Update page title
-  function updateTitle() {
-    if (document.title.indexOf('LobeChat') !== -1 || document.title.indexOf('LobeHub') !== -1) {
-      document.title = document.title.replace(/LobeChat|LobeHub/g, CONFIG.appName);
-    }
-  }
-
-  // Set George avatar
-  function setGeorgeAvatar() {
-    var images = document.querySelectorAll('[class*="assistant"] img, [class*="avatar"] img');
-    for (var i = 0; i < images.length; i++) {
-      var img = images[i];
-      if (img.src.indexOf('george') === -1) {
-        img.src = CONFIG.avatarUrl;
-        img.alt = 'George - KI Jurist';
-      }
-    }
-  }
-
-  // Apply all branding
-  function applyBranding() {
-    walkDOM(document.body);
-    updateTitle();
-    setGeorgeAvatar();
-    console.log('[LegalChat] Branding applied - George is ready! ⚖️');
-  }
-
-  // Run when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyBranding);
-  } else {
-    applyBranding();
-  }
-
-  // Watch for dynamic changes
-  var observer = new MutationObserver(function() {
-    walkDOM(document.body);
-    setGeorgeAvatar();
-  });
-  
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-})();
-</script>
-<!-- LegalChat Branding End -->
-`;
+const BRANDING_INJECTION = [
+  '<!-- LegalChat Branding Assets -->',
+  '<link rel="stylesheet" href="/custom.css?v=legalchat" data-legalchat-branding="1" />',
+  '<script defer src="/legalchat-branding.js?v=legalchat" data-legalchat-branding="1"></script>',
+].join('');
 
 const parseCookieHeader = (cookieHeader) => {
   const cookies = new Map();
@@ -378,6 +261,8 @@ const handleProviderSigninGet = async (req, res, parsedUrl) => {
 // Inject branding into HTML responses
 const injectBrandingIntoHTML = (body) => {
   const html = body.toString('utf8');
+  if (html.includes('data-legalchat-branding="1"')) return html;
+
   // Find </head> to inject before
   const headEnd = html.indexOf('</head>');
   if (headEnd !== -1) {
@@ -395,18 +280,21 @@ const injectBrandingIntoHTML = (body) => {
 };
 
 const proxyRequest = async (req, res) => {
+  // Only rewrite first-party HTML pages.
+  const isPageRequest =
+    req.method === 'GET' &&
+    (req.url === '/' || req.url.startsWith('/chat') || req.url.startsWith('/welcome'));
+
   const forwardingHost = getPublicHost(req);
   const forwardingProto = getForwardedProtocol(req);
   const headers = {
     ...req.headers,
     host: req.headers.host || forwardingHost,
+    // Rewritten HTML must be uncompressed to avoid content decoding mismatches.
+    ...(isPageRequest ? { 'accept-encoding': 'identity' } : {}),
     'x-forwarded-host': forwardingHost,
     'x-forwarded-proto': forwardingProto,
   };
-
-  // Check if this is an HTML page request (for injection)
-  const isPageRequest = req.method === 'GET' && 
-    (req.url === '/' || req.url.startsWith('/chat') || req.url.startsWith('/welcome'));
 
   try {
     const proxyRes = await new Promise((resolve, reject) => {
@@ -445,6 +333,8 @@ const proxyRequest = async (req, res) => {
     if (isPageRequest && contentType.includes('text/html')) {
       const modifiedHTML = injectBrandingIntoHTML(body);
       body = Buffer.from(modifiedHTML, 'utf8');
+      delete responseHeaders['content-encoding'];
+      delete responseHeaders['transfer-encoding'];
       responseHeaders['content-length'] = body.length;
       console.log('[LegalChat] Branding injected');
     }
