@@ -2,16 +2,21 @@
   'use strict';
 
   var APP_NAME = 'LegalChat';
+  var DEFAULT_AGENT_NAME = 'George';
   var AVATAR_URL = '/custom-assets/george-avatar.jpg';
   var BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;
   var WELCOME_PATTERN = /persönlicher intelligenter Assistent|personal intelligent assistant/gi;
+  var DEFAULT_AGENT_PATTERN = /Lass uns plaudern|Just Chat/gi;
   var WORDMARK_SELECTOR = 'svg[viewBox="0 0 940 320"]';
 
   var scheduled = false;
 
   function rewriteText(value) {
     if (!value) return value;
-    return value.replace(BRAND_PATTERN, APP_NAME).replace(WELCOME_PATTERN, 'persönlicher KI-Jurist');
+    return value
+      .replace(BRAND_PATTERN, APP_NAME)
+      .replace(WELCOME_PATTERN, 'persönlicher KI-Jurist')
+      .replace(DEFAULT_AGENT_PATTERN, DEFAULT_AGENT_NAME);
   }
 
   function rewriteTitle() {
@@ -36,7 +41,7 @@
           if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TITLE') {
             return NodeFilter.FILTER_REJECT;
           }
-          if (!/Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat|persönlicher intelligenter Assistent|personal intelligent assistant/i.test(node.nodeValue)) {
+          if (!/Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat|persönlicher intelligenter Assistent|personal intelligent assistant|Lass uns plaudern|Just Chat/i.test(node.nodeValue)) {
             return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
