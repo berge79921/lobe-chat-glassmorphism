@@ -77,10 +77,20 @@
   }
 
   function rewriteHeadMetadata() {
-    var title = document.querySelector('head title');
-    if (title && title.textContent) {
+    var titles = document.querySelectorAll('head title');
+    for (var i = 0; i < titles.length; i += 1) {
+      var title = titles[i];
+      if (!title || !title.textContent) continue;
       var rewrittenTitle = rewriteText(title.textContent);
       if (rewrittenTitle !== title.textContent) title.textContent = rewrittenTitle;
+    }
+    if (titles.length > 1) {
+      for (var titleIndex = titles.length - 1; titleIndex >= 1; titleIndex -= 1) {
+        var duplicateTitle = titles[titleIndex];
+        if (duplicateTitle && duplicateTitle.parentNode) {
+          duplicateTitle.parentNode.removeChild(duplicateTitle);
+        }
+      }
     }
 
     var metaSelectors = [
@@ -95,13 +105,32 @@
     ];
 
     var metas = document.querySelectorAll(metaSelectors.join(','));
-    for (var i = 0; i < metas.length; i += 1) {
-      var meta = metas[i];
+    for (var j = 0; j < metas.length; j += 1) {
+      var meta = metas[j];
       var content = meta.getAttribute('content');
       var rewrittenContent = rewriteText(content);
       if (rewrittenContent !== content) {
         meta.setAttribute('content', rewrittenContent);
       }
+    }
+
+    var seenMeta = {};
+    for (var k = 0; k < metas.length; k += 1) {
+      var currentMeta = metas[k];
+      if (!currentMeta) continue;
+
+      var name = currentMeta.getAttribute('name');
+      var property = currentMeta.getAttribute('property');
+      var key = '';
+      if (name) key = 'name:' + name.toLowerCase().trim();
+      if (!key && property) key = 'property:' + property.toLowerCase().trim();
+      if (!key) continue;
+
+      if (seenMeta[key]) {
+        if (currentMeta.parentNode) currentMeta.parentNode.removeChild(currentMeta);
+        continue;
+      }
+      seenMeta[key] = true;
     }
   }
 
