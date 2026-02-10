@@ -91,6 +91,8 @@ In diesem Repo wird er jetzt zentral ueber `.env` + `login-proxy` gesteuert:
 LEGALCHAT_APP_NAME=LegalChat
 LEGALCHAT_DEFAULT_AGENT_NAME=George
 LEGALCHAT_ASSISTANT_ROLE_DE=persönlicher KI-Jurist
+LEGALCHAT_STT_MAX_RECORDING_MS=90000
+LEGALCHAT_STT_SILENCE_STOP_MS=3000
 LEGALCHAT_WELCOME_PRIMARY_DE=Ich bin George, Ihr persönlicher KI-Jurist bei LegalChat. Wie kann ich Ihnen jetzt helfen?
 LEGALCHAT_WELCOME_SECONDARY_DE=Wenn Sie einen professionelleren oder maßgeschneiderten Assistenten benötigen, klicken Sie auf +, um einen benutzerdefinierten Assistenten zu erstellen.
 ```

@@ -2,9 +2,17 @@
   'use strict';
 
   var runtimeConfig = window.__LEGALCHAT_BRANDING_CONFIG__ || {};
+  function parsePositiveInt(value, fallback) {
+    var n = Number(value);
+    if (!Number.isFinite(n) || n <= 0) return fallback;
+    return Math.floor(n);
+  }
+
   var APP_NAME = runtimeConfig.appName || 'LegalChat';
   var DEFAULT_AGENT_NAME = runtimeConfig.defaultAgentName || 'George';
   var AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/george-avatar.jpg';
+  var STT_MAX_RECORDING_MS = parsePositiveInt(runtimeConfig.sttMaxRecordingMs, 90000);
+  var STT_SILENCE_STOP_MS = parsePositiveInt(runtimeConfig.sttSilenceStopMs, 3000);
   var ASSISTANT_ROLE_DE = runtimeConfig.assistantRoleDe || 'persönlicher KI-Jurist';
   var ASSISTANT_ROLE_EN = runtimeConfig.assistantRoleEn || 'personal AI legal assistant';
   var WELCOME_PRIMARY_DE =
@@ -30,6 +38,154 @@
   var WORDMARK_SELECTOR = 'svg[viewBox="0 0 940 320"]';
 
   var scheduled = false;
+
+  function installSpeechRecognitionGuard() {
+    if (window.__legalchatSpeechGuardInstalled) return;
+
+    var BaseCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (typeof BaseCtor !== 'function') return;
+
+    window.__legalchatSpeechGuardInstalled = true;
+    var knownRecognitions = [];
+
+    function registerRecognition(recognition) {
+      if (!recognition) return;
+      if (knownRecognitions.indexOf(recognition) === -1) knownRecognitions.push(recognition);
+    }
+
+    function stopRecognition(recognition, forceAbort) {
+      if (!recognition) return;
+      try {
+        recognition.stop();
+      } catch (_stopError) {}
+      if (!forceAbort) return;
+      try {
+        recognition.abort();
+      } catch (_abortError) {}
+    }
+
+    function stopAllRecognitions(forceAbort) {
+      for (var i = 0; i < knownRecognitions.length; i += 1) {
+        stopRecognition(knownRecognitions[i], forceAbort);
+      }
+    }
+
+    function wrapRecognition(recognition) {
+      if (!recognition || recognition.__legalchatSpeechWrapped === '1') return recognition;
+
+      recognition.__legalchatSpeechWrapped = '1';
+      registerRecognition(recognition);
+      var sessionTimer = 0;
+      var silenceTimer = 0;
+
+      function clearTimers() {
+        if (sessionTimer) {
+          window.clearTimeout(sessionTimer);
+          sessionTimer = 0;
+        }
+        if (silenceTimer) {
+          window.clearTimeout(silenceTimer);
+          silenceTimer = 0;
+        }
+      }
+
+      function armSessionTimer() {
+        if (STT_MAX_RECORDING_MS <= 0) return;
+        if (sessionTimer) window.clearTimeout(sessionTimer);
+        sessionTimer = window.setTimeout(function () {
+          stopRecognition(recognition, false);
+          window.setTimeout(function () {
+            stopRecognition(recognition, true);
+          }, 900);
+        }, STT_MAX_RECORDING_MS);
+      }
+
+      function armSilenceTimer() {
+        if (STT_SILENCE_STOP_MS <= 0) return;
+        if (silenceTimer) window.clearTimeout(silenceTimer);
+        silenceTimer = window.setTimeout(function () {
+          stopRecognition(recognition, false);
+        }, STT_SILENCE_STOP_MS);
+      }
+
+      var originalStart = recognition.start && recognition.start.bind(recognition);
+      if (originalStart) {
+        recognition.start = function () {
+          clearTimers();
+          armSessionTimer();
+          return originalStart();
+        };
+      }
+
+      var originalStop = recognition.stop && recognition.stop.bind(recognition);
+      if (originalStop) {
+        recognition.stop = function () {
+          clearTimers();
+          return originalStop();
+        };
+      }
+
+      var originalAbort = recognition.abort && recognition.abort.bind(recognition);
+      if (originalAbort) {
+        recognition.abort = function () {
+          clearTimers();
+          return originalAbort();
+        };
+      }
+
+      if (recognition.addEventListener) {
+        recognition.addEventListener('start', function () {
+          armSessionTimer();
+        });
+        recognition.addEventListener('speechstart', function () {
+          if (silenceTimer) {
+            window.clearTimeout(silenceTimer);
+            silenceTimer = 0;
+          }
+        });
+        recognition.addEventListener('speechend', armSilenceTimer);
+        recognition.addEventListener('soundend', armSilenceTimer);
+        recognition.addEventListener('audioend', armSilenceTimer);
+        recognition.addEventListener('result', function () {
+          if (silenceTimer) {
+            window.clearTimeout(silenceTimer);
+            silenceTimer = 0;
+          }
+          armSessionTimer();
+        });
+        recognition.addEventListener('end', clearTimers);
+        recognition.addEventListener('error', clearTimers);
+      }
+
+      return recognition;
+    }
+
+    function WrappedSpeechRecognition() {
+      // eslint-disable-next-line new-cap
+      var recognition = new BaseCtor();
+      return wrapRecognition(recognition);
+    }
+
+    WrappedSpeechRecognition.prototype = BaseCtor.prototype;
+    try {
+      Object.setPrototypeOf(WrappedSpeechRecognition, BaseCtor);
+    } catch (_setPrototypeError) {}
+
+    if (window.SpeechRecognition === BaseCtor) window.SpeechRecognition = WrappedSpeechRecognition;
+    if (window.webkitSpeechRecognition === BaseCtor) window.webkitSpeechRecognition = WrappedSpeechRecognition;
+
+    window.__legalchatStopSpeechRecognition = function () {
+      stopAllRecognitions(true);
+    };
+
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') stopAllRecognitions(true);
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopAllRecognitions(false);
+    });
+  }
 
   function rewriteText(value) {
     if (!value) return value;
@@ -305,6 +461,7 @@
   }
 
   function applyBranding() {
+    installSpeechRecognitionGuard();
     rewriteTitle();
     rewriteHeadMetadata();
     rewriteWelcomeBlocks();
