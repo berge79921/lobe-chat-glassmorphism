@@ -9,7 +9,7 @@
   var ASSISTANT_ROLE_EN = runtimeConfig.assistantRoleEn || 'personal AI legal assistant';
   var WELCOME_PRIMARY_DE =
     runtimeConfig.welcomePrimaryDe ||
-    ('Ich bin Ihr ' + ASSISTANT_ROLE_DE + ' ' + APP_NAME + '. Wie kann ich Ihnen jetzt helfen?');
+    ('Ich bin ' + DEFAULT_AGENT_NAME + ', Ihr ' + ASSISTANT_ROLE_DE + ' bei ' + APP_NAME + '. Wie kann ich Ihnen jetzt helfen?');
   var WELCOME_PRIMARY_EN =
     runtimeConfig.welcomePrimaryEn ||
     ('I am your ' + ASSISTANT_ROLE_EN + ' ' + APP_NAME + '. How can I assist you today?');

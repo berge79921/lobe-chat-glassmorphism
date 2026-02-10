@@ -22,7 +22,7 @@ const LEGALCHAT_ASSISTANT_ROLE_EN =
   process.env.LEGALCHAT_ASSISTANT_ROLE_EN || 'personal AI legal assistant';
 const LEGALCHAT_WELCOME_PRIMARY_DE =
   process.env.LEGALCHAT_WELCOME_PRIMARY_DE ||
-  `Ich bin Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE} ${LEGALCHAT_APP_NAME}. Wie kann ich Ihnen jetzt helfen?`;
+  `Ich bin ${LEGALCHAT_DEFAULT_AGENT_NAME}, Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE} bei ${LEGALCHAT_APP_NAME}. Wie kann ich Ihnen jetzt helfen?`;
 const LEGALCHAT_WELCOME_PRIMARY_EN =
   process.env.LEGALCHAT_WELCOME_PRIMARY_EN ||
   `I am your ${LEGALCHAT_ASSISTANT_ROLE_EN} ${LEGALCHAT_APP_NAME}. How can I assist you today?`;
