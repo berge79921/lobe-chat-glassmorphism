@@ -82,6 +82,25 @@ Detaillierte Architekturdokumentation:
 | `AUTH_LOGTO_SECRET` | Logto Client Secret | `X6duaf3@L` |
 | `LOGTO_ENDPOINT` | Logto URL (Host IP!) | `http://192.168.1.240:3001` |
 
+### Welcome-Text und Standard-Agent anpassen
+
+Der Begruessungstext im Chat-Header ist aktuell **nicht** in den normalen UI-Settings konfigurierbar.
+In diesem Repo wird er jetzt zentral ueber `.env` + `login-proxy` gesteuert:
+
+```env
+LEGALCHAT_APP_NAME=LegalChat
+LEGALCHAT_DEFAULT_AGENT_NAME=George
+LEGALCHAT_ASSISTANT_ROLE_DE=persönlicher KI-Jurist
+LEGALCHAT_WELCOME_PRIMARY_DE=Ich bin Ihr persönlicher KI-Jurist LegalChat. Wie kann ich Ihnen jetzt helfen?
+LEGALCHAT_WELCOME_SECONDARY_DE=Wenn Sie einen professionelleren oder maßgeschneiderten Assistenten benötigen, klicken Sie auf +, um einen benutzerdefinierten Assistenten zu erstellen.
+```
+
+Danach neu starten:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d --force-recreate login-proxy
+```
+
 ### Produktionsprofil: Bildverarbeitung mit OpenRouter
 
 Fuer stabile Bildverarbeitung in Produktion (ohne `localhost`-Probleme) nutzt dieses Repo jetzt standardmaessig folgende Architektur:

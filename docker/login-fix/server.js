@@ -13,6 +13,25 @@ const TARGET_HOST = process.env.LOBECHAT_HOST || 'lobe-chat-glass';
 const TARGET_PORT = Number(process.env.LOBECHAT_PORT || 3210);
 const LISTEN_PORT = Number(process.env.PORT || 3210);
 const APP_PUBLIC_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3210';
+const LEGALCHAT_APP_NAME = process.env.LEGALCHAT_APP_NAME || 'LegalChat';
+const LEGALCHAT_DEFAULT_AGENT_NAME = process.env.LEGALCHAT_DEFAULT_AGENT_NAME || 'George';
+const LEGALCHAT_AVATAR_URL = process.env.LEGALCHAT_AVATAR_URL || '/custom-assets/george-avatar.jpg';
+const LEGALCHAT_ASSISTANT_ROLE_DE =
+  process.env.LEGALCHAT_ASSISTANT_ROLE_DE || 'persönlicher KI-Jurist';
+const LEGALCHAT_ASSISTANT_ROLE_EN =
+  process.env.LEGALCHAT_ASSISTANT_ROLE_EN || 'personal AI legal assistant';
+const LEGALCHAT_WELCOME_PRIMARY_DE =
+  process.env.LEGALCHAT_WELCOME_PRIMARY_DE ||
+  `Ich bin Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE} ${LEGALCHAT_APP_NAME}. Wie kann ich Ihnen jetzt helfen?`;
+const LEGALCHAT_WELCOME_PRIMARY_EN =
+  process.env.LEGALCHAT_WELCOME_PRIMARY_EN ||
+  `I am your ${LEGALCHAT_ASSISTANT_ROLE_EN} ${LEGALCHAT_APP_NAME}. How can I assist you today?`;
+const LEGALCHAT_WELCOME_SECONDARY_DE =
+  process.env.LEGALCHAT_WELCOME_SECONDARY_DE ||
+  'Wenn Sie einen professionelleren oder maßgeschneiderten Assistenten benötigen, klicken Sie auf +, um einen benutzerdefinierten Assistenten zu erstellen.';
+const LEGALCHAT_WELCOME_SECONDARY_EN =
+  process.env.LEGALCHAT_WELCOME_SECONDARY_EN ||
+  'If you need a more professional or customized assistant, you can click + to create a custom assistant.';
 
 const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
 const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
@@ -43,12 +62,34 @@ const OPENAI_TO_EDGE_VOICE_MAP = {
 };
 
 const textEncoder = new TextEncoder();
+const BRANDING_RUNTIME_CONFIG = {
+  appName: LEGALCHAT_APP_NAME,
+  defaultAgentName: LEGALCHAT_DEFAULT_AGENT_NAME,
+  avatarUrl: LEGALCHAT_AVATAR_URL,
+  assistantRoleDe: LEGALCHAT_ASSISTANT_ROLE_DE,
+  assistantRoleEn: LEGALCHAT_ASSISTANT_ROLE_EN,
+  welcomePrimaryDe: LEGALCHAT_WELCOME_PRIMARY_DE,
+  welcomePrimaryEn: LEGALCHAT_WELCOME_PRIMARY_EN,
+  welcomeSecondaryDe: LEGALCHAT_WELCOME_SECONDARY_DE,
+  welcomeSecondaryEn: LEGALCHAT_WELCOME_SECONDARY_EN,
+};
+const serializeInlineConfig = (value) =>
+  JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+const BRANDING_CONFIG_INJECTION = `<script data-legalchat-config="1">window.__LEGALCHAT_BRANDING_CONFIG__=${serializeInlineConfig(
+  BRANDING_RUNTIME_CONFIG,
+)};</script>`;
 const BRANDING_BOOTSTRAP = DISABLE_SERVICE_WORKER
   ? `<script data-legalchat-sw-cleanup="1">(function(){try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){for(var i=0;i<regs.length;i+=1){regs[i].unregister().catch(function(){});}});}if('caches' in window&&caches.keys){caches.keys().then(function(keys){for(var i=0;i<keys.length;i+=1){var name=keys[i]||'';if(/serwist|workbox|next-pwa|lobehub|lobechat/i.test(name)){caches.delete(name).catch(function(){});}}});}}catch(error){console.warn('[LegalChat] SW cleanup failed',error);}})();</script>`
   : '';
 const BRANDING_INJECTION = [
   '<!-- LegalChat Branding Assets -->',
   BRANDING_BOOTSTRAP,
+  BRANDING_CONFIG_INJECTION,
   `<link rel="stylesheet" href="/custom.css?v=${BRANDING_VERSION}" data-legalchat-branding="1" />`,
   `<script src="/legalchat-branding.js?v=${BRANDING_VERSION}" data-legalchat-branding="1"></script>`,
 ].join('');
@@ -381,7 +422,7 @@ const buildHelperHtml = () => {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LegalChat Login</title>
+  <title>${LEGALCHAT_APP_NAME} Login</title>
   <style>
     body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; }
     .wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
@@ -395,9 +436,9 @@ const buildHelperHtml = () => {
 <body>
   <div class="wrap">
     <div class="card">
-      <img src="/custom-assets/george-avatar.jpg" alt="George" class="avatar">
-      <h1>LegalChat ⚖️</h1>
-      <p>Ihr persönlicher KI-Jurist</p>
+      <img src="${LEGALCHAT_AVATAR_URL}" alt="${LEGALCHAT_DEFAULT_AGENT_NAME}" class="avatar">
+      <h1>${LEGALCHAT_APP_NAME} ⚖️</h1>
+      <p>Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE}</p>
       <a class="button" href="${loginHref}">Mit Logto anmelden</a>
     </div>
   </div>
@@ -607,12 +648,12 @@ const rewriteHeadBrandingMetadata = (html) => {
 
   rewrittenHead = rewrittenHead.replace(
     /<title[^>]*>[\s\S]*?<\/title>/gi,
-    (tag) => tag.replace(HTML_BRAND_PATTERN, 'LegalChat'),
+    (tag) => tag.replace(HTML_BRAND_PATTERN, LEGALCHAT_APP_NAME),
   );
 
   rewrittenHead = rewrittenHead.replace(
     /<meta\b[^>]*(?:name|property)=["'](?:description|apple-mobile-web-app-title|og:title|og:description|og:site_name|og:image:alt|twitter:title|twitter:description)["'][^>]*>/gi,
-    (tag) => tag.replace(HTML_BRAND_PATTERN, 'LegalChat'),
+    (tag) => tag.replace(HTML_BRAND_PATTERN, LEGALCHAT_APP_NAME),
   );
 
   return html.slice(0, headOpen) + rewrittenHead + html.slice(headClose);
