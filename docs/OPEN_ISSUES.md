@@ -15,6 +15,19 @@ Damit funktioniert der normale Login-Klick in der LobeChat UI auf `http://localh
 
 ---
 
+## ✅ Status-Update (10. Februar 2026) - Bildverarbeitung
+
+Fuer den OpenRouter/MinIO-Bildpfad wurde eine strukturelle Loesung als Default eingefuehrt:
+
+- `S3_SET_ACL=0` (private Objekte + presigned Preview)
+- `LLM_VISION_IMAGE_USE_BASE64=1` (kein externer Fetch auf private URLs)
+- `SSRF_ALLOW_PRIVATE_IP_ADDRESS=0` und gezielte `SSRF_ALLOW_IP_ADDRESS_LIST`
+- `S3_PUBLIC_DOMAIN` ohne `localhost`
+
+Details und Verlauf: `ISSUES.md` (Issue #1).
+
+---
+
 ## 🔴 Kritisch: Authentifizierungs-Fehler
 
 ### Problem

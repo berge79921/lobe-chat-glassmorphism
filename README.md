@@ -43,6 +43,7 @@ cp docker/.env.example docker/.env
 - **Datenbank**: PostgreSQL mit pgvector
 - **Storage**: MinIO S3-kompatibel
 - **Container**: Docker Compose
+- **Vision-Pipeline**: Presigned S3 + Base64-Transfer fuer externe AI-Provider
 
 ## 📋 Architektur
 
@@ -74,6 +75,25 @@ Detaillierte Architekturdokumentation:
 | `AUTH_LOGTO_SECRET` | Logto Client Secret | `X6duaf3@L` |
 | `LOGTO_ENDPOINT` | Logto URL (Host IP!) | `http://192.168.1.240:3001` |
 
+### Produktionsprofil: Bildverarbeitung mit OpenRouter
+
+Fuer stabile Bildverarbeitung in Produktion (ohne `localhost`-Probleme) nutzt dieses Repo jetzt standardmaessig folgende Architektur:
+
+1. Bilder bleiben in MinIO (private Objekte, kein `public-read`)
+2. LobeHub erzeugt presigned Preview-URLs
+3. LobeHub konvertiert die Bilddaten serverseitig in Base64
+4. OpenRouter erhaelt nur Base64-Daten, keine private URL
+
+Pflicht-Variablen in `docker/.env`:
+
+| Variable | Sollwert |
+|----------|----------|
+| `S3_SET_ACL` | `0` |
+| `LLM_VISION_IMAGE_USE_BASE64` | `1` |
+| `SSRF_ALLOW_PRIVATE_IP_ADDRESS` | `0` |
+| `SSRF_ALLOW_IP_ADDRESS_LIST` | Host-IP von MinIO, z.B. `192.168.1.240` |
+| `S3_PUBLIC_DOMAIN` | Keine localhost-URL |
+
 ### Erstmalige Einrichtung
 
 1. **Logto Admin Console öffnen**: http://localhost:3002
@@ -93,6 +113,7 @@ Siehe detaillierte Dokumentation:
 ### Zusammenfassung
 - ✅ Login-Button in LobeChat UI funktioniert wieder (Gateway-Fix aktiv)
 - ℹ️ Optionale Login-Hilfe bleibt unter http://localhost:3211/login verfügbar
+- ✅ Struktureller Bild-Upload-Fix fuer OpenRouter/MinIO dokumentiert und als Default hinterlegt
 
 ## 📚 Dokumentation
 

@@ -59,6 +59,58 @@ if [ ! -f ".env" ]; then
     read -p "Drücke Enter um fortzufahren oder Ctrl+C zum Abbrechen..."
 fi
 
+# Prüfe Vision/S3 Konfiguration fuer stabilen Bild-Upload mit OpenRouter
+echo ""
+echo -e "${BLUE}→ Prüfe Vision/S3 Konfiguration...${NC}"
+DOCKER_ENV_FILE="docker/.env"
+VISION_WARNINGS=0
+
+if [ -f "$DOCKER_ENV_FILE" ]; then
+    get_env_value() {
+        local key="$1"
+        grep -E "^${key}=" "$DOCKER_ENV_FILE" | tail -n 1 | cut -d '=' -f2-
+    }
+
+    S3_PUBLIC_DOMAIN_VAL=$(get_env_value "S3_PUBLIC_DOMAIN")
+    S3_SET_ACL_VAL=$(get_env_value "S3_SET_ACL")
+    BASE64_VAL=$(get_env_value "LLM_VISION_IMAGE_USE_BASE64")
+    SSRF_ALLOW_PRIVATE_VAL=$(get_env_value "SSRF_ALLOW_PRIVATE_IP_ADDRESS")
+    SSRF_ALLOW_LIST_VAL=$(get_env_value "SSRF_ALLOW_IP_ADDRESS_LIST")
+
+    if [[ "$S3_PUBLIC_DOMAIN_VAL" == *"localhost"* || "$S3_PUBLIC_DOMAIN_VAL" == *"127.0.0.1"* ]]; then
+        echo -e "${YELLOW}  ⚠ S3_PUBLIC_DOMAIN zeigt auf localhost (OpenRouter kann das nicht erreichen).${NC}"
+        VISION_WARNINGS=$((VISION_WARNINGS + 1))
+    fi
+
+    if [ "$S3_SET_ACL_VAL" != "0" ]; then
+        echo -e "${YELLOW}  ⚠ S3_SET_ACL ist nicht auf 0 (empfohlen: private Objekte + presigned URLs).${NC}"
+        VISION_WARNINGS=$((VISION_WARNINGS + 1))
+    fi
+
+    if [ "$BASE64_VAL" != "1" ]; then
+        echo -e "${YELLOW}  ⚠ LLM_VISION_IMAGE_USE_BASE64 ist nicht aktiv (empfohlen: 1).${NC}"
+        VISION_WARNINGS=$((VISION_WARNINGS + 1))
+    fi
+
+    if [ "$SSRF_ALLOW_PRIVATE_VAL" = "1" ]; then
+        echo -e "${YELLOW}  ⚠ SSRF_ALLOW_PRIVATE_IP_ADDRESS=1 deaktiviert SSRF-Schutz fuer private Netze.${NC}"
+        VISION_WARNINGS=$((VISION_WARNINGS + 1))
+    fi
+
+    if [ -z "$SSRF_ALLOW_LIST_VAL" ]; then
+        echo -e "${YELLOW}  ⚠ SSRF_ALLOW_IP_ADDRESS_LIST ist leer (MinIO-IP sollte explizit gesetzt sein).${NC}"
+        VISION_WARNINGS=$((VISION_WARNINGS + 1))
+    fi
+
+    if [ "$VISION_WARNINGS" -eq 0 ]; then
+        echo -e "${GREEN}  ✓ Vision/S3 Konfiguration sieht konsistent aus${NC}"
+    else
+        echo -e "${YELLOW}  ⚠ Bitte docker/.env fuer produktionsfaehige Bildverarbeitung pruefen.${NC}"
+    fi
+else
+    echo -e "${YELLOW}  ⚠ docker/.env nicht gefunden, Vision/S3 Check wurde uebersprungen.${NC}"
+fi
+
 # Prüfe ob Ports belegt sind
 echo ""
 echo -e "${BLUE}→ Prüfe Ports...${NC}"

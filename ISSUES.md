@@ -9,10 +9,11 @@
 ## Issue #1: Bild-Upload funktioniert nicht mit OpenRouter
 
 ### Status
-🔴 **Offen** - Technische Analyse abgeschlossen, Lösung ausstehend
+🟡 **Strukturelle Loesung implementiert** - Runtime-Re-Test im Zielsystem noch offen
 
 ### Zusammenfassung
-Bilder können zwar erfolgreich zu MinIO hochgeladen werden, aber die Verarbeitung durch OpenRouter schlägt fehl, da der Cloud-Dienst nicht auf lokale URLs zugreifen kann.
+Bilder wurden erfolgreich zu MinIO hochgeladen, aber OpenRouter scheiterte am Abruf privater `localhost`-URLs.  
+Die Architektur wurde auf einen provider-unabhaengigen Bildpfad umgestellt (Presigned URL + serverseitige Base64-Konvertierung).
 
 ### Fehlermeldung
 ```json
@@ -34,7 +35,7 @@ Bilder können zwar erfolgreich zu MinIO hochgeladen werden, aber die Verarbeitu
 | Text-Chat mit OpenRouter | ✅ Funktioniert | GM 3.0 Flash Preview erfolgreich getestet |
 | Dokumenten-Upload (PDF, TXT) | ✅ Funktioniert | Inhalt wird als Text extrahiert und gesendet |
 | Bild-Upload zu MinIO | ✅ Funktioniert | Datei wird korrekt in S3-Bucket gespeichert |
-| Bild-Verarbeitung durch OpenRouter | ❌ **Fehler** | Cloud-Dienst kann localhost-URL nicht erreichen |
+| Bild-Verarbeitung durch OpenRouter | 🟡 **In Rollout** | Architektur-Fix implementiert, Runtime-Re-Test ausstehend |
 
 ### Technische Analyse
 
@@ -50,11 +51,11 @@ Bilder können zwar erfolgreich zu MinIO hochgeladen werden, aber die Verarbeitu
                               "Cannot fetch from private/localhost URLs"
 ```
 
-#### Ursache
-1. **Bild wird erfolgreich hochgeladen** zu MinIO (lokaler S3-Storage)
-2. **LobeChat sendet die Bild-URL** an OpenRouter: `http://localhost:9000/lobe/files/...`
-3. **OpenRouter (Google Modell) versucht**, die URL aufzurufen
-4. **Fehlschlag:** OpenRouter läuft in der Cloud und kann nicht auf `localhost:9000` zugreifen
+#### Root Cause
+1. Bild-Upload zu MinIO war korrekt.
+2. LobeChat gab eine private URL (`http://localhost:9000/...`) an OpenRouter weiter.
+3. OpenRouter/Google blockt private oder localhost-Ziele per Design.
+4. Die MinIO-URL war anonym zusaetzlich nicht lesbar (`403 AccessDenied`), damit war URL-basiertes Fetching doppelt fragil.
 
 #### Warum Dokumente funktionieren, Bilder aber nicht
 
@@ -63,65 +64,56 @@ Bilder können zwar erfolgreich zu MinIO hochgeladen werden, aber die Verarbeitu
 | **Dokumente (PDF, TXT)** | Inhalt wird ausgelesen und als Text im Prompt gesendet | Kein URL-Zugriff nötig |
 | **Bilder (JPG, PNG)** | URL wird an OpenRouter gesendet, Modell lädt Bild herunter | **Erfordert öffentlich erreichbare URL** |
 
-### Aktuelle Konfiguration
+### Implementierte strukturelle Loesung
 
-**Relevante Umgebungsvariablen (docker/.env):**
+Die Konfiguration wurde auf einen robusten, produktionsfaehigen Datenfluss standardisiert:
+
+1. `S3_SET_ACL=0`  
+   MinIO-Objekte bleiben privat; LobeHub nutzt presigned Preview-URLs.
+2. `LLM_VISION_IMAGE_USE_BASE64=1`  
+   Bilder werden serverseitig als Base64 in den Provider-Request eingebettet.
+3. `SSRF_ALLOW_PRIVATE_IP_ADDRESS=0` + `SSRF_ALLOW_IP_ADDRESS_LIST=<MINIO_IP>`  
+   SSRF-Schutz bleibt aktiv; nur die eigene MinIO-IP wird erlaubt.
+4. `S3_PUBLIC_DOMAIN` zeigt nicht mehr auf `localhost`.
+5. `NEXT_PUBLIC_S3_DOMAIN` wurde als deprecated aus dem Compose-Pfad entfernt.
+
+### Neue Standard-Konfiguration (docker/.env.example)
 ```yaml
 # S3 Storage (MinIO)
-S3_ENDPOINT=http://192.168.1.240:9000          # Server-seitig (funktioniert)
-S3_PUBLIC_DOMAIN=http://localhost:9000         # Client-seitig (Problem!)
-NEXT_PUBLIC_S3_DOMAIN=http://localhost:9000/lobe
+S3_ENDPOINT=http://192.168.1.240:9000
+S3_PUBLIC_DOMAIN=http://192.168.1.240:9000
 S3_BUCKET=lobe
 S3_ACCESS_KEY_ID=admin
-S3_SECRET_ACCESS_KEY=minio_password_secure
+S3_SECRET_ACCESS_KEY=***
 S3_ENABLE_PATH_STYLE=1
+S3_SET_ACL=0
+S3_PREVIEW_URL_EXPIRE_IN=1800
+
+# Vision hardening
+LLM_VISION_IMAGE_USE_BASE64=1
+SSRF_ALLOW_PRIVATE_IP_ADDRESS=0
+SSRF_ALLOW_IP_ADDRESS_LIST=192.168.1.240
 ```
 
-**Docker-Netzwerk:**
-- Alle Services im selben Docker-Netzwerk `lobe-chat-glassmorphism_default`
-- MinIO intern erreichbar unter `http://lobe-minio:9000`
+### Warum das strukturell ist
 
-### Mögliche Lösungsansätze
+- Kein Tunnel- oder Provider-spezifischer Hack
+- Kein oeffentliches `public-read` als Zwang
+- Funktioniert fuer OpenRouter und andere externe Cloud-Provider gleich
+- Sicherer Betrieb durch SSRF-Allowlist statt globalem Freischalten privater Netze
 
-#### Option 1: Base64-Encoding (Client-seitig)
-- Bilder als Base64-String direkt im API-Request mitsenden
-- **Vorteil:** Keine öffentliche URL nötig
-- **Nachteil:** Erhöht Request-Größe erheblich, mögliche Token-Limit-Probleme
-- **Aufwand:** Mittel (Code-Änderung in LobeChat nötig)
+### Rollout-Checkliste
 
-#### Option 2: Öffentlicher Tunnel für MinIO ⭐
-- ngrok, Cloudflare Tunnel oder Reverse Proxy verwenden
-- MinIO über öffentliche HTTPS-URL erreichbar machen
-- **Vorteil:** Minimale Code-Änderungen
-- **Nachteil:** Externe Abhängigkeit, Latenz, temporäre URLs
-- **Aufwand:** Niedrig
+1. `docker/.env` mit den neuen Variablen fuellen.
+2. `cd docker && docker compose up -d --force-recreate lobe`
+3. Upload eines JPG/PNG in der UI mit `google/gemini-3-flash-preview`.
+4. Logs pruefen: kein `Cannot fetch from private/localhost URLs`.
 
-#### Option 3: Lokaler AI-Provider
-- Ollama, vLLM oder llama.cpp als zusätzlicher Docker-Service
-- Läuft im selben Netzwerk wie MinIO, kann auf interne URLs zugreifen
-- **Vorteil:** Komplett offline, keine Daten verlassen den Rechner, keine Kosten
-- **Nachteil:** Höhere Hardware-Anforderungen (RAM/GPU), Model-Setup erforderlich
-- **Aufwand:** Hoch
+### Verbleibende Risiken
 
-#### Option 4: Cloud-S3 statt MinIO
-- AWS S3, Cloudflare R2, oder ähnliches als Storage-Backend
-- Bilder werden direkt in der Cloud gespeichert
-- **Vorteil:** Native Unterstützung, öffentliche URLs, skalierbar
-- **Nachteil:** Kosten, Datenverarbeitung außerhalb der EU
-- **Aufwand:** Mittel
-
-#### Option 5: LobeChat Upload-Methode ändern
-- Prüfen, ob LobeChat Bilder automatisch als Base64 senden kann
-- OpenRouter-spezifische Konfiguration für "inline image data"
-- **Vorteil:** Keine Infrastruktur-Änderungen
-- **Nachteil:** Unklar, ob LobeChat diese Option bietet
-- **Aufwand:** Unbekannt (Recherche nötig)
-
-### Empfohlene nächste Schritte
-
-1. **Kurzfristig (Entwicklung):** Option 2 (ngrok Tunnel) für sofortige Tests
-2. **Mittelfristig:** Option 3 (Ollama) für komplett lokale, datenschutzkonforme Lösung
-3. **Langfristig (Produktion):** Option 4 (Cloud-S3) mit entsprechender DSGVO-Konfiguration
+- Base64 vergroessert Request-Payloads (Kosten/Latenz bei sehr grossen Bildern).
+- Bei Host-IP-Wechsel muss `SSRF_ALLOW_IP_ADDRESS_LIST` angepasst werden.
+- Optionaler naechster Schritt fuer Produktion: eigenes HTTPS-Objektdomain (S3/R2) + CDN.
 
 ### Verwandte Issues
 
@@ -179,6 +171,7 @@ Bei technischen Fragen zu diesem Projekt:
 
 | Datum | Autor | Änderung |
 |-------|-------|----------|
+| 2026-02-10 | Codex | Issue #1 auf strukturelle Loesung umgestellt (Base64 + presigned + SSRF-Allowlist) |
 | 2026-02-10 | Kimi | Issue #1 hinzugefügt (Bild-Upload) |
 | 2026-02-10 | Kimi | Issue #2 als gelöst markiert |
 | 2026-02-10 | Kimi | Issue #3 als gelöst markiert |

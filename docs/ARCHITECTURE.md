@@ -10,9 +10,10 @@ Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit G
 
 1. [Systemkomponenten](#systemkomponenten)
 2. [Datenfluss](#datenfluss)
-3. [Authentifizierungs-Architektur](#authentifizierungs-architektur)
-4. [Netzwerk-Konfiguration](#netzwerk-konfiguration)
-5. [Sicherheitskonzept](#sicherheitskonzept)
+3. [Multimodaler Bildfluss](#multimodaler-bildfluss)
+4. [Authentifizierungs-Architektur](#authentifizierungs-architektur)
+5. [Netzwerk-Konfiguration](#netzwerk-konfiguration)
+6. [Sicherheitskonzept](#sicherheitskonzept)
 
 ---
 
@@ -79,6 +80,42 @@ Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit G
                  │Port 3210 │
                  └──────────┘
 ```
+
+---
+
+## Multimodaler Bildfluss
+
+### Ziel
+
+Verarbeitung von Bildern mit externen Cloud-Providern (z. B. OpenRouter/Google), ohne dass der Provider auf private `localhost`- oder LAN-URLs zugreifen muss.
+
+### Architektur
+
+```
+┌──────────┐   Upload    ┌──────────┐  presigned URL   ┌───────────────┐
+│ Browser  │────────────▶│  MinIO   │─────────────────▶│   LobeChat    │
+└──────────┘             └──────────┘                  │ image->base64 │
+                                                        └──────┬────────┘
+                                                               │ data URI
+                                                               ▼
+                                                          OpenRouter API
+```
+
+### Konfigurationsprinzip
+
+1. `S3_SET_ACL=0`  
+   Objekte bleiben privat, LobeHub nutzt presigned Preview-URLs.
+2. `LLM_VISION_IMAGE_USE_BASE64=1`  
+   LobeHub uebertraegt Bilder als Base64 (statt URL) an externe Modelle.
+3. `SSRF_ALLOW_PRIVATE_IP_ADDRESS=0` + `SSRF_ALLOW_IP_ADDRESS_LIST=<MINIO_IP>`  
+   SSRF-Schutz bleibt aktiv; nur die eigene MinIO-IP ist erlaubt.
+4. `S3_PUBLIC_DOMAIN` darf nicht auf `localhost` zeigen.
+
+### Wirkung
+
+- Kein Fehler mehr: `Cannot fetch from private/localhost URLs`
+- Keine dauerhafte oeffentliche Freigabe des Buckets erforderlich
+- Gleiche Konfiguration fuer lokale Uebergabe und Produktion nutzbar
 
 ---
 
@@ -161,6 +198,7 @@ Für Produktion empfohlen:
 - Interne Services (PostgreSQL) nur im Docker-Netzwerk erreichbar
 - Externe Ports nur für UI und API notwendig
 - Logto Admin Console (`:3002`) sollte gegebenenfalls restricted werden
+- SSRF-Schutz bleibt standardmaessig aktiv; nur explizit erlaubte MinIO-IP darf fuer interne Bild-Fetches verwendet werden
 
 ---
 

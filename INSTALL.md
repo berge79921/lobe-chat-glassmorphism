@@ -38,6 +38,22 @@ Nach dem Login unter http://localhost:3210:
 - Einstellungen → Sprachmodell → OpenRouter
 - API Key sollte bereits funktionieren
 
+### 3. Vision-Pipeline fuer Bilder pruefen
+
+Diese Installation nutzt standardmaessig den strukturellen Fix fuer externe Provider:
+- `S3_SET_ACL=0`
+- `LLM_VISION_IMAGE_USE_BASE64=1`
+- `SSRF_ALLOW_PRIVATE_IP_ADDRESS=0`
+- `SSRF_ALLOW_IP_ADDRESS_LIST=<MinIO-Host-IP>`
+
+Pruefen:
+```bash
+cd docker
+docker compose up -d
+docker inspect lobe-chat-glass --format '{{range .Config.Env}}{{println .}}{{end}}' | \
+  egrep 'S3_SET_ACL|LLM_VISION_IMAGE_USE_BASE64|SSRF_ALLOW_PRIVATE_IP_ADDRESS|SSRF_ALLOW_IP_ADDRESS_LIST|S3_PUBLIC_DOMAIN'
+```
+
 ## 📋 Alle Befehle
 
 ```bash
