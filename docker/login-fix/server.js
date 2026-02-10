@@ -25,11 +25,17 @@ const BRANDING_INJECTION = `
 /* Force LegalChat Branding */
 [class*="welcome"]::before,
 [class*="brand"]::before,
-[class*="title"]:first-child::before {
+[class*="title"]:first-child::before,
+[class*="agent"]::before {
   content: "LegalChat" !important;
   background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
+}
+
+/* Welcome message styling */
+[class*="welcome"] {
+  color: #94a3b8 !important;
 }
 
 /* George Avatar for Assistant */
@@ -63,14 +69,22 @@ body, [class*="layout"], [class*="main"] {
 
   function replaceText(node) {
     if (node.nodeType === Node.TEXT_NODE) {
-      if (node.textContent.includes('LobeChat')) {
-        node.textContent = node.textContent.replace(/LobeChat/g, CONFIG.appName);
+      // Replace LobeChat and LobeHub
+      if (node.textContent.includes('LobeChat') || node.textContent.includes('LobeHub')) {
+        node.textContent = node.textContent.replace(/LobeChat|LobeHub/g, CONFIG.appName);
+      }
+      // Replace the German welcome message
+      if (node.textContent.includes('Ihr persönlicher intelligenter Assistent')) {
+        node.textContent = node.textContent.replace(
+          /Ihr persönlicher intelligenter Assistent/g,
+          'Ihr persönlicher KI-Jurist'
+        );
       }
       return;
     }
     if (node.nodeType === Node.ELEMENT_NODE) {
-      if (node.placeholder && node.placeholder.includes('LobeChat')) {
-        node.placeholder = node.placeholder.replace(/LobeChat/g, CONFIG.appName);
+      if (node.placeholder && (node.placeholder.includes('LobeChat') || node.placeholder.includes('LobeHub'))) {
+        node.placeholder = node.placeholder.replace(/LobeChat|LobeHub/g, CONFIG.appName);
       }
     }
   }
@@ -81,8 +95,8 @@ body, [class*="layout"], [class*="main"] {
   }
 
   function updatePageTitle() {
-    if (document.title.includes('LobeChat')) {
-      document.title = document.title.replace(/LobeChat/g, CONFIG.appName);
+    if (document.title.includes('LobeChat') || document.title.includes('LobeHub')) {
+      document.title = document.title.replace(/LobeChat|LobeHub/g, CONFIG.appName);
     }
   }
 
