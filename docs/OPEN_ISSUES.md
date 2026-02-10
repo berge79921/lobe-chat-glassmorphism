@@ -2,6 +2,19 @@
 
 > Stand: 10. Februar 2026
 
+## ✅ Status-Update (10. Februar 2026)
+
+Ein **Auth-Gateway-Fix** wurde implementiert:
+
+- `GET /api/auth/signin/logto` wird am Gateway abgefangen
+- Gateway holt serverseitig CSRF-Token + Cookie
+- Gateway fuehrt den erforderlichen POST-Request aus
+- Browser erhaelt den korrekten 302 Redirect zu Logto
+
+Damit funktioniert der normale Login-Klick in der LobeChat UI auf `http://localhost:3210` wieder ohne `Configuration` Fehler.
+
+---
+
 ## 🔴 Kritisch: Authentifizierungs-Fehler
 
 ### Problem
@@ -148,14 +161,14 @@ Ein Proxy der GET-Requests automatisch in POST-Requests umwandelt:
 
 ---
 
-## 🎯 Aktueller Workaround
+## 🎯 Aktueller Betriebsstatus
 
 ### Für Endbenutzer
 
-1. **Nicht** den Login-Button in LobeChat verwenden
-2. Stattdessen zu http://localhost:3211 gehen
-3. Auf "Direkt zu Logto Login" klicken
-4. Nach erfolgreichem Login automatisch zurück zu LobeChat
+1. LobeChat normal unter http://localhost:3210 oeffnen
+2. Login-Button in der UI wie gewohnt verwenden
+3. Der Gateway fuehrt den noetigen CSRF+POST Login-Flow automatisch aus
+4. Optional steht weiterhin die Helper-Seite unter http://localhost:3211/login zur Verfuegung
 
 ### Für Entwickler
 
@@ -220,6 +233,7 @@ Statt Logto einen anderen Provider verwenden, der besser unterstützt wird.
 
 | Ansatz | Status | Details |
 |--------|--------|---------|
+| Auth-Gateway auf Port 3210 | ✅ | GET-Signin wird transparent in CSRF+POST umgesetzt |
 | Env-Variablen | ❌ | Kein Effekt |
 | AUTH_TRUST_HOST | ❌ | Kein Effekt |
 | AUTH_URL | ❌ | Mehr Fehler |

@@ -32,8 +32,8 @@ cp docker/.env.example docker/.env
 
 ### Authentifizierung
 - **Provider**: Logto (OIDC)
-- **Workaround**: Login-Proxy für Next-Auth v5 Kompatibilität
-- **Zugriff**: http://localhost:3211 (Login-Hilfe)
+- **Fix**: Auth-Gateway behebt Next-Auth v5 GET/POST-Mismatch transparent
+- **Zugriff**: http://localhost:3210 (Standard), http://localhost:3211/login (optional)
 
 ### AI Provider
 - **Primär**: OpenRouter (GPT-4, Claude, etc.)
@@ -52,16 +52,14 @@ Detaillierte Architekturdokumentation:
 
 Übersicht der Komponenten:
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   LobeChat UI   │────▶│  Login Proxy    │────▶│  Logto (OIDC)   │
-│   Port: 3210    │     │   Port: 3211    │     │   Port: 3001    │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-         │
-         ▼
-┌─────────────────┐     ┌─────────────────┐
-│   PostgreSQL    │     │     MinIO       │
-│   Port: 5432    │     │  Port: 9000/1   │
-└─────────────────┘     └─────────────────┘
+┌───────────────────────┐     ┌───────────────────────┐     ┌─────────────────┐
+│ Browser / Lobe UI     │────▶│ Auth Gateway          │────▶│ LobeChat App    │
+│ Ports: 3210, 3211     │     │ Port: 3210 (+3211)    │     │ Internal: 3210  │
+└───────────────────────┘     └───────────────────────┘     └─────────────────┘
+                                         │
+                                         ├──────────────▶ Logto (OIDC, 3001/3002)
+                                         ├──────────────▶ PostgreSQL (5432)
+                                         └──────────────▶ MinIO (9000/9001)
 ```
 
 ## 🔧 Konfiguration
@@ -93,8 +91,8 @@ Siehe detaillierte Dokumentation:
 → **[OPEN_ISSUES.md](docs/OPEN_ISSUES.md)**
 
 ### Zusammenfassung
-- ❌ Login-Button in LobeChat UI funktioniert nicht (Next-Auth v5 Beta Bug)
-- ✅ Workaround: Login über http://localhost:3211
+- ✅ Login-Button in LobeChat UI funktioniert wieder (Gateway-Fix aktiv)
+- ℹ️ Optionale Login-Hilfe bleibt unter http://localhost:3211/login verfügbar
 
 ## 📚 Dokumentation
 

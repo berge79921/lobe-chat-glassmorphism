@@ -1,54 +1,52 @@
-# LobeChat Logto Login - Workaround
+# LobeChat Logto Login - Gateway Fix
 
 ## Problem
 
-Next-Auth v5 (Beta) in LobeChat erfordert POST-Requests für `/api/auth/signin/logto`, aber die LobeChat-UI macht GET-Requests. Dies führt zu einem "MissingCSRF" oder "Configuration" Fehler.
+Next-Auth v5 (Beta) in LobeChat erfordert POST-Requests fuer `/api/auth/signin/logto`, aber die LobeChat-UI macht GET-Requests. Das fuehrt zu `Configuration` und `MissingCSRF` Fehlern.
 
 ## Lösung
 
-Ein Proxy-Service läuft auf Port 3211, der:
-1. Eine benutzerfreundliche Login-Seite anzeigt
-2. Die Logto-OAuth-Flow-URLs korrekt handhabt
-3. Callbacks an LobeChat weiterleitet
+Ein Auth-Gateway sitzt jetzt vor LobeChat (Port `3210`) und uebersetzt den fehlerhaften GET-Flow serverseitig in einen gueltigen CSRF-geschuetzten POST-Flow:
+
+1. GET auf `/api/auth/signin/logto` kommt beim Gateway an
+2. Gateway holt CSRF-Token + Cookie von `/api/auth/csrf`
+3. Gateway sendet serverseitig POST an `/api/auth/signin/logto`
+4. Browser erhaelt den korrekten 302 Redirect zu Logto inklusive Session-Cookies
 
 ## Verwendung
 
-### Option 1: Direkter Login über Logto (Empfohlen)
+### Standard (UI-Login funktioniert wieder)
 
-1. Öffne die Login-Hilfe-Seite:
-   ```
-   http://localhost:3211/login
-   ```
+1. Oeffne LobeChat:
+   - `http://localhost:3210`
+2. Klicke normal auf `Sign in with Logto`
+3. Redirect zu Logto erfolgt ohne `Configuration` Fehler
 
-2. Klicke auf "Direkt zu Logto Login"
+### Optionale Login-Hilfe
 
-3. Nach erfolgreicher Anmeldung bei Logto wirst du automatisch zu LobeChat weitergeleitet
-
-### Option 2: Manuelle URL
-
-Du kannst auch direkt zur Logto-Anmeldeseite gehen:
-
-```
-http://192.168.1.240:3001/oidc/auth?client_id=berge79921&redirect_uri=http%3A%2F%2Flocalhost%3A3210%2Fapi%2Fauth%2Fcallback%2Flogto&response_type=code&scope=openid+profile+email&state=xyz
-```
+Zusatzseite (gleicher Gateway-Service):
+- `http://localhost:3211/login`
 
 ## Konfiguration
 
 Alle Dienste laufen korrekt:
-- **LobeChat**: http://localhost:3210
-- **Login-Hilfe**: http://localhost:3211  
-- **Logto Auth**: http://192.168.1.240:3001
-- **Logto Admin**: http://localhost:3002
+- **LobeChat (via Gateway)**: `http://localhost:3210`
+- **Login-Hilfe**: `http://localhost:3211/login`
+- **Logto Auth**: `http://localhost:3001`
+- **Logto Admin**: `http://localhost:3002`
 
 ## Technische Details
 
-Die Konfiguration in `docker-compose.yml` wurde angepasst:
-- `LOGTO_ENDPOINT` und `AUTH_LOGTO_ISSUER` verwenden die Host-IP (192.168.1.240)
-- Die Logto-Anwendung `berge79921` wurde in der Datenbank erstellt
-- Der Proxy-Service `login-proxy` läuft auf Port 3211
+`docker-compose.yml`:
+- `lobe` ist nur intern erreichbar (`expose: 3210`)
+- `login-proxy` published `3210:3210` (Hauptzugang) und `3211:3210` (Helper)
+
+`docker/login-fix/server.js`:
+- Reverse-Proxy fuer alle normalen Requests
+- Spezieller Handler fuer GET `/api/auth/signin/:provider` und `/next-auth/signin/:provider`
+- Korrekte Cookie-Deduplizierung fuer mehrfach gesetzte `authjs.csrf-token` Cookies
 
 ## Bekannte Einschränkungen
 
-1. Der Login-Button in der LobeChat-UI funktioniert nicht direkt (Next-Auth v5 Beta-Limitation)
-2. Benutzer müssen über http://localhost:3211/login oder direkt zu Logto gehen
-3. Nach dem Login funktioniert LobeChat normal
+1. Der Fix adressiert den Sign-in GET/POST-Mismatch; Upstream-Inkompatibilitaeten in anderen Endpunkten sind weiterhin moeglich.
+2. Bei aendernder Upstream-Auth-API muss der Gateway-Handler angepasst werden.

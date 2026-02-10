@@ -1,284 +1,329 @@
 /**
- * Login proxy and helper for LobeChat with Logto
- * Works around Next-Auth v5 GET/POST issue
+ * Auth gateway for LobeChat.
+ * Fixes Auth.js v5 provider sign-in by translating browser GET to
+ * server-side CSRF + POST for /api/auth/signin/:provider.
  */
 
 const http = require('http');
-const url = require('url');
-const crypto = require('crypto');
 
 const TARGET_HOST = process.env.LOBECHAT_HOST || 'lobe-chat-glass';
-const TARGET_PORT = process.env.LOBECHAT_PORT || 3210;
-const LISTEN_PORT = process.env.PORT || 3211;
+const TARGET_PORT = Number(process.env.LOBECHAT_PORT || 3210);
+const LISTEN_PORT = Number(process.env.PORT || 3210);
+const APP_PUBLIC_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3210';
 
-const LOGTO_AUTH_URL = 'http://192.168.1.240:3001/oidc/auth';
-const LOBE_CALLBACK_URL = 'http://localhost:3210/api/auth/callback/logto';
-const CLIENT_ID = 'berge79921';
+const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
+const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
 
-// Store state for OAuth flow
-const states = new Map();
+const textEncoder = new TextEncoder();
 
-// PKCE helper
-function generatePKCE() {
-    const codeVerifier = crypto.randomBytes(32).toString('base64url');
-    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
-    return { codeVerifier, codeChallenge };
-}
+const parseCookieHeader = (cookieHeader) => {
+  const cookies = new Map();
+  if (!cookieHeader) return cookies;
 
-const LOGIN_HTML = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - LobeChat</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #020617;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.3;
-            z-index: 0;
-        }
-        .blob-1 { width: 400px; height: 400px; background: #3b82f6; top: -100px; left: -100px; }
-        .blob-2 { width: 300px; height: 300px; background: #6366f1; bottom: -50px; right: -50px; }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-radius: 2.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 3rem;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        h1 { margin-top: 0; margin-bottom: 0.5rem; font-size: 1.8rem; background: linear-gradient(135deg, #3b82f6, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { color: #94a3b8; margin-bottom: 2rem; font-size: 0.95rem; }
-        .info-box {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            text-align: left;
-            font-size: 0.85rem;
-        }
-        .info-box code {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.1rem 0.4rem;
-            border-radius: 0.3rem;
-            font-family: monospace;
-        }
-        .manual-steps {
-            text-align: left;
-            color: #cbd5e1;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-        .manual-steps ol {
-            margin-left: 1.2rem;
-        }
-        .manual-steps li {
-            margin-bottom: 0.5rem;
-        }
-        button {
-            background: linear-gradient(135deg, #3b82f6, #6366f1);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            font-weight: 600;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-        }
-        .spinner {
-            display: none;
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 1rem auto;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .alt-login {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .alt-login a {
-            color: #3b82f6;
-            text-decoration: none;
-        }
-        .alt-login a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    
-    <div class="glass-card">
-        <h1>🔐 LobeChat Login</h1>
-        <p class="subtitle">Authentifizierung über Logto</p>
-        
-        <div class="info-box">
-            <strong>Hinweis:</strong> Die automatische Anmeldung über den LobeChat-Button funktioniert aufgrund eines bekannten Next-Auth v5 Beta-Issues nicht. Bitte verwende die manuelle Anmeldung.
-        </div>
-        
-        <div class="manual-steps">
-            <strong>Manuelle Anmeldung:</strong>
-            <ol>
-                <li>Gehe zur <a href="http://localhost:3002" target="_blank" style="color: #3b82f6;">Logto Admin Console</a></li>
-                <li>Erstelle einen Benutzer (falls noch nicht vorhanden)</li>
-                <li>Klicke unten auf "Direkt zu Logto Login"</li>
-            </ol>
-        </div>
-        
-        <div class="spinner" id="spinner"></div>
-        <button type="button" id="loginBtn" onclick="redirectToLogto()">Direkt zu Logto Login</button>
-        
-        <div class="alt-login">
-            <p>Oder <a href="http://localhost:3210">zurück zu LobeChat</a></p>
-        </div>
-    </div>
-    
-    <script>
-        function redirectToLogto() {
-            document.getElementById('spinner').style.display = 'block';
-            document.getElementById('loginBtn').style.display = 'none';
-            
-            // Generate PKCE
-            const codeVerifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-                .map(b => ('0' + b.toString(16)).slice(-2))
-                .join('');
-            
-            const state = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-                .map(b => ('0' + b.toString(16)).slice(-2))
-                .join('');
-            
-            // Store code verifier for later
-            sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-            sessionStorage.setItem('oauth_state', state);
-            
-            // Build authorization URL
-            const params = new URLSearchParams({
-                client_id: 'berge79921',
-                redirect_uri: 'http://localhost:3210/api/auth/callback/logto',
-                response_type: 'code',
-                scope: 'openid profile email',
-                state: state,
-                code_challenge: codeVerifier, // simplified - should be hashed
-                code_challenge_method: 'S256'
-            });
-            
-            window.location.href = 'http://192.168.1.240:3001/oidc/auth?' + params.toString();
-        }
-    </script>
-</body>
-</html>`;
+  for (const rawPart of cookieHeader.split(';')) {
+    const part = rawPart.trim();
+    if (!part) continue;
 
-const server = http.createServer(async (req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Cookie');
-    
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-    
-    // Serve login page at /login
-    if (parsedUrl.pathname === '/login' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(LOGIN_HTML);
-        return;
-    }
-    
-    // Redirect root to /login
-    if (parsedUrl.pathname === '/' && req.method === 'GET') {
-        res.writeHead(302, { 'Location': '/login' });
-        res.end();
-        return;
-    }
-    
-    // Handle callback from Logto
-    if (parsedUrl.pathname === '/api/auth/callback/logto' && req.method === 'GET') {
-        const code = parsedUrl.query.code;
-        const state = parsedUrl.query.state;
-        const error = parsedUrl.query.error;
-        
-        if (error) {
-            res.writeHead(400, { 'Content-Type': 'text/html' });
-            res.end('<h1>Error: ' + error + '</h1><a href="/login">Try again</a>');
-            return;
-        }
-        
-        if (!code) {
-            res.writeHead(400, { 'Content-Type': 'text/html' });
-            res.end('<h1>No authorization code received</h1><a href="/login">Try again</a>');
-            return;
-        }
-        
-        // Forward the callback to LobeChat
-        // LobeChat/Next-Auth will handle the token exchange
-        const targetUrl = 'http://' + TARGET_HOST + ':' + TARGET_PORT + req.url;
-        res.writeHead(302, { 'Location': targetUrl });
-        res.end();
-        return;
-    }
-    
-    // Proxy all other requests to LobeChat
-    const proxyReq = http.request({
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+
+    const name = part.slice(0, index).trim();
+    const value = part.slice(index + 1).trim();
+    cookies.set(name, value);
+  }
+
+  return cookies;
+};
+
+const parseSetCookieHeaders = (setCookieHeaders) => {
+  const cookies = new Map();
+  if (!setCookieHeaders) return cookies;
+
+  const list = Array.isArray(setCookieHeaders) ? setCookieHeaders : [setCookieHeaders];
+  for (const raw of list) {
+    if (!raw) continue;
+    const pair = raw.split(';', 1)[0];
+    const index = pair.indexOf('=');
+    if (index === -1) continue;
+
+    const name = pair.slice(0, index).trim();
+    const value = pair.slice(index + 1).trim();
+    cookies.set(name, value);
+  }
+
+  return cookies;
+};
+
+const serializeCookieHeader = (cookies) =>
+  Array.from(cookies.entries())
+    .map(([name, value]) => `${name}=${value}`)
+    .join('; ');
+
+const mergeCookieMaps = (...maps) => {
+  const merged = new Map();
+  for (const map of maps) {
+    for (const [name, value] of map.entries()) merged.set(name, value);
+  }
+  return merged;
+};
+
+const getForwardedProtocol = (req) => {
+  const forwarded = req.headers['x-forwarded-proto'];
+  if (typeof forwarded === 'string' && forwarded.length > 0) {
+    return forwarded.split(',')[0].trim();
+  }
+  return 'http';
+};
+
+const getPublicHost = (req) => {
+  const forwarded = req.headers['x-forwarded-host'];
+  if (typeof forwarded === 'string' && forwarded.length > 0) {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.headers.host || `localhost:${LISTEN_PORT}`;
+};
+
+const rewriteLocationHeader = (location, req) => {
+  if (!location || location.startsWith('/')) return location;
+
+  try {
+    const parsed = new URL(location);
+    const hostPort = `${parsed.hostname}:${parsed.port || (parsed.protocol === 'https:' ? '443' : '80')}`;
+    const targetHostPort = `${TARGET_HOST}:${TARGET_PORT}`;
+
+    const isInternalHost = INTERNAL_HOSTS.has(parsed.hostname) || hostPort === targetHostPort;
+    if (!isInternalHost) return location;
+
+    parsed.protocol = `${getForwardedProtocol(req)}:`;
+    parsed.host = getPublicHost(req);
+    return parsed.toString();
+  } catch {
+    return location;
+  }
+};
+
+const requestTarget = ({ method, path, headers = {}, body = '' }) =>
+  new Promise((resolve, reject) => {
+    const upstreamReq = http.request(
+      {
         hostname: TARGET_HOST,
         port: TARGET_PORT,
-        path: req.url,
-        method: req.method,
-        headers: req.headers
-    }, (proxyRes) => {
-        res.writeHead(proxyRes.statusCode, proxyRes.headers);
-        proxyRes.pipe(res);
+        method,
+        path,
+        headers,
+      },
+      (upstreamRes) => {
+        const chunks = [];
+        upstreamRes.on('data', (chunk) => chunks.push(chunk));
+        upstreamRes.on('end', () => {
+          resolve({
+            body: Buffer.concat(chunks),
+            headers: upstreamRes.headers,
+            statusCode: upstreamRes.statusCode || 500,
+          });
+        });
+      },
+    );
+
+    upstreamReq.on('error', reject);
+    if (body) upstreamReq.write(body);
+    upstreamReq.end();
+  });
+
+const buildHelperHtml = () => {
+  const callbackUrl = APP_PUBLIC_URL.endsWith('/') ? APP_PUBLIC_URL : `${APP_PUBLIC_URL}/`;
+  const loginHref = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LobeChat Login</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; }
+    .wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .card { width: min(560px, 100%); background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; }
+    h1 { margin: 0 0 12px; font-size: 22px; }
+    p { margin: 0 0 16px; line-height: 1.5; color: #cbd5e1; }
+    a.button { display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; }
+    .muted { margin-top: 14px; font-size: 14px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>LobeChat Login Gateway</h1>
+      <p>The authentication gateway is active. It converts the broken GET sign-in flow to the required CSRF-protected POST flow automatically.</p>
+      <a class="button" href="${loginHref}">Sign in with Logto</a>
+      <p class="muted">Main app: <a href="${APP_PUBLIC_URL}" style="color:#93c5fd">${APP_PUBLIC_URL}</a></p>
+    </div>
+  </div>
+</body>
+</html>`;
+};
+
+const sendLoginHelper = (res) => {
+  const html = buildHelperHtml();
+  res.writeHead(200, {
+    'cache-control': 'no-store',
+    'content-length': textEncoder.encode(html).byteLength,
+    'content-type': 'text/html; charset=utf-8',
+  });
+  res.end(html);
+};
+
+const handleProviderSigninGet = async (req, res, parsedUrl) => {
+  try {
+    const incomingCookies = parseCookieHeader(req.headers.cookie);
+    const forwardingHost = getPublicHost(req);
+    const forwardingProto = getForwardedProtocol(req);
+
+    const csrfResponse = await requestTarget({
+      method: 'GET',
+      path: '/api/auth/csrf',
+      headers: {
+        accept: 'application/json',
+        cookie: serializeCookieHeader(incomingCookies),
+        host: req.headers.host || forwardingHost,
+        'user-agent': req.headers['user-agent'] || 'lobe-auth-gateway',
+        'x-forwarded-host': forwardingHost,
+        'x-forwarded-proto': forwardingProto,
+      },
     });
-    
-    proxyReq.on('error', (err) => {
-        console.error('Proxy error:', err);
-        res.writeHead(502);
-        res.end('Bad Gateway');
+
+    if (csrfResponse.statusCode < 200 || csrfResponse.statusCode >= 300) {
+      throw new Error(`CSRF request failed with status ${csrfResponse.statusCode}`);
+    }
+
+    let csrfToken;
+    try {
+      const payload = JSON.parse(csrfResponse.body.toString('utf8'));
+      csrfToken = payload.csrfToken;
+    } catch {
+      throw new Error('Could not parse CSRF response JSON');
+    }
+
+    if (!csrfToken) throw new Error('Missing csrfToken in CSRF response');
+
+    const csrfCookies = parseSetCookieHeaders(csrfResponse.headers['set-cookie']);
+    const requestCookies = mergeCookieMaps(incomingCookies, csrfCookies);
+
+    const callbackUrl = parsedUrl.searchParams.get('callbackUrl') || APP_PUBLIC_URL;
+    const form = new URLSearchParams();
+    form.set('csrfToken', csrfToken);
+    form.set('callbackUrl', callbackUrl);
+
+    for (const [key, value] of parsedUrl.searchParams.entries()) {
+      if (key === 'csrfToken' || key === 'callbackUrl') continue;
+      form.append(key, value);
+    }
+
+    const formBody = form.toString();
+    const signinResponse = await requestTarget({
+      method: 'POST',
+      path: req.url,
+      headers: {
+        accept: req.headers.accept || '*/*',
+        'content-length': Buffer.byteLength(formBody),
+        'content-type': 'application/x-www-form-urlencoded',
+        cookie: serializeCookieHeader(requestCookies),
+        host: req.headers.host || forwardingHost,
+        origin: `${forwardingProto}://${forwardingHost}`,
+        'user-agent': req.headers['user-agent'] || 'lobe-auth-gateway',
+        'x-forwarded-host': forwardingHost,
+        'x-forwarded-proto': forwardingProto,
+      },
+      body: formBody,
     });
-    
-    req.pipe(proxyReq);
+
+    const responseHeaders = { ...signinResponse.headers };
+    if (responseHeaders.location) {
+      responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
+    }
+
+    res.writeHead(signinResponse.statusCode, responseHeaders);
+    res.end(signinResponse.body);
+  } catch (error) {
+    console.error('Auth gateway signin translation failed:', error);
+    res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('Auth gateway error');
+  }
+};
+
+const proxyRequest = (req, res) => {
+  const forwardingHost = getPublicHost(req);
+  const forwardingProto = getForwardedProtocol(req);
+  const headers = {
+    ...req.headers,
+    host: req.headers.host || forwardingHost,
+    'x-forwarded-host': forwardingHost,
+    'x-forwarded-proto': forwardingProto,
+  };
+
+  const proxyReq = http.request(
+    {
+      hostname: TARGET_HOST,
+      port: TARGET_PORT,
+      path: req.url,
+      method: req.method,
+      headers,
+    },
+    (proxyRes) => {
+      const responseHeaders = { ...proxyRes.headers };
+      if (responseHeaders.location) {
+        responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
+      }
+
+      res.writeHead(proxyRes.statusCode || 500, responseHeaders);
+      proxyRes.pipe(res);
+    },
+  );
+
+  proxyReq.on('error', (error) => {
+    console.error('Proxy error:', error);
+    res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('Bad Gateway');
+  });
+
+  req.pipe(proxyReq);
+};
+
+const shouldShowHelperOnRoot = (req) => {
+  const host = getPublicHost(req);
+  return host.endsWith(':3211');
+};
+
+const server = http.createServer(async (req, res) => {
+  const publicOrigin = `${getForwardedProtocol(req)}://${getPublicHost(req)}`;
+  const parsedUrl = new URL(req.url, publicOrigin);
+
+  if (req.method === 'GET' && parsedUrl.pathname === '/healthz') {
+    res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('ok');
+    return;
+  }
+
+  if (req.method === 'GET' && parsedUrl.pathname === '/login') {
+    sendLoginHelper(res);
+    return;
+  }
+
+  if (req.method === 'GET' && parsedUrl.pathname === '/' && shouldShowHelperOnRoot(req)) {
+    res.writeHead(302, { location: '/login' });
+    res.end();
+    return;
+  }
+
+  if (req.method === 'GET' && SIGNIN_GET_PATTERN.test(parsedUrl.pathname)) {
+    await handleProviderSigninGet(req, res, parsedUrl);
+    return;
+  }
+
+  proxyRequest(req, res);
 });
 
 server.listen(LISTEN_PORT, () => {
-    console.log(`Login helper running on port ${LISTEN_PORT}`);
-    console.log(`Open http://localhost:${LISTEN_PORT} for login help`);
+  console.log(`Auth gateway listening on port ${LISTEN_PORT}`);
+  console.log(`Target: http://${TARGET_HOST}:${TARGET_PORT}`);
 });

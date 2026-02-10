@@ -51,8 +51,8 @@ services:
   lobe:
     image: lobehub/lobe-chat-database:latest
     container_name: lobe-chat-glass
-    ports:
-      - "3210:3210"
+    expose:
+      - "3210"
     depends_on:
       postgresql:
         condition: service_healthy
@@ -113,7 +113,8 @@ services:
     image: node:20-alpine
     container_name: lobe-login-proxy
     ports:
-      - "3211:3211"
+      - "3210:3210"
+      - "3211:3210"
     volumes:
       - ./login-fix/server.js:/app/server.js:ro
     working_dir: /app
@@ -121,7 +122,8 @@ services:
     environment:
       LOBECHAT_HOST: lobe-chat-glass
       LOBECHAT_PORT: 3210
-      PORT: 3211
+      APP_PUBLIC_URL: ${APP_URL:-http://localhost:3210}
+      PORT: 3210
     depends_on:
       - lobe
     restart: always
