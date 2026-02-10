@@ -2,6 +2,8 @@
  * Auth gateway for LobeChat.
  * Fixes Auth.js v5 provider sign-in by translating browser GET to
  * server-side CSRF + POST for /api/auth/signin/:provider.
+ * 
+ * Modified for LegalChat: Injects custom branding CSS/JS into HTML responses.
  */
 
 const http = require('http');
@@ -15,6 +17,106 @@ const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
 const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
 
 const textEncoder = new TextEncoder();
+
+// HTML Injection for LegalChat branding
+const BRANDING_INJECTION = `
+<!-- LegalChat Branding Start -->
+<style>
+/* Force LegalChat Branding */
+[class*="welcome"]::before,
+[class*="brand"]::before,
+[class*="title"]:first-child::before {
+  content: "LegalChat" !important;
+  background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* George Avatar for Assistant */
+[class*="message"][class*="assistant"] img[class*="avatar"],
+[class*="assistant"] [class*="avatar"] img,
+[class*="chat-assistant"] [class*="avatar"] {
+  content: url("/custom-assets/george-avatar.jpg") !important;
+  border: 2px solid #3b82f6 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Glassmorphism Theme Overrides */
+body, [class*="layout"], [class*="main"] {
+  background: #020617 !important;
+}
+
+[class*="sidebar"], [class*="chat-list"], [class*="card"] {
+  background: rgba(30, 41, 59, 0.6) !important;
+  backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+</style>
+<script>
+(function() {
+  const CONFIG = {
+    appName: 'LegalChat',
+    avatarUrl: '/custom-assets/george-avatar.jpg',
+    subtitle: 'Ihr intelligenter KI-Jurist'
+  };
+
+  function replaceText(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.textContent.includes('LobeChat')) {
+        node.textContent = node.textContent.replace(/LobeChat/g, CONFIG.appName);
+      }
+      return;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.placeholder && node.placeholder.includes('LobeChat')) {
+        node.placeholder = node.placeholder.replace(/LobeChat/g, CONFIG.appName);
+      }
+    }
+  }
+
+  function walkDOM(node) {
+    replaceText(node);
+    node.childNodes.forEach(walkDOM);
+  }
+
+  function updatePageTitle() {
+    if (document.title.includes('LobeChat')) {
+      document.title = document.title.replace(/LobeChat/g, CONFIG.appName);
+    }
+  }
+
+  function setGeorgeAvatar() {
+    document.querySelectorAll('[class*="assistant"] img, [class*="avatar"] img').forEach(img => {
+      if (!img.src.includes('george')) {
+        img.src = CONFIG.avatarUrl;
+        img.alt = 'George - KI Jurist';
+      }
+    });
+  }
+
+  function applyBranding() {
+    walkDOM(document.body);
+    updatePageTitle();
+    setGeorgeAvatar();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyBranding);
+  } else {
+    applyBranding();
+  }
+
+  const observer = new MutationObserver(() => {
+    applyBranding();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  console.log('[LegalChat] Branding active - George is ready! ⚖️');
+})();
+</script>
+<!-- LegalChat Branding End -->
+`;
 
 const parseCookieHeader = (cookieHeader) => {
   const cookies = new Map();
@@ -139,24 +241,24 @@ const buildHelperHtml = () => {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LobeChat Login</title>
+  <title>LegalChat Login</title>
   <style>
     body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; }
     .wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-    .card { width: min(560px, 100%); background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; }
-    h1 { margin: 0 0 12px; font-size: 22px; }
-    p { margin: 0 0 16px; line-height: 1.5; color: #cbd5e1; }
-    a.button { display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; }
-    .muted { margin-top: 14px; font-size: 14px; color: #94a3b8; }
+    .card { width: min(560px, 100%); background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; text-align: center; }
+    .avatar { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #3b82f6; margin-bottom: 20px; }
+    h1 { margin: 0 0 12px; font-size: 28px; background: linear-gradient(135deg, #3b82f6, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p { margin: 0 0 20px; color: #94a3b8; }
+    a.button { display: inline-block; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>LobeChat Login Gateway</h1>
-      <p>The authentication gateway is active. It converts the broken GET sign-in flow to the required CSRF-protected POST flow automatically.</p>
-      <a class="button" href="${loginHref}">Sign in with Logto</a>
-      <p class="muted">Main app: <a href="${APP_PUBLIC_URL}" style="color:#93c5fd">${APP_PUBLIC_URL}</a></p>
+      <img src="/custom-assets/george-avatar.jpg" alt="George" class="avatar">
+      <h1>LegalChat ⚖️</h1>
+      <p>Ihr intelligenter KI-Jurist</p>
+      <a class="button" href="${loginHref}">Mit Logto anmelden</a>
     </div>
   </div>
 </body>
@@ -251,7 +353,26 @@ const handleProviderSigninGet = async (req, res, parsedUrl) => {
   }
 };
 
-const proxyRequest = (req, res) => {
+// Inject branding into HTML responses
+const injectBrandingIntoHTML = (body) => {
+  const html = body.toString('utf8');
+  // Find </head> or <body> to inject before
+  const headEnd = html.indexOf('</head>');
+  if (headEnd !== -1) {
+    return html.slice(0, headEnd) + BRANDING_INJECTION + html.slice(headEnd);
+  }
+  // Fallback: inject after <body> tag
+  const bodyStart = html.indexOf('<body');
+  if (bodyStart !== -1) {
+    const bodyTagEnd = html.indexOf('>', bodyStart);
+    if (bodyTagEnd !== -1) {
+      return html.slice(0, bodyTagEnd + 1) + BRANDING_INJECTION + html.slice(bodyTagEnd + 1);
+    }
+  }
+  return html;
+};
+
+const proxyRequest = async (req, res) => {
   const forwardingHost = getPublicHost(req);
   const forwardingProto = getForwardedProtocol(req);
   const headers = {
@@ -261,32 +382,58 @@ const proxyRequest = (req, res) => {
     'x-forwarded-proto': forwardingProto,
   };
 
-  const proxyReq = http.request(
-    {
-      hostname: TARGET_HOST,
-      port: TARGET_PORT,
-      path: req.url,
-      method: req.method,
-      headers,
-    },
-    (proxyRes) => {
-      const responseHeaders = { ...proxyRes.headers };
-      if (responseHeaders.location) {
-        responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
-      }
+  // Check if this is an HTML page request (for injection)
+  const isPageRequest = req.method === 'GET' && 
+    (req.url === '/' || req.url.startsWith('/chat') || req.url.startsWith('/welcome'));
 
-      res.writeHead(proxyRes.statusCode || 500, responseHeaders);
-      proxyRes.pipe(res);
-    },
-  );
+  try {
+    const proxyRes = await new Promise((resolve, reject) => {
+      const proxyReq = http.request(
+        {
+          hostname: TARGET_HOST,
+          port: TARGET_PORT,
+          path: req.url,
+          method: req.method,
+          headers,
+        },
+        (response) => {
+          const chunks = [];
+          response.on('data', (chunk) => chunks.push(chunk));
+          response.on('end', () => {
+            resolve({
+              body: Buffer.concat(chunks),
+              headers: response.headers,
+              statusCode: response.statusCode || 500,
+            });
+          });
+        },
+      );
+      proxyReq.on('error', reject);
+      req.pipe(proxyReq);
+    });
 
-  proxyReq.on('error', (error) => {
+    const responseHeaders = { ...proxyRes.headers };
+    if (responseHeaders.location) {
+      responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
+    }
+
+    // Inject branding for HTML responses
+    let body = proxyRes.body;
+    const contentType = proxyRes.headers['content-type'] || '';
+    if (isPageRequest && contentType.includes('text/html')) {
+      const modifiedHTML = injectBrandingIntoHTML(body);
+      body = Buffer.from(modifiedHTML, 'utf8');
+      responseHeaders['content-length'] = body.length;
+      console.log('[LegalChat] Branding injected into HTML response');
+    }
+
+    res.writeHead(proxyRes.statusCode || 500, responseHeaders);
+    res.end(body);
+  } catch (error) {
     console.error('Proxy error:', error);
     res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('Bad Gateway');
-  });
-
-  req.pipe(proxyReq);
+  }
 };
 
 const shouldShowHelperOnRoot = (req) => {
@@ -324,6 +471,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(LISTEN_PORT, () => {
-  console.log(`Auth gateway listening on port ${LISTEN_PORT}`);
-  console.log(`Target: http://${TARGET_HOST}:${TARGET_PORT}`);
+  console.log(`LegalChat Auth Gateway running on port ${LISTEN_PORT}`);
+  console.log(`George is ready! ⚖️`);
 });
