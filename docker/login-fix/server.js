@@ -44,7 +44,7 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
-const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-10-06';
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-11-03';
 const DISABLE_SERVICE_WORKER = process.env.LEGALCHAT_DISABLE_SERVICE_WORKER !== '0';
 const BRANDING_CACHE_CONTROL = 'no-store, no-cache, must-revalidate, proxy-revalidate';
 const HTML_BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;

@@ -45,6 +45,10 @@
 
     var activeStreams = [];
     var activeRecorders = [];
+    window.__legalchatAudioGuardState = {
+      activeStreams: activeStreams,
+      activeRecorders: activeRecorders,
+    };
 
     function hasAudioTrack(stream) {
       if (!stream || typeof stream.getAudioTracks !== 'function') return false;
@@ -159,8 +163,25 @@
       for (var j = 0; j < activeStreams.length; j += 1) {
         stopStream(activeStreams[j]);
       }
-      activeRecorders = [];
-      activeStreams = [];
+      activeRecorders.length = 0;
+      activeStreams.length = 0;
+    }
+
+    function hasActiveAudioCapture() {
+      for (var i = 0; i < activeRecorders.length; i += 1) {
+        var recorder = activeRecorders[i];
+        if (!recorder) continue;
+        if (recorder.state && recorder.state !== 'inactive') return true;
+      }
+      for (var j = 0; j < activeStreams.length; j += 1) {
+        var stream = activeStreams[j];
+        if (!stream || typeof stream.getAudioTracks !== 'function') continue;
+        var audioTracks = stream.getAudioTracks();
+        for (var k = 0; k < audioTracks.length; k += 1) {
+          if (audioTracks[k] && audioTracks[k].readyState === 'live') return true;
+        }
+      }
+      return false;
     }
 
     if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
@@ -196,13 +217,14 @@
     }
 
     window.__legalchatStopAudioCapture = stopAllAudioCapture;
+    window.__legalchatHasActiveAudioCapture = hasActiveAudioCapture;
 
     window.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') stopAllAudioCapture();
+      if (event.key === 'Escape') forceStopVoiceUiState();
     });
 
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stopAllAudioCapture();
+      if (document.hidden) forceStopVoiceUiState();
     });
   }
 
@@ -237,10 +259,19 @@
       }
     }
 
+    function hasActiveSpeechRecognition() {
+      for (var i = 0; i < knownRecognitions.length; i += 1) {
+        var recognition = knownRecognitions[i];
+        if (recognition && recognition.__legalchatSpeechActive === '1') return true;
+      }
+      return false;
+    }
+
     function wrapRecognition(recognition) {
       if (!recognition || recognition.__legalchatSpeechWrapped === '1') return recognition;
 
       recognition.__legalchatSpeechWrapped = '1';
+      recognition.__legalchatSpeechActive = '0';
       registerRecognition(recognition);
       var sessionTimer = 0;
       var silenceTimer = 0;
@@ -280,6 +311,7 @@
         recognition.start = function () {
           clearTimers();
           armSessionTimer();
+          recognition.__legalchatSpeechActive = '1';
           return originalStart();
         };
       }
@@ -288,6 +320,7 @@
       if (originalStop) {
         recognition.stop = function () {
           clearTimers();
+          recognition.__legalchatSpeechActive = '0';
           return originalStop();
         };
       }
@@ -296,12 +329,14 @@
       if (originalAbort) {
         recognition.abort = function () {
           clearTimers();
+          recognition.__legalchatSpeechActive = '0';
           return originalAbort();
         };
       }
 
       if (recognition.addEventListener) {
         recognition.addEventListener('start', function () {
+          recognition.__legalchatSpeechActive = '1';
           armSessionTimer();
         });
         recognition.addEventListener('speechstart', function () {
@@ -320,8 +355,14 @@
           }
           armSessionTimer();
         });
-        recognition.addEventListener('end', clearTimers);
-        recognition.addEventListener('error', clearTimers);
+        recognition.addEventListener('end', function () {
+          recognition.__legalchatSpeechActive = '0';
+          clearTimers();
+        });
+        recognition.addEventListener('error', function () {
+          recognition.__legalchatSpeechActive = '0';
+          clearTimers();
+        });
       }
 
       return recognition;
@@ -344,23 +385,14 @@
     window.__legalchatStopSpeechRecognition = function () {
       stopAllRecognitions(true);
     };
+    window.__legalchatHasActiveSpeechRecognition = hasActiveSpeechRecognition;
 
     window.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        stopAllRecognitions(true);
-        if (typeof window.__legalchatStopAudioCapture === 'function') {
-          window.__legalchatStopAudioCapture();
-        }
-      }
+      if (event.key === 'Escape') forceStopVoiceUiState();
     });
 
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) {
-        stopAllRecognitions(false);
-        if (typeof window.__legalchatStopAudioCapture === 'function') {
-          window.__legalchatStopAudioCapture();
-        }
-      }
+      if (document.hidden) forceStopVoiceUiState();
     });
   }
 
@@ -388,16 +420,198 @@
       button.addEventListener('click', function (event) {
         event.preventDefault();
         event.stopPropagation();
-        if (typeof window.__legalchatStopSpeechRecognition === 'function') {
-          window.__legalchatStopSpeechRecognition();
-        }
-        if (typeof window.__legalchatStopAudioCapture === 'function') {
-          window.__legalchatStopAudioCapture();
-        }
+        forceStopVoiceUiState();
       });
       node.appendChild(button);
       return;
     }
+  }
+
+  function parseRgbColor(value) {
+    if (!value || typeof value !== 'string') return null;
+    var match = value.match(/rgba?\(\s*(\d{1,3})[\s,]+(\d{1,3})[\s,]+(\d{1,3})/i);
+    if (!match) return null;
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3]),
+    };
+  }
+
+  function looksOrange(value) {
+    var rgb = parseRgbColor(value);
+    if (!rgb) return false;
+    return rgb.r >= 170 && rgb.g >= 80 && rgb.g <= 190 && rgb.b <= 120;
+  }
+
+  function isVisibleElement(el) {
+    if (!el || !el.getBoundingClientRect) return false;
+    var rect = el.getBoundingClientRect();
+    if (!rect || rect.width < 18 || rect.height < 18) return false;
+    var style = window.getComputedStyle(el);
+    if (!style) return false;
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+    return true;
+  }
+
+  function findRecordingOverlayNode() {
+    var nodes = document.querySelectorAll('div,section,article,aside');
+    for (var i = 0; i < nodes.length; i += 1) {
+      var node = nodes[i];
+      if (!node || !node.textContent) continue;
+      if (!isVisibleElement(node)) continue;
+
+      var text = node.textContent.replace(/\s+/g, ' ').trim();
+      if (!/(Spra(?:ch|c)heingabe|Speech input|Voice input|Voice recording)/i.test(text)) continue;
+      if (!/\b\d{2}:\d{2}\b/.test(text)) continue;
+
+      var rect = node.getBoundingClientRect();
+      if (!rect || rect.width < 120 || rect.width > 620 || rect.height < 60 || rect.height > 460) continue;
+      return node;
+    }
+    return null;
+  }
+
+  function dispatchReleaseEvents() {
+    var names = ['pointerup', 'mouseup', 'touchend', 'keyup'];
+    for (var i = 0; i < names.length; i += 1) {
+      var name = names[i];
+      try {
+        window.dispatchEvent(new Event(name, { bubbles: true }));
+      } catch (_windowEventError) {}
+      try {
+        document.dispatchEvent(new Event(name, { bubbles: true }));
+      } catch (_documentEventError) {}
+    }
+  }
+
+  function clickElementSafe(el) {
+    if (!el) return;
+    try {
+      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    } catch (_mousedownError) {}
+    try {
+      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+    } catch (_mouseupError) {}
+    try {
+      el.click();
+    } catch (_clickError) {}
+  }
+
+  function collectMicControls() {
+    var controls = [];
+    var nodes = document.querySelectorAll('button,div[role="button"],[aria-label],[title]');
+    for (var i = 0; i < nodes.length; i += 1) {
+      var node = nodes[i];
+      if (!node || controls.indexOf(node) !== -1) continue;
+      if (!isVisibleElement(node)) continue;
+
+      var rect = node.getBoundingClientRect();
+      if (rect.y < window.innerHeight - 320 && rect.y > 340) continue;
+      if (rect.width > 200 || rect.height > 80) continue;
+
+      var text = (node.textContent || '').trim();
+      var aria = node.getAttribute('aria-label') || '';
+      var title = node.getAttribute('title') || '';
+      var cls = String(node.className || '');
+      var meta = (text + ' ' + aria + ' ' + title + ' ' + cls).toLowerCase();
+
+      var svg = node.querySelector('svg');
+      var svgClass = svg ? String(svg.className && svg.className.baseVal ? svg.className.baseVal : svg.className || '') : '';
+      var paths = svg ? svg.querySelectorAll('path') : [];
+      var pathData = '';
+      for (var j = 0; j < paths.length; j += 1) {
+        pathData += ' ' + (paths[j].getAttribute('d') || '');
+      }
+
+      var looksLikeMicByText = /mic|micro|voice|speech|record|audio|sprache|aufnahme|diktat|transcribe/.test(meta);
+      var looksLikeMicByIcon =
+        /mic|microphone|voice|speech/.test(svgClass.toLowerCase()) ||
+        /M12 19v3|a7 7 0 0 1-14 0v-2|M19 10v2/.test(pathData);
+      var style = window.getComputedStyle(node);
+      var looksActive =
+        /active|record|listening|speaking/.test(cls.toLowerCase()) ||
+        (style && (looksOrange(style.backgroundColor) || looksOrange(style.borderColor) || looksOrange(style.color)));
+
+      var activeWithVoiceHint = looksActive && /mic|micro|voice|speech|record|audio|sprache|aufnahme|diktat/.test(meta);
+      if (!looksLikeMicByText && !looksLikeMicByIcon && !activeWithVoiceHint) continue;
+      controls.push(node);
+    }
+    return controls;
+  }
+
+  function forceStopVoiceUiState() {
+    dispatchReleaseEvents();
+    if (typeof window.__legalchatStopSpeechRecognition === 'function') {
+      window.__legalchatStopSpeechRecognition();
+    }
+    if (typeof window.__legalchatStopAudioCapture === 'function') {
+      window.__legalchatStopAudioCapture();
+    }
+
+    var controls = collectMicControls();
+    var now = Date.now();
+    for (var i = 0; i < controls.length; i += 1) {
+      var control = controls[i];
+      var lastClickAt = Number(control.getAttribute('data-legalchat-force-stop-at') || 0);
+      if (lastClickAt && now - lastClickAt < 5000) continue;
+      clickElementSafe(control);
+      control.setAttribute('data-legalchat-force-stop-at', String(now));
+    }
+  }
+
+  function installVoiceUiStateWatchdog() {
+    if (window.__legalchatVoiceUiWatchdogInstalled) return;
+    window.__legalchatVoiceUiWatchdogInstalled = true;
+    var staleSince = 0;
+    var lastForceAt = 0;
+
+    window.setInterval(function () {
+      var overlay = findRecordingOverlayNode();
+      var controls = collectMicControls();
+      var uiLooksRecording = !!overlay;
+      for (var i = 0; i < controls.length; i += 1) {
+        var style = window.getComputedStyle(controls[i]);
+        if (style && (looksOrange(style.backgroundColor) || looksOrange(style.borderColor) || looksOrange(style.color))) {
+          uiLooksRecording = true;
+          break;
+        }
+      }
+      if (!uiLooksRecording) {
+        staleSince = 0;
+        lastForceAt = 0;
+        return;
+      }
+
+      var hasActiveSpeech =
+        typeof window.__legalchatHasActiveSpeechRecognition === 'function' &&
+        window.__legalchatHasActiveSpeechRecognition();
+      var hasActiveAudio =
+        typeof window.__legalchatHasActiveAudioCapture === 'function' &&
+        window.__legalchatHasActiveAudioCapture();
+      var hasRealCapture = !!(hasActiveSpeech || hasActiveAudio);
+
+      if (!staleSince) staleSince = Date.now();
+      var elapsed = Date.now() - staleSince;
+
+      if (!hasRealCapture && elapsed > 900) {
+        if (!lastForceAt || Date.now() - lastForceAt > 1800) {
+          forceStopVoiceUiState();
+          lastForceAt = Date.now();
+        }
+      }
+
+      if (hasRealCapture && STT_MAX_RECORDING_MS > 0 && elapsed > STT_MAX_RECORDING_MS + 2000) {
+        if (!lastForceAt || Date.now() - lastForceAt > 1800) {
+          forceStopVoiceUiState();
+          lastForceAt = Date.now();
+        }
+      }
+
+      if (!hasRealCapture && elapsed > 5000 && overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    }, 700);
   }
 
   function rewriteText(value) {
@@ -676,6 +890,7 @@
   function applyBranding() {
     installAudioCaptureGuard();
     installSpeechRecognitionGuard();
+    installVoiceUiStateWatchdog();
     attachOverlayForceStopButton();
     rewriteTitle();
     rewriteHeadMetadata();
