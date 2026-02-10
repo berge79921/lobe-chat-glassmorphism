@@ -1,130 +1,117 @@
-# LobeChat - Glassmorphism Design
+# LobeChat Glassmorphism
 
-Eine modifizierte LobeChat-Installation mit dem Design des Kostenrechners (Glassmorphism, abgerundete Karten, Dark Mode).
+Eine LobeChat-Installation mit benutzerdefiniertem Glassmorphism-Theme (Kostenrechner Design) und Logto-Authentifizierung.
 
-## ✅ Bereit zum Starten
-
-**Die `.env` ist bereits konfiguriert mit:**
-- ✅ OpenRouter API Key (aus Ihrer Key-Rotation)
-- ✅ Generiertem Auth Secret
-- ✅ Datenbank & MinIO Einstellungen
+![Theme Preview](https://img.shields.io/badge/Theme-Glassmorphism-blue)
+![Auth](https://img.shields.io/badge/Auth-Logto-green)
+![AI](https://img.shields.io/badge/AI-OpenRouter-orange)
 
 ## 🚀 Schnellstart
 
 ```bash
-cd /Users/reinhardberger/HCS/lobe-chat-custom
+# Repository klonen
+git clone https://github.com/berge79921/lobe-chat-glassmorphism.git
+cd lobe-chat-glassmorphism
+
+# Environment konfigurieren
+cp .env.example .env
+cp docker/.env.example docker/.env
+# → .env Dateien mit eigenen Werten füllen
+
+# Starten
 ./start.sh
 ```
-
-Dann öffnen: http://localhost:3210
 
 ## 🎨 Features
 
-- **Glassmorphism Design**: Backdrop-blur, transparenter Hintergrund, dekorativer Glow-Effekte
-- **OpenRouter Integration**: Bereits konfiguriert mit API Key
-- **Projekt-Management**: Organisation in Workspaces und Projekten
-- **Knowledge Base**: Datei-Upload pro Projekt (PDF, Word, etc.)
-- **Multi-User**: Authentifizierung via Logto (einmalig einrichten)
-- **Dark Mode Only**: Optimiert für das Kostenrechner-Farbschema
+### Glassmorphism Theme
+- **Dark Mode**: Slate-950 Hintergrund
+- **Glass Cards**: `rounded-[2.5rem]`, `backdrop-blur-3xl`
+- **Gradient Blobs**: Dekorative Blur-Effekte
+- **Blue/Indigo Accents**: Primärfarben #3b82f6 / #6366f1
 
-## 📁 Projekt-Struktur
+### Authentifizierung
+- **Provider**: Logto (OIDC)
+- **Workaround**: Login-Proxy für Next-Auth v5 Kompatibilität
+- **Zugriff**: http://localhost:3211 (Login-Hilfe)
 
+### AI Provider
+- **Primär**: OpenRouter (GPT-4, Claude, etc.)
+- **Fallback**: OpenAI, Anthropic, Google (optional)
+
+### Infrastruktur
+- **Datenbank**: PostgreSQL mit pgvector
+- **Storage**: MinIO S3-kompatibel
+- **Container**: Docker Compose
+
+## 📋 Architektur
+
+Detaillierte Architekturdokumentation:
+
+→ **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** (in Arbeit)
+
+Übersicht der Komponenten:
 ```
-lobe-chat-custom/
-├── docker/
-│   ├── docker-compose.yml      # Container-Setup
-│   └── custom-css/
-│       └── custom.css          # Glassmorphism-Theme (Live-Mount)
-├── src/styles/
-│   └── glassmorphism-theme.css # Source CSS
-├── .env                        # ✅ Bereits konfiguriert
-├── .env.example                # Konfigurationsvorlage
-├── start.sh                    # Start-Skript
-├── INSTALL.md                  # Detaillierte Anleitung
-└── README.md                   # Diese Datei
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   LobeChat UI   │────▶│  Login Proxy    │────▶│  Logto (OIDC)   │
+│   Port: 3210    │     │   Port: 3211    │     │   Port: 3001    │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐
+│   PostgreSQL    │     │     MinIO       │
+│   Port: 5432    │     │  Port: 9000/1   │
+└─────────────────┘     └─────────────────┘
 ```
 
-## 🔧 Einmalig: Logto einrichten
+## 🔧 Konfiguration
 
-1. Nach dem Start: http://localhost:3002 öffnen
-2. Admin-Account erstellen
-3. Application erstellen:
+### Wichtige Umgebungsvariablen
+
+| Variable | Beschreibung | Beispiel |
+|----------|-------------|----------|
+| `OPENROUTER_API_KEY` | OpenRouter API Key | `sk-or-v1-...` |
+| `NEXT_AUTH_SECRET` | Auth.js Session Secret | `openssl rand -base64 32` |
+| `AUTH_LOGTO_ID` | Logto Client ID | `berge79921` |
+| `AUTH_LOGTO_SECRET` | Logto Client Secret | `X6duaf3@L` |
+| `LOGTO_ENDPOINT` | Logto URL (Host IP!) | `http://192.168.1.240:3001` |
+
+### Erstmalige Einrichtung
+
+1. **Logto Admin Console öffnen**: http://localhost:3002
+2. **Admin-Account erstellen**
+3. **Application erstellen**:
    - Type: "Next.js (App Router)"
+   - Name: "LobeChat"
    - Redirect URI: `http://localhost:3210/api/auth/callback/logto`
-4. Client ID & Secret in `.env` eintragen
-5. `docker compose restart lobe`
+4. **Credentials in `.env` eintragen**
 
-Danach ist alles einsatzbereit!
+## ⚠️ Bekannte Probleme
 
-## 🎨 Design-Anpassung
+Siehe detaillierte Dokumentation:
 
-Das Theme befindet sich in:
-```
-src/styles/glassmorphism-theme.css
-```
+→ **[OPEN_ISSUES.md](docs/OPEN_ISSUES.md)**
 
-Änderungen sind nach Container-Neustart sofort sichtbar:
-```bash
-cd docker && docker compose restart lobe
-```
+### Zusammenfassung
+- ❌ Login-Button in LobeChat UI funktioniert nicht (Next-Auth v5 Beta Bug)
+- ✅ Workaround: Login über http://localhost:3211
 
-### Design-Merkmale
+## 📚 Dokumentation
 
-| Element | Wert |
-|---------|------|
-| Border Radius (Cards) | 2.5rem (40px) |
-| Border Radius (Buttons) | 1.25rem (20px) |
-| Backdrop Blur | 24px-40px |
-| Primary Color | Blue (#3b82f6) |
-| Background | Slate 950 (#020617) |
-| Accent | Amber (#f59e0b) |
+| Dokument | Beschreibung |
+|----------|-------------|
+| [INSTALL.md](INSTALL.md) | Detaillierte Installationsanleitung |
+| [docker/README_LOGIN_FIX.md](docker/README_LOGIN_FIX.md) | Login-Proxy Dokumentation |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Systemarchitektur (🚧 in Arbeit) |
+| [docs/OPEN_ISSUES.md](docs/OPEN_ISSUES.md) | Offene Probleme & Lösungsansätze |
 
-## 🔑 API Keys
+## 🔗 Links
 
-Der erste OpenRouter Key (OPENROUTER_API_KEY_1) ist bereits aktiviert.
+- **LobeChat UI**: http://localhost:3210
+- **Login Hilfe**: http://localhost:3211
+- **Logto Admin**: http://localhost:3002
+- **MinIO Console**: http://localhost:9001
 
-Weitere Keys verfügbar in:
-```
-/Users/reinhardberger/HCS/.env
-```
-(OPENROUTER_API_KEY_1 bis OPENROUTER_API_KEY_273)
+## 📝 Lizenz
 
-## 🌐 Zugriff
-
-| Service | URL | Beschreibung |
-|---------|-----|--------------|
-| **LobeChat** | http://localhost:3210 | Haupt-UI mit Chat |
-| Logto Admin | http://localhost:3002 | Benutzerverwaltung |
-| MinIO | http://localhost:9001 | Datei-Speicher |
-
-## 🛠️ Befehle
-
-```bash
-# Starten
-./start.sh
-
-# Stoppen
-cd docker && docker compose down
-
-# Logs anzeigen
-cd docker && docker compose logs -f lobe
-
-# Neustarten
-cd docker && docker compose restart lobe
-
-# Mit Daten löschen
-cd docker && docker compose down -v && rm -rf data/ s3_data/
-```
-
-## 💾 Backup
-
-```bash
-cd docker
-docker compose exec -T postgresql pg_dump -U postgres lobe > backup.sql
-tar -czf lobe-backup-$(date +%Y%m%d).tar.gz data/ s3_data/ backup.sql
-```
-
-## 📄 Lizenz
-
-LobeChat: [Apache 2.0](https://github.com/lobehub/lobe-chat/blob/main/LICENSE)  
-Custom Theme: MIT License
+MIT License - Siehe [LICENSE](LICENSE)
