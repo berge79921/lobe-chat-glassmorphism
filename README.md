@@ -1,6 +1,8 @@
-# LobeChat Glassmorphism
+# LegalChat ⚖️
 
-Eine LobeChat-Installation mit benutzerdefiniertem Glassmorphism-Theme (Kostenrechner Design) und Logto-Authentifizierung.
+Ein KI-gestützter Rechtsassistent mit benutzerdefiniertem Glassmorphism-Theme.
+
+> **Powered by LobeChat** • **KI-Jurist: George** • **Secure Auth with Logto**
 
 ![Theme Preview](https://img.shields.io/badge/Theme-Glassmorphism-blue)
 ![Auth](https://img.shields.io/badge/Auth-Logto-green)
@@ -35,8 +37,13 @@ cp docker/.env.example docker/.env
 - **Fix**: Auth-Gateway behebt Next-Auth v5 GET/POST-Mismatch transparent
 - **Zugriff**: http://localhost:3210 (Standard), http://localhost:3211/login (optional)
 
+### KI-Assistent: George 🎩
+- **Name**: George - Ihr intelligenter KI-Jurist
+- **Avatar**: Professionelles LEGO-Style Design
+- **Expertise**: Rechtsfragen, Vertragsanalyse, Recherche
+
 ### AI Provider
-- **Primär**: OpenRouter (GPT-4, Claude, etc.)
+- **Primär**: OpenRouter (GPT-4, Claude, Gemini, etc.)
 - **Fallback**: OpenAI, Anthropic, Google (optional)
 
 ### Infrastruktur

@@ -61,8 +61,10 @@ services:
       logto:
         condition: service_started
     volumes:
-      # Mount custom CSS theme
+      # Mount custom CSS theme and LegalChat branding
       - ./custom-css/custom.css:/app/public/custom.css:ro
+      - ./custom-css/legalchat-branding.js:/app/public/legalchat-branding.js:ro
+      - ./custom-css/assets:/app/public/custom-assets:ro
     environment:
       # App URL
       APP_URL: ${APP_URL:-http://localhost:3210}
