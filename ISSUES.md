@@ -9,11 +9,11 @@
 ## Issue #1: Bild-Upload funktioniert nicht mit OpenRouter
 
 ### Status
-🟡 **Strukturelle Loesung implementiert** - Runtime-Re-Test im Zielsystem noch offen
+✅ **Geloest und live verifiziert** (2026-02-10, 12:58-12:59 UTC)
 
 ### Zusammenfassung
 Bilder wurden erfolgreich zu MinIO hochgeladen, aber OpenRouter scheiterte am Abruf privater `localhost`-URLs.  
-Die Architektur wurde auf einen provider-unabhaengigen Bildpfad umgestellt (Presigned URL + serverseitige Base64-Konvertierung).
+Die Architektur wurde auf einen provider-unabhaengigen Bildpfad umgestellt (Presigned URL + serverseitige Base64-Konvertierung) und im echten UI-Live-Test erfolgreich bestaetigt.
 
 ### Fehlermeldung
 ```json
@@ -35,7 +35,7 @@ Die Architektur wurde auf einen provider-unabhaengigen Bildpfad umgestellt (Pres
 | Text-Chat mit OpenRouter | ✅ Funktioniert | GM 3.0 Flash Preview erfolgreich getestet |
 | Dokumenten-Upload (PDF, TXT) | ✅ Funktioniert | Inhalt wird als Text extrahiert und gesendet |
 | Bild-Upload zu MinIO | ✅ Funktioniert | Datei wird korrekt in S3-Bucket gespeichert |
-| Bild-Verarbeitung durch OpenRouter | 🟡 **In Rollout** | Architektur-Fix implementiert, Runtime-Re-Test ausstehend |
+| Bild-Verarbeitung durch OpenRouter | ✅ Funktioniert | Live-E2E erfolgreich: `file.checkFileHash=200`, `file.createFile=200`, `aiChat.sendMessageInServer=200` |
 
 ### Technische Analyse
 
@@ -102,18 +102,51 @@ SSRF_ALLOW_IP_ADDRESS_LIST=192.168.1.240
 - Funktioniert fuer OpenRouter und andere externe Cloud-Provider gleich
 - Sicherer Betrieb durch SSRF-Allowlist statt globalem Freischalten privater Netze
 
-### Rollout-Checkliste
+### Finaler Live-Nachweis (2026-02-10, Start 12:58:55Z)
 
-1. `docker/.env` mit den neuen Variablen fuellen.
+Echter Browser-Flow wurde komplett durchgespielt (Logto Login -> Bild-Upload -> Nachricht senden):
+
+- Testbild: `/Users/reinhardberger/Downloads/WhatsApp Image 2026-02-10 at 09.16.16.jpeg`
+- UI/Network Ergebnis:
+  - `POST /trpc/lambda/file.checkFileHash` -> `200`
+  - `POST /trpc/lambda/file.createFile` -> `200`
+  - `POST /trpc/lambda/aiChat.sendMessageInServer` -> `200`
+- Chat-Antwort wurde generiert (OpenRouter/Claude Sonnet im Testlauf).
+- DB-Beleg:
+  - Datei erstellt: `files.id=file_kKgaCT7Ithik` (2026-02-10 12:59:04+00)
+  - Verknuepfung erstellt: `messages_files.file_id=file_kKgaCT7Ithik` -> `message_id=msg_up7NnepMgv4Uby`
+- Log-Beleg:
+  - Kein Treffer fuer `Cannot fetch from private/localhost URLs`
+  - Kein Treffer fuer `ProviderBizError`
+- Artefakte:
+  - `artifacts-live-test-final-pass-v2/result.json`
+  - `artifacts-live-test-final-pass-v2/05-after-upload.png`
+  - `artifacts-live-test-final-pass-v2/06-after-send.png`
+
+### Querpruefung (fuer Kollegen)
+
+1. `docker/.env` gegen die oben dokumentierte Standard-Konfiguration pruefen.
 2. `cd docker && docker compose up -d --force-recreate lobe`
-3. Upload eines JPG/PNG in der UI mit `google/gemini-3-flash-preview`.
-4. Logs pruefen: kein `Cannot fetch from private/localhost URLs`.
+3. Vor dem manuellen UI-Test Startzeit merken:
+   `START_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")`
+4. In der UI ein JPG/PNG hochladen und senden (mit vision-faehigem Modell).
+5. Direkt danach Logs pruefen:
+   `docker logs --since "$START_TS" lobe-chat-glass 2>&1 | rg -n "Cannot fetch from private/localhost URLs|ProviderBizError|file.checkFileHash|file.createFile|aiChat.sendMessageInServer"`
+6. DB querpruefen:
+   - `docker exec -i lobe-postgres psql -U postgres -d lobe -c "SELECT id,user_id,file_type,name,url,created_at FROM files ORDER BY created_at DESC LIMIT 5;"`
+   - `docker exec -i lobe-postgres psql -U postgres -d lobe -c "SELECT mf.file_id,mf.message_id,m.role,m.created_at FROM messages_files mf JOIN messages m ON m.id=mf.message_id ORDER BY m.created_at DESC LIMIT 5;"`
+7. Erwartetes Ergebnis:
+   - Keine alte Fehlermeldung (`Cannot fetch from private/localhost URLs`)
+   - Upload + Send Endpunkte mit `200`
+   - Neue Zeilen in `files` und `messages_files`
+   - Assistant-Antwort im Chat
 
 ### Verbleibende Risiken
 
 - Base64 vergroessert Request-Payloads (Kosten/Latenz bei sehr grossen Bildern).
 - Bei Host-IP-Wechsel muss `SSRF_ALLOW_IP_ADDRESS_LIST` angepasst werden.
 - Optionaler naechster Schritt fuer Produktion: eigenes HTTPS-Objektdomain (S3/R2) + CDN.
+- Falls ein Modell keine Vision-Capability hat, erscheint kein `image/*` Upload-Input fuer diesen Modellkontext.
 
 ### Verwandte Issues
 
@@ -171,6 +204,7 @@ Bei technischen Fragen zu diesem Projekt:
 
 | Datum | Autor | Änderung |
 |-------|-------|----------|
+| 2026-02-10 | Codex | Issue #1 mit finalem Live-E2E-Nachweis + Querpruefung aktualisiert (Status auf geloest) |
 | 2026-02-10 | Codex | Issue #1 auf strukturelle Loesung umgestellt (Base64 + presigned + SSRF-Allowlist) |
 | 2026-02-10 | Kimi | Issue #1 hinzugefügt (Bild-Upload) |
 | 2026-02-10 | Kimi | Issue #2 als gelöst markiert |
