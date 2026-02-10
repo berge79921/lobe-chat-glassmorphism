@@ -3,21 +3,49 @@
   --legalchat-accent: #4f46e5;
 }
 
-/* Defensive styling only: no global hiding or invalid selectors. */
-.legalchat-avatar-img {
+.legalchat-hidden-wordmark-svg {
+  display: none !important;
+}
+
+.legalchat-wordmark {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ant-color-text, #0f172a) !important;
+  font-family: "Segoe UI", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(32px, 2.3vw, 48px);
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(37, 99, 235, 0.12);
+}
+
+html[data-theme='dark'] .legalchat-wordmark,
+html[data-theme='realDark'] .legalchat-wordmark {
+  color: #f8fafc !important;
+  text-shadow: 0 0 18px rgba(37, 99, 235, 0.18);
+}
+
+.legalchat-avatar-img,
+img[data-legalchat-avatar="1"] {
   border: 2px solid var(--legalchat-primary) !important;
   border-radius: 9999px !important;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+  object-fit: cover !important;
 }
 
-.legalchat-brand-text {
-  background: linear-gradient(135deg, var(--legalchat-primary), var(--legalchat-accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+aside .legalchat-avatar-img,
+aside img[data-legalchat-avatar="1"] {
+  border-width: 2px !important;
 }
 
-/* Keep welcome text readable if app theme changes. */
-.legalchat-welcome {
-  color: inherit !important;
+.legalchat-nav-icon,
+.legalchat-nav-icon svg,
+.legalchat-nav-icon path {
+  color: #9aa7bf !important;
+  stroke: currentColor !important;
+}
+
+.legalchat-nav-icon svg {
+  stroke-width: 2.1 !important;
 }

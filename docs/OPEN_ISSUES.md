@@ -28,6 +28,31 @@ Details und Verlauf: `ISSUES.md` (Issue #1).
 
 ---
 
+## ✅ Status-Update (10. Februar 2026) - Branding/CI Konsistenz
+
+Ursache fuer inkonsistentes Branding (teilweise weiter `LobeHub`/alte Icons sichtbar) war ein aktiver PWA-Service-Worker (`/sw.js`), der alte Assets im Browser-Cache hielt.
+
+Strukturelle Loesung im Gateway:
+
+- `login-proxy` liefert fuer `/sw.js` jetzt bewusst ein No-Op-Service-Worker-Skript aus, das sich selbst `unregister()`t
+- zusaetzlich werden bekannte PWA/Serwist-Cache-Namen im Browser einmalig aktiv geloescht
+- no-store/no-cache Header fuer:
+  - HTML Einstiegsseiten (`/`, `/chat*`, `/welcome*`)
+  - Branding Assets (`/custom.css`, `/legalchat-branding.js`)
+- Branding Asset Version angehoben auf `LEGALCHAT_BRANDING_VERSION=2026-02-10-04`
+
+Verifikation:
+
+- `GET /sw.js` liefert no-cache Header + No-Op Worker
+- UI-Wordmark ist konsistent `LegalChat`
+- George-Avatar + Icon-Tuning greifen in Sidebar/Session stabil
+- Browser-E2E (Playwright) zeigt keine sichtbaren `LobeHub/LobeChat` Texte mehr im gerenderten Body
+
+Hinweis:
+- `LobeHub` kann weiterhin in Next.js Inline-Skripten/Meta-Payloads auftauchen (technische SSR-Daten), ist aber nicht mehr als sichtbarer UI-Brandname vorhanden.
+
+---
+
 ## 🔴 Kritisch: Authentifizierungs-Fehler
 
 ### Problem

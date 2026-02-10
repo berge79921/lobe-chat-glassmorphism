@@ -3,8 +3,10 @@
 
   var APP_NAME = 'LegalChat';
   var AVATAR_URL = '/custom-assets/george-avatar.jpg';
-  var BRAND_PATTERN = /LobeChat|LobeHub/g;
-  var WELCOME_PATTERN = /persönlicher intelligenter Assistent/gi;
+  var BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;
+  var WELCOME_PATTERN = /persönlicher intelligenter Assistent|personal intelligent assistant/gi;
+  var WORDMARK_SELECTOR = 'svg[viewBox="0 0 940 320"]';
+
   var scheduled = false;
 
   function rewriteText(value) {
@@ -31,10 +33,10 @@
           var parent = node.parentElement;
           if (!parent) return NodeFilter.FILTER_REJECT;
           var tag = parent.tagName;
-          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') {
+          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TITLE') {
             return NodeFilter.FILTER_REJECT;
           }
-          if (!/LobeChat|LobeHub|persönlicher intelligenter Assistent/i.test(node.nodeValue)) {
+          if (!/Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat|persönlicher intelligenter Assistent|personal intelligent assistant/i.test(node.nodeValue)) {
             return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
@@ -52,10 +54,11 @@
   }
 
   function rewriteAttributes() {
+    var attrs = ['placeholder', 'title', 'aria-label', 'alt'];
     var candidates = document.querySelectorAll('[placeholder],[title],[aria-label],[alt]');
+
     for (var i = 0; i < candidates.length; i += 1) {
       var el = candidates[i];
-      var attrs = ['placeholder', 'title', 'aria-label', 'alt'];
       for (var j = 0; j < attrs.length; j += 1) {
         var attr = attrs[j];
         if (!el.hasAttribute(attr)) continue;
@@ -68,14 +71,44 @@
     }
   }
 
+  function replaceWordmarkSvg() {
+    var svgs = document.querySelectorAll(WORDMARK_SELECTOR);
+
+    for (var i = 0; i < svgs.length; i += 1) {
+      var svg = svgs[i];
+      if (!svg || svg.dataset.legalchatWordmark === '1') continue;
+
+      var title = svg.querySelector('title');
+      var titleText = title ? title.textContent || '' : '';
+      var looksLikeBrand = /Lobe|LegalChat/i.test(titleText) || !!svg.closest('[class*="brand" i], [class*="lazdsx" i], [class*="loading" i]');
+      if (!looksLikeBrand) continue;
+
+      if (title) title.textContent = APP_NAME;
+
+      var parent = svg.parentElement;
+      svg.dataset.legalchatWordmark = '1';
+      svg.classList.add('legalchat-hidden-wordmark-svg');
+
+      if (parent && !parent.querySelector('.legalchat-wordmark')) {
+        var wordmark = document.createElement('span');
+        wordmark.className = 'legalchat-wordmark';
+        wordmark.textContent = APP_NAME;
+        parent.appendChild(wordmark);
+      }
+    }
+  }
+
   function setGeorgeAvatar() {
     var selectors = [
-      '[class*="avatar"] img',
-      'img[class*="avatar"]',
+      'aside img',
+      '[class*="session" i] img',
+      '[class*="assistant" i] img',
+      '[class*="avatar" i] img',
       'img[alt*="assistant" i]',
-      'img[alt*="ai" i]',
       'img[alt*="bot" i]',
+      'img[alt*="ai" i]',
     ];
+
     var avatars = document.querySelectorAll(selectors.join(','));
 
     for (var i = 0; i < avatars.length; i += 1) {
@@ -83,31 +116,30 @@
       if (!img || img.dataset.legalchatAvatar === '1') continue;
 
       var src = img.getAttribute('src') || '';
-      if (src.includes('george-avatar.jpg')) {
-        img.dataset.legalchatAvatar = '1';
-        img.classList.add('legalchat-avatar-img');
-        continue;
+      var alt = (img.getAttribute('alt') || '').toLowerCase();
+      var width = img.width || 0;
+      var height = img.height || 0;
+
+      var looksLikeAvatar =
+        /avatar|assistant|agent|bot|chat|lobe|fluent-emoji|npmmirror/i.test(src + ' ' + alt) ||
+        (width > 0 && width <= 64 && height > 0 && height <= 64);
+
+      if (!looksLikeAvatar) continue;
+
+      if (!src.includes('george-avatar.jpg')) {
+        img.src = AVATAR_URL;
       }
 
-      img.src = AVATAR_URL;
       img.alt = 'George - KI Jurist';
       img.dataset.legalchatAvatar = '1';
       img.classList.add('legalchat-avatar-img');
     }
   }
 
-  function markWelcomeHeadline() {
-    var candidates = document.querySelectorAll('h1,h2,h3,p,span,div');
-    for (var i = 0; i < candidates.length; i += 1) {
-      var el = candidates[i];
-      var text = el.textContent || '';
-      if (!text) continue;
-      if (text.includes('Guten') || text.includes('Good')) {
-        el.classList.add('legalchat-welcome');
-      }
-      if (text.includes(APP_NAME)) {
-        el.classList.add('legalchat-brand-text');
-      }
+  function tuneNavIcons() {
+    var iconWrappers = document.querySelectorAll('aside [role="button"] [role="img"], aside a [role="img"]');
+    for (var i = 0; i < iconWrappers.length; i += 1) {
+      iconWrappers[i].classList.add('legalchat-nav-icon');
     }
   }
 
@@ -115,13 +147,15 @@
     rewriteTitle();
     rewriteTextNodes(document.body);
     rewriteAttributes();
+    replaceWordmarkSvg();
     setGeorgeAvatar();
-    markWelcomeHeadline();
+    tuneNavIcons();
   }
 
   function scheduleApply() {
     if (scheduled) return;
     scheduled = true;
+
     window.setTimeout(function () {
       scheduled = false;
       try {
@@ -129,7 +163,7 @@
       } catch (error) {
         console.error('[LegalChat] Branding apply failed:', error);
       }
-    }, 150);
+    }, 120);
   }
 
   if (document.readyState === 'loading') {
@@ -143,6 +177,8 @@
   });
 
   observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class', 'title', 'aria-label', 'alt', 'placeholder'],
     childList: true,
     subtree: true,
   });

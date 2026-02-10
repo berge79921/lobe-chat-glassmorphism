@@ -23,6 +23,9 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-10-04';
+const DISABLE_SERVICE_WORKER = process.env.LEGALCHAT_DISABLE_SERVICE_WORKER !== '0';
+const BRANDING_CACHE_CONTROL = 'no-store, no-cache, must-revalidate, proxy-revalidate';
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
   alloy: 'en-US-JennyNeural',
@@ -39,11 +42,28 @@ const OPENAI_TO_EDGE_VOICE_MAP = {
 };
 
 const textEncoder = new TextEncoder();
+const BRANDING_BOOTSTRAP = DISABLE_SERVICE_WORKER
+  ? `<script data-legalchat-sw-cleanup="1">(function(){try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){for(var i=0;i<regs.length;i+=1){regs[i].unregister().catch(function(){});}});}if('caches' in window&&caches.keys){caches.keys().then(function(keys){for(var i=0;i<keys.length;i+=1){var name=keys[i]||'';if(/serwist|workbox|next-pwa|lobehub|lobechat/i.test(name)){caches.delete(name).catch(function(){});}}});}}catch(error){console.warn('[LegalChat] SW cleanup failed',error);}})();</script>`
+  : '';
 const BRANDING_INJECTION = [
   '<!-- LegalChat Branding Assets -->',
-  '<link rel="stylesheet" href="/custom.css?v=legalchat" data-legalchat-branding="1" />',
-  '<script defer src="/legalchat-branding.js?v=legalchat" data-legalchat-branding="1"></script>',
+  BRANDING_BOOTSTRAP,
+  `<link rel="stylesheet" href="/custom.css?v=${BRANDING_VERSION}" data-legalchat-branding="1" />`,
+  `<script src="/legalchat-branding.js?v=${BRANDING_VERSION}" data-legalchat-branding="1"></script>`,
 ].join('');
+const NOOP_SERVICE_WORKER = [
+  "self.addEventListener('install', function () { self.skipWaiting(); });",
+  "self.addEventListener('activate', function (event) {",
+  "  event.waitUntil((async function () {",
+  "    await self.registration.unregister();",
+  "    var clients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });",
+  '    for (var i = 0; i < clients.length; i += 1) {',
+  '      clients[i].navigate(clients[i].url);',
+  '    }',
+  '  })());',
+  '});',
+  "self.addEventListener('fetch', function () {});",
+].join('\n');
 
 const parseCookieHeader = (cookieHeader) => {
   const cookies = new Map();
@@ -181,6 +201,14 @@ const buildUpstreamHeaders = ({ req, forwardingHost, forwardingProto, bodyBuffer
   }
 
   return headers;
+};
+
+const setNoStoreHeaders = (headers) => {
+  headers['cache-control'] = BRANDING_CACHE_CONTROL;
+  headers.pragma = 'no-cache';
+  headers.expires = '0';
+  delete headers.etag;
+  delete headers['last-modified'];
 };
 
 const getLocaleDefaultEdgeVoice = (locale) => {
@@ -386,6 +414,18 @@ const sendLoginHelper = (res) => {
   res.end(html);
 };
 
+const sendNoopServiceWorker = (res) => {
+  const body = Buffer.from(NOOP_SERVICE_WORKER, 'utf8');
+  res.writeHead(200, {
+    'cache-control': BRANDING_CACHE_CONTROL,
+    'content-length': body.length,
+    'content-type': 'application/javascript; charset=utf-8',
+    expires: '0',
+    pragma: 'no-cache',
+  });
+  res.end(body);
+};
+
 const handleProviderSigninGet = async (req, res, parsedUrl) => {
   try {
     const incomingCookies = parseCookieHeader(req.headers.cookie);
@@ -579,9 +619,14 @@ const injectBrandingIntoHTML = (body) => {
 
 const proxyRequest = async (req, res) => {
   // Only rewrite first-party HTML pages.
+  const parsedUrl = new URL(req.url, `${getForwardedProtocol(req)}://${getPublicHost(req)}`);
+  const pathname = parsedUrl.pathname;
   const isPageRequest =
-    req.method === 'GET' &&
-    (req.url === '/' || req.url.startsWith('/chat') || req.url.startsWith('/welcome'));
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    (pathname === '/' || pathname.startsWith('/chat') || pathname.startsWith('/welcome'));
+  const isBrandingAssetRequest =
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    (pathname === '/custom.css' || pathname === '/legalchat-branding.js');
 
   const forwardingHost = getPublicHost(req);
   const forwardingProto = getForwardedProtocol(req);
@@ -624,11 +669,14 @@ const proxyRequest = async (req, res) => {
     if (responseHeaders.location) {
       responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
     }
+    if (isPageRequest || isBrandingAssetRequest) {
+      setNoStoreHeaders(responseHeaders);
+    }
 
     // Inject branding for HTML responses
     let body = proxyRes.body;
     const contentType = proxyRes.headers['content-type'] || '';
-    if (isPageRequest && contentType.includes('text/html')) {
+    if (req.method === 'GET' && isPageRequest && contentType.includes('text/html')) {
       const modifiedHTML = injectBrandingIntoHTML(body);
       body = Buffer.from(modifiedHTML, 'utf8');
       delete responseHeaders['content-encoding'];
@@ -663,6 +711,15 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && parsedUrl.pathname === '/login') {
     sendLoginHelper(res);
+    return;
+  }
+
+  if (
+    DISABLE_SERVICE_WORKER &&
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    parsedUrl.pathname === '/sw.js'
+  ) {
+    sendNoopServiceWorker(res);
     return;
   }
 
