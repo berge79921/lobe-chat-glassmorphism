@@ -91,6 +91,8 @@ In diesem Repo wird er jetzt zentral ueber `.env` + `login-proxy` gesteuert:
 LEGALCHAT_APP_NAME=LegalChat
 LEGALCHAT_DEFAULT_AGENT_NAME=George
 LEGALCHAT_ASSISTANT_ROLE_DE=persönlicher KI-Jurist
+LEGALCHAT_TAB_TITLE=George · LegalChat
+LEGALCHAT_VOICE_MODE=off
 LEGALCHAT_STT_MAX_RECORDING_MS=90000
 LEGALCHAT_STT_SILENCE_STOP_MS=3000
 LEGALCHAT_WELCOME_PRIMARY_DE=Ich bin George, Ihr persönlicher KI-Jurist bei LegalChat. Wie kann ich Ihnen jetzt helfen?
@@ -98,6 +100,27 @@ LEGALCHAT_WELCOME_SECONDARY_DE=Wenn Sie einen professionelleren oder maßgeschne
 ```
 
 Danach neu starten:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d --force-recreate login-proxy
+```
+
+### Voice-Off Modus (produktionstauglich)
+
+Wenn Teams keine Sprachaufnahme erlauben sollen, kann Voice via Proxy zentral deaktiviert werden:
+
+```env
+LEGALCHAT_VOICE_MODE=off
+```
+
+Fuer aktivierte Sprache wieder auf `guarded` stellen.
+
+Wirkung:
+- Mikrofon-/Voice-Controls werden im UI ausgeblendet
+- `getUserMedia({ audio: ... })` wird hart blockiert (`NotAllowedError`)
+- laufende STT-Sessions werden gestoppt
+
+Aktivierung:
 
 ```bash
 docker compose -f docker/docker-compose.yml up -d --force-recreate login-proxy

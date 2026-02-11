@@ -16,12 +16,23 @@ const APP_PUBLIC_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3210';
 const LEGALCHAT_APP_NAME = process.env.LEGALCHAT_APP_NAME || 'LegalChat';
 const LEGALCHAT_DEFAULT_AGENT_NAME = process.env.LEGALCHAT_DEFAULT_AGENT_NAME || 'George';
 const LEGALCHAT_AVATAR_URL = process.env.LEGALCHAT_AVATAR_URL || '/custom-assets/george-avatar.jpg';
+const LEGALCHAT_TAB_TITLE =
+  process.env.LEGALCHAT_TAB_TITLE || `${LEGALCHAT_DEFAULT_AGENT_NAME} · ${LEGALCHAT_APP_NAME}`;
 const LEGALCHAT_ASSISTANT_ROLE_DE =
   process.env.LEGALCHAT_ASSISTANT_ROLE_DE || 'persönlicher KI-Jurist';
 const LEGALCHAT_ASSISTANT_ROLE_EN =
   process.env.LEGALCHAT_ASSISTANT_ROLE_EN || 'personal AI legal assistant';
 const LEGALCHAT_STT_MAX_RECORDING_MS = Number(process.env.LEGALCHAT_STT_MAX_RECORDING_MS || 90000);
 const LEGALCHAT_STT_SILENCE_STOP_MS = Number(process.env.LEGALCHAT_STT_SILENCE_STOP_MS || 3000);
+const LEGALCHAT_VOICE_MODE = String(process.env.LEGALCHAT_VOICE_MODE || 'guarded')
+  .trim()
+  .toLowerCase();
+const LEGALCHAT_VOICE_OFF =
+  LEGALCHAT_VOICE_MODE === 'off' ||
+  LEGALCHAT_VOICE_MODE === 'disabled' ||
+  LEGALCHAT_VOICE_MODE === 'none' ||
+  LEGALCHAT_VOICE_MODE === '0' ||
+  process.env.LEGALCHAT_VOICE_OFF === '1';
 const LEGALCHAT_WELCOME_PRIMARY_DE =
   process.env.LEGALCHAT_WELCOME_PRIMARY_DE ||
   `Ich bin ${LEGALCHAT_DEFAULT_AGENT_NAME}, Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE} bei ${LEGALCHAT_APP_NAME}. Wie kann ich Ihnen jetzt helfen?`;
@@ -44,7 +55,7 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
-const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-11-03';
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-11-05';
 const DISABLE_SERVICE_WORKER = process.env.LEGALCHAT_DISABLE_SERVICE_WORKER !== '0';
 const BRANDING_CACHE_CONTROL = 'no-store, no-cache, must-revalidate, proxy-revalidate';
 const HTML_BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;
@@ -68,10 +79,13 @@ const BRANDING_RUNTIME_CONFIG = {
   appName: LEGALCHAT_APP_NAME,
   defaultAgentName: LEGALCHAT_DEFAULT_AGENT_NAME,
   avatarUrl: LEGALCHAT_AVATAR_URL,
+  tabTitle: LEGALCHAT_TAB_TITLE,
   assistantRoleDe: LEGALCHAT_ASSISTANT_ROLE_DE,
   assistantRoleEn: LEGALCHAT_ASSISTANT_ROLE_EN,
   sttMaxRecordingMs: LEGALCHAT_STT_MAX_RECORDING_MS,
   sttSilenceStopMs: LEGALCHAT_STT_SILENCE_STOP_MS,
+  voiceMode: LEGALCHAT_VOICE_OFF ? 'off' : 'guarded',
+  voiceOff: LEGALCHAT_VOICE_OFF,
   welcomePrimaryDe: LEGALCHAT_WELCOME_PRIMARY_DE,
   welcomePrimaryEn: LEGALCHAT_WELCOME_PRIMARY_EN,
   welcomeSecondaryDe: LEGALCHAT_WELCOME_SECONDARY_DE,
@@ -813,5 +827,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(LISTEN_PORT, () => {
   console.log(`LegalChat Auth Gateway running on port ${LISTEN_PORT}`);
+  console.log(`Voice mode: ${LEGALCHAT_VOICE_OFF ? 'off (microphone blocked)' : 'guarded'}`);
   console.log(`George is ready! ⚖️`);
 });

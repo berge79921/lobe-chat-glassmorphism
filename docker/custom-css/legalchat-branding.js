@@ -11,8 +11,21 @@
   var APP_NAME = runtimeConfig.appName || 'LegalChat';
   var DEFAULT_AGENT_NAME = runtimeConfig.defaultAgentName || 'George';
   var AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/george-avatar.jpg';
+  var TAB_TITLE = runtimeConfig.tabTitle || (DEFAULT_AGENT_NAME + ' · ' + APP_NAME);
   var STT_MAX_RECORDING_MS = parsePositiveInt(runtimeConfig.sttMaxRecordingMs, 90000);
   var STT_SILENCE_STOP_MS = parsePositiveInt(runtimeConfig.sttSilenceStopMs, 3000);
+  var VOICE_MODE = String(runtimeConfig.voiceMode || 'guarded')
+    .trim()
+    .toLowerCase();
+  var VOICE_OFF =
+    runtimeConfig.voiceOff === true ||
+    String(runtimeConfig.voiceOff || '')
+      .trim()
+      .toLowerCase() === 'true' ||
+    VOICE_MODE === 'off' ||
+    VOICE_MODE === 'disabled' ||
+    VOICE_MODE === 'none' ||
+    VOICE_MODE === '0';
   var ASSISTANT_ROLE_DE = runtimeConfig.assistantRoleDe || 'persönlicher KI-Jurist';
   var ASSISTANT_ROLE_EN = runtimeConfig.assistantRoleEn || 'personal AI legal assistant';
   var WELCOME_PRIMARY_DE =
@@ -35,9 +48,20 @@
   var WELCOME_SECONDARY_DE_PATTERN = /Wenn Sie einen professionelleren oder maßgeschneiderten Assistenten benötigen,\s*klicken Sie auf\s*\+?\s*,?\s*um einen benutzerdefinierten Assistenten zu erstellen\.?/gi;
   var WELCOME_SECONDARY_EN_PATTERN = /If you need a more professional or customized assistant,\s*you can click\s*\+?\s*to create a custom assistant\.?/gi;
   var DEFAULT_AGENT_PATTERN = /Lass uns plaudern|Just Chat/gi;
+  var BRAND_TITLE_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat|LegalChat/i;
   var WORDMARK_SELECTOR = 'svg[viewBox="0 0 940 320"]';
 
   var scheduled = false;
+  window.__legalchatVoiceMode = VOICE_OFF ? 'off' : 'guarded';
+  window.__legalchatVoiceOff = VOICE_OFF;
+
+  function createVoiceOffError(message) {
+    var text = message || 'Voice input is disabled by LegalChat policy.';
+    if (typeof DOMException === 'function') return new DOMException(text, 'NotAllowedError');
+    var error = new Error(text);
+    error.name = 'NotAllowedError';
+    return error;
+  }
 
   function installAudioCaptureGuard() {
     if (window.__legalchatAudioGuardInstalled) return;
@@ -187,11 +211,16 @@
     if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
       var originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
       navigator.mediaDevices.getUserMedia = function (constraints) {
+        var wantsAudio =
+          constraints &&
+          typeof constraints === 'object' &&
+          (constraints.audio === true || typeof constraints.audio === 'object');
+        if (wantsAudio && VOICE_OFF) {
+          return Promise.reject(
+            createVoiceOffError('Voice input is disabled by policy. Please contact your LegalChat administrator.'),
+          );
+        }
         return originalGetUserMedia(constraints).then(function (stream) {
-          var wantsAudio =
-            constraints &&
-            typeof constraints === 'object' &&
-            (constraints.audio === true || typeof constraints.audio === 'object');
           if (wantsAudio) registerStream(stream);
           return stream;
         });
@@ -309,6 +338,11 @@
       var originalStart = recognition.start && recognition.start.bind(recognition);
       if (originalStart) {
         recognition.start = function () {
+          if (VOICE_OFF) {
+            clearTimers();
+            recognition.__legalchatSpeechActive = '0';
+            throw createVoiceOffError('Voice input is disabled by policy. Please contact your LegalChat administrator.');
+          }
           clearTimers();
           armSessionTimer();
           recognition.__legalchatSpeechActive = '1';
@@ -397,6 +431,7 @@
   }
 
   function attachOverlayForceStopButton() {
+    if (VOICE_OFF) return;
     var allNodes = document.querySelectorAll('div,section,article');
     for (var i = 0; i < allNodes.length; i += 1) {
       var node = allNodes[i];
@@ -498,6 +533,15 @@
     } catch (_clickError) {}
   }
 
+  function isLikelyMicPath(pathData) {
+    if (!pathData) return false;
+    var normalized = String(pathData).replace(/\s+/g, ' ');
+    var looksLikeTypeIcon = /M4 7V5|M9 20h6/.test(normalized);
+    var hasMicStem = /M12 4v16|M12 3v|M12 5v/.test(normalized);
+    var hasMicCapsule = /a3 3 0 0 0-6 0|a3 3 0 0 0 6 0|M19 10v2|a7 7 0 0 1-14 0v-2/.test(normalized);
+    return hasMicCapsule || (hasMicStem && !looksLikeTypeIcon);
+  }
+
   function collectMicControls() {
     var controls = [];
     var nodes = document.querySelectorAll('button,div[role="button"],[aria-label],[title]');
@@ -507,8 +551,7 @@
       if (!isVisibleElement(node)) continue;
 
       var rect = node.getBoundingClientRect();
-      if (rect.y < window.innerHeight - 320 && rect.y > 340) continue;
-      if (rect.width > 200 || rect.height > 80) continue;
+      if (rect.width > 180 || rect.height > 140) continue;
 
       var text = (node.textContent || '').trim();
       var aria = node.getAttribute('aria-label') || '';
@@ -527,17 +570,63 @@
       var looksLikeMicByText = /mic|micro|voice|speech|record|audio|sprache|aufnahme|diktat|transcribe/.test(meta);
       var looksLikeMicByIcon =
         /mic|microphone|voice|speech/.test(svgClass.toLowerCase()) ||
-        /M12 19v3|a7 7 0 0 1-14 0v-2|M19 10v2/.test(pathData);
+        /M12 19v3|a7 7 0 0 1-14 0v-2|M19 10v2/.test(pathData) ||
+        isLikelyMicPath(pathData);
       var style = window.getComputedStyle(node);
       var looksActive =
         /active|record|listening|speaking/.test(cls.toLowerCase()) ||
         (style && (looksOrange(style.backgroundColor) || looksOrange(style.borderColor) || looksOrange(style.color)));
 
       var activeWithVoiceHint = looksActive && /mic|micro|voice|speech|record|audio|sprache|aufnahme|diktat/.test(meta);
-      if (!looksLikeMicByText && !looksLikeMicByIcon && !activeWithVoiceHint) continue;
+      var activeMicIconOnly = looksActive && isLikelyMicPath(pathData);
+      if (!looksLikeMicByText && !looksLikeMicByIcon && !activeWithVoiceHint && !activeMicIconOnly) continue;
       controls.push(node);
     }
     return controls;
+  }
+
+  function markVoiceControlDisabled(node) {
+    if (!node) return;
+    if (node.classList) node.classList.add('legalchat-voice-off-hidden');
+    node.setAttribute('data-legalchat-voice-disabled', '1');
+    node.setAttribute('aria-disabled', 'true');
+    if (node.tagName === 'BUTTON') {
+      try {
+        node.disabled = true;
+      } catch (_disableError) {}
+    }
+  }
+
+  function enforceVoiceOffMode() {
+    if (!VOICE_OFF) return;
+    var htmlEl = document.documentElement;
+    if (htmlEl) {
+      htmlEl.setAttribute('data-legalchat-voice-mode', 'off');
+      htmlEl.setAttribute('data-legalchat-voice-off', '1');
+    }
+
+    dispatchReleaseEvents();
+    if (typeof window.__legalchatStopSpeechRecognition === 'function') {
+      window.__legalchatStopSpeechRecognition();
+    }
+    if (typeof window.__legalchatStopAudioCapture === 'function') {
+      window.__legalchatStopAudioCapture();
+    }
+
+    var overlay = findRecordingOverlayNode();
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+
+    var controls = collectMicControls();
+    for (var i = 0; i < controls.length; i += 1) {
+      markVoiceControlDisabled(controls[i]);
+    }
+
+    var hintControls = document.querySelectorAll(
+      '[aria-label*="voice" i],[aria-label*="speech" i],[aria-label*="micro" i],[aria-label*="spra" i],[aria-label*="aufnahme" i],[title*="voice" i],[title*="speech" i],[title*="micro" i],[title*="spra" i],[title*="aufnahme" i],[data-testid*="voice" i],[data-testid*="speech" i],[data-testid*="micro" i]',
+    );
+    for (var j = 0; j < hintControls.length; j += 1) {
+      markVoiceControlDisabled(hintControls[j]);
+    }
   }
 
   function forceStopVoiceUiState() {
@@ -547,6 +636,11 @@
     }
     if (typeof window.__legalchatStopAudioCapture === 'function') {
       window.__legalchatStopAudioCapture();
+    }
+
+    if (VOICE_OFF) {
+      enforceVoiceOffMode();
+      return;
     }
 
     var controls = collectMicControls();
@@ -563,6 +657,14 @@
   function installVoiceUiStateWatchdog() {
     if (window.__legalchatVoiceUiWatchdogInstalled) return;
     window.__legalchatVoiceUiWatchdogInstalled = true;
+
+    if (VOICE_OFF) {
+      window.setInterval(function () {
+        enforceVoiceOffMode();
+      }, 700);
+      return;
+    }
+
     var staleSince = 0;
     var lastForceAt = 0;
 
@@ -629,6 +731,7 @@
 
   function rewriteTitle() {
     var next = rewriteText(document.title);
+    if (!next || BRAND_TITLE_PATTERN.test(next)) next = TAB_TITLE;
     if (next && next !== document.title) {
       document.title = next;
     }
@@ -690,6 +793,7 @@
       var title = titles[i];
       if (!title || !title.textContent) continue;
       var rewrittenTitle = rewriteText(title.textContent);
+      if (!rewrittenTitle || BRAND_TITLE_PATTERN.test(rewrittenTitle)) rewrittenTitle = TAB_TITLE;
       if (rewrittenTitle !== title.textContent) title.textContent = rewrittenTitle;
     }
     if (titles.length > 1) {
@@ -891,6 +995,7 @@
     installAudioCaptureGuard();
     installSpeechRecognitionGuard();
     installVoiceUiStateWatchdog();
+    enforceVoiceOffMode();
     attachOverlayForceStopButton();
     rewriteTitle();
     rewriteHeadMetadata();
@@ -915,6 +1020,10 @@
       }
     }, 120);
   }
+
+  installAudioCaptureGuard();
+  installSpeechRecognitionGuard();
+  if (VOICE_OFF) enforceVoiceOffMode();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', scheduleApply, { once: true });
