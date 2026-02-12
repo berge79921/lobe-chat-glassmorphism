@@ -53,7 +53,7 @@ jobs:
           ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" '
             set -e
             cd /opt/legalchat/docker
-            docker compose up -d --no-deps login-proxy lobe
+            docker compose up -d --no-deps --force-recreate login-proxy lobe
             if docker ps --format "{{.Names}}" | grep -qx "legalchat-caddy"; then
               docker restart legalchat-caddy >/dev/null
             fi
