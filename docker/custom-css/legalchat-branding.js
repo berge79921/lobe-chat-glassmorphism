@@ -10,7 +10,7 @@
 
   var APP_NAME = runtimeConfig.appName || 'LegalChat';
   var DEFAULT_AGENT_NAME = runtimeConfig.defaultAgentName || 'George';
-  var AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/george-avatar.jpg';
+  var AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/legalchat-avatar.jpg';
   var RAW_FAVICON_URL = runtimeConfig.faviconUrl || AVATAR_URL;
   var TAB_TITLE = runtimeConfig.tabTitle || (DEFAULT_AGENT_NAME + ' · ' + APP_NAME);
   var STT_MAX_RECORDING_MS = parsePositiveInt(runtimeConfig.sttMaxRecordingMs, 90000);
@@ -66,6 +66,16 @@
   }
 
   var FAVICON_URL = withBrandingVersion(RAW_FAVICON_URL);
+  var AVATAR_URL_NORMALIZED = String(AVATAR_URL || '').toLowerCase();
+  var AVATAR_BASENAME = AVATAR_URL_NORMALIZED.split('?')[0].split('#')[0].split('/').pop();
+
+  function hasBrandAvatarSource(src) {
+    var value = String(src || '').toLowerCase();
+    if (!value) return false;
+    if (AVATAR_URL_NORMALIZED && value.indexOf(AVATAR_URL_NORMALIZED) !== -1) return true;
+    if (AVATAR_BASENAME && value.indexOf(AVATAR_BASENAME) !== -1) return true;
+    return false;
+  }
 
   function createVoiceOffError(message) {
     var text = message || 'Voice input is disabled by LegalChat policy.';
@@ -1101,7 +1111,7 @@
       if (!img) continue;
 
       var src = img.getAttribute('src') || '';
-      if (img.dataset.legalchatAvatar === '1' && src.includes('george-avatar.jpg')) continue;
+      if (img.dataset.legalchatAvatar === '1' && hasBrandAvatarSource(src)) continue;
       var alt = (img.getAttribute('alt') || '').toLowerCase();
       var width = img.width || 0;
       var height = img.height || 0;
@@ -1112,7 +1122,7 @@
 
       if (!looksLikeAvatar) continue;
 
-      if (!src.includes('george-avatar.jpg')) {
+      if (!hasBrandAvatarSource(src)) {
         img.src = AVATAR_URL;
         img.setAttribute('src', AVATAR_URL);
         img.setAttribute('srcset', '');
@@ -1136,7 +1146,7 @@
         img.classList.remove('legalchat-chat-avatar');
       }
 
-      img.alt = 'George - KI Jurist';
+      img.alt = DEFAULT_AGENT_NAME + ' - KI Jurist';
       img.dataset.legalchatAvatar = '1';
       img.classList.add('legalchat-avatar-img');
     }

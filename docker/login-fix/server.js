@@ -16,7 +16,7 @@ const LISTEN_PORT = Number(process.env.PORT || 3210);
 const APP_PUBLIC_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3210';
 const LEGALCHAT_APP_NAME = process.env.LEGALCHAT_APP_NAME || 'LegalChat';
 const LEGALCHAT_DEFAULT_AGENT_NAME = process.env.LEGALCHAT_DEFAULT_AGENT_NAME || 'George';
-const LEGALCHAT_AVATAR_URL = process.env.LEGALCHAT_AVATAR_URL || '/custom-assets/george-avatar.jpg';
+const LEGALCHAT_AVATAR_URL = process.env.LEGALCHAT_AVATAR_URL || '/custom-assets/legalchat-avatar.jpg';
 const LEGALCHAT_FAVICON_URL = process.env.LEGALCHAT_FAVICON_URL || LEGALCHAT_AVATAR_URL;
 const LEGALCHAT_TAB_TITLE =
   process.env.LEGALCHAT_TAB_TITLE || `${LEGALCHAT_DEFAULT_AGENT_NAME} · ${LEGALCHAT_APP_NAME}`;
@@ -263,7 +263,7 @@ body.desktop {
 }
 
 #app [class*="logo"] img,
-#app img[src*="george-avatar"],
+#app img[src*="/custom-assets/" i],
 #app img[src*="logo"],
 #app img[alt*="logo" i] {
   width: clamp(136px, 14vw, 172px) !important;

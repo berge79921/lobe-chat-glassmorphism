@@ -114,7 +114,7 @@ Relevante Variablen:
 LEGALCHAT_LOGTO_BRANDING=1
 LEGALCHAT_LOGTO_BRANDING_HOSTS=auth.legalchat.net
 LEGALCHAT_PUBLIC_ASSET_BASE=https://legalchat.net
-LEGALCHAT_LOGTO_LOGO_URL=https://legalchat.net/custom-assets/george-avatar.jpg
+LEGALCHAT_LOGTO_LOGO_URL=https://legalchat.net/custom-assets/legalchat-avatar.jpg
 LOGTO_UPSTREAM_HOST=logto
 LOGTO_UPSTREAM_PORT=3001
 ```
@@ -127,7 +127,7 @@ In diesem Repo wird er jetzt zentral ueber `.env` + `login-proxy` gesteuert:
 ```env
 LEGALCHAT_APP_NAME=LegalChat
 LEGALCHAT_DEFAULT_AGENT_NAME=George
-LEGALCHAT_FAVICON_URL=/custom-assets/george-avatar.jpg
+LEGALCHAT_FAVICON_URL=/custom-assets/legalchat-avatar.jpg
 LEGALCHAT_ASSISTANT_ROLE_DE=persönlicher KI-Jurist
 LEGALCHAT_TAB_TITLE=George · LegalChat
 LEGALCHAT_VOICE_MODE=off
