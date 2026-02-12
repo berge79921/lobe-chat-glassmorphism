@@ -377,7 +377,7 @@ body.desktop #app [class*="subtitle"] {
 /* Logto 404/unknown-session Back button */
 #app [class*="navBar"],
 #app [class*="navButton"],
-#app [class*="back" i] {
+#app [role="button"][class*="nav" i] {
   position: fixed !important;
   top: 22px !important;
   left: 22px !important;
@@ -404,13 +404,6 @@ body.desktop #app [class*="subtitle"] {
     0 16px 34px rgba(3, 9, 28, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
   backdrop-filter: blur(10px) !important;
-}
-
-#app [class*="navButton"]::before {
-  content: "\u2039";
-  font-size: 28px;
-  line-height: 1;
-  opacity: 0.9;
 }
 
 @media (max-width: 760px) {
@@ -2422,6 +2415,21 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (isLogtoBrandingHost(req)) {
+    if (req.method === 'GET') {
+      const isUnknownSession =
+        parsedUrl.pathname === '/' ||
+        parsedUrl.pathname === '/login' ||
+        /^\/unknown-session(?:\/|$)/.test(parsedUrl.pathname);
+
+      if (isUnknownSession) {
+        const appId = parsedUrl.searchParams.get('app_id') || AUTH_LOGTO_ID;
+        const location = appId ? `/sign-in?app_id=${encodeURIComponent(appId)}` : '/sign-in';
+        res.writeHead(302, { 'cache-control': 'no-store', location });
+        res.end();
+        return;
+      }
+    }
+
     await proxyLogtoBrandedRequest(req, res);
     return;
   }
