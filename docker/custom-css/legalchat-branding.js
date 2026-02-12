@@ -10,8 +10,9 @@
 
   var APP_NAME = runtimeConfig.appName || 'LegalChat';
   var DEFAULT_AGENT_NAME = runtimeConfig.defaultAgentName || 'George';
-  var AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/legalchat-avatar.jpg';
-  var RAW_FAVICON_URL = runtimeConfig.faviconUrl || AVATAR_URL;
+  var RAW_AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/legalchat-avatar.jpg';
+  var AVATAR_URL = withBrandingVersion(RAW_AVATAR_URL);
+  var RAW_FAVICON_URL = runtimeConfig.faviconUrl || RAW_AVATAR_URL;
   var TAB_TITLE = runtimeConfig.tabTitle || (DEFAULT_AGENT_NAME + ' · ' + APP_NAME);
   var STT_MAX_RECORDING_MS = parsePositiveInt(runtimeConfig.sttMaxRecordingMs, 90000);
   var STT_SILENCE_STOP_MS = parsePositiveInt(runtimeConfig.sttSilenceStopMs, 3000);

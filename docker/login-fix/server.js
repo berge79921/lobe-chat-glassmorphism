@@ -102,8 +102,15 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
-const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-02';
-const LEGALCHAT_FAVICON_VERSIONED_URL = `${LEGALCHAT_FAVICON_URL}?v=${BRANDING_VERSION}`;
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-03';
+const withVersionQuery = (url) => {
+  const value = String(url || '').trim();
+  if (!value) return value;
+  if (!BRANDING_VERSION || /[?&]v=/.test(value)) return value;
+  return `${value}${value.includes('?') ? '&' : '?'}v=${encodeURIComponent(BRANDING_VERSION)}`;
+};
+const LEGALCHAT_AVATAR_VERSIONED_URL = withVersionQuery(LEGALCHAT_AVATAR_URL);
+const LEGALCHAT_FAVICON_VERSIONED_URL = withVersionQuery(LEGALCHAT_FAVICON_URL);
 const DISABLE_SERVICE_WORKER = process.env.LEGALCHAT_DISABLE_SERVICE_WORKER !== '0';
 const BRANDING_CACHE_CONTROL = 'no-store, no-cache, must-revalidate, proxy-revalidate';
 const HTML_BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;
@@ -139,6 +146,7 @@ const LEGALCHAT_LOGTO_LOGO_URL = (
     LEGALCHAT_AVATAR_URL.startsWith('/') ? LEGALCHAT_AVATAR_URL : `/${LEGALCHAT_AVATAR_URL}`
   }`
 ).trim();
+const LEGALCHAT_LOGTO_LOGO_VERSIONED_URL = withVersionQuery(LEGALCHAT_LOGTO_LOGO_URL);
 INTERNAL_HOSTS.add(LOGTO_UPSTREAM_HOST);
 INTERNAL_HOSTS.add('logto');
 const SIGNOUT_PATH_PATTERN = /^\/(?:api\/auth|next-auth)\/signout\/?$/;
@@ -404,8 +412,8 @@ const textEncoder = new TextEncoder();
 const BRANDING_RUNTIME_CONFIG = {
   appName: LEGALCHAT_APP_NAME,
   defaultAgentName: LEGALCHAT_DEFAULT_AGENT_NAME,
-  avatarUrl: LEGALCHAT_AVATAR_URL,
-  faviconUrl: LEGALCHAT_FAVICON_URL,
+  avatarUrl: LEGALCHAT_AVATAR_VERSIONED_URL,
+  faviconUrl: LEGALCHAT_FAVICON_VERSIONED_URL,
   tabTitle: LEGALCHAT_TAB_TITLE,
   assistantRoleDe: LEGALCHAT_ASSISTANT_ROLE_DE,
   assistantRoleEn: LEGALCHAT_ASSISTANT_ROLE_EN,
@@ -738,8 +746,8 @@ const injectLogtoBrandingExperience = (html) => {
     },
     branding: {
       ...(experience.branding || {}),
-      logoUrl: LEGALCHAT_LOGTO_LOGO_URL,
-      darkLogoUrl: LEGALCHAT_LOGTO_LOGO_URL,
+      logoUrl: LEGALCHAT_LOGTO_LOGO_VERSIONED_URL,
+      darkLogoUrl: LEGALCHAT_LOGTO_LOGO_VERSIONED_URL,
     },
     hideLogtoBranding: true,
     customCss: LEGALCHAT_LOGTO_CUSTOM_CSS,
@@ -1659,7 +1667,7 @@ const buildHelperHtml = ({ loggedOut = false } = {}) => {
   const callbackUrl = APP_PUBLIC_URL.endsWith('/') ? APP_PUBLIC_URL : `${APP_PUBLIC_URL}/`;
   const loginHref = buildProviderSigninUrl(callbackUrl);
   const appName = escapeHtml(LEGALCHAT_APP_NAME);
-  const avatarUrl = escapeHtml(LEGALCHAT_AVATAR_URL);
+  const avatarUrl = escapeHtml(LEGALCHAT_AVATAR_VERSIONED_URL);
   const assistantRole = escapeHtml(LEGALCHAT_ASSISTANT_ROLE_DE);
   const statusHtml = loggedOut
     ? `
