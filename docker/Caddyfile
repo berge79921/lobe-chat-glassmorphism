@@ -1,0 +1,29 @@
+{
+  email admin@legalchat.net
+}
+
+www.legalchat.net {
+  redir https://legalchat.net{uri} 308
+}
+
+legalchat.net {
+  encode zstd gzip
+  reverse_proxy login-proxy:3210
+}
+
+auth.legalchat.net {
+  encode zstd gzip
+  @no_signup path /sign-up /sign-up/*
+  redir @no_signup /sign-in 302
+  # Route through login-proxy so hosted Logto pages can be themed consistently.
+  reverse_proxy login-proxy:3210
+}
+
+admin-auth.legalchat.net {
+  encode zstd gzip
+  reverse_proxy logto:3002
+}
+
+http://46.225.110.68 {
+  redir https://legalchat.net{uri} 308
+}

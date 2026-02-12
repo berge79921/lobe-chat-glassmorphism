@@ -81,6 +81,43 @@ Detaillierte Architekturdokumentation:
 | `AUTH_LOGTO_ID` | Logto Client ID | `berge79921` |
 | `AUTH_LOGTO_SECRET` | Logto Client Secret | `X6duaf3@L` |
 | `LOGTO_ENDPOINT` | Logto URL (Host IP!) | `http://192.168.1.240:3001` |
+| `LEGALCHAT_LOGOUT_MODE` | Logout-Verhalten (`local` oder `oidc`) | `local` |
+
+### Logout ohne sichtbare Logto-Seite
+
+Standard in diesem Setup:
+
+```env
+LEGALCHAT_LOGOUT_MODE=local
+LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL=/login?logged_out=1
+LEGALCHAT_FORCE_LOGIN_PROMPT=1
+```
+
+Wenn vollständiger OIDC-Logout gegen Logto gewünscht ist:
+
+```env
+LEGALCHAT_LOGOUT_MODE=oidc
+LOGTO_END_SESSION_ENDPOINT=https://auth.legalchat.net/oidc/session/end
+LOGTO_POST_LOGOUT_REDIRECT_URL=https://legalchat.net
+```
+
+Hinweis: Bei `oidc` muss `https://legalchat.net` in Logto als **Post sign-out redirect URI** hinterlegt sein.
+
+### Gehostete Logto-Anmeldeseite im LegalChat-Stil
+
+Die Seite `https://auth.legalchat.net/sign-in` wird über den `login-proxy` geleitet und serverseitig
+mit LegalChat-Branding versehen (Farben, Hintergrund, Logo, Button-Stil).
+
+Relevante Variablen:
+
+```env
+LEGALCHAT_LOGTO_BRANDING=1
+LEGALCHAT_LOGTO_BRANDING_HOSTS=auth.legalchat.net
+LEGALCHAT_PUBLIC_ASSET_BASE=https://legalchat.net
+LEGALCHAT_LOGTO_LOGO_URL=https://legalchat.net/custom-assets/george-avatar.jpg
+LOGTO_UPSTREAM_HOST=logto
+LOGTO_UPSTREAM_PORT=3001
+```
 
 ### Welcome-Text und Standard-Agent anpassen
 
@@ -90,6 +127,7 @@ In diesem Repo wird er jetzt zentral ueber `.env` + `login-proxy` gesteuert:
 ```env
 LEGALCHAT_APP_NAME=LegalChat
 LEGALCHAT_DEFAULT_AGENT_NAME=George
+LEGALCHAT_FAVICON_URL=/custom-assets/george-avatar.jpg
 LEGALCHAT_ASSISTANT_ROLE_DE=persönlicher KI-Jurist
 LEGALCHAT_TAB_TITLE=George · LegalChat
 LEGALCHAT_VOICE_MODE=off
@@ -145,6 +183,42 @@ Pflicht-Variablen in `docker/.env`:
 | `SSRF_ALLOW_IP_ADDRESS_LIST` | Host-IP von MinIO, z.B. `192.168.1.240` |
 | `S3_PUBLIC_DOMAIN` | Keine localhost-URL |
 
+Zusaetzlich fuer zuverlässigen JPEG/PNG-Upload inkl. OCR:
+
+| Variable | Sollwert |
+|----------|----------|
+| `OPENROUTER_MODEL_LIST` | Enthält mindestens ein `vision`-faehiges Modell, z.B. `google/gemini-2.5-flash-lite...<...:vision:...>` |
+| `DEFAULT_AGENT_CONFIG` | `provider=openrouter;model=google/gemini-2.5-flash-lite` |
+
+Hinweis: LobeChat blockiert Bild-Upload clientseitig, wenn das aktive Modell keine `vision`-Capability hat.
+
+### Automatisches JPEG-OCR (modellunabhaengig)
+
+LegalChat kann JPEGs serverseitig immer zuerst ueber Gemini 2.5 Flash Lite OCR laufen lassen und
+anschliessend den eigentlichen Chat weiterhin mit dem im UI gewaehlten Modell ausfuehren.
+
+Technik:
+- `file.createFile`-Requests werden im Proxy mitgeschnitten, damit pro `fileId` die echte Storage-URL gecacht wird.
+- Falls der Cache leer ist, holt der Proxy `file.getFileItemById` (authentifiziert ueber User-Cookies) als Fallback.
+- OCR-Download versucht zuerst `/f/:id` (falls im Build vorhanden), danach S3/MinIO per signierter GET-URL.
+- Damit funktioniert OCR auch auf Builds ohne exponierte `/f/:id`-Route.
+
+Pflicht-Variablen im `login-proxy` (bereits im Compose verdrahtet):
+
+| Variable | Sollwert |
+|----------|----------|
+| `LEGALCHAT_OCR_ENABLED` | `1` |
+| `LEGALCHAT_OCR_MODEL` | `google/gemini-2.5-flash-lite` |
+| `OPENROUTER_API_KEY` | gesetzt |
+
+Optionales Tuning:
+- `LEGALCHAT_OCR_MAX_IMAGES` (Default `6`)
+- `LEGALCHAT_OCR_MAX_IMAGE_BYTES` (Default `12582912`)
+- `LEGALCHAT_OCR_MAX_TEXT_CHARS` (Default `12000`)
+- `LEGALCHAT_OCR_TIMEOUT_MS` (Default `45000`)
+- `LEGALCHAT_OCR_FILE_CACHE_TTL_MS` (Default `7200000`)
+- `LEGALCHAT_OCR_S3_PRESIGN_EXPIRES_SEC` (Default `300`)
+
 ### Erstmalige Einrichtung
 
 1. **Logto Admin Console öffnen**: http://localhost:3002
@@ -174,6 +248,20 @@ Siehe detaillierte Dokumentation:
 | [docker/README_LOGIN_FIX.md](docker/README_LOGIN_FIX.md) | Login-Proxy Dokumentation |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Systemarchitektur (🚧 in Arbeit) |
 | [docs/OPEN_ISSUES.md](docs/OPEN_ISSUES.md) | Offene Probleme & Lösungsansätze |
+
+## 🔁 CI/CD
+
+Dieses Repo enthält jetzt GitHub Actions:
+
+- `.github/workflows/ci.yml`: Syntax- und Compose-Validierung bei Push/PR
+- `.github/workflows/deploy-hetzner.yml`: manueller Deploy nach Hetzner per `workflow_dispatch`
+
+Benötigte GitHub Secrets für Deploy:
+
+- `HETZNER_HOST`
+- `HETZNER_USER`
+- `HETZNER_SSH_PRIVATE_KEY`
+- optional: `HETZNER_SSH_PORT`
 
 ## 🔗 Links
 

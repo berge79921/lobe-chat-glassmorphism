@@ -121,6 +121,26 @@ const LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL = (
   process.env.LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL || '/login?logged_out=1'
 ).trim();
 const LEGALCHAT_FORCE_LOGIN_PROMPT = process.env.LEGALCHAT_FORCE_LOGIN_PROMPT !== '0';
+const LOGTO_UPSTREAM_HOST = (process.env.LOGTO_UPSTREAM_HOST || 'logto').trim();
+const LOGTO_UPSTREAM_PORT = Number(process.env.LOGTO_UPSTREAM_PORT || 3001);
+const LEGALCHAT_LOGTO_BRANDING_ENABLED = process.env.LEGALCHAT_LOGTO_BRANDING !== '0';
+const LEGALCHAT_LOGTO_BRANDING_HOSTS = new Set(
+  String(process.env.LEGALCHAT_LOGTO_BRANDING_HOSTS || 'auth.legalchat.net')
+    .split(',')
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean),
+);
+const LEGALCHAT_PUBLIC_ASSET_BASE = String(process.env.LEGALCHAT_PUBLIC_ASSET_BASE || APP_PUBLIC_URL)
+  .trim()
+  .replace(/\/+$/, '');
+const LEGALCHAT_LOGTO_LOGO_URL = (
+  process.env.LEGALCHAT_LOGTO_LOGO_URL ||
+  `${LEGALCHAT_PUBLIC_ASSET_BASE}${
+    LEGALCHAT_AVATAR_URL.startsWith('/') ? LEGALCHAT_AVATAR_URL : `/${LEGALCHAT_AVATAR_URL}`
+  }`
+).trim();
+INTERNAL_HOSTS.add(LOGTO_UPSTREAM_HOST);
+INTERNAL_HOSTS.add('logto');
 const SIGNOUT_PATH_PATTERN = /^\/(?:api\/auth|next-auth)\/signout\/?$/;
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
@@ -136,6 +156,134 @@ const OPENAI_TO_EDGE_VOICE_MAP = {
   shimmer: 'en-US-JennyNeural',
   verse: 'en-US-AriaNeural',
 };
+const LEGALCHAT_LOGTO_CUSTOM_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap');
+
+:root {
+  --lc-bg-1: #07133a;
+  --lc-bg-2: #0f2360;
+  --lc-card: rgba(13, 29, 76, 0.9);
+  --lc-card-border: rgba(145, 176, 255, 0.34);
+  --lc-text: #edf4ff;
+  --lc-muted: #a9bfeb;
+  --lc-primary: #4ea1ff;
+  --lc-primary-2: #7f7bff;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: "Manrope", "Segoe UI", "Helvetica Neue", sans-serif !important;
+  background: radial-gradient(120% 90% at 50% 0%, #17347f 0%, var(--lc-bg-2) 44%, var(--lc-bg-1) 100%) !important;
+}
+
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(48rem 48rem at 10% 14%, rgba(100, 150, 255, 0.2), transparent 65%),
+    radial-gradient(34rem 34rem at 84% 8%, rgba(145, 121, 255, 0.22), transparent 70%),
+    linear-gradient(rgba(189, 207, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(189, 207, 255, 0.06) 1px, transparent 1px);
+  background-size: auto, auto, 52px 52px, 52px 52px;
+  z-index: 0;
+}
+
+#app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  position: relative;
+  z-index: 1;
+}
+
+#app > * {
+  width: min(640px, 100%) !important;
+  border-radius: 28px !important;
+  border: 1px solid var(--lc-card-border) !important;
+  background: linear-gradient(180deg, rgba(19, 39, 95, 0.96), var(--lc-card)) !important;
+  box-shadow:
+    0 30px 90px rgba(5, 10, 29, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(11px);
+}
+
+#app [class*="logo"] img,
+#app img[src*="logo"],
+#app img[alt*="logo" i] {
+  border-radius: 999px;
+  border: 3px solid rgba(132, 175, 255, 0.88);
+  box-shadow: 0 10px 34px rgba(77, 136, 255, 0.4);
+}
+
+#app h1,
+#app h2,
+#app [class*="title"] {
+  font-family: "Sora", "Manrope", sans-serif !important;
+  color: var(--lc-text) !important;
+  letter-spacing: -0.02em;
+}
+
+#app p,
+#app [class*="description"],
+#app [class*="subtitle"] {
+  color: var(--lc-muted) !important;
+}
+
+#app input,
+#app textarea {
+  border-radius: 12px !important;
+  border: 1px solid rgba(148, 179, 255, 0.42) !important;
+  background: rgba(8, 20, 54, 0.75) !important;
+  color: var(--lc-text) !important;
+  box-shadow: none !important;
+}
+
+#app input::placeholder,
+#app textarea::placeholder {
+  color: #9cb2df !important;
+}
+
+#app button,
+#app [role="button"] {
+  border-radius: 14px !important;
+  border: 1px solid rgba(177, 208, 255, 0.5) !important;
+}
+
+#app button[type="submit"],
+#app button[class*="primary"],
+#app [data-type="primary"] {
+  background: linear-gradient(130deg, var(--lc-primary), var(--lc-primary-2)) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 30px rgba(49, 93, 245, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+#app button[type="submit"]:hover,
+#app button[class*="primary"]:hover {
+  filter: brightness(1.04);
+}
+
+#app a {
+  color: #a8c7ff !important;
+}
+
+@media (max-width: 680px) {
+  #app {
+    padding: 14px;
+  }
+  #app > * {
+    border-radius: 20px !important;
+  }
+}
+`;
 
 const textEncoder = new TextEncoder();
 const BRANDING_RUNTIME_CONFIG = {
@@ -347,6 +495,18 @@ const getPublicHost = (req) => {
   return req.headers.host || `localhost:${LISTEN_PORT}`;
 };
 
+const normalizeHost = (value) =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, '');
+
+const isLogtoBrandingHost = (req) => {
+  if (!LEGALCHAT_LOGTO_BRANDING_ENABLED) return false;
+  const host = normalizeHost(getPublicHost(req));
+  return LEGALCHAT_LOGTO_BRANDING_HOSTS.has(host);
+};
+
 const rewriteLocationHeader = (location, req) => {
   if (!location || location.startsWith('/')) return location;
 
@@ -354,8 +514,12 @@ const rewriteLocationHeader = (location, req) => {
     const parsed = new URL(location);
     const hostPort = `${parsed.hostname}:${parsed.port || (parsed.protocol === 'https:' ? '443' : '80')}`;
     const targetHostPort = `${TARGET_HOST}:${TARGET_PORT}`;
+    const logtoHostPort = `${LOGTO_UPSTREAM_HOST}:${LOGTO_UPSTREAM_PORT}`;
 
-    const isInternalHost = INTERNAL_HOSTS.has(parsed.hostname) || hostPort === targetHostPort;
+    const isInternalHost =
+      INTERNAL_HOSTS.has(parsed.hostname) ||
+      hostPort === targetHostPort ||
+      hostPort === logtoHostPort;
     if (!isInternalHost) return location;
 
     parsed.protocol = `${getForwardedProtocol(req)}:`;
@@ -424,6 +588,57 @@ const setNoStoreHeaders = (headers) => {
   headers.expires = '0';
   delete headers.etag;
   delete headers['last-modified'];
+};
+
+const injectLogtoBrandingExperience = (html) => {
+  const marker = 'window.logtoSsr = Object.freeze(';
+  const start = html.indexOf(marker);
+  if (start === -1) return html;
+
+  const jsonStart = start + marker.length;
+  const jsonEnd = html.indexOf(');', jsonStart);
+  if (jsonEnd === -1) return html;
+
+  let ssrPayload;
+  try {
+    ssrPayload = JSON.parse(html.slice(jsonStart, jsonEnd));
+  } catch {
+    return html;
+  }
+
+  const experience = ssrPayload?.signInExperience?.data;
+  if (!experience || typeof experience !== 'object') return html;
+
+  ssrPayload.signInExperience.data = {
+    ...experience,
+    color: {
+      ...(experience.color || {}),
+      primaryColor: '#4EA1FF',
+      darkPrimaryColor: '#7F7BFF',
+      isDarkModeEnabled: true,
+    },
+    branding: {
+      ...(experience.branding || {}),
+      logoUrl: LEGALCHAT_LOGTO_LOGO_URL,
+      darkLogoUrl: LEGALCHAT_LOGTO_LOGO_URL,
+    },
+    hideLogtoBranding: true,
+    customCss: LEGALCHAT_LOGTO_CUSTOM_CSS,
+  };
+
+  const serialized = JSON.stringify(ssrPayload)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+
+  let rewritten = html.slice(0, jsonStart) + serialized + html.slice(jsonEnd);
+  rewritten = rewritten.replace(
+    /<title>\s*<\/title>/i,
+    `<title>${escapeHtml(LEGALCHAT_APP_NAME)} Anmeldung</title>`,
+  );
+  return rewritten;
 };
 
 const getLocaleDefaultEdgeVoice = (locale) => {
@@ -1920,6 +2135,79 @@ const proxyRequest = async (req, res) => {
   }
 };
 
+const proxyLogtoBrandedRequest = async (req, res) => {
+  const parsedUrl = new URL(req.url, `${getForwardedProtocol(req)}://${getPublicHost(req)}`);
+  const pathname = parsedUrl.pathname;
+  const isPageRequest =
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    (/^\/(?:sign-in|unknown-session|sign-up|reset-password|forgot-password|oidc\/auth)/.test(
+      pathname,
+    ) ||
+      pathname === '/');
+
+  const forwardingHost = getPublicHost(req);
+  const forwardingProto = getForwardedProtocol(req);
+  const headers = {
+    ...req.headers,
+    host: req.headers.host || forwardingHost,
+    ...(isPageRequest ? { 'accept-encoding': 'identity' } : {}),
+    'x-forwarded-host': forwardingHost,
+    'x-forwarded-proto': forwardingProto,
+  };
+
+  try {
+    const proxyRes = await new Promise((resolve, reject) => {
+      const proxyReq = http.request(
+        {
+          hostname: LOGTO_UPSTREAM_HOST,
+          port: LOGTO_UPSTREAM_PORT,
+          path: req.url,
+          method: req.method,
+          headers,
+        },
+        (response) => {
+          const chunks = [];
+          response.on('data', (chunk) => chunks.push(chunk));
+          response.on('end', () => {
+            resolve({
+              body: Buffer.concat(chunks),
+              headers: response.headers,
+              statusCode: response.statusCode || 500,
+            });
+          });
+        },
+      );
+      proxyReq.on('error', reject);
+      req.pipe(proxyReq);
+    });
+
+    const responseHeaders = { ...proxyRes.headers };
+    if (responseHeaders.location) {
+      responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
+    }
+    if (isPageRequest) {
+      setNoStoreHeaders(responseHeaders);
+    }
+
+    let body = proxyRes.body;
+    const contentType = proxyRes.headers['content-type'] || '';
+    if (req.method === 'GET' && isPageRequest && contentType.includes('text/html')) {
+      body = Buffer.from(injectLogtoBrandingExperience(body.toString('utf8')), 'utf8');
+      delete responseHeaders['content-encoding'];
+      delete responseHeaders['transfer-encoding'];
+      responseHeaders['content-length'] = body.length;
+      console.log('[LegalChat] Logto branding injected');
+    }
+
+    res.writeHead(proxyRes.statusCode || 500, responseHeaders);
+    res.end(body);
+  } catch (error) {
+    console.error('Logto proxy error:', error);
+    res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('Bad Gateway');
+  }
+};
+
 const shouldShowHelperOnRoot = (req) => {
   const host = getPublicHost(req);
   return host.endsWith(':3211');
@@ -1964,6 +2252,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && parsedUrl.pathname === '/healthz') {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('ok');
+    return;
+  }
+
+  if (isLogtoBrandingHost(req)) {
+    await proxyLogtoBrandedRequest(req, res);
     return;
   }
 
