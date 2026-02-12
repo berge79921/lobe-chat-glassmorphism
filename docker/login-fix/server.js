@@ -1296,41 +1296,274 @@ const handleFileCreateWithCache = async (req, res) => {
   }
 };
 
-const buildHelperHtml = () => {
+const escapeHtml = (value) =>
+  String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const isTruthyFlag = (value) => /^(1|true|yes|on)$/i.test(String(value || '').trim());
+
+const buildHelperHtml = ({ loggedOut = false } = {}) => {
   const callbackUrl = APP_PUBLIC_URL.endsWith('/') ? APP_PUBLIC_URL : `${APP_PUBLIC_URL}/`;
   const loginHref = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  const appName = escapeHtml(LEGALCHAT_APP_NAME);
+  const avatarUrl = escapeHtml(LEGALCHAT_AVATAR_URL);
+  const assistantRole = escapeHtml(LEGALCHAT_ASSISTANT_ROLE_DE);
+  const statusHtml = loggedOut
+    ? `
+      <div class="status" role="status" aria-live="polite">
+        <span class="statusDot" aria-hidden="true"></span>
+        Sie wurden sicher abgemeldet.
+      </div>
+    `
+    : '';
 
   return `<!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${LEGALCHAT_APP_NAME} Login</title>
+  <title>${appName} Anmeldung</title>
+  <meta name="theme-color" content="#0b1635" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; }
-    .wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-    .card { width: min(560px, 100%); background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; text-align: center; }
-    .avatar { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #3b82f6; margin-bottom: 20px; }
-    h1 { margin: 0 0 12px; font-size: 28px; background: linear-gradient(135deg, #3b82f6, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p { margin: 0 0 20px; color: #94a3b8; }
-    a.button { display: inline-block; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; }
+    :root {
+      --bg: #08112b;
+      --bg-2: #0f1f45;
+      --line: rgba(163, 184, 255, 0.26);
+      --text: #ebf1ff;
+      --muted: #aebfdf;
+      --accent-a: #4ea1ff;
+      --accent-b: #7f7bff;
+      --ok: #46d39b;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Manrope", "Segoe UI", "Helvetica Neue", sans-serif;
+      background: radial-gradient(120% 90% at 50% 0%, #122b65 0%, #0b1738 42%, #060f27 100%);
+      overflow: hidden;
+    }
+    .wrap {
+      position: relative;
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      isolation: isolate;
+    }
+    .mesh {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(42rem 42rem at 12% 18%, rgba(70, 110, 255, 0.22), transparent 65%),
+        radial-gradient(30rem 30rem at 85% 8%, rgba(123, 102, 255, 0.20), transparent 72%),
+        radial-gradient(28rem 28rem at 84% 84%, rgba(44, 181, 255, 0.14), transparent 70%);
+      z-index: -2;
+    }
+    .mesh::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(187, 206, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(187, 206, 255, 0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, black 22%, transparent 88%);
+      pointer-events: none;
+    }
+    .shell {
+      position: relative;
+      width: min(640px, 100%);
+      border-radius: 28px;
+      padding: 1px;
+      background: linear-gradient(140deg, rgba(107, 151, 255, 0.55), rgba(123, 102, 255, 0.36), rgba(99, 220, 255, 0.28));
+      box-shadow:
+        0 36px 90px rgba(3, 8, 24, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      animation: panelFloat 7.5s ease-in-out infinite;
+    }
+    .card {
+      border-radius: 27px;
+      backdrop-filter: blur(12px);
+      background:
+        linear-gradient(180deg, rgba(16, 30, 67, 0.92), rgba(10, 20, 49, 0.9)),
+        linear-gradient(120deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+      padding: clamp(28px, 5vw, 44px);
+      text-align: center;
+      border: 1px solid rgba(177, 202, 255, 0.2);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #bed1ff;
+      border: 1px solid rgba(156, 183, 255, 0.32);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(20, 44, 95, 0.54);
+      margin-bottom: 20px;
+    }
+    .avatarHalo {
+      width: 148px;
+      height: 148px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(from 40deg, rgba(81, 162, 255, 0.95), rgba(126, 109, 255, 0.9), rgba(78, 161, 255, 0.95));
+      animation: spin 16s linear infinite;
+      box-shadow: 0 10px 36px rgba(71, 131, 255, 0.42);
+    }
+    .avatarFrame {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.1));
+    }
+    .avatar {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid rgba(195, 214, 255, 0.52);
+    }
+    h1 {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      font-size: clamp(34px, 5vw, 48px);
+      letter-spacing: -0.03em;
+      color: #f4f7ff;
+      text-shadow: 0 8px 26px rgba(63, 126, 255, 0.35);
+    }
+    .subline {
+      margin: 10px 0 0;
+      font-size: clamp(17px, 2.4vw, 21px);
+      color: #b4c7ee;
+      font-weight: 500;
+    }
+    .status {
+      margin: 18px auto 0;
+      width: fit-content;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(98, 228, 168, 0.52);
+      background: rgba(28, 78, 64, 0.35);
+      color: #d6ffe6;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .statusDot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 6px rgba(70, 211, 155, 0.16);
+    }
+    .ctaWrap {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 216px;
+      padding: 14px 26px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #fff;
+      background: linear-gradient(130deg, var(--accent-a), var(--accent-b));
+      border: 1px solid rgba(182, 209, 255, 0.55);
+      box-shadow:
+        0 14px 26px rgba(52, 102, 241, 0.44),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    }
+    .button:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 18px 34px rgba(52, 102, 241, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
+    .button:active { transform: translateY(0); }
+    .hint {
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 46ch;
+      line-height: 1.5;
+    }
+    .footer {
+      margin-top: 16px;
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: rgba(173, 195, 236, 0.72);
+    }
+    @keyframes spin { to { transform: rotate(1turn); } }
+    @keyframes panelFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 16px; }
+      .card { border-radius: 22px; }
+      .shell { border-radius: 23px; }
+      .button { width: 100%; min-width: 0; }
+      .avatarHalo { width: 128px; height: 128px; }
+      .avatarFrame { width: 120px; height: 120px; }
+      .hint { font-size: 13px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .shell, .avatarHalo { animation: none; }
+      .button { transition: none; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <img src="${LEGALCHAT_AVATAR_URL}" alt="${LEGALCHAT_DEFAULT_AGENT_NAME}" class="avatar">
-      <h1>${LEGALCHAT_APP_NAME} ⚖️</h1>
-      <p>Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE}</p>
+    <div class="mesh" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="card">
+      <div class="eyebrow">Sichere Anmeldung</div>
+      <div class="avatarHalo" aria-hidden="true">
+        <div class="avatarFrame">
+          <img src="${avatarUrl}" alt="${escapeHtml(LEGALCHAT_DEFAULT_AGENT_NAME)}" class="avatar" />
+        </div>
+      </div>
+      <h1>${appName} ⚖</h1>
+      <p class="subline">Ihr ${assistantRole}</p>
+      ${statusHtml}
+      <div class="ctaWrap">
       <a class="button" href="${loginHref}">Anmelden</a>
+      </div>
+      <p class="hint">Der Zugriff erfolgt in einer geschützten Session und führt Sie direkt zurück in Ihren Workspace.</p>
+      <div class="footer">LegalChat Security Layer</div>
+      </div>
     </div>
   </div>
 </body>
 </html>`;
 };
 
-const sendLoginHelper = (res) => {
-  const html = buildHelperHtml();
+const sendLoginHelper = (res, options = {}) => {
+  const html = buildHelperHtml(options);
   res.writeHead(200, {
     'cache-control': 'no-store',
     'content-length': textEncoder.encode(html).byteLength,
@@ -1796,7 +2029,9 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && parsedUrl.pathname === '/login') {
-    sendLoginHelper(res);
+    sendLoginHelper(res, {
+      loggedOut: isTruthyFlag(parsedUrl.searchParams.get('logged_out')),
+    });
     return;
   }
 
