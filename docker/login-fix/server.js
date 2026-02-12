@@ -102,7 +102,7 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
-const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-04';
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-05';
 const withVersionQuery = (url) => {
   const value = String(url || '').trim();
   if (!value) return value;
@@ -372,6 +372,45 @@ body.desktop #app [class*="subtitle"] {
 
 #app a {
   color: #a9c9ff !important;
+}
+
+/* Logto 404/unknown-session Back button */
+#app [class*="navBar"],
+#app [class*="navButton"],
+#app [class*="back" i] {
+  position: fixed !important;
+  top: 22px !important;
+  left: 22px !important;
+  z-index: 9999 !important;
+}
+
+#app [class*="navButton"],
+#app [class*="navBar"] [class*="navButton"],
+#app [role="button"][class*="nav" i] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 14px 18px !important;
+  border-radius: 16px !important;
+  min-height: 56px !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--lc-text) !important;
+  border: 1px solid rgba(177, 208, 255, 0.44) !important;
+  background: rgba(10, 24, 61, 0.72) !important;
+  box-shadow:
+    0 16px 34px rgba(3, 9, 28, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+#app [class*="navButton"]::before {
+  content: "\u2039";
+  font-size: 28px;
+  line-height: 1;
+  opacity: 0.9;
 }
 
 @media (max-width: 760px) {
