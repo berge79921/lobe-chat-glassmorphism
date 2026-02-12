@@ -39,7 +39,7 @@ cp docker/.env.example docker/.env
 
 ### KI-Assistent: George 🎩
 - **Name**: George - Ihr intelligenter KI-Jurist
-- **Avatar**: Professionelles LEGO-Style Design
+- **Avatar**: Professionelles LegalChat-Avatar Design
 - **Expertise**: Rechtsfragen, Vertragsanalyse, Recherche
 
 ### AI Provider
