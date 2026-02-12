@@ -162,16 +162,21 @@ const LEGALCHAT_LOGTO_CUSTOM_CSS = `
 :root {
   --lc-bg-1: #07133a;
   --lc-bg-2: #0f2360;
-  --lc-card: rgba(13, 29, 76, 0.9);
-  --lc-card-border: rgba(145, 176, 255, 0.34);
+  --lc-shell-border: rgba(140, 179, 255, 0.44);
+  --lc-shell-top: rgba(22, 43, 104, 0.95);
+  --lc-shell-bottom: rgba(10, 21, 54, 0.92);
   --lc-text: #edf4ff;
-  --lc-muted: #a9bfeb;
+  --lc-muted: #afc4ee;
+  --lc-input: rgba(10, 24, 61, 0.86);
+  --lc-input-border: rgba(144, 178, 255, 0.5);
   --lc-primary: #4ea1ff;
   --lc-primary-2: #7f7bff;
 }
 
-html, body {
+html,
+body {
   min-height: 100%;
+  margin: 0;
   font-family: "Manrope", "Segoe UI", "Helvetica Neue", sans-serif !important;
   background: radial-gradient(120% 90% at 50% 0%, #17347f 0%, var(--lc-bg-2) 44%, var(--lc-bg-1) 100%) !important;
 }
@@ -186,40 +191,87 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(48rem 48rem at 10% 14%, rgba(100, 150, 255, 0.2), transparent 65%),
-    radial-gradient(34rem 34rem at 84% 8%, rgba(145, 121, 255, 0.22), transparent 70%),
-    linear-gradient(rgba(189, 207, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(189, 207, 255, 0.06) 1px, transparent 1px);
-  background-size: auto, auto, 52px 52px, 52px 52px;
+    radial-gradient(42rem 42rem at 12% 18%, rgba(70, 110, 255, 0.22), transparent 65%),
+    radial-gradient(30rem 30rem at 85% 8%, rgba(123, 102, 255, 0.2), transparent 72%),
+    radial-gradient(28rem 28rem at 84% 84%, rgba(44, 181, 255, 0.14), transparent 70%),
+    linear-gradient(rgba(187, 206, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(187, 206, 255, 0.06) 1px, transparent 1px);
+  background-size: auto, auto, auto, 48px 48px, 48px 48px;
   z-index: 0;
 }
 
+body.desktop {
+  background: transparent !important;
+}
+
 #app {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 22px;
   position: relative;
+  min-height: 100vh;
   z-index: 1;
 }
 
+/* Root React mount from Logto: keep it full-size, never treat it as the visual card */
 #app > * {
-  width: min(640px, 100%) !important;
-  border-radius: 28px !important;
-  border: 1px solid var(--lc-card-border) !important;
-  background: linear-gradient(180deg, rgba(19, 39, 95, 0.96), var(--lc-card)) !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100vh !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Logto page container */
+#app > * > * {
+  min-height: 100vh !important;
+  padding: clamp(16px, 2.2vw, 28px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Main auth card */
+#app > * > * > *:first-child {
+  width: min(760px, 100%) !important;
+  min-height: min(86vh, 760px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  border-radius: 30px !important;
+  border: 1px solid var(--lc-shell-border) !important;
+  background:
+    linear-gradient(180deg, var(--lc-shell-top), var(--lc-shell-bottom)) !important;
   box-shadow:
-    0 30px 90px rgba(5, 10, 29, 0.72),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-  backdrop-filter: blur(11px);
+    0 36px 96px rgba(3, 9, 28, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  padding: clamp(28px, 4.4vw, 52px) !important;
+}
+
+/* Hide leftover provider signature strip under the card */
+#app > * > * > *:not(:first-child),
+#app a[class*="signature"],
+#app [class*="signature"] {
+  display: none !important;
+}
+
+#app [class*="logoWrapper"] {
+  margin-bottom: clamp(14px, 2.4vw, 22px) !important;
 }
 
 #app [class*="logo"] img,
+#app img[src*="george-avatar"],
 #app img[src*="logo"],
 #app img[alt*="logo" i] {
-  border-radius: 999px;
-  border: 3px solid rgba(132, 175, 255, 0.88);
-  box-shadow: 0 10px 34px rgba(77, 136, 255, 0.4);
+  width: clamp(136px, 14vw, 172px) !important;
+  height: clamp(136px, 14vw, 172px) !important;
+  object-fit: cover !important;
+  border-radius: 999px !important;
+  border: 3px solid rgba(132, 175, 255, 0.9) !important;
+  box-shadow: 0 14px 38px rgba(73, 136, 255, 0.42) !important;
 }
 
 #app h1,
@@ -227,33 +279,72 @@ body::before {
 #app [class*="title"] {
   font-family: "Sora", "Manrope", sans-serif !important;
   color: var(--lc-text) !important;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.02em !important;
+  text-align: center !important;
+}
+
+body.desktop #app h1,
+body.desktop #app h2,
+body.desktop #app [class*="title"] {
+  font-size: clamp(40px, 3.8vw, 52px) !important;
+  line-height: 1.08 !important;
 }
 
 #app p,
 #app [class*="description"],
 #app [class*="subtitle"] {
   color: var(--lc-muted) !important;
+  text-align: center !important;
+}
+
+body.desktop #app p,
+body.desktop #app [class*="description"],
+body.desktop #app [class*="subtitle"] {
+  font-size: clamp(18px, 1.6vw, 24px) !important;
+  line-height: 1.45 !important;
+}
+
+#app form,
+#app [class*="_form"] {
+  width: min(560px, 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+#app [class*="_form"] > *,
+#app form > * {
+  width: 100% !important;
+}
+
+#app label {
+  color: #c2d4fa !important;
+  font-weight: 600 !important;
 }
 
 #app input,
 #app textarea {
-  border-radius: 12px !important;
-  border: 1px solid rgba(148, 179, 255, 0.42) !important;
-  background: rgba(8, 20, 54, 0.75) !important;
+  min-height: 64px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--lc-input-border) !important;
+  background: var(--lc-input) !important;
   color: var(--lc-text) !important;
-  box-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  font-size: clamp(24px, 2.1vw, 32px) !important;
+  padding: 0 20px !important;
 }
 
 #app input::placeholder,
 #app textarea::placeholder {
-  color: #9cb2df !important;
+  color: #95addd !important;
 }
 
 #app button,
 #app [role="button"] {
-  border-radius: 14px !important;
-  border: 1px solid rgba(177, 208, 255, 0.5) !important;
+  min-height: 66px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(177, 208, 255, 0.56) !important;
+  font-weight: 800 !important;
+  font-size: clamp(28px, 2.2vw, 34px) !important;
 }
 
 #app button[type="submit"],
@@ -262,25 +353,49 @@ body::before {
   background: linear-gradient(130deg, var(--lc-primary), var(--lc-primary-2)) !important;
   color: #ffffff !important;
   box-shadow:
-    0 14px 30px rgba(49, 93, 245, 0.45),
+    0 16px 32px rgba(49, 93, 245, 0.44),
     inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
 #app button[type="submit"]:hover,
 #app button[class*="primary"]:hover {
-  filter: brightness(1.04);
+  filter: brightness(1.05);
 }
 
 #app a {
-  color: #a8c7ff !important;
+  color: #a9c9ff !important;
 }
 
-@media (max-width: 680px) {
-  #app {
-    padding: 14px;
+@media (max-width: 760px) {
+  #app > * > * {
+    padding: 14px !important;
   }
-  #app > * {
-    border-radius: 20px !important;
+
+  #app > * > * > *:first-child {
+    width: 100% !important;
+    min-height: auto !important;
+    border-radius: 22px !important;
+    padding: 24px 18px !important;
+  }
+
+  #app input,
+  #app textarea {
+    min-height: 54px !important;
+    font-size: 20px !important;
+    padding: 0 14px !important;
+  }
+
+  #app button,
+  #app [role="button"] {
+    min-height: 56px !important;
+    font-size: 22px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 `;
