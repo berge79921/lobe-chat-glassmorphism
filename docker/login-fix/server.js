@@ -102,7 +102,7 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
-const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-03';
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-04';
 const withVersionQuery = (url) => {
   const value = String(url || '').trim();
   if (!value) return value;
