@@ -2,7 +2,7 @@
 
 Ein KI-gestützter Rechtsassistent mit benutzerdefiniertem Glassmorphism-Theme.
 
-> **Powered by LobeChat** • **KI-Jurist: George** • **Secure Auth with Logto**
+> **Powered by LegalChat** • **KI-Jurist: George** • **Secure Auth with Logto**
 
 ![Theme Preview](https://img.shields.io/badge/Theme-Glassmorphism-blue)
 ![Auth](https://img.shields.io/badge/Auth-Logto-green)
@@ -61,7 +61,7 @@ Detaillierte Architekturdokumentation:
 Übersicht der Komponenten:
 ```
 ┌───────────────────────┐     ┌───────────────────────┐     ┌─────────────────┐
-│ Browser / Lobe UI     │────▶│ Auth Gateway          │────▶│ LobeChat App    │
+│ Browser / LegalChat UI│────▶│ Auth Gateway          │────▶│ LegalChat App    │
 │ Ports: 3210, 3211     │     │ Port: 3210 (+3211)    │     │ Internal: 3210  │
 └───────────────────────┘     └───────────────────────┘     └─────────────────┘
                                          │
@@ -169,8 +169,8 @@ docker compose -f docker/docker-compose.yml up -d --force-recreate login-proxy
 Fuer stabile Bildverarbeitung in Produktion (ohne `localhost`-Probleme) nutzt dieses Repo jetzt standardmaessig folgende Architektur:
 
 1. Bilder bleiben in MinIO (private Objekte, kein `public-read`)
-2. LobeHub erzeugt presigned Preview-URLs
-3. LobeHub konvertiert die Bilddaten serverseitig in Base64
+2. LegalChat erzeugt presigned Preview-URLs
+3. LegalChat konvertiert die Bilddaten serverseitig in Base64
 4. OpenRouter erhaelt nur Base64-Daten, keine private URL
 
 Pflicht-Variablen in `docker/.env`:
@@ -190,7 +190,7 @@ Zusaetzlich fuer zuverlässigen JPEG/PNG-Upload inkl. OCR:
 | `OPENROUTER_MODEL_LIST` | Enthält mindestens ein `vision`-faehiges Modell, z.B. `google/gemini-2.5-flash-lite...<...:vision:...>` |
 | `DEFAULT_AGENT_CONFIG` | `provider=openrouter;model=google/gemini-2.5-flash-lite` |
 
-Hinweis: LobeChat blockiert Bild-Upload clientseitig, wenn das aktive Modell keine `vision`-Capability hat.
+Hinweis: LegalChat blockiert Bild-Upload clientseitig, wenn das aktive Modell keine `vision`-Capability hat.
 
 ### Automatisches JPEG-OCR (modellunabhaengig)
 
@@ -225,7 +225,7 @@ Optionales Tuning:
 2. **Admin-Account erstellen**
 3. **Application erstellen**:
    - Type: "Next.js (App Router)"
-   - Name: "LobeChat"
+   - Name: "LegalChat"
    - Redirect URI: `http://localhost:3210/api/auth/callback/logto`
 4. **Credentials in `.env` eintragen**
 
@@ -236,7 +236,7 @@ Siehe detaillierte Dokumentation:
 → **[OPEN_ISSUES.md](docs/OPEN_ISSUES.md)**
 
 ### Zusammenfassung
-- ✅ Login-Button in LobeChat UI funktioniert wieder (Gateway-Fix aktiv)
+- ✅ Login-Button in LegalChat UI funktioniert wieder (Gateway-Fix aktiv)
 - ℹ️ Optionale Login-Hilfe bleibt unter http://localhost:3211/login verfügbar
 - ✅ Struktureller Bild-Upload-Fix fuer OpenRouter/MinIO dokumentiert und als Default hinterlegt
 
@@ -265,7 +265,7 @@ Benötigte GitHub Secrets für Deploy:
 
 ## 🔗 Links
 
-- **LobeChat UI**: http://localhost:3210
+- **LegalChat UI**: http://localhost:3210
 - **Login Hilfe**: http://localhost:3211
 - **Logto Admin**: http://localhost:3002
 - **MinIO Console**: http://localhost:9001

@@ -1,12 +1,12 @@
-# LobeChat Logto Login - Gateway Fix
+# LegalChat Logto Login - Gateway Fix
 
 ## Problem
 
-Next-Auth v5 (Beta) in LobeChat erfordert POST-Requests fuer `/api/auth/signin/logto`, aber die LobeChat-UI macht GET-Requests. Das fuehrt zu `Configuration` und `MissingCSRF` Fehlern.
+Next-Auth v5 (Beta) in LegalChat erfordert POST-Requests fuer `/api/auth/signin/logto`, aber die LegalChat-UI macht GET-Requests. Das fuehrt zu `Configuration` und `MissingCSRF` Fehlern.
 
 ## Lösung
 
-Ein Auth-Gateway sitzt jetzt vor LobeChat (Port `3210`) und uebersetzt den fehlerhaften GET-Flow serverseitig in einen gueltigen CSRF-geschuetzten POST-Flow:
+Ein Auth-Gateway sitzt jetzt vor LegalChat (Port `3210`) und uebersetzt den fehlerhaften GET-Flow serverseitig in einen gueltigen CSRF-geschuetzten POST-Flow:
 
 1. GET auf `/api/auth/signin/logto` kommt beim Gateway an
 2. Gateway holt CSRF-Token + Cookie von `/api/auth/csrf`
@@ -17,7 +17,7 @@ Ein Auth-Gateway sitzt jetzt vor LobeChat (Port `3210`) und uebersetzt den fehle
 
 ### Standard (UI-Login funktioniert wieder)
 
-1. Oeffne LobeChat:
+1. Oeffne LegalChat:
    - `http://localhost:3210`
 2. Klicke normal auf `Sign in with Logto`
 3. Redirect zu Logto erfolgt ohne `Configuration` Fehler
@@ -30,7 +30,7 @@ Zusatzseite (gleicher Gateway-Service):
 ## Konfiguration
 
 Alle Dienste laufen korrekt:
-- **LobeChat (via Gateway)**: `http://localhost:3210`
+- **LegalChat (via Gateway)**: `http://localhost:3210`
 - **Login-Hilfe**: `http://localhost:3211/login`
 - **Logto Auth**: `http://localhost:3001`
 - **Logto Admin**: `http://localhost:3002`

@@ -11,7 +11,7 @@ Ein **Auth-Gateway-Fix** wurde implementiert:
 - Gateway fuehrt den erforderlichen POST-Request aus
 - Browser erhaelt den korrekten 302 Redirect zu Logto
 
-Damit funktioniert der normale Login-Klick in der LobeChat UI auf `http://localhost:3210` wieder ohne `Configuration` Fehler.
+Damit funktioniert der normale Login-Klick in der LegalChat UI auf `http://localhost:3210` wieder ohne `Configuration` Fehler.
 
 ---
 
@@ -30,7 +30,7 @@ Details und Verlauf: `ISSUES.md` (Issue #1).
 
 ## ✅ Status-Update (10. Februar 2026) - Branding/CI Konsistenz
 
-Ursache fuer inkonsistentes Branding (teilweise weiter `LobeHub`/alte Icons sichtbar) war ein aktiver PWA-Service-Worker (`/sw.js`), der alte Assets im Browser-Cache hielt.
+Ursache fuer inkonsistentes Branding (teilweise weiter `LegalChat`/alte Icons sichtbar) war ein aktiver PWA-Service-Worker (`/sw.js`), der alte Assets im Browser-Cache hielt.
 
 Strukturelle Loesung im Gateway:
 
@@ -46,17 +46,17 @@ Verifikation:
 - `GET /sw.js` liefert no-cache Header + No-Op Worker
 - UI-Wordmark ist konsistent `LegalChat`
 - George-Avatar + Icon-Tuning greifen in Sidebar/Session stabil
-- Browser-E2E (Playwright) zeigt keine sichtbaren `LobeHub/LobeChat` Texte mehr im gerenderten Body
+- Browser-E2E (Playwright) zeigt keine sichtbaren `LegalChat/LegalChat` Texte mehr im gerenderten Body
 
 Hinweis:
-- `LobeHub` kann weiterhin in Next.js Inline-Skripten/Meta-Payloads auftauchen (technische SSR-Daten), ist aber nicht mehr als sichtbarer UI-Brandname vorhanden.
+- `LegalChat` kann weiterhin in Next.js Inline-Skripten/Meta-Payloads auftauchen (technische SSR-Daten), ist aber nicht mehr als sichtbarer UI-Brandname vorhanden.
 
 ---
 
 ## 🔴 Kritisch: Authentifizierungs-Fehler
 
 ### Problem
-Der Login-Button in der LobeChat UI funktioniert nicht. Beim Klicken auf "Sign in with Logto" wird eine Fehlerseite angezeigt:
+Der Login-Button in der LegalChat UI funktioniert nicht. Beim Klicken auf "Sign in with Logto" wird eine Fehlerseite angezeigt:
 
 ```
 http://localhost:3210/next-auth/error?error=Configuration
@@ -74,7 +74,7 @@ http://localhost:3210/next-auth/signin?error=MissingCSRF
 
 ### Technische Ursache
 
-**Next-Auth v5.0.0-beta.30** erwartet für Provider-Logins einen **POST-Request** an `/api/auth/signin/logto`, aber die LobeChat-UI (oder der Browser-Redirect) macht einen **GET-Request**.
+**Next-Auth v5.0.0-beta.30** erwartet für Provider-Logins einen **POST-Request** an `/api/auth/signin/logto`, aber die LegalChat-UI (oder der Browser-Redirect) macht einen **GET-Request**.
 
 **Auth.js Fehler im Log:**
 ```
@@ -85,7 +85,7 @@ http://localhost:3210/next-auth/signin?error=MissingCSRF
 ### Warum passiert das?
 
 1. Next-Auth v5 hat die API geändert - `signin()` erwartet POST
-2. LobeChat wurde für eine ältere Version entwickelt
+2. LegalChat wurde für eine ältere Version entwickelt
 3. Der Fehler tritt nur bei der "Sign in with [Provider]" UI-Komponente auf
 
 ---
@@ -143,7 +143,7 @@ http://192.168.1.240:3001/oidc/auth?
 - `LOGTO_CLIENT_SECRET` statt `AUTH_LOGTO_SECRET`
 - `LOGTO_ISSUER` statt `AUTH_LOGTO_ISSUER`
 
-**Ergebnis:** LobeChat erkennt die Variablen (zeigt Deprecation-Warnungen), aber der Fehler bleibt
+**Ergebnis:** LegalChat erkennt die Variablen (zeigt Deprecation-Warnungen), aber der Fehler bleibt
 
 ### 3. AUTH_URL / AUTH_SECRET
 
@@ -203,14 +203,14 @@ Ein Proxy der GET-Requests automatisch in POST-Requests umwandelt:
 
 ### Für Endbenutzer
 
-1. LobeChat normal unter http://localhost:3210 oeffnen
+1. LegalChat normal unter http://localhost:3210 oeffnen
 2. Login-Button in der UI wie gewohnt verwenden
 3. Der Gateway fuehrt den noetigen CSRF+POST Login-Flow automatisch aus
 4. Optional steht weiterhin die Helper-Seite unter http://localhost:3211/login zur Verfuegung
 
 ### Für Entwickler
 
-Nach dem Login funktioniert LobeChat vollständig:
+Nach dem Login funktioniert LegalChat vollständig:
 - ✅ Chat-Funktionalität
 - ✅ OpenRouter AI Integration
 - ✅ File Uploads (MinIO)
@@ -220,12 +220,12 @@ Nach dem Login funktioniert LobeChat vollständig:
 
 ## 🔧 Mögliche Langfristige Lösungen
 
-### Option 1: LobeChat Update
+### Option 1: LegalChat Update
 
 **Aufwand:** Hoch
 **Risiko:** Mittel
 
-Warten auf oder implementieren eines LobeChat-Updates, das Next-Auth v5 vollständig unterstützt.
+Warten auf oder implementieren eines LegalChat-Updates, das Next-Auth v5 vollständig unterstützt.
 
 **Siehe:**
 - https://github.com/lobehub/lobe-chat/issues/7339
@@ -236,7 +236,7 @@ Warten auf oder implementieren eines LobeChat-Updates, das Next-Auth v5 vollstä
 **Aufwand:** Mittel
 **Risiko:** Hoch
 
-LobeChat auf eine Version mit Next-Auth v4 downgraden.
+LegalChat auf eine Version mit Next-Auth v4 downgraden.
 
 **Problem:** Breaking Changes in der Datenbank-Schema
 

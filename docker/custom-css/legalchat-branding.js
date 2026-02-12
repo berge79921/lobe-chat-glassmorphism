@@ -1089,7 +1089,7 @@
     }
   }
 
-  function setGeorgeAvatar() {
+  function setBrandAvatar() {
     var isChatRoute = /(?:^|\/)chat(?:\/|$)/i.test(window.location.pathname || '');
     var selectors = [
       'aside img',
@@ -1189,6 +1189,18 @@
     );
   }
 
+  function markBrandingReady() {
+    var root = document.documentElement;
+    if (!root) return;
+    root.removeAttribute('data-legalchat-branding-pending');
+    root.setAttribute('data-legalchat-branding-ready', '1');
+    if (typeof window.__legalchatBrandingUnlock === 'function') {
+      try {
+        window.__legalchatBrandingUnlock();
+      } catch (_unlockError) {}
+    }
+  }
+
   function applyBranding() {
     installAuth401Guard();
     installAudioCaptureGuard();
@@ -1204,7 +1216,7 @@
     rewriteTextNodes(document.body);
     rewriteAttributes();
     replaceWordmarkSvg();
-    setGeorgeAvatar();
+    setBrandAvatar();
     tuneNavIcons();
     installLogoutOverride();
   }
@@ -1219,8 +1231,10 @@
         applyBranding();
       } catch (error) {
         console.error('[LegalChat] Branding apply failed:', error);
+      } finally {
+        markBrandingReady();
       }
-    }, 120);
+    }, 16);
   }
 
   installAuth401Guard();

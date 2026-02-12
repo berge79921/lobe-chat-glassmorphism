@@ -21,7 +21,7 @@ Nach dem ersten Start:
 2. Erstelle Admin-Account
 3. Erstelle Application:
    - Type: "Next.js (App Router)"
-   - Name: "LobeChat"
+   - Name: "LegalChat"
    - Redirect URI: `http://localhost:3210/api/auth/callback/logto`
 4. Kopiere Client ID & Secret in `.env`:
    ```
@@ -77,7 +77,7 @@ cd docker && docker compose restart lobe
 
 | Service | URL |
 |---------|-----|
-| **LobeChat UI** | http://localhost:3210 |
+| **LegalChat UI** | http://localhost:3210 |
 | Logto Admin | http://localhost:3002 |
 | MinIO Console | http://localhost:9001 |
 

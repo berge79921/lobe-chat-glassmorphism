@@ -1,10 +1,10 @@
-# Systemarchitektur: LobeChat Glassmorphism
+# Systemarchitektur: LegalChat Glassmorphism
 
 > 🚧 **Diese Dokumentation ist in Arbeit**
 
 ## Übersicht
 
-Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit Glassmorphism-Theme und Logto-Authentifizierung.
+Dieses Dokument beschreibt die Systemarchitektur der LegalChat-Installation mit Glassmorphism-Theme und Logto-Authentifizierung.
 
 ## Inhaltsverzeichnis
 
@@ -19,7 +19,7 @@ Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit G
 
 ## Systemkomponenten
 
-### 1. LobeChat (Main Application)
+### 1. LegalChat (Main Application)
 - **Image**: `lobehub/lobe-chat-database:latest`
 - **Port**: 3210
 - **Framework**: Next.js 15 + Auth.js 5.0.0-beta.30
@@ -35,7 +35,7 @@ Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit G
 - **Image**: `pgvector/pgvector:pg16`
 - **Port**: 5432
 - **Datenbanken**:
-  - `lobe` - LobeChat Daten
+  - `lobe` - LegalChat Daten
   - `logto` - Logto Benutzerdaten
 - **Funktion**: Persistente Datenspeicherung, Vektor-Suche
 
@@ -57,7 +57,7 @@ Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit G
 
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  Browser │────▶│ LobeChat │────▶│  AI API  │
+│  Browser │────▶│ LegalChat │────▶│  AI API  │
 │          │◄────│ Port 3210│◄────│OpenRouter│
 └──────────┘     └──────────┘     └──────────┘
        │
@@ -76,7 +76,7 @@ Dieses Dokument beschreibt die Systemarchitektur der LobeChat-Installation mit G
 └──────────┘     └──────────┘     └──────────┘
        │                                │
        │         ┌──────────┐           │
-       └────────▶│ LobeChat │◀──────────┘
+       └────────▶│ LegalChat │◀──────────┘
                  │Port 3210 │
                  └──────────┘
 ```
@@ -93,7 +93,7 @@ Verarbeitung von Bildern mit externen Cloud-Providern (z. B. OpenRouter/Google),
 
 ```
 ┌──────────┐   Upload    ┌──────────┐  presigned URL   ┌───────────────┐
-│ Browser  │────────────▶│  MinIO   │─────────────────▶│   LobeChat    │
+│ Browser  │────────────▶│  MinIO   │─────────────────▶│   LegalChat    │
 └──────────┘             └──────────┘                  │ image->base64 │
                                                         └──────┬────────┘
                                                                │ data URI
@@ -104,9 +104,9 @@ Verarbeitung von Bildern mit externen Cloud-Providern (z. B. OpenRouter/Google),
 ### Konfigurationsprinzip
 
 1. `S3_SET_ACL=0`  
-   Objekte bleiben privat, LobeHub nutzt presigned Preview-URLs.
+   Objekte bleiben privat, LegalChat nutzt presigned Preview-URLs.
 2. `LLM_VISION_IMAGE_USE_BASE64=1`  
-   LobeHub uebertraegt Bilder als Base64 (statt URL) an externe Modelle.
+   LegalChat uebertraegt Bilder als Base64 (statt URL) an externe Modelle.
 3. `SSRF_ALLOW_PRIVATE_IP_ADDRESS=0` + `SSRF_ALLOW_IP_ADDRESS_LIST=<MINIO_IP>`  
    SSRF-Schutz bleibt aktiv; nur die eigene MinIO-IP ist erlaubt.
 4. `S3_PUBLIC_DOMAIN` darf nicht auf `localhost` zeigen.
@@ -123,7 +123,7 @@ Verarbeitung von Bildern mit externen Cloud-Providern (z. B. OpenRouter/Google),
 
 ### Komponenten-Interaktion
 
-1. **LobeChat** (Next-Auth v5)
+1. **LegalChat** (Next-Auth v5)
    - Verwendet `@auth/core` 0.40.0
    - Provider: `next-auth/providers/logto`
    - Session-Strategie: JWT (default)
@@ -161,7 +161,7 @@ Alle Services laufen im Docker-Compose-Network:
 
 | Service | Container Name | Interne URL | Externe URL |
 |---------|---------------|-------------|-------------|
-| LobeChat | `lobe-chat-glass` | `http://lobe-chat-glass:3210` | `http://localhost:3210` |
+| LegalChat | `lobe-chat-glass` | `http://lobe-chat-glass:3210` | `http://localhost:3210` |
 | Logto | `lobe-logto` | `http://lobe-logto:3001` | `http://localhost:3001` |
 | PostgreSQL | `lobe-postgres` | `postgresql://lobe-postgres:5432` | `localhost:5432` |
 | MinIO | `lobe-minio` | `http://lobe-minio:9000` | `http://localhost:9000` |

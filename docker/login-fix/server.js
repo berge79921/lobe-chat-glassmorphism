@@ -1,5 +1,5 @@
 /**
- * Auth gateway for LobeChat.
+ * Auth gateway for LegalChat.
  * Fixes Auth.js v5 provider sign-in by translating browser GET to
  * server-side CSRF + POST for /api/auth/signin/:provider.
  * 
@@ -429,6 +429,8 @@ const serializeInlineConfig = (value) =>
 const BRANDING_CONFIG_INJECTION = `<script data-legalchat-config="1">window.__LEGALCHAT_BRANDING_CONFIG__=${serializeInlineConfig(
   BRANDING_RUNTIME_CONFIG,
 )};</script>`;
+const BRANDING_PREPAINT_STYLE = `<style data-legalchat-prepaint="1">html[data-legalchat-branding-pending="1"] body{opacity:0!important;visibility:hidden!important;}html[data-legalchat-branding-ready="1"] body{opacity:1!important;visibility:visible!important;transition:opacity .14s ease-out;}</style>`;
+const BRANDING_PREPAINT_BOOTSTRAP = `<script data-legalchat-prepaint="1">(function(){try{var root=document.documentElement;if(!root)return;root.setAttribute('data-legalchat-branding-pending','1');var unlock=function(){root.removeAttribute('data-legalchat-branding-pending');root.setAttribute('data-legalchat-branding-ready','1');};window.__legalchatBrandingUnlock=unlock;setTimeout(unlock,2200);}catch(_error){}})();</script>`;
 const FAVICON_INJECTION = `<script data-legalchat-favicon="1">(function(){try{var href=${serializeInlineConfig(
   LEGALCHAT_FAVICON_VERSIONED_URL,
 )};var head=document.head||document.getElementsByTagName('head')[0];if(!head||!href)return;var iconLinks=head.querySelectorAll('link[rel*="icon" i]');for(var i=0;i<iconLinks.length;i+=1){iconLinks[i].setAttribute('href',href);}var rels=['icon','shortcut icon','apple-touch-icon'];for(var j=0;j<rels.length;j+=1){var rel=rels[j];if(head.querySelector('link[rel=\"'+rel+'\"]'))continue;var link=document.createElement('link');link.setAttribute('rel',rel);link.setAttribute('href',href);head.appendChild(link);}}catch(_error){}})();</script>`;
@@ -437,6 +439,8 @@ const BRANDING_BOOTSTRAP = DISABLE_SERVICE_WORKER
   : '';
 const BRANDING_INJECTION = [
   '<!-- LegalChat Branding Assets -->',
+  BRANDING_PREPAINT_STYLE,
+  BRANDING_PREPAINT_BOOTSTRAP,
   BRANDING_BOOTSTRAP,
   BRANDING_CONFIG_INJECTION,
   FAVICON_INJECTION,
@@ -2147,9 +2151,9 @@ const injectBrandingIntoHTML = (body) => {
   let html = body.toString('utf8');
   html = rewriteHeadBrandingMetadata(html);
   html = html
-    .replace(/Anmelden bei LobeHub/gi, `Anmelden bei ${LEGALCHAT_APP_NAME}`)
-    .replace(/Sign in to LobeHub/gi, `Sign in to ${LEGALCHAT_APP_NAME}`)
-    .replace(/Powered by LobeHub/gi, `Powered by ${LEGALCHAT_APP_NAME}`)
+    .replace(/Anmelden bei\s+(?:LobeHub|LobeChat)/gi, `Anmelden bei ${LEGALCHAT_APP_NAME}`)
+    .replace(/Sign in to\s+(?:LobeHub|LobeChat)/gi, `Sign in to ${LEGALCHAT_APP_NAME}`)
+    .replace(/Powered by\s+(?:LobeHub|LobeChat)/gi, `Powered by ${LEGALCHAT_APP_NAME}`)
     .replace(/Powered by Logto/gi, `Powered by ${LEGALCHAT_APP_NAME}`)
     .replace(/>\s*Logto\s*</g, '>Anmelden<');
   if (html.includes('data-legalchat-branding="1"')) return html;
