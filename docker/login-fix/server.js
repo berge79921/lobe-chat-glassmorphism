@@ -120,6 +120,7 @@ const LEGALCHAT_LOGOUT_MODE = (process.env.LEGALCHAT_LOGOUT_MODE || 'local')
 const LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL = (
   process.env.LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL || '/login?logged_out=1'
 ).trim();
+const LEGALCHAT_FORCE_LOGIN_PROMPT = process.env.LEGALCHAT_FORCE_LOGIN_PROMPT !== '0';
 const SIGNOUT_PATH_PATTERN = /^\/(?:api\/auth|next-auth)\/signout\/?$/;
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
@@ -1306,9 +1307,23 @@ const escapeHtml = (value) =>
 
 const isTruthyFlag = (value) => /^(1|true|yes|on)$/i.test(String(value || '').trim());
 
+const buildProviderSigninUrl = (callbackUrl, options = {}) => {
+  const params = new URLSearchParams();
+  params.set('callbackUrl', callbackUrl || APP_PUBLIC_URL);
+  const forcePrompt =
+    typeof options.forcePrompt === 'boolean'
+      ? options.forcePrompt
+      : LEGALCHAT_FORCE_LOGIN_PROMPT;
+  if (forcePrompt) {
+    params.set('prompt', 'login');
+    params.set('max_age', '0');
+  }
+  return `/api/auth/signin/logto?${params.toString()}`;
+};
+
 const buildHelperHtml = ({ loggedOut = false } = {}) => {
   const callbackUrl = APP_PUBLIC_URL.endsWith('/') ? APP_PUBLIC_URL : `${APP_PUBLIC_URL}/`;
-  const loginHref = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  const loginHref = buildProviderSigninUrl(callbackUrl);
   const appName = escapeHtml(LEGALCHAT_APP_NAME);
   const avatarUrl = escapeHtml(LEGALCHAT_AVATAR_URL);
   const assistantRole = escapeHtml(LEGALCHAT_ASSISTANT_ROLE_DE);
@@ -2022,7 +2037,7 @@ const server = http.createServer(async (req, res) => {
   // Skip built-in /next-auth/signin screen and go straight to Logto.
   if (req.method === 'GET' && parsedUrl.pathname === '/next-auth/signin') {
     const callbackUrl = parsedUrl.searchParams.get('callbackUrl') || `${publicOrigin}/chat`;
-    const signinUrl = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    const signinUrl = buildProviderSigninUrl(callbackUrl);
     res.writeHead(302, { 'cache-control': 'no-store', location: signinUrl });
     res.end();
     return;
@@ -2037,7 +2052,7 @@ const server = http.createServer(async (req, res) => {
 
   if (shouldEnforceLogin(req, parsedUrl)) {
     const callbackUrl = `${publicOrigin}${req.url}`;
-    const signinUrl = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    const signinUrl = buildProviderSigninUrl(callbackUrl);
     res.writeHead(302, { 'cache-control': 'no-store', location: signinUrl });
     res.end();
     return;
