@@ -75,8 +75,10 @@ services:
       
       # Auth (Generate with: openssl rand -base64 32)
       NEXT_AUTH_SECRET: ${NEXT_AUTH_SECRET:-your_random_secret_here}
+      AUTH_SECRET: ${AUTH_SECRET:-your_random_secret_here}
       KEY_VAULTS_SECRET: ${KEY_VAULTS_SECRET:-your_random_secret_here}
       NEXT_AUTH_SSO_PROVIDERS: logto
+      AUTH_SSO_PROVIDERS: logto
       AUTH_TRUST_HOST: "true"
       AUTH_LOGTO_ID: ${AUTH_LOGTO_ID:-}
       AUTH_LOGTO_SECRET: ${AUTH_LOGTO_SECRET:-}
@@ -100,9 +102,10 @@ services:
       # OpenRouter API (Primary Provider)
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_PROXY_URL: https://openrouter.ai/api/v1
+      OPENROUTER_MODEL_LIST: ${OPENROUTER_MODEL_LIST:-google/gemini-2.5-flash-lite=Gemini 2.5 Flash Lite OCR<1048576:vision:fc:reasoning:file>,openai/gpt-5-mini=GPT-5 Mini Vision<400000:vision:fc:reasoning:file>,google/gemma-3-27b-it:free=Gemma 3 27B Vision Free<131072:vision:fc:file>}
       
       # Make OpenRouter the default provider
-      DEFAULT_AGENT_CONFIG: "provider=openrouter;model=openai/gpt-4o-mini"
+      DEFAULT_AGENT_CONFIG: ${DEFAULT_AGENT_CONFIG:-provider=openrouter;model=google/gemini-2.5-flash-lite}
       
       # Optional: Additional providers
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -129,9 +132,27 @@ services:
       LOBECHAT_PORT: 3210
       APP_PUBLIC_URL: ${APP_URL:-http://localhost:3210}
       PORT: 3210
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_PROXY_URL: ${OPENROUTER_PROXY_URL:-https://openrouter.ai/api/v1}
+      LEGALCHAT_OCR_ENABLED: ${LEGALCHAT_OCR_ENABLED:-1}
+      LEGALCHAT_OCR_MODEL: ${LEGALCHAT_OCR_MODEL:-google/gemini-2.5-flash-lite}
+      LEGALCHAT_OCR_MAX_IMAGES: ${LEGALCHAT_OCR_MAX_IMAGES:-6}
+      LEGALCHAT_OCR_MAX_IMAGE_BYTES: ${LEGALCHAT_OCR_MAX_IMAGE_BYTES:-12582912}
+      LEGALCHAT_OCR_MAX_TEXT_CHARS: ${LEGALCHAT_OCR_MAX_TEXT_CHARS:-12000}
+      LEGALCHAT_OCR_TIMEOUT_MS: ${LEGALCHAT_OCR_TIMEOUT_MS:-45000}
+      LEGALCHAT_OCR_FILE_CACHE_TTL_MS: ${LEGALCHAT_OCR_FILE_CACHE_TTL_MS:-7200000}
+      LEGALCHAT_OCR_S3_PRESIGN_EXPIRES_SEC: ${LEGALCHAT_OCR_S3_PRESIGN_EXPIRES_SEC:-300}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-admin}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-minio_password_secure}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://192.168.1.240:9000}
+      S3_BUCKET: ${S3_BUCKET:-lobe}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_PUBLIC_DOMAIN: ${S3_PUBLIC_DOMAIN:-http://192.168.1.240:9000}
+      S3_ENABLE_PATH_STYLE: ${S3_ENABLE_PATH_STYLE:-1}
       LEGALCHAT_APP_NAME: ${LEGALCHAT_APP_NAME:-LegalChat}
       LEGALCHAT_DEFAULT_AGENT_NAME: ${LEGALCHAT_DEFAULT_AGENT_NAME:-George}
       LEGALCHAT_AVATAR_URL: ${LEGALCHAT_AVATAR_URL:-/custom-assets/george-avatar.jpg}
+      LEGALCHAT_FAVICON_URL: ${LEGALCHAT_FAVICON_URL:-/custom-assets/george-avatar.jpg}
       LEGALCHAT_TAB_TITLE: ${LEGALCHAT_TAB_TITLE:-George · LegalChat}
       LEGALCHAT_ASSISTANT_ROLE_DE: ${LEGALCHAT_ASSISTANT_ROLE_DE:-persönlicher KI-Jurist}
       LEGALCHAT_ASSISTANT_ROLE_EN: ${LEGALCHAT_ASSISTANT_ROLE_EN:-personal AI legal assistant}
@@ -142,6 +163,11 @@ services:
       LEGALCHAT_WELCOME_PRIMARY_EN: ${LEGALCHAT_WELCOME_PRIMARY_EN:-}
       LEGALCHAT_WELCOME_SECONDARY_DE: ${LEGALCHAT_WELCOME_SECONDARY_DE:-Wenn Sie einen professionelleren oder maßgeschneiderten Assistenten benötigen, klicken Sie auf +, um einen benutzerdefinierten Assistenten zu erstellen.}
       LEGALCHAT_WELCOME_SECONDARY_EN: ${LEGALCHAT_WELCOME_SECONDARY_EN:-}
+      LEGALCHAT_LOGOUT_MODE: ${LEGALCHAT_LOGOUT_MODE:-local}
+      LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL: ${LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL:-/login?logged_out=1}
+      LOGTO_END_SESSION_ENDPOINT: ${LOGTO_END_SESSION_ENDPOINT:-https://auth.legalchat.net/oidc/session/end}
+      LOGTO_POST_LOGOUT_REDIRECT_URL: ${LOGTO_POST_LOGOUT_REDIRECT_URL:-https://legalchat.net}
+      AUTH_LOGTO_ID: ${AUTH_LOGTO_ID:-}
     depends_on:
       - lobe
     restart: always

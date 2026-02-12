@@ -11,6 +11,7 @@
   var APP_NAME = runtimeConfig.appName || 'LegalChat';
   var DEFAULT_AGENT_NAME = runtimeConfig.defaultAgentName || 'George';
   var AVATAR_URL = runtimeConfig.avatarUrl || '/custom-assets/george-avatar.jpg';
+  var RAW_FAVICON_URL = runtimeConfig.faviconUrl || AVATAR_URL;
   var TAB_TITLE = runtimeConfig.tabTitle || (DEFAULT_AGENT_NAME + ' · ' + APP_NAME);
   var STT_MAX_RECORDING_MS = parsePositiveInt(runtimeConfig.sttMaxRecordingMs, 90000);
   var STT_SILENCE_STOP_MS = parsePositiveInt(runtimeConfig.sttSilenceStopMs, 3000);
@@ -48,12 +49,23 @@
   var WELCOME_SECONDARY_DE_PATTERN = /Wenn Sie einen professionelleren oder maßgeschneiderten Assistenten benötigen,\s*klicken Sie auf\s*\+?\s*,?\s*um einen benutzerdefinierten Assistenten zu erstellen\.?/gi;
   var WELCOME_SECONDARY_EN_PATTERN = /If you need a more professional or customized assistant,\s*you can click\s*\+?\s*to create a custom assistant\.?/gi;
   var DEFAULT_AGENT_PATTERN = /Lass uns plaudern|Just Chat/gi;
-  var BRAND_TITLE_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat|LegalChat/i;
+  var LEGACY_BRAND_TITLE_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/i;
   var WORDMARK_SELECTOR = 'svg[viewBox="0 0 940 320"]';
 
   var scheduled = false;
   window.__legalchatVoiceMode = VOICE_OFF ? 'off' : 'guarded';
   window.__legalchatVoiceOff = VOICE_OFF;
+
+  function withBrandingVersion(url) {
+    var value = String(url || '').trim();
+    if (!value) return value;
+    var version = String(runtimeConfig.brandingVersion || '').trim();
+    if (!version) return value;
+    if (/[?&]v=/.test(value)) return value;
+    return value + (value.indexOf('?') === -1 ? '?' : '&') + 'v=' + encodeURIComponent(version);
+  }
+
+  var FAVICON_URL = withBrandingVersion(RAW_FAVICON_URL);
 
   function createVoiceOffError(message) {
     var text = message || 'Voice input is disabled by LegalChat policy.';
@@ -61,6 +73,137 @@
     var error = new Error(text);
     error.name = 'NotAllowedError';
     return error;
+  }
+
+  function safeUrlString(input) {
+    if (!input) return '';
+    if (typeof input === 'string') return input;
+    if (typeof input.url === 'string') return input.url;
+    try {
+      return String(input);
+    } catch (_stringifyError) {
+      return '';
+    }
+  }
+
+  function looksLikeProtectedTrpcEndpoint(url) {
+    if (!url) return false;
+    return /(?:^|\/)trpc\/lambda\//i.test(url);
+  }
+
+  var authRedirectInProgress = false;
+  function redirectToLogin() {
+    if (authRedirectInProgress) return;
+    if (/\/login(?:\/|$)/i.test(window.location.pathname || '')) return;
+    authRedirectInProgress = true;
+
+    var callbackUrl = window.location.href || '/chat';
+    var target = '/login?callbackUrl=' + encodeURIComponent(callbackUrl);
+
+    window.setTimeout(function () {
+      window.location.assign(target);
+    }, 120);
+  }
+
+  function installAuth401Guard() {
+    if (window.__legalchatAuth401GuardInstalled) return;
+    window.__legalchatAuth401GuardInstalled = true;
+
+    if (typeof window.fetch === 'function') {
+      var originalFetch = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        return originalFetch(input, init).then(function (response) {
+          try {
+            var inputUrl = safeUrlString(input);
+            var responseUrl = response && response.url ? response.url : '';
+            var url = inputUrl || responseUrl;
+            if (response && response.status === 401 && looksLikeProtectedTrpcEndpoint(url)) {
+              redirectToLogin();
+            }
+          } catch (_fetchGuardError) {}
+          return response;
+        });
+      };
+    }
+
+    if (typeof window.XMLHttpRequest === 'function') {
+      var OriginalXHR = window.XMLHttpRequest;
+      function WrappedXHR() {
+        var xhr = new OriginalXHR();
+        var trackedUrl = '';
+        var originalOpen = xhr.open && xhr.open.bind(xhr);
+        if (originalOpen) {
+          xhr.open = function (method, url) {
+            trackedUrl = safeUrlString(url);
+            return originalOpen.apply(xhr, arguments);
+          };
+        }
+
+        xhr.addEventListener('loadend', function () {
+          try {
+            if (xhr.status === 401 && looksLikeProtectedTrpcEndpoint(trackedUrl || xhr.responseURL || '')) {
+              redirectToLogin();
+            }
+          } catch (_xhrGuardError) {}
+        });
+        return xhr;
+      }
+      WrappedXHR.prototype = OriginalXHR.prototype;
+      try {
+        Object.setPrototypeOf(WrappedXHR, OriginalXHR);
+      } catch (_xhrPrototypeError) {}
+      window.XMLHttpRequest = WrappedXHR;
+    }
+  }
+
+  function ensureFaviconLinks() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    if (!head || !FAVICON_URL) return;
+
+    var rels = ['icon', 'shortcut icon', 'apple-touch-icon'];
+    var seen = {};
+
+    var links = head.querySelectorAll('link[rel]');
+    for (var i = 0; i < links.length; i += 1) {
+      var rel = String(links[i].getAttribute('rel') || '').toLowerCase().trim();
+      if (rels.indexOf(rel) === -1) continue;
+      links[i].setAttribute('href', FAVICON_URL);
+      if (seen[rel]) {
+        if (links[i].parentNode) links[i].parentNode.removeChild(links[i]);
+        continue;
+      }
+      seen[rel] = links[i];
+    }
+
+    for (var j = 0; j < rels.length; j += 1) {
+      var requiredRel = rels[j];
+      if (seen[requiredRel]) continue;
+      var link = document.createElement('link');
+      link.setAttribute('rel', requiredRel);
+      link.setAttribute('href', FAVICON_URL);
+      head.appendChild(link);
+      seen[requiredRel] = link;
+    }
+  }
+
+  function isVoicePolicyError(error) {
+    if (!error) return false;
+    var name = String(error.name || '');
+    var message = String(error.message || '');
+    return (
+      name === 'NotAllowedError' &&
+      /voice input is disabled by policy|legalchat policy/i.test(message)
+    );
+  }
+
+  function suppressVoicePolicyRejections() {
+    if (!VOICE_OFF || window.__legalchatVoicePolicyRejectionHandlerInstalled) return;
+    window.__legalchatVoicePolicyRejectionHandlerInstalled = true;
+
+    window.addEventListener('unhandledrejection', function (event) {
+      if (!event) return;
+      if (isVoicePolicyError(event.reason)) event.preventDefault();
+    });
   }
 
   function installAudioCaptureGuard() {
@@ -341,7 +484,20 @@
           if (VOICE_OFF) {
             clearTimers();
             recognition.__legalchatSpeechActive = '0';
-            throw createVoiceOffError('Voice input is disabled by policy. Please contact your LegalChat administrator.');
+            if (typeof recognition.onerror === 'function') {
+              try {
+                recognition.onerror({
+                  error: 'not-allowed',
+                  message: 'Voice input is disabled by policy. Please contact your LegalChat administrator.',
+                });
+              } catch (_onErrorCallbackError) {}
+            }
+            if (typeof recognition.onend === 'function') {
+              try {
+                recognition.onend();
+              } catch (_onEndCallbackError) {}
+            }
+            return;
           }
           clearTimers();
           armSessionTimer();
@@ -730,9 +886,10 @@
   }
 
   function rewriteTitle() {
-    var next = rewriteText(document.title);
-    if (!next || BRAND_TITLE_PATTERN.test(next)) next = TAB_TITLE;
-    if (next && next !== document.title) {
+    var originalTitle = String(document.title || '');
+    var next = rewriteText(originalTitle);
+    if (!originalTitle.trim() || LEGACY_BRAND_TITLE_PATTERN.test(originalTitle)) next = TAB_TITLE;
+    if (next && next !== originalTitle) {
       document.title = next;
     }
   }
@@ -792,8 +949,9 @@
     for (var i = 0; i < titles.length; i += 1) {
       var title = titles[i];
       if (!title || !title.textContent) continue;
-      var rewrittenTitle = rewriteText(title.textContent);
-      if (!rewrittenTitle || BRAND_TITLE_PATTERN.test(rewrittenTitle)) rewrittenTitle = TAB_TITLE;
+      var originalTitle = String(title.textContent || '');
+      var rewrittenTitle = rewriteText(originalTitle);
+      if (!originalTitle.trim() || LEGACY_BRAND_TITLE_PATTERN.test(originalTitle)) rewrittenTitle = TAB_TITLE;
       if (rewrittenTitle !== title.textContent) title.textContent = rewrittenTitle;
     }
     if (titles.length > 1) {
@@ -991,20 +1149,54 @@
     }
   }
 
+  function installLogoutOverride() {
+    if (window.__legalchatLogoutOverrideInstalled) return;
+    window.__legalchatLogoutOverrideInstalled = true;
+
+    document.addEventListener(
+      'click',
+      function (event) {
+        if (!event) return;
+        var rawTarget = event.target;
+        if (!rawTarget || !rawTarget.closest) return;
+
+        var trigger = rawTarget.closest('button,a,[role="menuitem"],li,div');
+        if (!trigger) return;
+
+        var text = String(trigger.textContent || '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!text) return;
+
+        if (!/\b(Ausloggen|Abmelden|Logout|Log Out|Sign out)\b/i.test(text)) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        window.location.assign('/logout');
+      },
+      true,
+    );
+  }
+
   function applyBranding() {
+    installAuth401Guard();
     installAudioCaptureGuard();
     installSpeechRecognitionGuard();
+    suppressVoicePolicyRejections();
     installVoiceUiStateWatchdog();
     enforceVoiceOffMode();
     attachOverlayForceStopButton();
     rewriteTitle();
     rewriteHeadMetadata();
+    ensureFaviconLinks();
     rewriteWelcomeBlocks();
     rewriteTextNodes(document.body);
     rewriteAttributes();
     replaceWordmarkSvg();
     setGeorgeAvatar();
     tuneNavIcons();
+    installLogoutOverride();
   }
 
   function scheduleApply() {
@@ -1021,9 +1213,13 @@
     }, 120);
   }
 
+  installAuth401Guard();
   installAudioCaptureGuard();
   installSpeechRecognitionGuard();
+  suppressVoicePolicyRejections();
+  installLogoutOverride();
   if (VOICE_OFF) enforceVoiceOffMode();
+  ensureFaviconLinks();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', scheduleApply, { once: true });

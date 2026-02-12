@@ -8,6 +8,7 @@
 
 const http = require('http');
 const https = require('https');
+const crypto = require('crypto');
 
 const TARGET_HOST = process.env.LOBECHAT_HOST || 'lobe-chat-glass';
 const TARGET_PORT = Number(process.env.LOBECHAT_PORT || 3210);
@@ -16,6 +17,7 @@ const APP_PUBLIC_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3210';
 const LEGALCHAT_APP_NAME = process.env.LEGALCHAT_APP_NAME || 'LegalChat';
 const LEGALCHAT_DEFAULT_AGENT_NAME = process.env.LEGALCHAT_DEFAULT_AGENT_NAME || 'George';
 const LEGALCHAT_AVATAR_URL = process.env.LEGALCHAT_AVATAR_URL || '/custom-assets/george-avatar.jpg';
+const LEGALCHAT_FAVICON_URL = process.env.LEGALCHAT_FAVICON_URL || LEGALCHAT_AVATAR_URL;
 const LEGALCHAT_TAB_TITLE =
   process.env.LEGALCHAT_TAB_TITLE || `${LEGALCHAT_DEFAULT_AGENT_NAME} · ${LEGALCHAT_APP_NAME}`;
 const LEGALCHAT_ASSISTANT_ROLE_DE =
@@ -45,9 +47,54 @@ const LEGALCHAT_WELCOME_SECONDARY_DE =
 const LEGALCHAT_WELCOME_SECONDARY_EN =
   process.env.LEGALCHAT_WELCOME_SECONDARY_EN ||
   'If you need a more professional or customized assistant, you can click + to create a custom assistant.';
+const LEGALCHAT_OCR_ENABLED = process.env.LEGALCHAT_OCR_ENABLED !== '0';
+const LEGALCHAT_OCR_MODEL =
+  process.env.LEGALCHAT_OCR_MODEL || 'google/gemini-2.5-flash-lite';
+const LEGALCHAT_OCR_MAX_IMAGES = Math.max(
+  1,
+  Number(process.env.LEGALCHAT_OCR_MAX_IMAGES || 6),
+);
+const LEGALCHAT_OCR_MAX_IMAGE_BYTES = Math.max(
+  256 * 1024,
+  Number(process.env.LEGALCHAT_OCR_MAX_IMAGE_BYTES || 12 * 1024 * 1024),
+);
+const LEGALCHAT_OCR_MAX_TEXT_CHARS = Math.max(
+  500,
+  Number(process.env.LEGALCHAT_OCR_MAX_TEXT_CHARS || 12000),
+);
+const LEGALCHAT_OCR_TIMEOUT_MS = Math.max(
+  2000,
+  Number(process.env.LEGALCHAT_OCR_TIMEOUT_MS || 45000),
+);
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+const OPENROUTER_PROXY_URL = (process.env.OPENROUTER_PROXY_URL || 'https://openrouter.ai/api/v1')
+  .trim()
+  .replace(/\/+$/, '');
+const OPENROUTER_CHAT_COMPLETIONS_URL = `${OPENROUTER_PROXY_URL}/chat/completions`;
+const LEGALCHAT_OCR_MARKER = 'LEGALCHAT_AUTO_OCR_V1';
+const LEGALCHAT_OCR_PROMPT =
+  process.env.LEGALCHAT_OCR_PROMPT ||
+  'You are an OCR engine. Extract all readable text from this JPEG image in the original language. Return only extracted text. If unreadable, return NO_TEXT.';
+const LEGALCHAT_OCR_FILE_CACHE_TTL_MS = Math.max(
+  60_000,
+  Number(process.env.LEGALCHAT_OCR_FILE_CACHE_TTL_MS || 2 * 60 * 60 * 1000),
+);
+const LEGALCHAT_OCR_S3_PRESIGN_EXPIRES_SEC = Math.max(
+  30,
+  Number(process.env.LEGALCHAT_OCR_S3_PRESIGN_EXPIRES_SEC || 300),
+);
+const S3_ENDPOINT_RAW = (process.env.S3_ENDPOINT || '').trim();
+const S3_PUBLIC_DOMAIN_RAW = (process.env.S3_PUBLIC_DOMAIN || '').trim();
+const S3_BUCKET = (process.env.S3_BUCKET || '').trim();
+const S3_REGION = (process.env.S3_REGION || 'us-east-1').trim();
+const S3_ACCESS_KEY_ID = (process.env.S3_ACCESS_KEY_ID || '').trim();
+const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY || '';
+const S3_ENABLE_PATH_STYLE = process.env.S3_ENABLE_PATH_STYLE !== '0';
 
 const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
 const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
+const FILE_CREATE_PATH_PATTERN =
+  /(?:^|\/)trpc\/(?:lambda|edge|async|mobile)\/.*(?:^|,)file\.createFile(?:,|$)/;
 const OPENAI_TTS_PATH = '/webapi/tts/openai';
 const EDGE_TTS_PATH = '/webapi/tts/edge';
 const EDGE_TTS_FALLBACK_ENABLED = process.env.TTS_EDGE_FALLBACK === '1';
@@ -55,10 +102,25 @@ const GOOGLE_TTS_FALLBACK_ENABLED = process.env.TTS_GOOGLE_FALLBACK !== '0';
 const GOOGLE_TTS_HOST = process.env.TTS_GOOGLE_HOST || 'translate.google.com';
 const GOOGLE_TTS_CLIENT = process.env.TTS_GOOGLE_CLIENT || 'tw-ob';
 const GOOGLE_TTS_MAX_CHARS = Number(process.env.TTS_GOOGLE_MAX_CHARS || 180);
-const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-11-05';
+const BRANDING_VERSION = process.env.LEGALCHAT_BRANDING_VERSION || '2026-02-12-02';
+const LEGALCHAT_FAVICON_VERSIONED_URL = `${LEGALCHAT_FAVICON_URL}?v=${BRANDING_VERSION}`;
 const DISABLE_SERVICE_WORKER = process.env.LEGALCHAT_DISABLE_SERVICE_WORKER !== '0';
 const BRANDING_CACHE_CONTROL = 'no-store, no-cache, must-revalidate, proxy-revalidate';
 const HTML_BRAND_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/gi;
+const AUTH_LOGTO_ID = (process.env.AUTH_LOGTO_ID || '').trim();
+const LOGTO_END_SESSION_ENDPOINT = (
+  process.env.LOGTO_END_SESSION_ENDPOINT || 'https://auth.legalchat.net/oidc/session/end'
+).trim();
+const LOGTO_POST_LOGOUT_REDIRECT_URL = (
+  process.env.LOGTO_POST_LOGOUT_REDIRECT_URL || APP_PUBLIC_URL
+).trim();
+const LEGALCHAT_LOGOUT_MODE = (process.env.LEGALCHAT_LOGOUT_MODE || 'local')
+  .trim()
+  .toLowerCase();
+const LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL = (
+  process.env.LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL || '/login?logged_out=1'
+).trim();
+const SIGNOUT_PATH_PATTERN = /^\/(?:api\/auth|next-auth)\/signout\/?$/;
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
   alloy: 'en-US-JennyNeural',
@@ -79,11 +141,13 @@ const BRANDING_RUNTIME_CONFIG = {
   appName: LEGALCHAT_APP_NAME,
   defaultAgentName: LEGALCHAT_DEFAULT_AGENT_NAME,
   avatarUrl: LEGALCHAT_AVATAR_URL,
+  faviconUrl: LEGALCHAT_FAVICON_URL,
   tabTitle: LEGALCHAT_TAB_TITLE,
   assistantRoleDe: LEGALCHAT_ASSISTANT_ROLE_DE,
   assistantRoleEn: LEGALCHAT_ASSISTANT_ROLE_EN,
   sttMaxRecordingMs: LEGALCHAT_STT_MAX_RECORDING_MS,
   sttSilenceStopMs: LEGALCHAT_STT_SILENCE_STOP_MS,
+  brandingVersion: BRANDING_VERSION,
   voiceMode: LEGALCHAT_VOICE_OFF ? 'off' : 'guarded',
   voiceOff: LEGALCHAT_VOICE_OFF,
   welcomePrimaryDe: LEGALCHAT_WELCOME_PRIMARY_DE,
@@ -101,6 +165,9 @@ const serializeInlineConfig = (value) =>
 const BRANDING_CONFIG_INJECTION = `<script data-legalchat-config="1">window.__LEGALCHAT_BRANDING_CONFIG__=${serializeInlineConfig(
   BRANDING_RUNTIME_CONFIG,
 )};</script>`;
+const FAVICON_INJECTION = `<script data-legalchat-favicon="1">(function(){try{var href=${serializeInlineConfig(
+  LEGALCHAT_FAVICON_VERSIONED_URL,
+)};var head=document.head||document.getElementsByTagName('head')[0];if(!head||!href)return;var iconLinks=head.querySelectorAll('link[rel*="icon" i]');for(var i=0;i<iconLinks.length;i+=1){iconLinks[i].setAttribute('href',href);}var rels=['icon','shortcut icon','apple-touch-icon'];for(var j=0;j<rels.length;j+=1){var rel=rels[j];if(head.querySelector('link[rel=\"'+rel+'\"]'))continue;var link=document.createElement('link');link.setAttribute('rel',rel);link.setAttribute('href',href);head.appendChild(link);}}catch(_error){}})();</script>`;
 const BRANDING_BOOTSTRAP = DISABLE_SERVICE_WORKER
   ? `<script data-legalchat-sw-cleanup="1">(function(){try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){for(var i=0;i<regs.length;i+=1){regs[i].unregister().catch(function(){});}});}if('caches' in window&&caches.keys){caches.keys().then(function(keys){for(var i=0;i<keys.length;i+=1){var name=keys[i]||'';if(/serwist|workbox|next-pwa|lobehub|lobechat/i.test(name)){caches.delete(name).catch(function(){});}}});}}catch(error){console.warn('[LegalChat] SW cleanup failed',error);}})();</script>`
   : '';
@@ -108,6 +175,7 @@ const BRANDING_INJECTION = [
   '<!-- LegalChat Branding Assets -->',
   BRANDING_BOOTSTRAP,
   BRANDING_CONFIG_INJECTION,
+  FAVICON_INJECTION,
   `<link rel="stylesheet" href="/custom.css?v=${BRANDING_VERSION}" data-legalchat-branding="1" />`,
   `<script src="/legalchat-branding.js?v=${BRANDING_VERSION}" data-legalchat-branding="1"></script>`,
 ].join('');
@@ -124,6 +192,58 @@ const NOOP_SERVICE_WORKER = [
   '});',
   "self.addEventListener('fetch', function () {});",
 ].join('\n');
+const OCR_FILE_URL_CACHE = new Map();
+
+const ensureUrlProtocol = (value, defaultProtocol = 'http') => {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(normalized)) return normalized;
+  return `${defaultProtocol}://${normalized}`;
+};
+
+const tryParseUrl = (value, defaultProtocol = 'http') => {
+  try {
+    const normalized = ensureUrlProtocol(value, defaultProtocol);
+    if (!normalized) return null;
+    return new URL(normalized);
+  } catch {
+    return null;
+  }
+};
+
+const S3_ENDPOINT_URL = tryParseUrl(S3_ENDPOINT_RAW);
+const S3_PUBLIC_DOMAIN_URL = tryParseUrl(S3_PUBLIC_DOMAIN_RAW);
+const S3_SIGNING_READY = Boolean(
+  S3_ENDPOINT_URL && S3_BUCKET && S3_ACCESS_KEY_ID && S3_SECRET_ACCESS_KEY,
+);
+
+const pruneOcrFileUrlCache = () => {
+  const now = Date.now();
+  for (const [fileId, entry] of OCR_FILE_URL_CACHE.entries()) {
+    if (!entry || now - entry.updatedAt > LEGALCHAT_OCR_FILE_CACHE_TTL_MS) {
+      OCR_FILE_URL_CACHE.delete(fileId);
+    }
+  }
+};
+
+const getCachedFileEntry = (fileId) => {
+  const entry = OCR_FILE_URL_CACHE.get(fileId);
+  if (!entry) return null;
+  if (Date.now() - entry.updatedAt > LEGALCHAT_OCR_FILE_CACHE_TTL_MS) {
+    OCR_FILE_URL_CACHE.delete(fileId);
+    return null;
+  }
+  return entry;
+};
+
+const putCachedFileEntry = (fileId, value) => {
+  if (!fileId || typeof fileId !== 'string') return;
+  pruneOcrFileUrlCache();
+  OCR_FILE_URL_CACHE.set(fileId, {
+    ...value,
+    updatedAt: Date.now(),
+  });
+};
 
 const parseCookieHeader = (cookieHeader) => {
   const cookies = new Map();
@@ -174,6 +294,40 @@ const mergeCookieMaps = (...maps) => {
     for (const [name, value] of map.entries()) merged.set(name, value);
   }
   return merged;
+};
+
+const buildExpiredCookie = (name) =>
+  `${name}=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax`;
+
+const buildLogoutCookieHeaders = () => {
+  const baseNames = [
+    '__Host-authjs.csrf-token',
+    '__Secure-authjs.callback-url',
+    '__Secure-authjs.pkce.code_verifier',
+    '__Secure-authjs.state',
+    '__Secure-authjs.nonce',
+    'authjs.session-token',
+    '__Secure-authjs.session-token',
+    'next-auth.session-token',
+    '__Secure-next-auth.session-token',
+  ];
+
+  const headers = baseNames.map(buildExpiredCookie);
+  const chunkedPrefixes = [
+    'authjs.session-token.',
+    '__Secure-authjs.session-token.',
+    'next-auth.session-token.',
+    '__Secure-next-auth.session-token.',
+  ];
+
+  // Clear likely chunked cookie segments (Auth.js splits long values).
+  for (const prefix of chunkedPrefixes) {
+    for (let index = 0; index < 12; index += 1) {
+      headers.push(buildExpiredCookie(`${prefix}${index}`));
+    }
+  }
+
+  return headers;
 };
 
 const getForwardedProtocol = (req) => {
@@ -421,6 +575,22 @@ const requestGoogleTtsAudio = async ({ locale, text }) => {
 const responseStatusIsSuccess = (statusCode) => statusCode >= 200 && statusCode < 300;
 const isOpenAITtsPath = (pathname) =>
   /(^|\/)webapi\/tts\/openai\/?$/.test(pathname || '');
+const isAnyTtsPath = (pathname) => /(^|\/)webapi\/tts(?:\/|$)/.test(pathname || '');
+
+const sendVoiceDisabledResponse = (res) => {
+  const body = JSON.stringify({
+    error: 'VOICE_DISABLED',
+    message: 'Voice service is disabled by LegalChat policy.',
+  });
+
+  res.writeHead(403, {
+    'cache-control': 'no-store',
+    'content-length': Buffer.byteLength(body),
+    'content-type': 'application/json; charset=utf-8',
+    'x-legalchat-voice-mode': 'off',
+  });
+  res.end(body);
+};
 
 const sendUpstreamResponse = ({ req, res, upstream }) => {
   const responseHeaders = { ...upstream.headers };
@@ -429,6 +599,701 @@ const sendUpstreamResponse = ({ req, res, upstream }) => {
   }
   res.writeHead(upstream.statusCode, responseHeaders);
   res.end(upstream.body);
+};
+
+const isAiChatSendMessagePath = (pathname) =>
+  /(?:^|\/)trpc\/(?:lambda|edge|async|mobile)\/.*aiChat\.sendMessageInServer(?:,|$)/.test(
+    pathname || '',
+  );
+
+const isFileCreatePath = (pathname) => FILE_CREATE_PATH_PATTERN.test(pathname || '');
+
+const fetchWithTimeout = async (url, options = {}, timeoutMs = LEGALCHAT_OCR_TIMEOUT_MS) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
+const extractFirstAssistantText = (payload) => {
+  const content = payload?.choices?.[0]?.message?.content;
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === 'string') return part;
+        if (part && typeof part.text === 'string') return part.text;
+        return '';
+      })
+      .join('\n')
+      .trim();
+  }
+  return '';
+};
+
+const findSendMessagePayloads = (root) => {
+  const matches = [];
+  const visited = new Set();
+
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    if (
+      node.newUserMessage &&
+      typeof node.newUserMessage === 'object' &&
+      typeof node.newUserMessage.content === 'string' &&
+      node.newAssistantMessage &&
+      typeof node.newAssistantMessage === 'object'
+    ) {
+      matches.push(node);
+    }
+
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
+
+    for (const value of Object.values(node)) walk(value);
+  };
+
+  walk(root);
+  return matches;
+};
+
+const isJpegMimeType = (mimeType) => /image\/(?:jpeg|jpg)/i.test(String(mimeType || ''));
+const isLikelyJpegBuffer = (buffer) =>
+  Buffer.isBuffer(buffer) &&
+  buffer.length > 3 &&
+  buffer[0] === 0xff &&
+  buffer[1] === 0xd8 &&
+  buffer[2] === 0xff;
+
+const encodeRfc3986 = (value) =>
+  encodeURIComponent(String(value))
+    .replace(/[!'()*]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`);
+
+const encodePathSegments = (path) =>
+  String(path)
+    .split('/')
+    .filter((segment) => segment.length > 0)
+    .map((segment) => encodeRfc3986(segment))
+    .join('/');
+
+const sha256Hex = (value) =>
+  crypto.createHash('sha256').update(value).digest('hex');
+
+const hmacSha256 = (key, value, output = 'buffer') =>
+  crypto.createHmac('sha256', key).update(value).digest(output);
+
+const normalizeStorageKey = (rawStorageUrl) => {
+  const value = String(rawStorageUrl || '').trim();
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value)) return { directUrl: value, key: null };
+
+  if (/^s3:\/\//i.test(value)) {
+    const parsed = tryParseUrl(value, 's3');
+    if (parsed) {
+      const host = parsed.hostname || '';
+      let key = parsed.pathname.replace(/^\/+/, '');
+      if (host && host !== S3_BUCKET) {
+        key = `${host}/${key}`.replace(/^\/+/, '');
+      }
+      return { directUrl: null, key: key || null };
+    }
+  }
+
+  let key = value.replace(/^\/+/, '');
+  if (S3_BUCKET && key.startsWith(`${S3_BUCKET}/`)) {
+    key = key.slice(S3_BUCKET.length + 1);
+  }
+
+  return { directUrl: null, key: key || null };
+};
+
+const isLikelyStorageUrl = (value) => {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  if (/^s3:\/\//i.test(raw)) return true;
+  if (/^(?:\/)?files\//i.test(raw)) return true;
+  if (/^https?:\/\/[^?#]+\/(?:[^?#]+\/)?files\//i.test(raw)) return true;
+  return false;
+};
+
+const buildS3PresignedGetUrl = (storageKey) => {
+  if (!S3_SIGNING_READY || !storageKey) return null;
+  const key = String(storageKey).replace(/^\/+/, '');
+  if (!key) return null;
+
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+  const dateStamp = amzDate.slice(0, 8);
+  const credentialScope = `${dateStamp}/${S3_REGION}/s3/aws4_request`;
+  const algorithm = 'AWS4-HMAC-SHA256';
+
+  const endpoint = S3_ENDPOINT_URL;
+  const endpointPathPrefix = endpoint.pathname.replace(/^\/+|\/+$/g, '');
+  const host = S3_ENABLE_PATH_STYLE ? endpoint.host : `${S3_BUCKET}.${endpoint.host}`;
+  const uriParts = [endpointPathPrefix];
+  if (S3_ENABLE_PATH_STYLE) uriParts.push(S3_BUCKET);
+  uriParts.push(key);
+  const canonicalUri = `/${encodePathSegments(uriParts.filter(Boolean).join('/'))}`;
+
+  const queryParams = {
+    'X-Amz-Algorithm': algorithm,
+    'X-Amz-Credential': `${S3_ACCESS_KEY_ID}/${credentialScope}`,
+    'X-Amz-Date': amzDate,
+    'X-Amz-Expires': String(LEGALCHAT_OCR_S3_PRESIGN_EXPIRES_SEC),
+    'X-Amz-SignedHeaders': 'host',
+  };
+
+  const canonicalQueryString = Object.entries(queryParams)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${encodeRfc3986(k)}=${encodeRfc3986(v)}`)
+    .join('&');
+
+  const canonicalRequest = [
+    'GET',
+    canonicalUri,
+    canonicalQueryString,
+    `host:${host}`,
+    '',
+    'host',
+    'UNSIGNED-PAYLOAD',
+  ].join('\n');
+
+  const stringToSign = [
+    algorithm,
+    amzDate,
+    credentialScope,
+    sha256Hex(canonicalRequest),
+  ].join('\n');
+
+  const signingKeyDate = hmacSha256(`AWS4${S3_SECRET_ACCESS_KEY}`, dateStamp);
+  const signingKeyRegion = hmacSha256(signingKeyDate, S3_REGION);
+  const signingKeyService = hmacSha256(signingKeyRegion, 's3');
+  const signingKey = hmacSha256(signingKeyService, 'aws4_request');
+  const signature = hmacSha256(signingKey, stringToSign, 'hex');
+
+  return `${endpoint.protocol}//${host}${canonicalUri}?${canonicalQueryString}&X-Amz-Signature=${signature}`;
+};
+
+const buildS3PublicDomainUrl = (storageKey) => {
+  if (!S3_PUBLIC_DOMAIN_URL || !S3_BUCKET || !storageKey) return null;
+  const key = String(storageKey).replace(/^\/+/, '');
+  if (!key) return null;
+
+  const basePath = S3_PUBLIC_DOMAIN_URL.pathname.replace(/^\/+|\/+$/g, '');
+  const encodedPath = encodePathSegments([basePath, S3_BUCKET, key].filter(Boolean).join('/'));
+  return `${S3_PUBLIC_DOMAIN_URL.protocol}//${S3_PUBLIC_DOMAIN_URL.host}/${encodedPath}`;
+};
+
+const normalizeExtractedText = (text) => {
+  const normalized = String(text || '').trim();
+  if (!normalized) return '';
+  if (normalized.toUpperCase() === 'NO_TEXT') return '';
+  return normalized.length > LEGALCHAT_OCR_MAX_TEXT_CHARS
+    ? normalized.slice(0, LEGALCHAT_OCR_MAX_TEXT_CHARS)
+    : normalized;
+};
+
+const extractFileCreateInputs = (root) => {
+  const inputs = [];
+  const visited = new Set();
+
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
+
+    if (
+      typeof node.url === 'string' &&
+      (typeof node.hash === 'string' ||
+        typeof node.fileType === 'string' ||
+        typeof node.name === 'string' ||
+        typeof node.size === 'number')
+    ) {
+      inputs.push({
+        fileType: typeof node.fileType === 'string' ? node.fileType : '',
+        storageUrl: node.url,
+      });
+    }
+
+    for (const value of Object.values(node)) walk(value);
+  };
+
+  walk(root);
+  return inputs;
+};
+
+const extractFileCreateOutputs = (root) => {
+  const outputs = [];
+  const visited = new Set();
+
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
+
+    if (typeof node.id === 'string' && (typeof node.url === 'string' || node.id.startsWith('file_'))) {
+      outputs.push({
+        fileId: node.id,
+        url: typeof node.url === 'string' ? node.url : '',
+      });
+    }
+
+    for (const value of Object.values(node)) walk(value);
+  };
+
+  walk(root);
+  return outputs;
+};
+
+const rememberFileCreateMappings = ({ requestPayload, responsePayload }) => {
+  if (!requestPayload || !responsePayload) return 0;
+
+  const inputs = extractFileCreateInputs(requestPayload);
+  const outputs = extractFileCreateOutputs(responsePayload);
+  if (outputs.length === 0) return 0;
+
+  let stored = 0;
+  for (let index = 0; index < outputs.length; index += 1) {
+    const output = outputs[index];
+    const input = inputs[index] || (inputs.length === 1 ? inputs[0] : null);
+    if (!output?.fileId) continue;
+
+    const responseUrl = typeof output.url === 'string' ? output.url : '';
+    const storageUrl = typeof input?.storageUrl === 'string' ? input.storageUrl : '';
+
+    putCachedFileEntry(output.fileId, {
+      fileType: typeof input?.fileType === 'string' ? input.fileType : '',
+      responseUrl,
+      storageUrl,
+    });
+    stored += 1;
+  }
+
+  return stored;
+};
+
+const toAbsoluteUpstreamUrl = (value) => {
+  const input = String(value || '').trim();
+  if (!input) return '';
+  if (/^https?:\/\//i.test(input)) return input;
+  if (input.startsWith('/')) return `http://${TARGET_HOST}:${TARGET_PORT}${input}`;
+  return `http://${TARGET_HOST}:${TARGET_PORT}/${input}`;
+};
+
+const extractFileItemFromTrpcPayload = (root, fileId) => {
+  const visited = new Set();
+  let matched = null;
+
+  const walk = (node) => {
+    if (matched || !node || typeof node !== 'object') return;
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    if (
+      typeof node.id === 'string' &&
+      node.id === fileId &&
+      typeof node.url === 'string'
+    ) {
+      matched = {
+        fileType: typeof node.fileType === 'string' ? node.fileType : '',
+        id: node.id,
+        url: node.url,
+      };
+      return;
+    }
+
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
+
+    for (const value of Object.values(node)) walk(value);
+  };
+
+  walk(root);
+  return matched;
+};
+
+const fetchFileItemViaTrpc = async (fileId, requestHeaders = {}) => {
+  const cookie = typeof requestHeaders.cookie === 'string' ? requestHeaders.cookie : '';
+  const authorization =
+    typeof requestHeaders.authorization === 'string' ? requestHeaders.authorization : '';
+  if (!cookie && !authorization) return null;
+
+  const input = encodeURIComponent(JSON.stringify({ 0: { id: fileId } }));
+  const path = `/trpc/lambda/file.getFileItemById?batch=1&input=${input}`;
+  const headers = {
+    accept: 'application/json',
+  };
+
+  if (cookie) headers.cookie = cookie;
+  if (authorization) headers.authorization = authorization;
+
+  const response = await requestTarget({
+    headers,
+    method: 'GET',
+    path,
+  });
+
+  if (!responseStatusIsSuccess(response.statusCode)) return null;
+
+  let payload;
+  try {
+    payload = JSON.parse(response.body.toString('utf8'));
+  } catch {
+    return null;
+  }
+
+  return extractFileItemFromTrpcPayload(payload, fileId);
+};
+
+const downloadJpegFromUrl = async ({ fileId, source, url }) => {
+  if (!url) return null;
+
+  const response = await fetchWithTimeout(
+    url,
+    {
+      method: 'GET',
+      redirect: 'follow',
+      headers: {
+        accept: 'image/jpeg,image/jpg,image/*;q=0.8,*/*;q=0.2',
+      },
+    },
+    LEGALCHAT_OCR_TIMEOUT_MS,
+  );
+
+  if (!response.ok) return null;
+
+  const contentType = String(response.headers.get('content-type') || '')
+    .split(';')[0]
+    .trim()
+    .toLowerCase();
+
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  if (!buffer.length) return null;
+  if (buffer.length > LEGALCHAT_OCR_MAX_IMAGE_BYTES) return null;
+
+  const jpegByType = isJpegMimeType(contentType);
+  const jpegByBuffer = isLikelyJpegBuffer(buffer);
+  const jpegByPath = /\.jpe?g(?:$|\?)/i.test(url);
+  if (!jpegByType && !jpegByBuffer && !jpegByPath) return null;
+
+  return {
+    base64: buffer.toString('base64'),
+    fileId,
+    mimeType: jpegByType ? contentType : 'image/jpeg',
+    size: buffer.length,
+    source,
+  };
+};
+
+const buildOcrDownloadCandidates = (fileId) => {
+  const candidates = [];
+  const seen = new Set();
+  const addCandidate = (source, url) => {
+    const value = String(url || '').trim();
+    if (!value) return;
+    if (seen.has(value)) return;
+    seen.add(value);
+    candidates.push({ source, url: value });
+  };
+
+  addCandidate('file-proxy', toAbsoluteUpstreamUrl(`/f/${encodeURIComponent(fileId)}`));
+  addCandidate('api-file', toAbsoluteUpstreamUrl(`/api/file/${encodeURIComponent(fileId)}`));
+
+  const cached = getCachedFileEntry(fileId);
+  if (!cached) return candidates;
+
+  addCandidate('cache-response-url', toAbsoluteUpstreamUrl(cached.responseUrl));
+
+  const normalizedStorage = normalizeStorageKey(cached.storageUrl);
+  if (!normalizedStorage) return candidates;
+
+  if (normalizedStorage.directUrl) {
+    addCandidate('cache-storage-direct', normalizedStorage.directUrl);
+    return candidates;
+  }
+
+  if (!normalizedStorage.key) return candidates;
+
+  const presignedUrl = buildS3PresignedGetUrl(normalizedStorage.key);
+  addCandidate('cache-s3-presigned', presignedUrl);
+
+  const publicDomainUrl = buildS3PublicDomainUrl(normalizedStorage.key);
+  addCandidate('cache-s3-public', publicDomainUrl);
+
+  return candidates;
+};
+
+const downloadJpegForOcr = async (fileId, requestHeaders = null) => {
+  const cached = getCachedFileEntry(fileId);
+  if (!cached && requestHeaders) {
+    try {
+      const fileItem = await fetchFileItemViaTrpc(fileId, requestHeaders);
+      if (fileItem && fileItem.url) {
+        putCachedFileEntry(fileId, {
+          fileType: fileItem.fileType || '',
+          responseUrl: fileItem.url,
+          storageUrl: isLikelyStorageUrl(fileItem.url) ? fileItem.url : '',
+        });
+      }
+    } catch (error) {
+      console.warn(
+        `[LegalChat OCR] file.getFileItemById fallback failed for ${fileId}:`,
+        error?.message || error,
+      );
+    }
+  }
+
+  const candidates = buildOcrDownloadCandidates(fileId);
+
+  for (const candidate of candidates) {
+    try {
+      const downloaded = await downloadJpegFromUrl({
+        fileId,
+        source: candidate.source,
+        url: candidate.url,
+      });
+      if (!downloaded) continue;
+      return downloaded;
+    } catch (error) {
+      console.warn(
+        `[LegalChat OCR] Download candidate failed (${candidate.source}) for ${fileId}:`,
+        error?.message || error,
+      );
+    }
+  }
+
+  return null;
+};
+
+const requestOcrTextFromOpenRouter = async ({ imageBase64, mimeType }) => {
+  const requestPayload = {
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: LEGALCHAT_OCR_PROMPT },
+          {
+            type: 'image_url',
+            image_url: { url: `data:${mimeType};base64,${imageBase64}` },
+          },
+        ],
+      },
+    ],
+    model: LEGALCHAT_OCR_MODEL,
+    temperature: 0,
+  };
+
+  const response = await fetchWithTimeout(
+    OPENROUTER_CHAT_COMPLETIONS_URL,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestPayload),
+    },
+    LEGALCHAT_OCR_TIMEOUT_MS,
+  );
+
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => '');
+    throw new Error(`OCR model request failed (${response.status}): ${errorBody.slice(0, 300)}`);
+  }
+
+  const payload = await response.json();
+  if (payload?.error) {
+    throw new Error(`OCR model error: ${JSON.stringify(payload.error)}`);
+  }
+
+  return normalizeExtractedText(extractFirstAssistantText(payload));
+};
+
+const buildAutoOcrBlock = (ocrResults) => {
+  const sections = ocrResults.map(
+    (item, index) =>
+      `[JPEG ${index + 1} | ${item.fileId}]\n${item.text}`,
+  );
+
+  return (
+    `[${LEGALCHAT_OCR_MARKER}]\n` +
+    `Automatisch extrahierter OCR-Text (Gemini 2.5 Flash Lite) aus JPEG-Anhaengen:\n\n` +
+    `${sections.join('\n\n---\n\n')}\n` +
+    `[/${LEGALCHAT_OCR_MARKER}]`
+  );
+};
+
+const injectJpegOcrIntoTrpcBody = async (bodyBuffer, requestHeaders = null) => {
+  if (!LEGALCHAT_OCR_ENABLED) return { bodyBuffer, injected: false, reason: 'disabled' };
+  if (!OPENROUTER_API_KEY) return { bodyBuffer, injected: false, reason: 'missing_api_key' };
+  if (!bodyBuffer || bodyBuffer.length === 0) return { bodyBuffer, injected: false, reason: 'empty' };
+
+  let parsed;
+  try {
+    parsed = JSON.parse(bodyBuffer.toString('utf8'));
+  } catch {
+    return { bodyBuffer, injected: false, reason: 'not_json' };
+  }
+
+  const sendPayloads = findSendMessagePayloads(parsed);
+  if (sendPayloads.length === 0) return { bodyBuffer, injected: false, reason: 'no_send_payload' };
+
+  let injected = false;
+  let totalOcrItems = 0;
+
+  for (const payload of sendPayloads) {
+    const message = payload.newUserMessage;
+    if (!message || typeof message.content !== 'string') continue;
+    if (message.content.includes(`[${LEGALCHAT_OCR_MARKER}]`)) continue;
+
+    const fileIds = Array.isArray(message.files)
+      ? message.files.filter((id) => typeof id === 'string' && id.length > 0)
+      : [];
+    if (fileIds.length === 0) continue;
+
+    const limitedFileIds = fileIds.slice(0, LEGALCHAT_OCR_MAX_IMAGES);
+    const ocrResults = [];
+
+    for (const fileId of limitedFileIds) {
+      try {
+        const downloaded = await downloadJpegForOcr(fileId, requestHeaders);
+        if (!downloaded) continue;
+
+        const text = await requestOcrTextFromOpenRouter({
+          imageBase64: downloaded.base64,
+          mimeType: downloaded.mimeType,
+        });
+        if (!text) continue;
+
+        ocrResults.push({ fileId, text });
+      } catch (error) {
+        console.warn(`[LegalChat OCR] ${fileId} failed:`, error?.message || error);
+      }
+    }
+
+    if (ocrResults.length === 0) continue;
+
+    const suffix = buildAutoOcrBlock(ocrResults);
+    payload.newUserMessage.content = `${message.content}\n\n${suffix}`;
+    injected = true;
+    totalOcrItems += ocrResults.length;
+  }
+
+  if (!injected) return { bodyBuffer, injected: false, reason: 'no_jpeg_or_no_text' };
+
+  return {
+    bodyBuffer: Buffer.from(JSON.stringify(parsed), 'utf8'),
+    injected: true,
+    ocrItems: totalOcrItems,
+    reason: 'ok',
+  };
+};
+
+const handleAiChatSendMessageWithAutoOcr = async (req, res) => {
+  try {
+    const forwardingHost = getPublicHost(req);
+    const forwardingProto = getForwardedProtocol(req);
+    const originalBody = await readRequestBody(req);
+    const ocrResult = await injectJpegOcrIntoTrpcBody(originalBody, req.headers || null);
+    const bodyToForward = ocrResult.bodyBuffer || originalBody;
+
+    if (ocrResult.injected) {
+      console.log(
+        `[LegalChat OCR] Injected OCR text for ${ocrResult.ocrItems} JPEG file(s) via ${LEGALCHAT_OCR_MODEL}`,
+      );
+    } else {
+      console.log(`[LegalChat OCR] Bypass: ${ocrResult.reason}`);
+    }
+
+    const headers = buildUpstreamHeaders({
+      req,
+      bodyBuffer: bodyToForward,
+      forwardingHost,
+      forwardingProto,
+    });
+
+    const upstream = await requestTarget({
+      body: bodyToForward,
+      headers,
+      method: req.method,
+      path: req.url,
+    });
+
+    sendUpstreamResponse({ req, res, upstream });
+  } catch (error) {
+    console.error('Auto OCR proxy failed:', error);
+    res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('Auto OCR proxy error');
+  }
+};
+
+const tryParseJsonBuffer = (buffer) => {
+  try {
+    if (!buffer || buffer.length === 0) return null;
+    return JSON.parse(buffer.toString('utf8'));
+  } catch {
+    return null;
+  }
+};
+
+const handleFileCreateWithCache = async (req, res) => {
+  try {
+    const forwardingHost = getPublicHost(req);
+    const forwardingProto = getForwardedProtocol(req);
+    const requestBody = await readRequestBody(req);
+
+    const headers = buildUpstreamHeaders({
+      req,
+      bodyBuffer: requestBody,
+      forwardingHost,
+      forwardingProto,
+    });
+
+    const upstream = await requestTarget({
+      body: requestBody,
+      headers,
+      method: req.method,
+      path: req.url,
+    });
+
+    const requestPayload = tryParseJsonBuffer(requestBody);
+    const responsePayload = tryParseJsonBuffer(upstream.body);
+    const storedMappings = rememberFileCreateMappings({
+      requestPayload,
+      responsePayload,
+    });
+
+    if (storedMappings > 0) {
+      console.log(`[LegalChat OCR] Cached ${storedMappings} file.createFile mapping(s)`);
+    }
+
+    sendUpstreamResponse({ req, res, upstream });
+  } catch (error) {
+    console.error('File create cache proxy failed:', error);
+    res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('File cache proxy error');
+  }
 };
 
 const buildHelperHtml = () => {
@@ -457,7 +1322,7 @@ const buildHelperHtml = () => {
       <img src="${LEGALCHAT_AVATAR_URL}" alt="${LEGALCHAT_DEFAULT_AGENT_NAME}" class="avatar">
       <h1>${LEGALCHAT_APP_NAME} ⚖️</h1>
       <p>Ihr ${LEGALCHAT_ASSISTANT_ROLE_DE}</p>
-      <a class="button" href="${loginHref}">Mit Logto anmelden</a>
+      <a class="button" href="${loginHref}">Anmelden</a>
     </div>
   </div>
 </body>
@@ -484,6 +1349,20 @@ const sendNoopServiceWorker = (res) => {
     pragma: 'no-cache',
   });
   res.end(body);
+};
+
+const normalizeLocalLogoutLocation = (input, fallbackOrigin) => {
+  const fallback = LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL || '/login?logged_out=1';
+  const raw = String(input || '').trim();
+  if (!raw) return fallback;
+  try {
+    const parsed = new URL(raw, fallbackOrigin);
+    const fallbackUrl = new URL(APP_PUBLIC_URL);
+    if (parsed.origin !== fallbackUrl.origin) return fallback;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
 };
 
 const handleProviderSigninGet = async (req, res, parsedUrl) => {
@@ -674,6 +1553,14 @@ const rewriteHeadBrandingMetadata = (html) => {
     (tag) => tag.replace(HTML_BRAND_PATTERN, LEGALCHAT_APP_NAME),
   );
 
+  rewrittenHead = rewrittenHead.replace(
+    /<link\b[^>]*rel=["'](?:shortcut icon|icon|apple-touch-icon)["'][^>]*>/gi,
+    (tag) =>
+      /href\s*=/.test(tag)
+        ? tag.replace(/href=["'][^"']*["']/i, `href="${LEGALCHAT_FAVICON_VERSIONED_URL}"`)
+        : tag.replace(/\/?>$/, ` href="${LEGALCHAT_FAVICON_VERSIONED_URL}"$&`),
+  );
+
   return html.slice(0, headOpen) + rewrittenHead + html.slice(headClose);
 };
 
@@ -681,6 +1568,12 @@ const rewriteHeadBrandingMetadata = (html) => {
 const injectBrandingIntoHTML = (body) => {
   let html = body.toString('utf8');
   html = rewriteHeadBrandingMetadata(html);
+  html = html
+    .replace(/Anmelden bei LobeHub/gi, `Anmelden bei ${LEGALCHAT_APP_NAME}`)
+    .replace(/Sign in to LobeHub/gi, `Sign in to ${LEGALCHAT_APP_NAME}`)
+    .replace(/Powered by LobeHub/gi, `Powered by ${LEGALCHAT_APP_NAME}`)
+    .replace(/Powered by Logto/gi, `Powered by ${LEGALCHAT_APP_NAME}`)
+    .replace(/>\s*Logto\s*</g, '>Anmelden<');
   if (html.includes('data-legalchat-branding="1"')) return html;
 
   // Find </head> to inject before
@@ -704,7 +1597,9 @@ const proxyRequest = async (req, res) => {
   const parsedUrl = new URL(req.url, `${getForwardedProtocol(req)}://${getPublicHost(req)}`);
   const pathname = parsedUrl.pathname;
   const isUiPath =
-    pathname === '/' || /(?:^|\/)(chat|welcome|settings)(?:\/|$)/i.test(pathname);
+    pathname === '/' ||
+    /(?:^|\/)(chat|welcome|settings)(?:\/|$)/i.test(pathname) ||
+    /^\/next-auth\/(?:signin|error)(?:\/|$)/i.test(pathname);
   const isPageRequest =
     (req.method === 'GET' || req.method === 'HEAD') && isUiPath;
   const isBrandingAssetRequest =
@@ -756,11 +1651,11 @@ const proxyRequest = async (req, res) => {
       setNoStoreHeaders(responseHeaders);
     }
 
-    // Inject branding for HTML responses
-    let body = proxyRes.body;
-    const contentType = proxyRes.headers['content-type'] || '';
-    if (req.method === 'GET' && isPageRequest && contentType.includes('text/html')) {
-      const modifiedHTML = injectBrandingIntoHTML(body);
+  // Inject branding for HTML responses
+  let body = proxyRes.body;
+  const contentType = proxyRes.headers['content-type'] || '';
+  if (req.method === 'GET' && isPageRequest && contentType.includes('text/html')) {
+    const modifiedHTML = injectBrandingIntoHTML(body);
       body = Buffer.from(modifiedHTML, 'utf8');
       delete responseHeaders['content-encoding'];
       delete responseHeaders['transfer-encoding'];
@@ -782,6 +1677,38 @@ const shouldShowHelperOnRoot = (req) => {
   return host.endsWith(':3211');
 };
 
+const SESSION_COOKIE_NAMES = new Set([
+  'authjs.session-token',
+  '__Secure-authjs.session-token',
+  'next-auth.session-token',
+  '__Secure-next-auth.session-token',
+]);
+
+const isUiRoutePath = (pathname) =>
+  pathname === '/' || /(?:^|\/)(chat|welcome|settings)(?:\/|$)/i.test(pathname);
+
+const hasSessionCookie = (req) => {
+  const cookies = parseCookieHeader(req.headers.cookie);
+  for (const name of cookies.keys()) {
+    if (SESSION_COOKIE_NAMES.has(name)) return true;
+    if (
+      /^(__Secure-)?authjs\.session-token\.\d+$/.test(name) ||
+      /^(__Secure-)?next-auth\.session-token\.\d+$/.test(name)
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const shouldEnforceLogin = (req, parsedUrl) => {
+  if (req.method !== 'GET') return false;
+  if (!isUiRoutePath(parsedUrl.pathname)) return false;
+  if (parsedUrl.pathname === '/login') return false;
+  if (shouldShowHelperOnRoot(req)) return false;
+  return !hasSessionCookie(req);
+};
+
 const server = http.createServer(async (req, res) => {
   const publicOrigin = `${getForwardedProtocol(req)}://${getPublicHost(req)}`;
   const parsedUrl = new URL(req.url, publicOrigin);
@@ -792,8 +1719,92 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (
+    req.method === 'GET' &&
+    (parsedUrl.pathname === '/logout' || parsedUrl.pathname === '/signout')
+  ) {
+    const requestedPostLogoutRedirectUrl = parsedUrl.searchParams.get('post_logout_redirect_uri');
+    const postLogoutRedirectUrl =
+      requestedPostLogoutRedirectUrl || LOGTO_POST_LOGOUT_REDIRECT_URL || APP_PUBLIC_URL;
+    const useOidcLogout = LEGALCHAT_LOGOUT_MODE === 'oidc';
+    const location = useOidcLogout
+      ? (() => {
+          const logoutUrl = new URL(LOGTO_END_SESSION_ENDPOINT);
+          logoutUrl.searchParams.set('post_logout_redirect_uri', postLogoutRedirectUrl);
+          if (AUTH_LOGTO_ID) logoutUrl.searchParams.set('client_id', AUTH_LOGTO_ID);
+          return logoutUrl.toString();
+        })()
+      : normalizeLocalLogoutLocation(
+          requestedPostLogoutRedirectUrl || LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL,
+          publicOrigin,
+        );
+
+    res.writeHead(302, {
+      'cache-control': 'no-store',
+      location,
+      'set-cookie': buildLogoutCookieHeaders(),
+    });
+    res.end();
+    return;
+  }
+
+  // Force all built-in signout flows through /logout to ensure IdP session ends too.
+  if (
+    SIGNOUT_PATH_PATTERN.test(parsedUrl.pathname) &&
+    (req.method === 'GET' || req.method === 'POST')
+  ) {
+    const callbackUrl = parsedUrl.searchParams.get('callbackUrl');
+    const logoutLocation =
+      LEGALCHAT_LOGOUT_MODE === 'oidc'
+        ? callbackUrl
+          ? `/logout?post_logout_redirect_uri=${encodeURIComponent(callbackUrl)}`
+          : '/logout'
+        : normalizeLocalLogoutLocation(LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL, publicOrigin);
+
+    if (
+      req.method === 'POST' ||
+      req.headers['x-auth-return-redirect'] === '1' ||
+      String(req.headers.accept || '').includes('application/json')
+    ) {
+      const payload = JSON.stringify({ url: logoutLocation });
+      res.writeHead(200, {
+        'cache-control': 'no-store',
+        'content-type': 'application/json; charset=utf-8',
+        'content-length': Buffer.byteLength(payload),
+        'set-cookie': buildLogoutCookieHeaders(),
+      });
+      res.end(payload);
+      return;
+    }
+
+    res.writeHead(302, {
+      'cache-control': 'no-store',
+      location: logoutLocation,
+      'set-cookie': buildLogoutCookieHeaders(),
+    });
+    res.end();
+    return;
+  }
+
+  // Skip built-in /next-auth/signin screen and go straight to Logto.
+  if (req.method === 'GET' && parsedUrl.pathname === '/next-auth/signin') {
+    const callbackUrl = parsedUrl.searchParams.get('callbackUrl') || `${publicOrigin}/chat`;
+    const signinUrl = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    res.writeHead(302, { 'cache-control': 'no-store', location: signinUrl });
+    res.end();
+    return;
+  }
+
   if (req.method === 'GET' && parsedUrl.pathname === '/login') {
     sendLoginHelper(res);
+    return;
+  }
+
+  if (shouldEnforceLogin(req, parsedUrl)) {
+    const callbackUrl = `${publicOrigin}${req.url}`;
+    const signinUrl = `/api/auth/signin/logto?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    res.writeHead(302, { 'cache-control': 'no-store', location: signinUrl });
+    res.end();
     return;
   }
 
@@ -817,6 +1828,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && isFileCreatePath(parsedUrl.pathname)) {
+    await handleFileCreateWithCache(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && isAiChatSendMessagePath(parsedUrl.pathname)) {
+    await handleAiChatSendMessageWithAutoOcr(req, res);
+    return;
+  }
+
+  if (LEGALCHAT_VOICE_OFF && isAnyTtsPath(parsedUrl.pathname)) {
+    sendVoiceDisabledResponse(res);
+    return;
+  }
+
   if (req.method === 'POST' && isOpenAITtsPath(parsedUrl.pathname)) {
     await handleOpenAITtsWithEdgeFallback(req, res);
     return;
@@ -828,5 +1854,17 @@ const server = http.createServer(async (req, res) => {
 server.listen(LISTEN_PORT, () => {
   console.log(`LegalChat Auth Gateway running on port ${LISTEN_PORT}`);
   console.log(`Voice mode: ${LEGALCHAT_VOICE_OFF ? 'off (microphone blocked)' : 'guarded'}`);
+  console.log(
+    `Auto OCR mode: ${
+      LEGALCHAT_OCR_ENABLED && OPENROUTER_API_KEY
+        ? `on (model=${LEGALCHAT_OCR_MODEL}, jpeg-only)`
+        : 'off'
+    }`,
+  );
+  console.log(
+    `Auto OCR file fetch: ${
+      S3_SIGNING_READY ? `s3-signing-ready (cache ttl=${LEGALCHAT_OCR_FILE_CACHE_TTL_MS}ms)` : 'limited'
+    }`,
+  );
   console.log(`George is ready! ⚖️`);
 });
