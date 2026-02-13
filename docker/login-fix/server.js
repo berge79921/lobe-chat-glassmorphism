@@ -1694,6 +1694,15 @@ const buildProviderSigninUrl = (callbackUrl, options = {}) => {
     params.set('prompt', 'login');
     params.set('max_age', '0');
   }
+  if (options.firstScreen) {
+    params.set('first_screen', options.firstScreen);
+  }
+  if (options.identifier) {
+    params.set('identifier', options.identifier);
+  }
+  if (options.directSignIn) {
+    params.set('direct_sign_in', options.directSignIn);
+  }
   return `/api/auth/signin/logto?${params.toString()}`;
 };
 
@@ -1714,9 +1723,11 @@ const normalizeCallbackUrl = (input, fallbackOrigin) => {
 const buildHelperHtml = ({ loggedOut = false, callbackUrl } = {}) => {
   const callback = normalizeCallbackUrl(callbackUrl, APP_PUBLIC_URL);
   const loginHref = buildProviderSigninUrl(callback);
-  const signUpUrl = new URL('/sign-up', 'https://auth.legalchat.net');
-  if (AUTH_LOGTO_ID) signUpUrl.searchParams.set('app_id', AUTH_LOGTO_ID);
-  const signUpHref = signUpUrl.toString();
+  // Important: Always start from the app's OIDC entrypoint (not /sign-up directly),
+  // otherwise Logto may show unknown-session 404.
+  const signUpHref = buildProviderSigninUrl(callback, {
+    firstScreen: 'register',
+  });
   const appName = escapeHtml(LEGALCHAT_APP_NAME);
   const avatarUrl = escapeHtml(LEGALCHAT_AVATAR_VERSIONED_URL);
   const assistantRole = escapeHtml(LEGALCHAT_ASSISTANT_ROLE_DE);
