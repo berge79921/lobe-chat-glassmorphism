@@ -2339,7 +2339,7 @@ const proxyLogtoBrandedRequest = async (req, res) => {
   const pathname = parsedUrl.pathname;
   const isPageRequest =
     (req.method === 'GET' || req.method === 'HEAD') &&
-    (/^\/(?:sign-in|unknown-session|sign-up|reset-password|forgot-password|oidc\/auth)/.test(
+    (/^\/(?:sign-in|sign-up|signup|sign_in|register|create-account|unknown-session|reset-password|forgot-password|oidc\/auth)/.test(
       pathname,
     ) ||
       pathname === '/');
