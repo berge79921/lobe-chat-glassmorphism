@@ -2456,6 +2456,28 @@ const server = http.createServer(async (req, res) => {
 
   if (isLogtoBrandingHost(req)) {
     if (req.method === 'GET') {
+      const hasInteractionContext =
+        parsedUrl.searchParams.has('interaction') ||
+        parsedUrl.searchParams.has('interaction_id') ||
+        parsedUrl.searchParams.has('flow') ||
+        parsedUrl.searchParams.has('ticket');
+
+      if (!hasInteractionContext && /^\/sign-up\/?$/.test(parsedUrl.pathname)) {
+        const callbackUrl = normalizeCallbackUrl(parsedUrl.searchParams.get('callbackUrl'), APP_PUBLIC_URL);
+        const location = buildProviderSigninUrl(callbackUrl, { firstScreen: 'register' });
+        res.writeHead(302, { 'cache-control': 'no-store', location });
+        res.end();
+        return;
+      }
+
+      if (!hasInteractionContext && /^\/sign-in\/?$/.test(parsedUrl.pathname)) {
+        const callbackUrl = normalizeCallbackUrl(parsedUrl.searchParams.get('callbackUrl'), APP_PUBLIC_URL);
+        const location = buildProviderSigninUrl(callbackUrl);
+        res.writeHead(302, { 'cache-control': 'no-store', location });
+        res.end();
+        return;
+      }
+
       const isUnknownSession =
         parsedUrl.pathname === '/' ||
         parsedUrl.pathname === '/login' ||
