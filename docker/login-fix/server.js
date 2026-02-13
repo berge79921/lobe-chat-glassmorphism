@@ -259,10 +259,10 @@ body.desktop {
   padding: clamp(28px, 4.4vw, 52px) !important;
 }
 
-/* Hide leftover provider signature strip under the card */
-#app > * > * > *:not(:first-child),
+/* Hide provider signature strip only (do not hide auth actions like Sign-up) */
 #app a[class*="signature"],
-#app [class*="signature"] {
+#app [class*="signature"],
+#app [class*="poweredBy"] {
   display: none !important;
 }
 
@@ -331,14 +331,16 @@ body.desktop #app [class*="subtitle"] {
 
 #app input,
 #app textarea {
-  min-height: 64px !important;
+  min-height: 58px !important;
   border-radius: 14px !important;
   border: 1px solid var(--lc-input-border) !important;
   background: var(--lc-input) !important;
   color: var(--lc-text) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-  font-size: clamp(24px, 2.1vw, 32px) !important;
-  padding: 0 20px !important;
+  font-size: clamp(16px, 1.2vw, 20px) !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  padding: 0 18px !important;
 }
 
 #app input::placeholder,
@@ -420,8 +422,8 @@ body.desktop #app [class*="subtitle"] {
 
   #app input,
   #app textarea {
-    min-height: 54px !important;
-    font-size: 20px !important;
+    min-height: 50px !important;
+    font-size: 17px !important;
     padding: 0 14px !important;
   }
 
@@ -1695,9 +1697,26 @@ const buildProviderSigninUrl = (callbackUrl, options = {}) => {
   return `/api/auth/signin/logto?${params.toString()}`;
 };
 
-const buildHelperHtml = ({ loggedOut = false } = {}) => {
-  const callbackUrl = APP_PUBLIC_URL.endsWith('/') ? APP_PUBLIC_URL : `${APP_PUBLIC_URL}/`;
-  const loginHref = buildProviderSigninUrl(callbackUrl);
+const normalizeCallbackUrl = (input, fallbackOrigin) => {
+  const fallback = `${fallbackOrigin.replace(/\/+$/, '')}/chat`;
+  const raw = String(input || '').trim();
+  if (!raw) return fallback;
+  try {
+    const parsed = new URL(raw, fallbackOrigin);
+    const fallbackUrl = new URL(fallback);
+    if (parsed.origin !== fallbackUrl.origin) return fallback;
+    return parsed.toString();
+  } catch {
+    return fallback;
+  }
+};
+
+const buildHelperHtml = ({ loggedOut = false, callbackUrl } = {}) => {
+  const callback = normalizeCallbackUrl(callbackUrl, APP_PUBLIC_URL);
+  const loginHref = buildProviderSigninUrl(callback);
+  const signUpUrl = new URL('/sign-up', 'https://auth.legalchat.net');
+  if (AUTH_LOGTO_ID) signUpUrl.searchParams.set('app_id', AUTH_LOGTO_ID);
+  const signUpHref = signUpUrl.toString();
   const appName = escapeHtml(LEGALCHAT_APP_NAME);
   const avatarUrl = escapeHtml(LEGALCHAT_AVATAR_VERSIONED_URL);
   const assistantRole = escapeHtml(LEGALCHAT_ASSISTANT_ROLE_DE);
@@ -1891,6 +1910,15 @@ const buildHelperHtml = ({ loggedOut = false } = {}) => {
     }
     .button:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 18px 34px rgba(52, 102, 241, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
     .button:active { transform: translateY(0); }
+    .button.secondary {
+      background: rgba(17, 35, 82, 0.72);
+      border: 1px solid rgba(171, 201, 255, 0.46);
+      box-shadow: none;
+      color: #dbe9ff;
+    }
+    .button.secondary:hover {
+      box-shadow: 0 10px 18px rgba(8, 20, 52, 0.44);
+    }
     .hint {
       margin: 16px auto 0;
       color: var(--muted);
@@ -1941,8 +1969,9 @@ const buildHelperHtml = ({ loggedOut = false } = {}) => {
       ${statusHtml}
       <div class="ctaWrap">
       <a class="button" href="${loginHref}">Anmelden</a>
+      <a class="button secondary" href="${escapeHtml(signUpHref)}">Konto erstellen</a>
       </div>
-      <p class="hint">Der Zugriff erfolgt in einer geschützten Session und führt Sie direkt zurück in Ihren Workspace.</p>
+      <p class="hint">Anmeldung ist möglich via Apple, Google, Facebook oder GitHub (falls in Logto aktiviert) sowie optional mit Passwort. Danach werden Sie direkt zurück in Ihren Workspace geleitet.</p>
       <div class="footer">LegalChat Security Layer</div>
       </div>
     </div>
@@ -2504,8 +2533,8 @@ const server = http.createServer(async (req, res) => {
   // Skip built-in /next-auth/signin screen and go straight to Logto.
   if (req.method === 'GET' && parsedUrl.pathname === '/next-auth/signin') {
     const callbackUrl = parsedUrl.searchParams.get('callbackUrl') || `${publicOrigin}/chat`;
-    const signinUrl = buildProviderSigninUrl(callbackUrl);
-    res.writeHead(302, { 'cache-control': 'no-store', location: signinUrl });
+    const location = `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    res.writeHead(302, { 'cache-control': 'no-store', location });
     res.end();
     return;
   }
@@ -2513,14 +2542,15 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && parsedUrl.pathname === '/login') {
     sendLoginHelper(res, {
       loggedOut: isTruthyFlag(parsedUrl.searchParams.get('logged_out')),
+      callbackUrl: parsedUrl.searchParams.get('callbackUrl'),
     });
     return;
   }
 
   if (shouldEnforceLogin(req, parsedUrl)) {
     const callbackUrl = `${publicOrigin}${req.url}`;
-    const signinUrl = buildProviderSigninUrl(callbackUrl);
-    res.writeHead(302, { 'cache-control': 'no-store', location: signinUrl });
+    const location = `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    res.writeHead(302, { 'cache-control': 'no-store', location });
     res.end();
     return;
   }
