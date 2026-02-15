@@ -2456,24 +2456,33 @@ const server = http.createServer(async (req, res) => {
 
   if (isLogtoBrandingHost(req)) {
     if (req.method === 'GET') {
+      // Guardrail: Auth.js/NextAuth endpoints exist on the app origin (legalchat.net),
+      // not on the IdP host (auth.legalchat.net). If we ever land here with /api/auth
+      // or /next-auth paths, redirect back to the app to avoid 404s and redirect loops.
+      if (/^\/(?:api\/auth|next-auth)(?:\/|$)/.test(parsedUrl.pathname)) {
+        const appOrigin = new URL(APP_PUBLIC_URL).origin;
+        const location = `${appOrigin}${req.url}`;
+        res.writeHead(302, { 'cache-control': 'no-store', location });
+        res.end();
+        return;
+      }
+
       const hasInteractionContext =
         parsedUrl.searchParams.has('interaction') ||
         parsedUrl.searchParams.has('interaction_id') ||
         parsedUrl.searchParams.has('flow') ||
         parsedUrl.searchParams.has('ticket');
 
+      // Do not restart OIDC from inside Logto pages. Logto's /sign-in and /register are
+      // first-party interaction pages that rely on interaction cookies. Redirecting
+      // them back to /api/auth/signin breaks login/sign-up.
       if (!hasInteractionContext && /^\/sign-up\/?$/.test(parsedUrl.pathname)) {
-        const callbackUrl = normalizeCallbackUrl(parsedUrl.searchParams.get('callbackUrl'), APP_PUBLIC_URL);
-        const location = buildProviderSigninUrl(callbackUrl, { firstScreen: 'register' });
-        res.writeHead(302, { 'cache-control': 'no-store', location });
-        res.end();
-        return;
-      }
-
-      if (!hasInteractionContext && /^\/sign-in\/?$/.test(parsedUrl.pathname)) {
-        const callbackUrl = normalizeCallbackUrl(parsedUrl.searchParams.get('callbackUrl'), APP_PUBLIC_URL);
-        const location = buildProviderSigninUrl(callbackUrl);
-        res.writeHead(302, { 'cache-control': 'no-store', location });
+        // Normalize legacy /sign-up -> /register (Logto canonical).
+        const appId = parsedUrl.searchParams.get('app_id') || AUTH_LOGTO_ID;
+        const target = new URL('/register', publicOrigin);
+        for (const [k, v] of parsedUrl.searchParams.entries()) target.searchParams.set(k, v);
+        if (appId && !target.searchParams.has('app_id')) target.searchParams.set('app_id', appId);
+        res.writeHead(302, { 'cache-control': 'no-store', location: target.pathname + target.search });
         res.end();
         return;
       }
