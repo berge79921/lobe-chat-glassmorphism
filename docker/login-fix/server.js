@@ -751,18 +751,64 @@ const setNoStoreHeaders = (headers) => {
   delete headers['last-modified'];
 };
 
-const injectLogtoBrandingExperience = (html) => {
+const findLogtoSsrJsonRange = (html) => {
   const marker = 'window.logtoSsr = Object.freeze(';
-  const start = html.indexOf(marker);
-  if (start === -1) return html;
+  const markerStart = html.indexOf(marker);
+  if (markerStart === -1) return null;
 
-  const jsonStart = start + marker.length;
-  const jsonEnd = html.indexOf(');', jsonStart);
-  if (jsonEnd === -1) return html;
+  let i = markerStart + marker.length;
+  while (i < html.length && /\s/.test(html[i])) i += 1;
+  if (html[i] !== '{') return null;
+
+  const jsonStart = i;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (; i < html.length; i += 1) {
+    const ch = html[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (ch === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = false;
+        continue;
+      }
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === '{') {
+      depth += 1;
+      continue;
+    }
+    if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return { jsonStart, jsonEnd: i + 1 };
+      }
+    }
+  }
+
+  return null;
+};
+
+const injectLogtoBrandingExperience = (html, pathname = '') => {
+  const range = findLogtoSsrJsonRange(html);
+  if (!range) return html;
 
   let ssrPayload;
   try {
-    ssrPayload = JSON.parse(html.slice(jsonStart, jsonEnd));
+    ssrPayload = JSON.parse(html.slice(range.jsonStart, range.jsonEnd));
   } catch {
     return html;
   }
@@ -787,6 +833,12 @@ const injectLogtoBrandingExperience = (html) => {
     customCss: LEGALCHAT_LOGTO_CUSTOM_CSS,
   };
 
+  // Logto returns signInMode=SignIn even for /register; the SPA then pushes to /sign-in.
+  // Force the expected mode on the register route so account creation stays on the sign-up UI.
+  if (/^\/register(?:\/|$)/i.test(pathname)) {
+    ssrPayload.signInExperience.data.signInMode = 'SignUp';
+  }
+
   const serialized = JSON.stringify(ssrPayload)
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
@@ -794,7 +846,8 @@ const injectLogtoBrandingExperience = (html) => {
     .replace(/\u2028/g, '\\u2028')
     .replace(/\u2029/g, '\\u2029');
 
-  let rewritten = html.slice(0, jsonStart) + serialized + html.slice(jsonEnd);
+  let rewritten =
+    html.slice(0, range.jsonStart) + serialized + html.slice(range.jsonEnd);
   rewritten = rewritten.replace(
     /<title>\s*<\/title>/i,
     `<title>${escapeHtml(LEGALCHAT_APP_NAME)} Anmeldung</title>`,
@@ -2391,7 +2444,7 @@ const proxyLogtoBrandedRequest = async (req, res) => {
     let body = proxyRes.body;
     const contentType = proxyRes.headers['content-type'] || '';
     if (req.method === 'GET' && isPageRequest && contentType.includes('text/html')) {
-      body = Buffer.from(injectLogtoBrandingExperience(body.toString('utf8')), 'utf8');
+      body = Buffer.from(injectLogtoBrandingExperience(body.toString('utf8'), pathname), 'utf8');
       delete responseHeaders['content-encoding'];
       delete responseHeaders['transfer-encoding'];
       responseHeaders['content-length'] = body.length;
