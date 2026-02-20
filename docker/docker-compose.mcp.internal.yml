@@ -1,0 +1,230 @@
+services:
+  # Keep MCP traffic private: only login-proxy and MCP containers share this network.
+  login-proxy:
+    networks:
+      - default
+      - mcp_internal
+    environment:
+      # Feature flags for George UI modes (to be consumed by proxy/app logic).
+      LEGALCHAT_MCP_INTERNAL_ENABLED: ${LEGALCHAT_MCP_INTERNAL_ENABLED:-1}
+      LEGALCHAT_MCP_DEEP_RESEARCH_ENDPOINT: ${LEGALCHAT_MCP_DEEP_RESEARCH_ENDPOINT:-http://mcp-zivilrecht:8070}
+      LEGALCHAT_MCP_PRUEFUNGSMODUS_ENDPOINT: ${LEGALCHAT_MCP_PRUEFUNGSMODUS_ENDPOINT:-http://mcp-zivil-pruefung:8071}
+      LEGALCHAT_MCP_BEARER_TOKEN: ${LEGALCHAT_MCP_BEARER_TOKEN:-}
+      LEGALCHAT_MCP_ADMIN_BEARER_TOKEN: ${LEGALCHAT_MCP_ADMIN_BEARER_TOKEN:-}
+      LEGALCHAT_MCP_REQUEST_TIMEOUT_MS: ${LEGALCHAT_MCP_REQUEST_TIMEOUT_MS:-1200000}
+      LEGALCHAT_MCP_STATUS_TIMEOUT_MS: ${LEGALCHAT_MCP_STATUS_TIMEOUT_MS:-3000}
+
+  # Existing local MCP data layer (zivilrecht-server).
+  # Internal only, no public port publishing.
+  mcp-super-ris-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: mcp-super-ris-postgres
+    profiles:
+      - mcp-internal
+    environment:
+      POSTGRES_DB: ${SUPER_RIS_POSTGRES_DB:-super_ris}
+      POSTGRES_USER: ${SUPER_RIS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${SUPER_RIS_POSTGRES_PASSWORD:?SUPER_RIS_POSTGRES_PASSWORD is required}
+    volumes:
+      - ./mcp-super-ris-data:/var/lib/postgresql/data
+      - ./mcp-super-ris-init:/docker-entrypoint-initdb.d:ro
+    expose:
+      - "5432"
+    networks:
+      - mcp_internal
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${SUPER_RIS_POSTGRES_USER:-postgres} -d ${SUPER_RIS_POSTGRES_DB:-super_ris}
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  # One-shot importer for JSON + original HTML artifacts into super_ris.te.
+  # Run with: docker compose ... run --rm mcp-super-ris-importer [args]
+  mcp-super-ris-importer:
+    image: legalchat-mcp-runtime:local
+    build:
+      context: ./mcp-bridge
+      dockerfile: Dockerfile.mcp-runtime.local
+    container_name: mcp-super-ris-importer
+    profiles:
+      - mcp-internal
+      - mcp-import
+    working_dir: /srv/import
+    entrypoint:
+      - python3
+      - /srv/import/import_super_ris_te.py
+    command: []
+    volumes:
+      - ./mcp-super-ris-init:/srv/import:ro
+      - ${MCP_SUPER_RIS_ARTIFACTS_HOST_PATH:-./mcp-super-ris-artifacts}:/srv/super-ris-artifacts:ro
+    environment:
+      MCP_ZIVILRECHT_DB_HOST: ${MCP_ZIVILRECHT_DB_HOST:-mcp-super-ris-postgres}
+      MCP_ZIVILRECHT_DB_PORT: ${MCP_ZIVILRECHT_DB_PORT:-5432}
+      MCP_ZIVILRECHT_DB_NAME: ${MCP_ZIVILRECHT_DB_NAME:-super_ris}
+      MCP_ZIVILRECHT_DB_USER: ${MCP_ZIVILRECHT_DB_USER:-postgres}
+      MCP_ZIVILRECHT_DB_PASSWORD: ${MCP_ZIVILRECHT_DB_PASSWORD:?MCP_ZIVILRECHT_DB_PASSWORD is required}
+      MCP_ZIVILRECHT_DB_CONNECT_TIMEOUT: ${MCP_ZIVILRECHT_DB_CONNECT_TIMEOUT:-10}
+      MCP_ZIVILRECHT_DB_SSLMODE: ${MCP_ZIVILRECHT_DB_SSLMODE:-disable}
+      IMPORT_JSON_ROOT: ${MCP_SUPER_RIS_IMPORT_JSON_ROOT:-/srv/super-ris-artifacts}
+      IMPORT_JSON_GLOB: ${MCP_SUPER_RIS_IMPORT_JSON_GLOB:-*_TE.json}
+      IMPORT_HTML_ROOTS: ${MCP_SUPER_RIS_IMPORT_HTML_ROOTS:-/srv/super-ris-artifacts}
+      IMPORT_COMMIT_EVERY: ${MCP_SUPER_RIS_IMPORT_COMMIT_EVERY:-1000}
+    networks:
+      - mcp_internal
+    depends_on:
+      mcp-super-ris-postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # One-shot importer for RS JSON artifacts into super_ris.rs.
+  # Run with: docker compose ... run --rm mcp-super-ris-rs-importer [args]
+  mcp-super-ris-rs-importer:
+    image: legalchat-mcp-runtime:local
+    build:
+      context: ./mcp-bridge
+      dockerfile: Dockerfile.mcp-runtime.local
+    container_name: mcp-super-ris-rs-importer
+    profiles:
+      - mcp-internal
+      - mcp-import
+    working_dir: /srv/import
+    entrypoint:
+      - python3
+      - /srv/import/import_super_ris_rs.py
+    command: []
+    volumes:
+      - ./mcp-super-ris-init:/srv/import:ro
+      - ${MCP_SUPER_RIS_ARTIFACTS_HOST_PATH:-./mcp-super-ris-artifacts}:/srv/super-ris-artifacts:ro
+    environment:
+      MCP_ZIVILRECHT_DB_HOST: ${MCP_ZIVILRECHT_DB_HOST:-mcp-super-ris-postgres}
+      MCP_ZIVILRECHT_DB_PORT: ${MCP_ZIVILRECHT_DB_PORT:-5432}
+      MCP_ZIVILRECHT_DB_NAME: ${MCP_ZIVILRECHT_DB_NAME:-super_ris}
+      MCP_ZIVILRECHT_DB_USER: ${MCP_ZIVILRECHT_DB_USER:-postgres}
+      MCP_ZIVILRECHT_DB_PASSWORD: ${MCP_ZIVILRECHT_DB_PASSWORD:?MCP_ZIVILRECHT_DB_PASSWORD is required}
+      MCP_ZIVILRECHT_DB_CONNECT_TIMEOUT: ${MCP_ZIVILRECHT_DB_CONNECT_TIMEOUT:-10}
+      MCP_ZIVILRECHT_DB_SSLMODE: ${MCP_ZIVILRECHT_DB_SSLMODE:-disable}
+      IMPORT_RS_JSON_ROOT: ${MCP_SUPER_RIS_IMPORT_RS_JSON_ROOT:-/srv/super-ris-artifacts}
+      IMPORT_RS_JSON_GLOB: ${MCP_SUPER_RIS_IMPORT_RS_JSON_GLOB:-*_RS.json}
+      IMPORT_RS_COMMIT_EVERY: ${MCP_SUPER_RIS_IMPORT_RS_COMMIT_EVERY:-1000}
+    networks:
+      - mcp_internal
+    depends_on:
+      mcp-super-ris-postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Existing local MCP data layer (zivilrecht-server).
+  # Internal only, no public port publishing.
+  mcp-zivilrecht:
+    image: legalchat-mcp-runtime:local
+    build:
+      context: ./mcp-bridge
+      dockerfile: Dockerfile.mcp-runtime.local
+    container_name: mcp-zivilrecht
+    profiles:
+      - mcp-internal
+    working_dir: /srv/mcp
+    command:
+      - sh
+      - -lc
+      - |
+        python3 /srv/bridge/mcp_stdio_bridge.py
+    volumes:
+      - ./mcp-bridge:/srv/bridge:ro
+      - ${MCP_ZIVILRECHT_CODE_PATH:-/opt/legalchat/mcp/zivilrecht}:/srv/mcp:ro
+      - ${MCP_SUPER_RIS_ARTIFACTS_HOST_PATH:-./mcp-super-ris-artifacts}:/srv/super-ris-artifacts:ro
+    environment:
+      MCP_ZIVILRECHT_DB_HOST: ${MCP_ZIVILRECHT_DB_HOST:-mcp-super-ris-postgres}
+      MCP_ZIVILRECHT_DB_PORT: ${MCP_ZIVILRECHT_DB_PORT:-5432}
+      MCP_ZIVILRECHT_DB_NAME: ${MCP_ZIVILRECHT_DB_NAME:-super_ris}
+      MCP_ZIVILRECHT_DB_USER: ${MCP_ZIVILRECHT_DB_USER:-postgres}
+      MCP_ZIVILRECHT_DB_PASSWORD: ${MCP_ZIVILRECHT_DB_PASSWORD:?MCP_ZIVILRECHT_DB_PASSWORD is required}
+      MCP_ZIVILRECHT_DB_CONNECT_TIMEOUT: ${MCP_ZIVILRECHT_DB_CONNECT_TIMEOUT:-10}
+      MCP_ZIVILRECHT_DB_SSLMODE: ${MCP_ZIVILRECHT_DB_SSLMODE:-disable}
+      MCP_SUPER_RIS_ARTIFACTS_PATH: /srv/super-ris-artifacts
+      MCP_BRIDGE_NAME: zivilrecht-bridge
+      MCP_BRIDGE_PORT: 8070
+      MCP_BRIDGE_CWD: /srv/mcp
+      MCP_BRIDGE_COMMAND: ${MCP_ZIVILRECHT_COMMAND:-python3 /srv/mcp/mcp_server_zivilrecht.py}
+      MCP_BRIDGE_REQUEST_TIMEOUT_SEC: ${MCP_BRIDGE_REQUEST_TIMEOUT_SEC:-1200}
+      MCP_BRIDGE_INIT_TIMEOUT_SEC: ${MCP_BRIDGE_INIT_TIMEOUT_SEC:-45}
+      MCP_PROTOCOL_VERSION: ${MCP_PROTOCOL_VERSION:-2024-11-05}
+      MCP_BRIDGE_STDIO_PROTOCOL: ${MCP_BRIDGE_STDIO_PROTOCOL:-jsonl}
+    expose:
+      - "8070"
+    networks:
+      - mcp_internal
+    restart: unless-stopped
+    depends_on:
+      mcp-super-ris-postgres:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import urllib.request,sys;sys.exit(0 if urllib.request.urlopen("http://127.0.0.1:8070/health",timeout=2).status==200 else 1)
+      interval: 20s
+      timeout: 3s
+      retries: 3
+
+  # Planned MCP exam harness layer (zivil-pruefung), currently in build/test.
+  # Internal only, no public port publishing.
+  mcp-zivil-pruefung:
+    image: legalchat-mcp-runtime:local
+    build:
+      context: ./mcp-bridge
+      dockerfile: Dockerfile.mcp-runtime.local
+    container_name: mcp-zivil-pruefung
+    profiles:
+      - mcp-internal
+    working_dir: /srv/mcp
+    command:
+      - sh
+      - -lc
+      - |
+        python3 /srv/bridge/mcp_stdio_bridge.py
+    volumes:
+      - ./mcp-bridge:/srv/bridge:ro
+      - ${MCP_ZIVIL_PRUEFUNG_CODE_PATH:-/opt/legalchat/mcp/zivil-pruefung}:/srv/mcp:ro
+      - ${MCP_RULESETS_PATH:-/opt/legalchat/mcp/rulesets}:/srv/rulesets:ro
+    environment:
+      PYTHONUNBUFFERED: "1"
+      MCP_STDOUT_SAFE_PATCH: ${MCP_STDOUT_SAFE_PATCH:-1}
+      MCP_RULESETS_PATH: /srv/rulesets
+      MCP_BRIDGE_NAME: zivil-pruefung-bridge
+      MCP_BRIDGE_PORT: 8071
+      MCP_BRIDGE_CWD: /srv/mcp
+      MCP_BRIDGE_COMMAND: ${MCP_ZIVIL_PRUEFUNG_COMMAND:-python3 /srv/mcp/mcp_server_zivil_pruefung.py}
+      MCP_BRIDGE_REQUEST_TIMEOUT_SEC: ${MCP_BRIDGE_REQUEST_TIMEOUT_SEC:-1200}
+      MCP_BRIDGE_INIT_TIMEOUT_SEC: ${MCP_BRIDGE_INIT_TIMEOUT_SEC:-45}
+      MCP_PROTOCOL_VERSION: ${MCP_PROTOCOL_VERSION:-2024-11-05}
+      MCP_BRIDGE_STDIO_PROTOCOL: ${MCP_BRIDGE_STDIO_PROTOCOL:-jsonl}
+    expose:
+      - "8071"
+    networks:
+      - mcp_internal
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import urllib.request,sys;sys.exit(0 if urllib.request.urlopen("http://127.0.0.1:8071/health",timeout=2).status==200 else 1)
+      interval: 20s
+      timeout: 3s
+      retries: 3
+
+networks:
+  mcp_internal:
+    name: legalchat_mcp_internal
+    internal: true

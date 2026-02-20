@@ -7,6 +7,15 @@
     if (!Number.isFinite(n) || n <= 0) return fallback;
     return Math.floor(n);
   }
+  function parseBoolean(value, fallback) {
+    if (typeof value === 'boolean') return value;
+    if (value == null) return fallback;
+    var normalized = String(value).trim().toLowerCase();
+    if (!normalized) return fallback;
+    if (normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on') return true;
+    if (normalized === '0' || normalized === 'false' || normalized === 'no' || normalized === 'off') return false;
+    return fallback;
+  }
 
   var APP_NAME = runtimeConfig.appName || 'LegalChat';
   var DEFAULT_AGENT_NAME = runtimeConfig.defaultAgentName || 'George';
@@ -52,6 +61,14 @@
   var DEFAULT_AGENT_PATTERN = /Lass uns plaudern|Just Chat/gi;
   var LEGACY_BRAND_TITLE_PATTERN = /Lobe\s*Hub|Lobe\s*Chat|LobeHub|LobeChat/i;
   var WORDMARK_SELECTOR = 'svg[viewBox="0 0 940 320"]';
+  var MCP_CONFIG = runtimeConfig.mcp || {};
+  var MCP_ENABLED = parseBoolean(MCP_CONFIG.enabled, false);
+  var MCP_API_BASE_PATH = MCP_CONFIG.apiBasePath || '/api/legalchat/mcp';
+  var MCP_DEEP_RESEARCH_PATH = MCP_CONFIG.deepResearchPath || MCP_API_BASE_PATH + '/deep-research';
+  var MCP_PRUEFUNGSMODUS_PATH = MCP_CONFIG.pruefungsmodusPath || MCP_API_BASE_PATH + '/pruefungsmodus';
+  var MCP_GENERIC_CALL_PATH = MCP_CONFIG.genericCallPath || MCP_API_BASE_PATH + '/call';
+  var MCP_TOOLS_PATH = MCP_CONFIG.toolsPath || MCP_API_BASE_PATH + '/tools';
+  var MCP_STATUS_PATH = MCP_CONFIG.statusPath || MCP_API_BASE_PATH + '/status';
 
   var scheduled = false;
   window.__legalchatVoiceMode = VOICE_OFF ? 'off' : 'guarded';
@@ -165,6 +182,107 @@
       } catch (_xhrPrototypeError) {}
       window.XMLHttpRequest = WrappedXHR;
     }
+  }
+
+  function createMcpApiError(response, payload) {
+    var error = new Error((payload && payload.error) || ('MCP API error (' + response.status + ')'));
+    error.status = response.status;
+    error.payload = payload;
+    return error;
+  }
+
+  function requestMcpJson(url, options) {
+    if (typeof window.fetch !== 'function') {
+      return Promise.reject(new Error('fetch_not_available'));
+    }
+
+    var requestOptions = options || {};
+    var headers = requestOptions.headers || {};
+
+    return window.fetch(url, {
+      method: requestOptions.method || 'GET',
+      credentials: 'include',
+      headers: headers,
+      body: requestOptions.body,
+    }).then(function (response) {
+      return response
+        .text()
+        .then(function (rawText) {
+          var payload = {};
+          if (rawText) {
+            try {
+              payload = JSON.parse(rawText);
+            } catch (_parseError) {
+              payload = { ok: false, raw: rawText };
+            }
+          }
+          if (!response.ok) throw createMcpApiError(response, payload);
+          return payload;
+        });
+    });
+  }
+
+  function installMcpClient() {
+    var existing = window.LegalChatMcp;
+    if (existing && typeof existing === 'object') return;
+
+    function callMode(path, name, args) {
+      if (!MCP_ENABLED) return Promise.reject(new Error('mcp_disabled'));
+      return requestMcpJson(path, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: String(name || '').trim(),
+          arguments: args && typeof args === 'object' && !Array.isArray(args) ? args : {},
+        }),
+      });
+    }
+
+    var api = {
+      call: function (mode, name, args) {
+        if (!MCP_ENABLED) return Promise.reject(new Error('mcp_disabled'));
+        return requestMcpJson(MCP_GENERIC_CALL_PATH, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            mode: mode,
+            name: name,
+            arguments: args && typeof args === 'object' && !Array.isArray(args) ? args : {},
+          }),
+        });
+      },
+      callDeepResearch: function (name, args) {
+        return callMode(MCP_DEEP_RESEARCH_PATH, name, args);
+      },
+      callPruefungsmodus: function (name, args) {
+        return callMode(MCP_PRUEFUNGSMODUS_PATH, name, args);
+      },
+      deepResearchPath: MCP_DEEP_RESEARCH_PATH,
+      enabled: MCP_ENABLED,
+      listTools: function (mode) {
+        if (!MCP_ENABLED) return Promise.reject(new Error('mcp_disabled'));
+        var url = MCP_TOOLS_PATH + '?mode=' + encodeURIComponent(String(mode || '').trim());
+        return requestMcpJson(url, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+        });
+      },
+      pruefungsmodusPath: MCP_PRUEFUNGSMODUS_PATH,
+      status: function () {
+        return requestMcpJson(MCP_STATUS_PATH, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+        });
+      },
+    };
+
+    window.LegalChatMcp = Object.freeze(api);
   }
 
   function ensureFaviconLinks() {
@@ -1243,6 +1361,7 @@
   installSpeechRecognitionGuard();
   suppressVoicePolicyRejections();
   installLogoutOverride();
+  installMcpClient();
   if (VOICE_OFF) enforceVoiceOffMode();
   ensureFaviconLinks();
 

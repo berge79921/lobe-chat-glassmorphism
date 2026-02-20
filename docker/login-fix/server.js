@@ -10,6 +10,15 @@ const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 
+const isEnvTruthy = (value) => /^(1|true|yes|on)$/i.test(String(value || '').trim());
+const parseCsvLowerSet = (value) =>
+  new Set(
+    String(value || '')
+      .split(',')
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean),
+  );
+
 const TARGET_HOST = process.env.LOBECHAT_HOST || 'lobe-chat-glass';
 const TARGET_PORT = Number(process.env.LOBECHAT_PORT || 3210);
 const LISTEN_PORT = Number(process.env.PORT || 3210);
@@ -90,6 +99,59 @@ const S3_REGION = (process.env.S3_REGION || 'us-east-1').trim();
 const S3_ACCESS_KEY_ID = (process.env.S3_ACCESS_KEY_ID || '').trim();
 const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY || '';
 const S3_ENABLE_PATH_STYLE = process.env.S3_ENABLE_PATH_STYLE !== '0';
+const LEGALCHAT_MCP_INTERNAL_ENABLED = isEnvTruthy(
+  process.env.LEGALCHAT_MCP_INTERNAL_ENABLED || '0',
+);
+const LEGALCHAT_MCP_DEEP_RESEARCH_ENDPOINT = String(
+  process.env.LEGALCHAT_MCP_DEEP_RESEARCH_ENDPOINT || '',
+)
+  .trim()
+  .replace(/\/+$/, '');
+const LEGALCHAT_MCP_PRUEFUNGSMODUS_ENDPOINT = String(
+  process.env.LEGALCHAT_MCP_PRUEFUNGSMODUS_ENDPOINT || '',
+)
+  .trim()
+  .replace(/\/+$/, '');
+const LEGALCHAT_MCP_BEARER_TOKEN = String(process.env.LEGALCHAT_MCP_BEARER_TOKEN || '').trim();
+const LEGALCHAT_MCP_ADMIN_BEARER_TOKEN = String(
+  process.env.LEGALCHAT_MCP_ADMIN_BEARER_TOKEN || '',
+).trim();
+const LEGALCHAT_MCP_REQUEST_TIMEOUT_MS = Math.max(
+  2000,
+  Number(
+    process.env.LEGALCHAT_MCP_REQUEST_TIMEOUT_MS ||
+      Number(process.env.MCP_BRIDGE_REQUEST_TIMEOUT_SEC || 1200) * 1000,
+  ),
+);
+const LEGALCHAT_MCP_STATUS_TIMEOUT_MS = Math.max(
+  750,
+  Number(process.env.LEGALCHAT_MCP_STATUS_TIMEOUT_MS || 3000),
+);
+const LEGALCHAT_MCP_API_BASE_PATH = '/api/legalchat/mcp';
+const LEGALCHAT_MCP_TOOLS_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/tools`;
+const LEGALCHAT_MCP_CALL_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/call`;
+const LEGALCHAT_MCP_STATUS_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/status`;
+const LEGALCHAT_MCP_DEEP_RESEARCH_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/deep-research`;
+const LEGALCHAT_MCP_PRUEFUNGSMODUS_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/pruefungsmodus`;
+const LEGALCHAT_MCP_MODE_TOOL_ROUTE_PATTERN =
+  /^\/api\/legalchat\/mcp\/(deep-research|pruefungsmodus)\/([^/]+)$/;
+const LEGALCHAT_MCP_MODE_ENDPOINTS = {
+  'deep-research': LEGALCHAT_MCP_DEEP_RESEARCH_ENDPOINT,
+  pruefungsmodus: LEGALCHAT_MCP_PRUEFUNGSMODUS_ENDPOINT,
+};
+const LEGALCHAT_MCP_ADMIN_EMAILS = parseCsvLowerSet(process.env.LEGALCHAT_MCP_ADMIN_EMAILS || '');
+const LEGALCHAT_MCP_ADMIN_ROLES = parseCsvLowerSet(
+  process.env.LEGALCHAT_MCP_ADMIN_ROLES || 'admin,owner,superadmin',
+);
+const LEGALCHAT_MCP_PRIVILEGED_TOOLS_BY_MODE = {
+  'deep-research': parseCsvLowerSet(
+    process.env.LEGALCHAT_MCP_PRIVILEGED_TOOLS_DEEP_RESEARCH || 'ask_gemini_zivilrecht',
+  ),
+  pruefungsmodus: parseCsvLowerSet(
+    process.env.LEGALCHAT_MCP_PRIVILEGED_TOOLS_PRUEFUNGSMODUS ||
+      'run_exam,run_cct,get_validation_dashboard',
+  ),
+};
 
 const SIGNIN_GET_PATTERN = /^\/(?:api\/auth|next-auth)\/signin\/[^/]+$/;
 const INTERNAL_HOSTS = new Set([TARGET_HOST, 'lobe-chat-glass', 'lobe']);
@@ -460,6 +522,15 @@ const BRANDING_RUNTIME_CONFIG = {
   welcomePrimaryEn: LEGALCHAT_WELCOME_PRIMARY_EN,
   welcomeSecondaryDe: LEGALCHAT_WELCOME_SECONDARY_DE,
   welcomeSecondaryEn: LEGALCHAT_WELCOME_SECONDARY_EN,
+  mcp: {
+    enabled: LEGALCHAT_MCP_INTERNAL_ENABLED,
+    apiBasePath: LEGALCHAT_MCP_API_BASE_PATH,
+    deepResearchPath: LEGALCHAT_MCP_DEEP_RESEARCH_ROUTE,
+    pruefungsmodusPath: LEGALCHAT_MCP_PRUEFUNGSMODUS_ROUTE,
+    genericCallPath: LEGALCHAT_MCP_CALL_ROUTE,
+    toolsPath: LEGALCHAT_MCP_TOOLS_ROUTE,
+    statusPath: LEGALCHAT_MCP_STATUS_ROUTE,
+  },
 };
 const serializeInlineConfig = (value) =>
   JSON.stringify(value)
@@ -691,7 +762,7 @@ const rewriteLocationHeader = (location, req) => {
   }
 };
 
-const requestTarget = ({ method, path, headers = {}, body = '' }) =>
+const requestTarget = ({ method, path, headers = {}, body = '', timeoutMs = 0 }) =>
   new Promise((resolve, reject) => {
     const upstreamReq = http.request(
       {
@@ -713,6 +784,12 @@ const requestTarget = ({ method, path, headers = {}, body = '' }) =>
         });
       },
     );
+
+    if (timeoutMs > 0) {
+      upstreamReq.setTimeout(timeoutMs, () => {
+        upstreamReq.destroy(new Error(`upstream_timeout:${timeoutMs}`));
+      });
+    }
 
     upstreamReq.on('error', reject);
     if (body) upstreamReq.write(body);
@@ -1046,6 +1123,468 @@ const fetchWithTimeout = async (url, options = {}, timeoutMs = LEGALCHAT_OCR_TIM
   } finally {
     clearTimeout(timeout);
   }
+};
+
+const sendJsonResponse = (res, statusCode, payload, extraHeaders = {}) => {
+  const body = Buffer.from(JSON.stringify(payload), 'utf8');
+  res.writeHead(statusCode, {
+    'cache-control': 'no-store',
+    'content-length': String(body.length),
+    'content-type': 'application/json; charset=utf-8',
+    ...extraHeaders,
+  });
+  res.end(body);
+};
+
+const extractBearerToken = (authorizationHeader) => {
+  const value = String(authorizationHeader || '').trim();
+  if (!/^Bearer\s+/i.test(value)) return '';
+  return value.replace(/^Bearer\s+/i, '').trim();
+};
+
+const timingSafeEquals = (left, right) => {
+  const leftBuffer = Buffer.from(String(left || ''), 'utf8');
+  const rightBuffer = Buffer.from(String(right || ''), 'utf8');
+  if (leftBuffer.length === 0 || leftBuffer.length !== rightBuffer.length) return false;
+  try {
+    return crypto.timingSafeEqual(leftBuffer, rightBuffer);
+  } catch {
+    return false;
+  }
+};
+
+const normalizeMcpMode = (value) => {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[ _]+/g, '-')
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss');
+  if (!normalized) return '';
+  if (normalized === 'deepresearch') return 'deep-research';
+  if (normalized === 'deep-research') return 'deep-research';
+  if (normalized === 'pruefungs-modus') return 'pruefungsmodus';
+  if (normalized === 'pruefungsmodus') return 'pruefungsmodus';
+  return '';
+};
+
+const getMcpEndpointForMode = (mode) => LEGALCHAT_MCP_MODE_ENDPOINTS[normalizeMcpMode(mode)] || '';
+
+const extractSessionRoles = (user) => {
+  const roles = new Set();
+  if (!user || typeof user !== 'object') return roles;
+  const candidates = [
+    user.role,
+    user.roles,
+    user.permissions,
+    user.scope,
+    user.scopes,
+    user.customData?.role,
+    user.customData?.roles,
+    user.profile?.role,
+    user.profile?.roles,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string') {
+      for (const part of candidate.split(/[,\s]+/)) {
+        const value = part.trim().toLowerCase();
+        if (value) roles.add(value);
+      }
+      continue;
+    }
+    if (Array.isArray(candidate)) {
+      for (const item of candidate) {
+        const value = String(item || '').trim().toLowerCase();
+        if (value) roles.add(value);
+      }
+    }
+  }
+  return roles;
+};
+
+const validateSessionViaAuthJs = async (req) => {
+  const cookieHeader = String(req.headers.cookie || '').trim();
+  if (!cookieHeader) return null;
+  if (!hasSessionCookie(req)) return null;
+
+  try {
+    const forwardingHost = getPublicHost(req);
+    const forwardingProto = getForwardedProtocol(req);
+    const sessionResponse = await requestTarget({
+      method: 'GET',
+      path: '/api/auth/session',
+      headers: {
+        accept: 'application/json',
+        cookie: cookieHeader,
+        host: forwardingHost,
+        'user-agent': req.headers['user-agent'] || 'legalchat-mcp-auth-check',
+        'x-forwarded-host': forwardingHost,
+        'x-forwarded-proto': forwardingProto,
+      },
+      timeoutMs: 3000,
+    });
+
+    if (!responseStatusIsSuccess(sessionResponse.statusCode)) return null;
+    const payload = JSON.parse(sessionResponse.body.toString('utf8') || '{}');
+    if (!payload || typeof payload !== 'object') return null;
+    if (!payload.user || typeof payload.user !== 'object') return null;
+    if (typeof payload.expires !== 'string' || !payload.expires) return null;
+    const user = payload.user;
+    const email = String(user.email || user.primaryEmail || '')
+      .trim()
+      .toLowerCase();
+    return {
+      email,
+      roles: extractSessionRoles(user),
+      user,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const isPrivilegedMcpTool = (mode, toolName) => {
+  const modeKey = normalizeMcpMode(mode);
+  const toolKey = String(toolName || '').trim().toLowerCase();
+  if (!modeKey || !toolKey) return false;
+  return LEGALCHAT_MCP_PRIVILEGED_TOOLS_BY_MODE[modeKey]?.has(toolKey) === true;
+};
+
+const isSessionAdmin = (sessionInfo) => {
+  if (!sessionInfo || typeof sessionInfo !== 'object') return false;
+  if (sessionInfo.email && LEGALCHAT_MCP_ADMIN_EMAILS.has(sessionInfo.email)) return true;
+  for (const role of sessionInfo.roles || []) {
+    if (LEGALCHAT_MCP_ADMIN_ROLES.has(role)) return true;
+  }
+  return false;
+};
+
+const authorizeMcpToolCall = ({ access, mode, toolName }) => {
+  if (!isPrivilegedMcpTool(mode, toolName)) return { ok: true };
+  if (access?.authType === 'bearer' && access?.bearerRole === 'admin') return { ok: true };
+  if (isSessionAdmin(access?.session)) return { ok: true };
+  return {
+    error:
+      'Forbidden. Missing role or permission for this MCP tool. Ask an administrator for access.',
+    ok: false,
+    statusCode: 403,
+  };
+};
+
+const canAccessMcpLane = async (req) => {
+  if (!LEGALCHAT_MCP_INTERNAL_ENABLED) {
+    return {
+      error: 'MCP lane is disabled.',
+      ok: false,
+      statusCode: 503,
+    };
+  }
+
+  const requestToken = extractBearerToken(req.headers.authorization);
+  if (requestToken) {
+    if (
+      LEGALCHAT_MCP_ADMIN_BEARER_TOKEN &&
+      timingSafeEquals(requestToken, LEGALCHAT_MCP_ADMIN_BEARER_TOKEN)
+    ) {
+      return { authType: 'bearer', bearerRole: 'admin', ok: true };
+    }
+    if (LEGALCHAT_MCP_BEARER_TOKEN && timingSafeEquals(requestToken, LEGALCHAT_MCP_BEARER_TOKEN)) {
+      return { authType: 'bearer', bearerRole: 'standard', ok: true };
+    }
+  }
+
+  const sessionInfo = await validateSessionViaAuthJs(req);
+  if (sessionInfo) {
+    return { authType: 'session', ok: true, session: sessionInfo };
+  }
+
+  return {
+    error: 'Unauthorized. Sign in or provide a valid bearer token.',
+    ok: false,
+    statusCode: 401,
+  };
+};
+
+const readJsonRequestBody = async (req) => {
+  const raw = await readRequestBody(req);
+  if (!raw || raw.length === 0) return {};
+  try {
+    return JSON.parse(raw.toString('utf8'));
+  } catch {
+    const error = new Error('invalid_json');
+    error.code = 'INVALID_JSON';
+    throw error;
+  }
+};
+
+const callMcpBridge = async ({
+  mode,
+  path,
+  payload,
+  timeoutMs = LEGALCHAT_MCP_REQUEST_TIMEOUT_MS,
+}) => {
+  const normalizedMode = normalizeMcpMode(mode);
+  const endpoint = getMcpEndpointForMode(normalizedMode);
+  if (!endpoint) {
+    return {
+      ok: false,
+      payload: {
+        error: `MCP endpoint for mode "${normalizedMode || mode || 'unknown'}" is not configured.`,
+        ok: false,
+      },
+      statusCode: 500,
+    };
+  }
+
+  const url = `${endpoint}${path}`;
+  let response;
+  try {
+    response = await fetchWithTimeout(
+      url,
+      {
+        body: typeof payload === 'undefined' ? undefined : JSON.stringify(payload),
+        headers:
+          typeof payload === 'undefined'
+            ? { Accept: 'application/json' }
+            : {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+        method: typeof payload === 'undefined' ? 'GET' : 'POST',
+      },
+      timeoutMs,
+    );
+  } catch (error) {
+    return {
+      ok: false,
+      payload: {
+        details: error?.message || String(error),
+        error: `MCP bridge "${normalizedMode}" is unreachable.`,
+        ok: false,
+      },
+      statusCode: 502,
+    };
+  }
+
+  const rawText = await response.text().catch(() => '');
+  let parsedPayload = null;
+  if (rawText) {
+    try {
+      parsedPayload = JSON.parse(rawText);
+    } catch {
+      parsedPayload = null;
+    }
+  }
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      payload: {
+        bridgeResponse: parsedPayload || rawText.slice(0, 600),
+        bridgeStatus: response.status,
+        error: `MCP bridge request failed for mode "${normalizedMode}".`,
+        ok: false,
+      },
+      statusCode: response.status === 404 ? 502 : response.status,
+    };
+  }
+
+  return {
+    ok: true,
+    payload: parsedPayload ?? { ok: true, result: rawText },
+    statusCode: 200,
+  };
+};
+
+const normalizeToolCallPayload = ({ body, modeFromPath, toolNameFromPath }) => {
+  const bodyObject = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+  const mode = normalizeMcpMode(modeFromPath || bodyObject.mode);
+  if (!mode) return { error: 'Missing or invalid mode.' };
+
+  const toolNameRaw = toolNameFromPath || bodyObject.name;
+  const toolName = String(toolNameRaw || '').trim();
+  if (!toolName) return { error: 'Missing tool name.' };
+
+  if (
+    typeof bodyObject.arguments === 'object' &&
+    bodyObject.arguments !== null &&
+    !Array.isArray(bodyObject.arguments)
+  ) {
+    return {
+      arguments: bodyObject.arguments,
+      mode,
+      name: toolName,
+    };
+  }
+
+  const fallbackArgs = { ...bodyObject };
+  delete fallbackArgs.mode;
+  delete fallbackArgs.name;
+  return {
+    arguments: fallbackArgs,
+    mode,
+    name: toolName,
+  };
+};
+
+const handleMcpStatusRequest = async (req, res) => {
+  const access = await canAccessMcpLane(req);
+  if (!access.ok) {
+    sendJsonResponse(res, access.statusCode, { error: access.error, ok: false });
+    return;
+  }
+
+  const modes = ['deep-research', 'pruefungsmodus'];
+  const modeStatus = await Promise.all(
+    modes.map(async (mode) => {
+      const endpoint = getMcpEndpointForMode(mode);
+      if (!endpoint) {
+        return { configured: false, healthy: false, mode };
+      }
+
+      const probe = await callMcpBridge({
+        mode,
+        path: '/health',
+        payload: undefined,
+        timeoutMs: LEGALCHAT_MCP_STATUS_TIMEOUT_MS,
+      });
+
+      if (!probe.ok) {
+        return {
+          configured: true,
+          error: probe.payload?.error || 'Bridge probe failed.',
+          healthy: false,
+          mode,
+        };
+      }
+
+      return {
+        configured: true,
+        healthy: Boolean(probe.payload?.ok),
+        mode,
+      };
+    }),
+  );
+
+  sendJsonResponse(res, 200, {
+    authType: access.authType || 'unknown',
+    bearerRole: access.bearerRole || null,
+    authz: {
+      adminBearerConfigured: Boolean(LEGALCHAT_MCP_ADMIN_BEARER_TOKEN),
+      adminEmailsConfigured: LEGALCHAT_MCP_ADMIN_EMAILS.size,
+      adminRolesConfigured: Array.from(LEGALCHAT_MCP_ADMIN_ROLES),
+      privilegedTools: Object.fromEntries(
+        Object.entries(LEGALCHAT_MCP_PRIVILEGED_TOOLS_BY_MODE).map(([mode, tools]) => [
+          mode,
+          Array.from(tools.values()),
+        ]),
+      ),
+    },
+    enabled: LEGALCHAT_MCP_INTERNAL_ENABLED,
+    modes: modeStatus,
+    ok: true,
+  });
+};
+
+const handleMcpToolsListRequest = async (req, res, parsedUrl) => {
+  const access = await canAccessMcpLane(req);
+  if (!access.ok) {
+    sendJsonResponse(res, access.statusCode, { error: access.error, ok: false });
+    return;
+  }
+
+  const mode = normalizeMcpMode(parsedUrl.searchParams.get('mode'));
+  if (!mode) {
+    sendJsonResponse(res, 400, {
+      error: 'Missing or invalid mode. Use "deep-research" or "pruefungsmodus".',
+      ok: false,
+    });
+    return;
+  }
+
+  const bridgeResponse = await callMcpBridge({
+    mode,
+    path: '/tools',
+    payload: undefined,
+    timeoutMs: LEGALCHAT_MCP_STATUS_TIMEOUT_MS,
+  });
+  if (!bridgeResponse.ok) {
+    sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload);
+    return;
+  }
+
+  sendJsonResponse(res, 200, {
+    mode,
+    ok: true,
+    result: bridgeResponse.payload?.result ?? bridgeResponse.payload,
+  });
+};
+
+const handleMcpToolCallRequest = async (req, res, { modeFromPath = '', toolNameFromPath = '' } = {}) => {
+  const access = await canAccessMcpLane(req);
+  if (!access.ok) {
+    sendJsonResponse(res, access.statusCode, { error: access.error, ok: false });
+    return;
+  }
+
+  let body;
+  try {
+    body = await readJsonRequestBody(req);
+  } catch {
+    sendJsonResponse(res, 400, { error: 'Invalid JSON body.', ok: false });
+    return;
+  }
+
+  const parsed = normalizeToolCallPayload({ body, modeFromPath, toolNameFromPath });
+  if (parsed.error) {
+    sendJsonResponse(res, 400, { error: parsed.error, ok: false });
+    return;
+  }
+
+  const authorization = authorizeMcpToolCall({
+    access,
+    mode: parsed.mode,
+    toolName: parsed.name,
+  });
+  if (!authorization.ok) {
+    console.warn(
+      `[LegalChat MCP] denied tool call mode=${parsed.mode} tool=${parsed.name} auth=${access.authType || 'unknown'}`,
+    );
+    sendJsonResponse(res, authorization.statusCode, {
+      error: authorization.error,
+      mode: parsed.mode,
+      ok: false,
+      tool: parsed.name,
+    });
+    return;
+  }
+
+  const bridgeResponse = await callMcpBridge({
+    mode: parsed.mode,
+    path: '/tools/call',
+    payload: {
+      arguments: parsed.arguments,
+      name: parsed.name,
+    },
+  });
+
+  if (!bridgeResponse.ok) {
+    sendJsonResponse(res, bridgeResponse.statusCode, {
+      ...bridgeResponse.payload,
+      mode: parsed.mode,
+      tool: parsed.name,
+    });
+    return;
+  }
+
+  sendJsonResponse(res, 200, {
+    mode: parsed.mode,
+    ok: true,
+    result: bridgeResponse.payload?.result ?? bridgeResponse.payload,
+    tool: parsed.name,
+  });
 };
 
 const extractFirstAssistantText = (payload) => {
@@ -1779,6 +2318,7 @@ const buildHelperHtml = ({ loggedOut = false, callbackUrl } = {}) => {
   // Important: Always start from the app's OIDC entrypoint (not /sign-up directly),
   // otherwise Logto may show unknown-session 404.
   const signUpHref = buildProviderSigninUrl(callback, {
+    forcePrompt: false,
     firstScreen: 'register',
   });
   const appName = escapeHtml(LEGALCHAT_APP_NAME);
@@ -2505,6 +3045,42 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('ok');
     return;
+  }
+
+  if (req.method === 'GET' && parsedUrl.pathname === LEGALCHAT_MCP_STATUS_ROUTE) {
+    await handleMcpStatusRequest(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && parsedUrl.pathname === LEGALCHAT_MCP_TOOLS_ROUTE) {
+    await handleMcpToolsListRequest(req, res, parsedUrl);
+    return;
+  }
+
+  if (req.method === 'POST' && parsedUrl.pathname === LEGALCHAT_MCP_CALL_ROUTE) {
+    await handleMcpToolCallRequest(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && parsedUrl.pathname === LEGALCHAT_MCP_DEEP_RESEARCH_ROUTE) {
+    await handleMcpToolCallRequest(req, res, { modeFromPath: 'deep-research' });
+    return;
+  }
+
+  if (req.method === 'POST' && parsedUrl.pathname === LEGALCHAT_MCP_PRUEFUNGSMODUS_ROUTE) {
+    await handleMcpToolCallRequest(req, res, { modeFromPath: 'pruefungsmodus' });
+    return;
+  }
+
+  if (req.method === 'POST') {
+    const modeToolMatch = parsedUrl.pathname.match(LEGALCHAT_MCP_MODE_TOOL_ROUTE_PATTERN);
+    if (modeToolMatch) {
+      await handleMcpToolCallRequest(req, res, {
+        modeFromPath: modeToolMatch[1],
+        toolNameFromPath: decodeURIComponent(modeToolMatch[2] || ''),
+      });
+      return;
+    }
   }
 
   if (isLogtoBrandingHost(req)) {

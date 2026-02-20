@@ -218,6 +218,103 @@ Nach dem Login funktioniert LegalChat vollständig:
 
 ---
 
+## 🧭 MCP Taskliste (Zwischenreview 20. Februar 2026)
+
+Quelle: technischer Zwischenreview (Code + Live-Checks gegen Hetzner).  
+Status: Abschluss-Update mit Verifikation vom 20. Februar 2026.
+
+### P1 - Produktionskritisch
+
+- [x] `MCP-P1-01` Runtime-Abhaengigkeiten fuer `ask_gemini_zivilrecht` im MCP-Image sicherstellen  
+  Umsetzung: Runtime-Image aktualisiert (`docker/mcp-bridge/Dockerfile.mcp-runtime.local`) mit `curl`, `google-auth`, `requests`, `aiohttp`.  
+  Verifikation:
+    - Container-Check: Imports fuer `google.auth`, `google.auth.transport.requests`, `requests`, `aiohttp` erfolgreich.
+    - E2E `/api/legalchat/mcp/deep-research`:
+      - Standard-Token auf privilegiertem Tool: 403 (Policy greift),
+      - Admin-Token auf privilegiertem Tool: 200 (kein `ENOENT`/`No such file or directory`).
+
+- [x] `MCP-P1-02` Fresh-Deploy DB-Schema zu produktiven Queries kompatibel machen  
+  Umsetzung: `001_schema.sql` + `002_compat_columns.sql` aktiv, zusaetzlich FTS-Migration `003_rebuild_fts_indexes.sql`.  
+  Verifikation:
+    - Frische Test-DB aus Init-Skripten gestartet.
+    - Representative Imports erfolgreich (`RS=5`, `TE=3`).
+    - Produktive Query-Pfade laufen auf frischer DB ohne `column does not exist`.
+
+- [x] `MCP-P1-03` Datenversorgung fuer RS/TE auf Hetzner sicherstellen  
+  Umsetzung: RS- und TE-Importpfade aktiv genutzt, Runbook in `docs/MCP_DEPLOYMENT.md` ergaenzt.  
+  Verifikation:
+    - Datenstand lokal nach Import: `super_ris.rs=5000`, `super_ris.te=2749`.
+    - Smoke-Calls mit echten Ergebnissen:
+      - `search_ogh_rechtssaetze`: 200,
+      - `search_by_paragraph`: 200,
+      - `search_ogh_entscheidungen`: 200.
+
+- [x] `MCP-P1-04` Deploy-Drift Hetzner beheben: `login-proxy` ohne MCP-Lane  
+  Umsetzung: Hetzner-Proxy auf aktuellen MCP-Routenstand synchronisiert.  
+  Verifikation:
+    - `GET https://legalchat.net/api/legalchat/mcp/status` ohne Auth: 401,
+    - mit Bearer: 200 (beide Modi healthy),
+    - kein 404 mehr auf der MCP-Lane.
+
+### P2 - Stabilitaet / Performance
+
+- [x] `MCP-P2-01` Harte Request-Timeouts in `mcp_stdio_bridge.py` bei blockierendem `readline()`  
+  Umsetzung: Timeout-Verhalten gegen haengenden Fake-MCP verifiziert.  
+  Verifikation:
+    - Mit `MCP_BRIDGE_REQUEST_TIMEOUT_SEC=2` liefert `/tools` nach ~2.01s einen Timeout-Fehler.
+    - Keine dauerhaft blockierten Request-Worker beobachtet.
+
+- [x] `MCP-P2-02` FTS-Index auf den tatsaechlichen Suchausdruck ausrichten  
+  Umsetzung: `003_rebuild_fts_indexes.sql` hinzugefuegt und ausgefuehrt.  
+  Verifikation:
+    - `EXPLAIN ANALYZE` zeigt `Bitmap Index Scan` fuer die Standard-FTS-Query.
+    - Suchabfragen laufen stabil und schnell.
+
+- [x] `MCP-P2-03` Importer-Fehlerpfad transaktionssicher machen  
+  Umsetzung: Savepoint-basiertes Row-Handling im TE-Importer aktiv.  
+  Verifikation:
+    - Fehlerfall-Test mit absichtlich fehlerhafter Row: nur die defekte Row faellt aus.
+    - Folge-Rows werden weiter sauber upserted, keine Kaskadenfehler.
+
+### P3 - Security-Hardening
+
+- [x] `MCP-P3-01` Unsichere Default-Passwoerter als Fallback entfernen  
+  Umsetzung:
+    - `docker/docker-compose.mcp.internal.yml` auf required-env (`:?`) umgestellt,
+    - `docker/.env.example` auf `CHANGE_ME_STRONG_SECRET` umgestellt.
+  Verifikation:
+    - Compose bricht ohne gesetzte Secrets mit klarer Fehlermeldung ab (fail fast).
+
+- [x] `MCP-P3-02` Feingranulare AuthZ fuer MCP-Tools aktivieren  
+  Umsetzung: Tool-Policy pro Modus + privilegierte Toolliste in `docker/login-fix/server.js`, inklusive Admin-Bearer.  
+  Verifikation:
+    - Privilegiertes Tool (`ask_gemini_zivilrecht`) mit Standard-Token: 403.
+    - Dasselbe Tool mit Admin-Token: 200.
+    - Nicht privilegierte Tools bleiben mit Standard-Token nutzbar (200).
+    - Deny-Events werden im Proxy geloggt.
+
+### Test-Luecken (als Aufgaben)
+
+- [x] `MCP-TST-01` Regressionstest fuer Fake-Cookie/Auth-Bypass in `login-proxy`
+- [x] `MCP-TST-02` E2E-Test fuer `ask_gemini_zivilrecht` im Container-Setup
+- [x] `MCP-TST-03` Fresh-DB-Migrations-/Schema-Kompatibilitaetstest gegen produktive MCP-Queries
+- [x] `MCP-TST-04` Deploy-Sync-Test: `/api/legalchat/mcp/status` darf auf Hetzner nie `404` sein
+
+---
+
+## 🧭 Roadmap: MCP intern ueber George
+
+Geplant und vorgemerkt:
+
+- Interner MCP-Lane fuer `deep research` und `pruefungsmodus`
+- Kein oeffentlicher MCP-Port in der aktuellen Phase
+- Zukuenftige externe Freigabe nur ueber autorisierten Gateway (OIDC/JWT)
+- Kandidat in Build/Test: `zivil-pruefung` MCP (Exam Harness + Scoring Layer)
+
+Details: [MCP_DEPLOYMENT.md](MCP_DEPLOYMENT.md)
+
+---
+
 ## 🔧 Mögliche Langfristige Lösungen
 
 ### Option 1: LegalChat Update

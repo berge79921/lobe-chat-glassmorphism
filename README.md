@@ -52,6 +52,12 @@ cp docker/.env.example docker/.env
 - **Container**: Docker Compose
 - **Vision-Pipeline**: Presigned S3 + Base64-Transfer fuer externe AI-Provider
 
+### MCP (intern ueber George)
+- **Deep Research**: interner MCP-Lane (`mcp-zivilrecht`)
+- **Pruefungsmodus**: geplanter MCP `mcp-zivil-pruefung` (in Build/Test)
+- **Exponierung**: aktuell nur intern, keine oeffentlichen MCP-Ports
+- **Bridge**: stdio MCPs laufen hinter interner HTTP-Bridge (`docker/mcp-bridge/mcp_stdio_bridge.py`)
+
 ## 📋 Architektur
 
 Detaillierte Architekturdokumentation:
@@ -102,6 +108,17 @@ LOGTO_POST_LOGOUT_REDIRECT_URL=https://legalchat.net
 ```
 
 Hinweis: Bei `oidc` muss `https://legalchat.net` in Logto als **Post sign-out redirect URI** hinterlegt sein.
+
+### Interne MCP-Lane starten (optional)
+
+```bash
+docker compose \
+  -f docker/docker-compose.yml \
+  -f docker/docker-compose.mcp.internal.yml \
+  --profile mcp-internal up -d
+```
+
+Hinweis: MCP-Container werden dabei nicht oeffentlich publiziert, sondern nur im internen Netzwerk erreichbar gemacht.
 
 ### Gehostete Logto-Anmeldeseite im LegalChat-Stil
 
@@ -247,6 +264,7 @@ Siehe detaillierte Dokumentation:
 | [INSTALL.md](INSTALL.md) | Detaillierte Installationsanleitung |
 | [docker/README_LOGIN_FIX.md](docker/README_LOGIN_FIX.md) | Login-Proxy Dokumentation |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Systemarchitektur (🚧 in Arbeit) |
+| [docs/MCP_DEPLOYMENT.md](docs/MCP_DEPLOYMENT.md) | MCP Blueprint (intern jetzt, extern spaeter) |
 | [docs/OPEN_ISSUES.md](docs/OPEN_ISSUES.md) | Offene Probleme & Lösungsansätze |
 
 ## 🔁 CI/CD

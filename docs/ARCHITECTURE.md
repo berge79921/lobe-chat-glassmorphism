@@ -14,6 +14,7 @@ Dieses Dokument beschreibt die Systemarchitektur der LegalChat-Installation mit 
 4. [Authentifizierungs-Architektur](#authentifizierungs-architektur)
 5. [Netzwerk-Konfiguration](#netzwerk-konfiguration)
 6. [Sicherheitskonzept](#sicherheitskonzept)
+7. [MCP Lane (Intern)](#mcp-lane-intern)
 
 ---
 
@@ -164,6 +165,7 @@ Alle Services laufen im Docker-Compose-Network:
 | LegalChat | `lobe-chat-glass` | `http://lobe-chat-glass:3210` | `http://localhost:3210` |
 | Logto | `lobe-logto` | `http://lobe-logto:3001` | `http://localhost:3001` |
 | PostgreSQL | `lobe-postgres` | `postgresql://lobe-postgres:5432` | `localhost:5432` |
+| MCP Super RIS PostgreSQL | `mcp-super-ris-postgres` | `postgresql://mcp-super-ris-postgres:5432/super_ris` | _nicht exponiert_ |
 | MinIO | `lobe-minio` | `http://lobe-minio:9000` | `http://localhost:9000` |
 
 ### Host IP Referenz
@@ -202,6 +204,36 @@ Für Produktion empfohlen:
 
 ---
 
+## MCP Lane (Intern)
+
+Ziel: George kann interne MCP-Tools fuer `deep research` und `pruefungsmodus` nutzen, ohne oeffentliche Exponierung.
+
+### Architekturprinzip
+
+```
+Browser -> legalchat.net -> login-proxy/lobe -> mcp_internal network -> MCP Server
+```
+
+- MCP-Netzwerk ist intern (`internal: true`)
+- Keine oeffentlichen MCP-Ports
+- Nur `login-proxy` wird an das MCP-Netzwerk gehaengt
+- MCP-Server werden als stdio-Prozesse ueber interne HTTP-Bridges betrieben
+- `mcp-zivilrecht` nutzt `mcp-super-ris-postgres` im privaten MCP-Netz
+- Option fuer spaeter: separater MCP-Gateway mit OIDC/JWT-Autorisierung
+
+### Geplanter MCP `zivil-pruefung`
+
+Der MCP `zivil-pruefung` ist vorgemerkt und befindet sich im Build/Test.
+
+Kurzprofil:
+- Skill heute: Orchestrierung (Exam Harness, Scoring, Fusion)
+- MCP morgen: API-faehige Tool-Schnittstelle (10 Tools, Tier 1 + Tier 2)
+- Kritischer Fix: `fp_runner._p` auf stderr patchen, damit MCP-stdio JSON-RPC sauber bleibt
+
+Siehe Detailkonzept: [MCP_DEPLOYMENT.md](MCP_DEPLOYMENT.md)
+
+---
+
 ## Offene Themen
 
 - [ ] Load Balancing für Production
@@ -209,11 +241,14 @@ Für Produktion empfohlen:
 - [ ] Monitoring/Logging (Prometheus/Grafana)
 - [ ] Backup-Strategie für PostgreSQL
 - [ ] Kubernetes-Deployment
+- [ ] MCP Gateway mit OIDC/JWT fuer externe Client-Freigabe (optional)
 
 ---
 
 ## Verwandte Dokumente
 
 - [OPEN_ISSUES.md](OPEN_ISSUES.md) - Bekannte Probleme
+- [LOGTO_M2M.md](LOGTO_M2M.md) - Logto M2M (Service-to-Service) Rollen & Tokens
+- [MCP_DEPLOYMENT.md](MCP_DEPLOYMENT.md) - MCP Deployment Blueprint (intern + spaeter extern)
 - [../INSTALL.md](../INSTALL.md) - Installationsanleitung
 - [../docker/README_LOGIN_FIX.md](../docker/README_LOGIN_FIX.md) - Login Proxy Details
