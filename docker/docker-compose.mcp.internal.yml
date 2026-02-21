@@ -32,6 +32,8 @@ services:
     volumes:
       - ./mcp-super-ris-data:/var/lib/postgresql/data
       - ./mcp-super-ris-init:/docker-entrypoint-initdb.d:ro
+      - ${MCP_SUPER_RIS_ARTIFACTS_HOST_PATH:-./mcp-super-ris-artifacts}:/srv/super-ris-artifacts:ro
+      - ${MCP_CURIA_SQL_PATH:-./mcp-curia-init}:/srv/curia-sql:ro
     expose:
       - "5432"
     networks:
