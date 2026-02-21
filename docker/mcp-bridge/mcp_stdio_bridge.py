@@ -123,6 +123,12 @@ class StdioMcpClient:
             if message_id is None:
                 continue
             with self._response_cv:
+                # Prevent response cache leak from timed out requests (max 1000 entries)
+                if len(self._responses) > 1000:
+                    keys_to_remove = list(self._responses.keys())[:200]
+                    for k in keys_to_remove:
+                        self._responses.pop(k, None)
+
                 self._responses[message_id] = message
                 self._responses[str(message_id)] = message
                 self._response_cv.notify_all()

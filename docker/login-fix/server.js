@@ -796,10 +796,22 @@ const requestTarget = ({ method, path, headers = {}, body = '', timeoutMs = 0 })
     upstreamReq.end();
   });
 
-const readRequestBody = (req) =>
+const readRequestBody = (req, maxBytes = 5 * 1024 * 1024) =>
   new Promise((resolve, reject) => {
     const chunks = [];
-    req.on('data', (chunk) => chunks.push(chunk));
+    let currentLength = 0;
+    req.on('data', (chunk) => {
+      currentLength += chunk.length;
+      if (currentLength > maxBytes) {
+        req.destroy();
+        const error = new Error('Payload Too Large');
+        error.code = 'PAYLOAD_TOO_LARGE';
+        error.statusCode = 413;
+        reject(error);
+      } else {
+        chunks.push(chunk);
+      }
+    });
     req.on('end', () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
@@ -1471,17 +1483,6 @@ const handleMcpStatusRequest = async (req, res) => {
   sendJsonResponse(res, 200, {
     authType: access.authType || 'unknown',
     bearerRole: access.bearerRole || null,
-    authz: {
-      adminBearerConfigured: Boolean(LEGALCHAT_MCP_ADMIN_BEARER_TOKEN),
-      adminEmailsConfigured: LEGALCHAT_MCP_ADMIN_EMAILS.size,
-      adminRolesConfigured: Array.from(LEGALCHAT_MCP_ADMIN_ROLES),
-      privilegedTools: Object.fromEntries(
-        Object.entries(LEGALCHAT_MCP_PRIVILEGED_TOOLS_BY_MODE).map(([mode, tools]) => [
-          mode,
-          Array.from(tools.values()),
-        ]),
-      ),
-    },
     enabled: LEGALCHAT_MCP_INTERNAL_ENABLED,
     modes: modeStatus,
     ok: true,
