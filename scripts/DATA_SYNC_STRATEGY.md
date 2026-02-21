@@ -141,15 +141,15 @@ for dir in ogh_zivil_te ogh_straf_te vwgh_te vfgh_te bfg_te ufs_te lvwg_te olg_t
     --json-root /srv/super-ris-artifacts/$dir
 done
 
-# 3. CURIA schema (auto-runs on DB init, or manually)
+# 3. CURIA schema (host stdin redirect — paths are HOST paths on Hetzner)
 for sql in 001_create_curia_schema.sql 002_add_fts_tsvector_column.sql 003_add_french_search_vector.sql 004_create_paragraphs_table.sql 005_create_registry_table.sql; do
   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris \
     < /mnt/data/super-ris-artifacts/curia_db/$sql
 done
 
-# 4. FTS rebuild
-docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris \
-  < /docker-entrypoint-initdb.d/003_rebuild_fts_indexes.sql
+# 4. FTS rebuild (uses container-internal path via -f, not host redirect)
+docker exec mcp-super-ris-postgres psql -U postgres -d super_ris \
+  -f /docker-entrypoint-initdb.d/003_rebuild_fts_indexes.sql
 
 # 5. Post-import backup
 docker exec mcp-super-ris-postgres pg_dump -U postgres -d super_ris -Fc -f /tmp/post_import.dump

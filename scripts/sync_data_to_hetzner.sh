@@ -3,7 +3,7 @@
 # 29 verified sources across 4 tiers, ~21.6 GB uncompressed (~7 GB compressed)
 # Verified paths: 2026-02-21
 
-set -e
+set -euo pipefail
 
 # ==========================================
 # CONFIGURATION
@@ -15,7 +15,7 @@ REMOTE_STAGING_DIR="${REMOTE_STAGING_DIR:-/mnt/data/super-ris-artifacts}"
 DRY_RUN=""
 TIER_FILTER=""  # empty = all tiers
 
-RSYNC_OPTS="-avzPh --stats"
+RSYNC_OPTS="-avzPh --stats --delete"
 SSH_CMD="ssh -p ${SSH_PORT}"
 
 # Local base directory (auto-detect from script location)
@@ -46,14 +46,24 @@ EOF
 while [[ $# -gt 0 ]]; do
   case $1 in
     --dry-run)  DRY_RUN="-n"; shift ;;
-    --tier)     TIER_FILTER="$2"; shift 2 ;;
-    --host)     HETZNER_HOST="$2"; shift 2 ;;
-    --user)     HETZNER_USER="$2"; shift 2 ;;
-    --base)     HCS_BASE="$2"; shift 2 ;;
+    --tier)     [[ $# -lt 2 ]] && { echo "ERROR: --tier requires an argument (1-4)"; exit 1; }
+                TIER_FILTER="$2"; shift 2 ;;
+    --host)     [[ $# -lt 2 ]] && { echo "ERROR: --host requires an argument"; exit 1; }
+                HETZNER_HOST="$2"; shift 2 ;;
+    --user)     [[ $# -lt 2 ]] && { echo "ERROR: --user requires an argument"; exit 1; }
+                HETZNER_USER="$2"; shift 2 ;;
+    --base)     [[ $# -lt 2 ]] && { echo "ERROR: --base requires an argument"; exit 1; }
+                HCS_BASE="$2"; shift 2 ;;
     -h|--help)  usage ;;
     *)          echo "Unknown option: $1"; usage ;;
   esac
 done
+
+# Validate --tier value
+if [[ -n "$TIER_FILTER" && ! "$TIER_FILTER" =~ ^[1-4]$ ]]; then
+  echo "ERROR: --tier must be 1, 2, 3, or 4 (got: '${TIER_FILTER}')"
+  exit 1
+fi
 
 if [[ -n "$DRY_RUN" ]]; then
   RSYNC_OPTS="${RSYNC_OPTS} -n"
@@ -354,15 +364,13 @@ echo "       --profile mcp-import run --rm mcp-super-ris-importer \\"
 echo "       --json-root /srv/super-ris-artifacts/\$dir"
 echo "   done"
 echo ""
-echo "7. CURIA schema + import:"
-echo "   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < ${REMOTE_STAGING_DIR}/curia_db/001_create_curia_schema.sql"
-echo "   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < ${REMOTE_STAGING_DIR}/curia_db/002_add_fts_tsvector_column.sql"
-echo "   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < ${REMOTE_STAGING_DIR}/curia_db/003_add_french_search_vector.sql"
-echo "   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < ${REMOTE_STAGING_DIR}/curia_db/004_create_paragraphs_table.sql"
-echo "   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < ${REMOTE_STAGING_DIR}/curia_db/005_create_registry_table.sql"
+echo "7. CURIA schema + import (host stdin redirect — paths are HOST paths):"
+echo "   for sql in 001_create_curia_schema.sql 002_add_fts_tsvector_column.sql 003_add_french_search_vector.sql 004_create_paragraphs_table.sql 005_create_registry_table.sql; do"
+echo "     docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < ${REMOTE_STAGING_DIR}/curia_db/\$sql"
+echo "   done"
 echo ""
-echo "8. Rebuild FTS indexes:"
-echo "   docker exec -i mcp-super-ris-postgres psql -U postgres -d super_ris < /docker-entrypoint-initdb.d/003_rebuild_fts_indexes.sql"
+echo "8. Rebuild FTS indexes (via container-internal path):"
+echo "   docker exec mcp-super-ris-postgres psql -U postgres -d super_ris -f /docker-entrypoint-initdb.d/003_rebuild_fts_indexes.sql"
 echo ""
 echo "9. Post-import backup:"
 echo "   docker exec mcp-super-ris-postgres pg_dump -U postgres -d super_ris -Fc -f /tmp/post_import.dump"
