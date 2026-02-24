@@ -37,6 +37,7 @@ services:
     expose:
       - "5432"
     networks:
+      - default
       - mcp_internal
     restart: unless-stopped
     healthcheck:
@@ -79,6 +80,7 @@ services:
       IMPORT_HTML_ROOTS: ${MCP_SUPER_RIS_IMPORT_HTML_ROOTS:-/srv/super-ris-artifacts}
       IMPORT_COMMIT_EVERY: ${MCP_SUPER_RIS_IMPORT_COMMIT_EVERY:-1000}
     networks:
+      - default
       - mcp_internal
     depends_on:
       mcp-super-ris-postgres:
@@ -121,6 +123,92 @@ services:
       mcp-super-ris-postgres:
         condition: service_healthy
     restart: "no"
+
+  # Dedicated Swiss MCP database (separate data store from AT/DE).
+  mcp-swiss-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: mcp-swiss-postgres
+    profiles:
+      - mcp-internal
+    environment:
+      POSTGRES_DB: ${SWISS_POSTGRES_DB:-super_ris_ch}
+      POSTGRES_USER: ${SWISS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${SWISS_POSTGRES_PASSWORD:-swiss_change_me}
+    volumes:
+      - ./mcp-swiss-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    ports:
+      - "${SWISS_POSTGRES_HOST_PORT:-5544}:5432"
+    networks:
+      - mcp_internal
+      - mcp_swiss_hostbridge
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${SWISS_POSTGRES_USER:-postgres} -d ${SWISS_POSTGRES_DB:-super_ris_ch}
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  # Swiss MCP runtime (BGer retrieval over dedicated CH DB).
+  mcp-swiss:
+    image: legalchat-mcp-runtime:local
+    build:
+      context: ./mcp-bridge
+      dockerfile: Dockerfile.mcp-runtime.local
+    container_name: mcp-swiss
+    profiles:
+      - mcp-internal
+    working_dir: /srv/mcp
+    command:
+      - sh
+      - -lc
+      - |
+        python3 /srv/bridge/mcp_stdio_bridge.py
+    volumes:
+      - ./mcp-bridge:/srv/bridge:ro
+      - ./mcp-swiss:/srv/mcp:ro
+      - ../../swiss_core:/srv/swiss_core:ro
+    environment:
+      PYTHONUNBUFFERED: "1"
+      MCP_BRIDGE_NAME: swiss-bridge
+      MCP_BRIDGE_PORT: 8072
+      MCP_BRIDGE_CWD: /srv/mcp
+      MCP_BRIDGE_COMMAND: ${MCP_SWISS_COMMAND:-python3 /srv/mcp/mcp_server_swiss.py}
+      MCP_BRIDGE_REQUEST_TIMEOUT_SEC: ${MCP_BRIDGE_REQUEST_TIMEOUT_SEC:-1200}
+      MCP_BRIDGE_INIT_TIMEOUT_SEC: ${MCP_BRIDGE_INIT_TIMEOUT_SEC:-45}
+      MCP_PROTOCOL_VERSION: ${MCP_PROTOCOL_VERSION:-2024-11-05}
+      MCP_BRIDGE_STDIO_PROTOCOL: ${MCP_BRIDGE_STDIO_PROTOCOL:-jsonl}
+      PYTHONPATH: /srv
+      MCP_SWISS_DB_HOST: ${MCP_SWISS_DB_HOST:-mcp-swiss-postgres}
+      MCP_SWISS_DB_PORT: ${MCP_SWISS_DB_PORT:-5432}
+      MCP_SWISS_DB_NAME: ${MCP_SWISS_DB_NAME:-super_ris_ch}
+      MCP_SWISS_DB_USER: ${MCP_SWISS_DB_USER:-postgres}
+      MCP_SWISS_DB_PASSWORD: ${MCP_SWISS_DB_PASSWORD:-swiss_change_me}
+      MCP_SWISS_DB_CONNECT_TIMEOUT: ${MCP_SWISS_DB_CONNECT_TIMEOUT:-10}
+      MCP_SWISS_DB_SSLMODE: ${MCP_SWISS_DB_SSLMODE:-disable}
+    expose:
+      - "8072"
+    networks:
+      - mcp_internal
+    restart: unless-stopped
+    depends_on:
+      mcp-swiss-postgres:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import urllib.request,sys;sys.exit(0 if urllib.request.urlopen("http://127.0.0.1:8072/health",timeout=2).status==200 else 1)
+      interval: 20s
+      timeout: 3s
+      retries: 3
 
   # Existing local MCP data layer (zivilrecht-server).
   # Internal only, no public port publishing.
@@ -234,3 +322,5 @@ networks:
   mcp_internal:
     name: legalchat_mcp_internal
     internal: true
+  mcp_swiss_hostbridge:
+    name: legalchat_mcp_swiss_hostbridge

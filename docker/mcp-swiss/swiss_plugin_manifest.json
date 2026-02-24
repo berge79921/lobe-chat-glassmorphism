@@ -1,0 +1,62 @@
+{
+  "identifier": "swiss-legal-expert",
+  "meta": {
+    "title": "Swiss Legal Database",
+    "description": "Nativer API Zugriff auf das Schweizerische Bundesgericht (BGer).",
+    "avatar": "🇨🇭",
+    "tags": [
+      "law",
+      "switzerland",
+      "jurisprudence"
+    ]
+  },
+  "author": "Antigravity",
+  "createdAt": "2026-02-22",
+  "schemaVersion": "v1",
+  "api": [
+    {
+      "name": "searchSwissDecisions",
+      "url": "http://localhost:8000/swiss/search",
+      "description": "Durchsucht die Datenbank des Schweizerischen Bundesgerichts nach Stichwörtern.",
+      "parameters": {
+        "properties": {
+          "fulltext": {
+            "type": "string",
+            "description": "Suchbegriff(e) für die Volltextsuche, z.B. 'Kündigung', 'Schadenersatz'."
+          },
+          "limit": {
+            "type": "number",
+            "description": "Anzahl der maximalen Ergebnisse.",
+            "default": 3
+          }
+        },
+        "required": [
+          "fulltext"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "getSwissDecisionText",
+      "url": "http://localhost:8000/swiss/entscheidung",
+      "description": "Ruft den vollständigen Text einer schweizer Entscheidung ab.",
+      "parameters": {
+        "properties": {
+          "stable_key": {
+            "type": "string",
+            "description": "Die eindeutige ID (stable_key) der Entscheidung."
+          }
+        },
+        "required": [
+          "stable_key"
+        ],
+        "type": "object"
+      }
+    }
+  ],
+  "gateway": "http://localhost:8000",
+  "settings": {
+    "properties": {},
+    "type": "object"
+  }
+}
