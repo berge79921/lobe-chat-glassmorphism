@@ -76,6 +76,20 @@ BUILTIN_MODEL_PROFILES: dict[str, dict[str, str]] = {
     },
 }
 
+QUICK_STRUCTURED_FORMAT = (
+    "\n\nStrukturiere deine Antwort in diesen Abschnitten:\n"
+    "1. SOFORT-TRIAGE — Fristenlage, Dringlichkeit, kritische Deadlines\n"
+    "2. KERNFRAGE — Die eine zentrale Entscheidungsfrage in 1-2 Sätzen\n"
+    "3. HANDLUNGSOPTIONEN — Szenario-Vergleichstabelle (Markdown-Tabelle) "
+    "mit Spalten: Option | Vorteile | Nachteile | Risiko | Kosten\n"
+    "4. EMPFEHLUNG — Klare Handlungsempfehlung mit 3-5 Begründungspunkten\n"
+    "5. NÄCHSTE SCHRITTE — Konkrete operative To-Dos mit Fristen\n\n"
+    "STIL: Strategisches Mandanten-Memo, NICHT akademisches Gutachten. "
+    "Kurz, klar, entscheidungsorientiert. "
+    "Falls RS-Nummern aus der Vorrecherche vorliegen, zitiere sie knapp. "
+    "Erfinde KEINE RS-Nummern."
+)
+
 # ---------------------------------------------------------------------------
 # Phase 2: Domain Classifier
 # ---------------------------------------------------------------------------
@@ -1539,14 +1553,17 @@ def run_pre_search_scatter(
     remote_mcp_container: str,
     query: str = "",
     classification: dict[str, Any] | None = None,
+    max_paragraph: int = 5,
+    max_schlagwort: int = 4,
+    max_keyword: int = 2,
 ) -> str:
     """Run parallel pre-search MCP calls and return formatted evidence string."""
     tasks: list[tuple[str, dict[str, Any]]] = []
-    for par in expanded.get("paragraph_queries", [])[:5]:
+    for par in expanded.get("paragraph_queries", [])[:max_paragraph]:
         tasks.append(("search_by_paragraph", {"paragraph": str(par)[:120], "limit": 8}))
-    for sw in expanded.get("schlagwort_queries", [])[:4]:
+    for sw in expanded.get("schlagwort_queries", [])[:max_schlagwort]:
         tasks.append(("search_by_schlagwort", {"schlagwort": str(sw)[:120], "limit": 8}))
-    for kw in expanded.get("keyword_queries", [])[:2]:
+    for kw in expanded.get("keyword_queries", [])[:max_keyword]:
         tasks.append(("search_ogh_rechtssaetze", {"query": str(kw)[:200], "limit": 8}))
     # Auto-detect topic and add grounding context + cluster detection
     hints = _extract_retrieval_hints(query) if query else {}
@@ -2623,6 +2640,7 @@ def synthesize_answer(
     subagent_results: list[dict[str, Any]],
     dry_run: bool,
     postgres_only: bool,
+    file_context: str = "",
 ) -> tuple[str, dict[str, Any] | None]:
     if dry_run:
         lines = []
@@ -2682,9 +2700,17 @@ def synthesize_answer(
         )
     if synth_ctx:
         sys_prompt += "\n\n" + synth_ctx
+    file_block = ""
+    if file_context:
+        file_block = (
+            "\n\n--- AKTENKONTEXT (Lokale Dateien) ---\n"
+            + file_context[:_CONTEXT_MAX_CHARS]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+        )
     usr_prompt = (
         "Question:\n"
         + query
+        + file_block
         + "\n\nPlan focus:\n"
         + str(plan.get("synthesis_focus") or "")
         + "\n\nEvidence (JSON):\n"
@@ -2749,6 +2775,202 @@ def synthesize_answer(
             lines.append(f"- [{rec.get('name')}] {rec.get('answer')}")
         answer = "\n".join(lines)
         return answer, {"latency_ms": None, "model": synth_model, "answer_chars": len(answer), "error": str(e)}
+
+
+# ---------------------------------------------------------------------------
+# Case context loader (--context-dir / --context-file / --ocr)
+# ---------------------------------------------------------------------------
+_CONTEXT_MAX_CHARS = 8000
+_SINGLE_FILE_MAX = 4000
+_PRIORITY_FILES = ["FALLUEBERSICHT.md", "AKT_KARTEIKARTE.md", "CASE_DATA.json"]
+_CONTEXT_EXCLUDE = {".DS_Store"}
+_CONTEXT_EXCLUDE_PREFIXES = ("REVIEW_", ".")
+
+
+def load_case_context(
+    context_dir: str,
+    context_files: list[str],
+    ocr_pdfs: bool,
+) -> tuple[str, dict[str, Any]]:
+    """Load case files into a single context string (max ~2K tokens)."""
+    meta: dict[str, Any] = {"files_read": [], "files_skipped": [], "ocr_count": 0, "final_chars": 0}
+    parts: list[str] = []
+    budget = _CONTEXT_MAX_CHARS
+
+    def _skip(name: str) -> bool:
+        if name in _CONTEXT_EXCLUDE:
+            return True
+        return any(name.startswith(p) for p in _CONTEXT_EXCLUDE_PREFIXES)
+
+    def _read_text(p: Path) -> str:
+        try:
+            return p.read_text(encoding="utf-8", errors="replace")[:_SINGLE_FILE_MAX]
+        except Exception:
+            return ""
+
+    def _ocr_pdf(p: Path) -> str:
+        try:
+            r = subprocess.run(
+                ["pdftotext", "-layout", str(p), "-"],
+                capture_output=True, text=True, timeout=30,
+            )
+            txt = (r.stdout or "").strip()
+            if len(txt) < 50:
+                return ""
+            return txt[:_SINGLE_FILE_MAX]
+        except Exception:
+            return ""
+
+    seen: set[str] = set()
+
+    def _add(p: Path, content: str) -> None:
+        nonlocal budget
+        resolved = str(p.resolve())
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        if not content or budget <= 0:
+            meta["files_skipped"].append(str(p))
+            return
+        chunk = content[:budget]
+        parts.append(f"### {p.name}\n{chunk}")
+        budget -= len(chunk)
+        meta["files_read"].append(str(p))
+
+    # --- explicit --context-file entries ---
+    for fp in context_files:
+        p = Path(fp).expanduser()
+        if not p.is_file():
+            meta["files_skipped"].append(fp)
+            continue
+        if p.suffix.lower() == ".pdf":
+            if ocr_pdfs:
+                txt = _ocr_pdf(p)
+                if txt:
+                    meta["ocr_count"] += 1
+                    _add(p, txt)
+                else:
+                    meta["files_skipped"].append(str(p))
+            else:
+                meta["files_skipped"].append(str(p))
+        else:
+            _add(p, _read_text(p))
+
+    # --- --context-dir discovery ---
+    if context_dir:
+        d = Path(context_dir).expanduser()
+        if d.is_dir():
+            # Priority files first
+            for name in _PRIORITY_FILES:
+                fp = d / name
+                if fp.is_file() and budget > 0:
+                    _add(fp, _read_text(fp))
+            # Other text files sorted by size (smallest first)
+            extras = sorted(
+                [f for f in d.iterdir()
+                 if f.is_file()
+                 and f.suffix.lower() in (".md", ".txt", ".json")
+                 and f.name not in _PRIORITY_FILES
+                 and not _skip(f.name)],
+                key=lambda f: f.stat().st_size,
+            )
+            for fp in extras:
+                if budget <= 0:
+                    meta["files_skipped"].append(str(fp))
+                    continue
+                _add(fp, _read_text(fp))
+            # PDFs (recursive, max 5)
+            if ocr_pdfs:
+                pdfs = sorted(d.rglob("*.pdf"))[:5]
+                for fp in pdfs:
+                    if _skip(fp.name) or budget <= 0:
+                        meta["files_skipped"].append(str(fp))
+                        continue
+                    txt = _ocr_pdf(fp)
+                    if txt:
+                        meta["ocr_count"] += 1
+                        _add(fp, txt)
+                    else:
+                        meta["files_skipped"].append(str(fp))
+        else:
+            meta["files_skipped"].append(f"dir_not_found:{context_dir}")
+
+    ctx = "\n\n".join(parts)
+    meta["final_chars"] = len(ctx)
+    return ctx, meta
+
+
+def synthesize_quick(
+    query: str,
+    synth_model: str,
+    classification: dict[str, Any],
+    pre_search_evidence: str,
+    dry_run: bool,
+    file_context: str = "",
+) -> tuple[str, dict[str, Any] | None]:
+    """Single-call strategic synthesis — no worker pipeline."""
+    if dry_run:
+        return f"Dry-run quick synthesis\n\nQuestion: {query}", None
+
+    domain = classification.get("domain", "unclassified")
+    subdomain = classification.get("subdomain", "")
+    domain_hint = f"Rechtsgebiet: {domain}"
+    if subdomain:
+        domain_hint += f" ({subdomain})"
+
+    file_block = ""
+    if file_context:
+        file_block = (
+            "\n\n--- AKTENKONTEXT (Lokale Dateien) ---\n"
+            + file_context[:_CONTEXT_MAX_CHARS]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+        )
+
+    evidence_block = ""
+    if pre_search_evidence:
+        evidence_block = (
+            "\n\n--- VORRECHERCHE-ERGEBNISSE (PostgreSQL) ---\n"
+            + pre_search_evidence[:3000]
+            + "\n--- ENDE VORRECHERCHE ---\n"
+        )
+
+    sys_prompt = (
+        "Du bist ein erfahrener österreichischer Rechtsanwalt. "
+        "Erstelle ein kurzes strategisches Memo für den Mandanten. "
+        "Fokus: Handlungsempfehlung, Fristen, Kosten-Nutzen. "
+        "KEIN akademisches Gutachten. Pragmatisch und entscheidungsorientiert."
+        f"\n{domain_hint}"
+        f"{QUICK_STRUCTURED_FORMAT}"
+    )
+    usr_msg = f"MANDANTENFRAGE:\n{query}{file_block}{evidence_block}"
+
+    try:
+        raw_resp, latency_ms = openrouter_chat(
+            model=synth_model,
+            messages=[{"role": "system", "content": sys_prompt},
+                      {"role": "user", "content": usr_msg}],
+            max_tokens=2500,
+            temperature=0.1,
+            tools=None,
+            tool_choice=None,
+            provider=_openrouter_provider_for_model(synth_model),
+            reasoning=_openrouter_reasoning_for_role(synth_model, "synth"),
+            models=_openrouter_model_fallbacks(synth_model),
+            title="legalchat-quick-synthesis",
+        )
+        msg = ((raw_resp.get("choices") or [{}])[0] or {}).get("message") or {}
+        answer = message_text(msg).strip()
+        return answer, {
+            "latency_ms": round(latency_ms, 2),
+            "model": synth_model,
+            "answer_chars": len(answer),
+            "mode": "quick",
+            "domain": domain,
+            "usage": _openrouter_usage_snapshot(raw_resp),
+        }
+    except Exception as e:
+        answer = f"Quick synthesis error: {e}\n\nQuestion: {query}"
+        return answer, {"latency_ms": None, "model": synth_model, "answer_chars": len(answer), "error": str(e), "mode": "quick"}
 
 
 def collect_citation_evidence(subagent_results: list[dict[str, Any]], include_stream_answers: bool = False) -> dict[str, Any]:
@@ -3393,15 +3615,52 @@ def render_summary(
     citation_gate: dict[str, Any] | None,
     subagent_results: list[dict[str, Any]],
     dry_run: bool,
+    mode: str = "deep",
+    classification: dict[str, Any] | None = None,
+    pre_search_evidence_chars: int = 0,
+    elapsed_ms: float = 0.0,
+    file_context_meta: dict[str, Any] | None = None,
 ) -> str:
+    lines: list[str] = []
+    if mode == "quick":
+        lines.append("# LegalChat Quick Mode — Strategic Memo")
+        lines.append("")
+        lines.append(f"- Timestamp (UTC): `{utc_now()}`")
+        lines.append(f"- Dry run: `{dry_run}`")
+        lines.append(f"- Mode: `quick`")
+        lines.append(f"- Query: `{query}`")
+        lines.append(f"- Model profile: `{model_profile}`")
+        lines.append(f"- MCP mode: `{mcp_mode}`")
+        lines.append(f"- Synth model: `{synth_model}`")
+        if classification:
+            lines.append(f"- Domain: `{classification.get('domain', 'unclassified')}`")
+            if classification.get("subdomain"):
+                lines.append(f"- Subdomain: `{classification.get('subdomain')}`")
+        lines.append(f"- Pre-search evidence: `{pre_search_evidence_chars}` chars")
+        if file_context_meta and file_context_meta.get("final_chars"):
+            lines.append(f"- File context: `{file_context_meta['final_chars']}` chars, "
+                         f"`{len(file_context_meta.get('files_read', []))}` files, "
+                         f"`{file_context_meta.get('ocr_count', 0)}` OCR")
+        lines.append("")
+        lines.append("## Execution Stats")
+        if synth_meta:
+            lines.append(f"- synth_latency_ms: `{synth_meta.get('latency_ms')}`")
+            lines.append(f"- final_answer_chars: `{synth_meta.get('answer_chars')}`")
+        if citation_gate:
+            lines.append(f"- citation_gate_mode: `{citation_gate.get('mode')}`")
+        lines.append(f"- total_elapsed_ms: `{round(elapsed_ms, 2)}`")
+        lines.append("")
+        return "\n".join(lines) + "\n"
+
+    # --- Deep mode (original) ---
     total_stream_ms = sum(float(x.get("e2e_ms") or 0.0) for x in subagent_results)
     total_tool_calls = sum(int(x.get("tool_calls_total") or 0) for x in subagent_results)
     total_tool_ok = sum(int(x.get("tool_calls_ok") or 0) for x in subagent_results)
-    lines: list[str] = []
     lines.append("# LegalChat Agentic Harness Minimal Run")
     lines.append("")
     lines.append(f"- Timestamp (UTC): `{utc_now()}`")
     lines.append(f"- Dry run: `{dry_run}`")
+    lines.append(f"- Mode: `deep`")
     lines.append(f"- Query: `{query}`")
     lines.append(f"- Model profile: `{model_profile}`")
     lines.append(f"- Organizer backend: `{organizer_backend}`")
@@ -3409,6 +3668,10 @@ def render_summary(
     lines.append(f"- Organizer model: `{organizer_model}`")
     lines.append(f"- Worker model: `{worker_model}`")
     lines.append(f"- Synth model: `{synth_model}`")
+    if file_context_meta and file_context_meta.get("final_chars"):
+        lines.append(f"- File context: `{file_context_meta['final_chars']}` chars, "
+                     f"`{len(file_context_meta.get('files_read', []))}` files, "
+                     f"`{file_context_meta.get('ocr_count', 0)}` OCR")
     lines.append("")
     if organizer_meta:
         lines.append("## Organizer")
@@ -3484,6 +3747,8 @@ def main() -> int:
     )
     ap.add_argument("--config-dir", default=str(config_dir), help="Directory with agent_profiles.yaml + mcp_registry.yaml")
     ap.add_argument("--query", required=True, help="Legal question to process")
+    ap.add_argument("--mode", choices=["deep", "quick"], default="deep",
+        help="deep = full multi-agent pipeline; quick = single-call strategic memo")
     ap.add_argument("--model-profile", choices=sorted(MODEL_PROFILES.keys()), default="default")
     ap.add_argument("--organizer-model", default="")
     ap.add_argument("--worker-model", default="")
@@ -3509,6 +3774,9 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="No OpenRouter calls; runs deterministic MCP probes only")
     ap.add_argument("--probe-limit", type=int, default=5, help="Tool result limit for dry-run probes")
     ap.add_argument("--keep-local-mcp", action="store_true")
+    ap.add_argument("--context-dir", default="", help="Case directory to read (*.md, *.txt, *.json, PDFs)")
+    ap.add_argument("--context-file", default=[], action="append", help="Single file as context (repeatable)")
+    ap.add_argument("--ocr", action="store_true", help="OCR PDFs via pdftotext fast mode")
     args = ap.parse_args(raw_argv)
 
     parsed_cfg = Path(args.config_dir).expanduser()
@@ -3534,177 +3802,289 @@ def main() -> int:
         if startup.get("started"):
             started_pid = int(startup.get("pid"))
 
-    started_at = time.perf_counter()
-    plan, organizer_meta = build_plan_with_organizer(
-        query=args.query,
-        organizer_model=organizer_model,
-        max_workstreams=max(1, min(args.max_workstreams, 4)),
-        dry_run=bool(args.dry_run),
-        organizer_backend=args.organizer_backend,
-        opencode_sidecar_cmd=args.opencode_sidecar_cmd,
-        opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
-        classifier_model=classifier_model,
+    file_context, file_context_meta = load_case_context(
+        context_dir=args.context_dir,
+        context_files=args.context_file or [],
+        ocr_pdfs=bool(args.ocr),
     )
 
-    streams = plan.get("workstreams") or []
-    stream_results: list[dict[str, Any]] = []
-    run_fn = run_subagent_dry if args.dry_run else run_subagent_llm
+    started_at = time.perf_counter()
 
-    # Phase 4: Pre-search scatter
-    classification = (organizer_meta or {}).get("classification") or classify_domain(args.query)
-    pre_search_evidence = ""
-    if not args.dry_run:
-        expanded = _expand_queries_with_llm(args.query, classification, classifier_model)
-        pre_search_evidence = run_pre_search_scatter(
-            expanded=expanded,
+    if args.mode == "quick":
+        # --- QUICK PATH: classify → light pre-search → single synth ---
+        classification = classify_domain_with_llm_fallback(args.query, classifier_model)
+        pre_search_evidence = ""
+        if not args.dry_run:
+            expanded = _expand_queries_with_llm(args.query, classification, classifier_model)
+            pre_search_evidence = run_pre_search_scatter(
+                expanded=expanded,
+                mcp_mode=args.mcp_mode,
+                mcp_base=args.mcp_base.rstrip("/"),
+                remote_ssh=args.remote_ssh,
+                remote_mcp_container=args.remote_mcp_container,
+                query=args.query,
+                classification=classification,
+                max_paragraph=3, max_schlagwort=2, max_keyword=1,
+            )
+
+        final_answer, synth_meta = synthesize_quick(
+            query=args.query,
+            synth_model=synth_model,
+            classification=classification,
+            pre_search_evidence=pre_search_evidence,
+            dry_run=bool(args.dry_run),
+            file_context=file_context,
+        )
+
+        # Citation gate in warn mode (override enforce for quick)
+        effective_gate = "warn" if args.citation_gate_mode == "enforce" else args.citation_gate_mode
+        citation_gate = apply_hard_citation_gate(
+            answer=final_answer,
+            query=args.query,
+            subagent_results=[],
+            citation_gate_mode=effective_gate,
+            repair_model=(args.citation_gate_repair_model.strip() or synth_model),
             mcp_mode=args.mcp_mode,
             mcp_base=args.mcp_base.rstrip("/"),
             remote_ssh=args.remote_ssh,
             remote_mcp_container=args.remote_mcp_container,
+            postgres_only=(args.grounding_policy == "postgres_only"),
+        )
+        final_answer = citation_gate.get("answer") or final_answer
+        elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+
+        stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+        out_dir = REPORT_ROOT / f"legalchat_quick_{stamp}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        result = {
+            "ok": True,
+            "started_at_utc": utc_now(),
+            "mode": "quick",
+            "config": {
+                "config_dir": str(config_dir),
+                "query": args.query,
+                "mode": "quick",
+                "model_profile": args.model_profile,
+                "synth_model": synth_model,
+                "mcp_mode": args.mcp_mode,
+                "mcp_base": args.mcp_base.rstrip("/"),
+                "citation_gate_mode": effective_gate,
+                "grounding_policy": args.grounding_policy,
+                "dry_run": bool(args.dry_run),
+            },
+            "runtime_config": config_meta,
+            "mcp_startup": mcp_start_meta,
+            "classification": classification,
+            "pre_search_evidence_chars": len(pre_search_evidence),
+            "file_context_meta": file_context_meta,
+            "synth_meta": synth_meta,
+            "citation_gate": citation_gate,
+            "final_answer": final_answer,
+            "elapsed_ms": elapsed_ms,
+        }
+        (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
+        summary = render_summary(
             query=args.query,
+            organizer_model=organizer_model,
+            worker_model=worker_model,
+            synth_model=synth_model,
+            model_profile=args.model_profile,
+            organizer_backend=args.organizer_backend,
+            mcp_mode=args.mcp_mode,
+            plan={},
+            organizer_meta=None,
+            synth_meta=synth_meta,
+            citation_gate=citation_gate,
+            subagent_results=[],
+            dry_run=bool(args.dry_run),
+            mode="quick",
             classification=classification,
+            pre_search_evidence_chars=len(pre_search_evidence),
+            elapsed_ms=elapsed_ms,
+            file_context_meta=file_context_meta,
+        )
+        (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+    else:
+        # --- DEEP PATH (existing pipeline, unchanged) ---
+        plan, organizer_meta = build_plan_with_organizer(
+            query=args.query,
+            organizer_model=organizer_model,
+            max_workstreams=max(1, min(args.max_workstreams, 4)),
+            dry_run=bool(args.dry_run),
+            organizer_backend=args.organizer_backend,
+            opencode_sidecar_cmd=args.opencode_sidecar_cmd,
+            opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
+            classifier_model=classifier_model,
         )
 
-    effective_parallelism = max(1, min(args.parallelism, max_parallel, len(streams) or 1))
-    with cf.ThreadPoolExecutor(max_workers=effective_parallelism) as pool:
-        futures = []
-        for stream in streams:
-            if args.dry_run:
-                fut = pool.submit(
-                    run_fn,  # type: ignore[arg-type]
-                    stream,
-                    args.query,
-                    args.mcp_mode,
-                    args.mcp_base.rstrip("/"),
-                    args.remote_ssh,
-                    args.remote_mcp_container,
-                    args.probe_limit,
-                )
-            else:
-                _all_names = [s.get("name", "") for s in streams]
-                fut = pool.submit(
-                    run_fn,  # type: ignore[arg-type]
-                    stream,
-                    args.query,
-                    worker_model,
-                    args.mcp_mode,
-                    args.mcp_base.rstrip("/"),
-                    args.remote_ssh,
-                    args.remote_mcp_container,
-                    args.max_steps,
-                    pre_search_evidence,
-                    _all_names,
-                    classification,
-                )
-            futures.append(fut)
-        for fut in cf.as_completed(futures):
-            try:
-                stream_results.append(fut.result())
-            except Exception as e:
-                stream_results.append(
-                    {
-                        "name": "unknown_stream",
-                        "goal": "",
-                        "mode": "error",
-                        "tools": [],
-                        "llm_error": str(e),
-                        "tool_calls": [],
-                        "tool_calls_total": 0,
-                        "tool_calls_ok": 0,
-                        "tool_calls_ok_rate": None,
-                        "answer": f"Stream execution failed: {e}",
-                        "answer_chars": len(f"Stream execution failed: {e}"),
-                        "e2e_ms": None,
-                    }
-                )
+        streams = plan.get("workstreams") or []
+        stream_results: list[dict[str, Any]] = []
+        run_fn = run_subagent_dry if args.dry_run else run_subagent_llm
 
-    stream_results.sort(key=lambda x: str(x.get("name")))
-    final_answer, synth_meta = synthesize_answer(
-        query=args.query,
-        synth_model=synth_model,
-        plan=plan,
-        subagent_results=stream_results,
-        dry_run=bool(args.dry_run),
-        postgres_only=(args.grounding_policy == "postgres_only"),
-    )
-    citation_gate = apply_hard_citation_gate(
-        answer=final_answer,
-        query=args.query,
-        subagent_results=stream_results,
-        citation_gate_mode=args.citation_gate_mode,
-        repair_model=(args.citation_gate_repair_model.strip() or synth_model),
-        mcp_mode=args.mcp_mode,
-        mcp_base=args.mcp_base.rstrip("/"),
-        remote_ssh=args.remote_ssh,
-        remote_mcp_container=args.remote_mcp_container,
-        postgres_only=(args.grounding_policy == "postgres_only"),
-    )
-    final_answer = citation_gate.get("answer") or final_answer
-    elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+        # Phase 4: Pre-search scatter
+        classification = (organizer_meta or {}).get("classification") or classify_domain(args.query)
+        pre_search_evidence = ""
+        if not args.dry_run:
+            expanded = _expand_queries_with_llm(args.query, classification, classifier_model)
+            pre_search_evidence = run_pre_search_scatter(
+                expanded=expanded,
+                mcp_mode=args.mcp_mode,
+                mcp_base=args.mcp_base.rstrip("/"),
+                remote_ssh=args.remote_ssh,
+                remote_mcp_container=args.remote_mcp_container,
+                query=args.query,
+                classification=classification,
+            )
 
-    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
-    out_dir = REPORT_ROOT / f"legalchat_agentic_harness_minimal_{stamp}"
-    out_dir.mkdir(parents=True, exist_ok=True)
+        effective_parallelism = max(1, min(args.parallelism, max_parallel, len(streams) or 1))
+        with cf.ThreadPoolExecutor(max_workers=effective_parallelism) as pool:
+            futures = []
+            for stream in streams:
+                if args.dry_run:
+                    fut = pool.submit(
+                        run_fn,  # type: ignore[arg-type]
+                        stream,
+                        args.query,
+                        args.mcp_mode,
+                        args.mcp_base.rstrip("/"),
+                        args.remote_ssh,
+                        args.remote_mcp_container,
+                        args.probe_limit,
+                    )
+                else:
+                    _all_names = [s.get("name", "") for s in streams]
+                    fut = pool.submit(
+                        run_fn,  # type: ignore[arg-type]
+                        stream,
+                        args.query,
+                        worker_model,
+                        args.mcp_mode,
+                        args.mcp_base.rstrip("/"),
+                        args.remote_ssh,
+                        args.remote_mcp_container,
+                        args.max_steps,
+                        pre_search_evidence,
+                        _all_names,
+                        classification,
+                    )
+                futures.append(fut)
+            for fut in cf.as_completed(futures):
+                try:
+                    stream_results.append(fut.result())
+                except Exception as e:
+                    stream_results.append(
+                        {
+                            "name": "unknown_stream",
+                            "goal": "",
+                            "mode": "error",
+                            "tools": [],
+                            "llm_error": str(e),
+                            "tool_calls": [],
+                            "tool_calls_total": 0,
+                            "tool_calls_ok": 0,
+                            "tool_calls_ok_rate": None,
+                            "answer": f"Stream execution failed: {e}",
+                            "answer_chars": len(f"Stream execution failed: {e}"),
+                            "e2e_ms": None,
+                        }
+                    )
 
-    result = {
-        "ok": True,
-        "started_at_utc": utc_now(),
-        "config": {
-            "config_dir": str(config_dir),
-            "query": args.query,
-            "model_profile": args.model_profile,
-            "organizer_model": organizer_model,
-            "worker_model": worker_model,
-            "synth_model": synth_model,
-            "organizer_backend": args.organizer_backend,
-            "opencode_sidecar_cmd": args.opencode_sidecar_cmd or None,
-            "opencode_sidecar_timeout_sec": args.opencode_sidecar_timeout_sec,
-            "mcp_mode": args.mcp_mode,
-            "mcp_base": args.mcp_base.rstrip("/"),
-            "remote_ssh": args.remote_ssh,
-            "remote_mcp_container": args.remote_mcp_container,
-            "max_workstreams": args.max_workstreams,
-            "max_steps": args.max_steps,
-            "parallelism": args.parallelism,
-            "effective_parallelism": effective_parallelism,
-            "citation_gate_mode": args.citation_gate_mode,
-            "citation_gate_repair_model": args.citation_gate_repair_model or None,
-            "grounding_policy": args.grounding_policy,
-            "dry_run": bool(args.dry_run),
-            "probe_limit": args.probe_limit,
-        },
-        "runtime_config": config_meta,
-        "mcp_startup": mcp_start_meta,
-        "classification": classification,
-        "pre_search_evidence_chars": len(pre_search_evidence),
-        "plan": plan,
-        "organizer_meta": organizer_meta,
-        "streams": stream_results,
-        "synth_meta": synth_meta,
-        "citation_gate": citation_gate,
-        "final_answer": final_answer,
-        "elapsed_ms": elapsed_ms,
-    }
-    (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "subagents.json").write_text(json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
-    summary = render_summary(
-        query=args.query,
-        organizer_model=organizer_model,
-        worker_model=worker_model,
-        synth_model=synth_model,
-        model_profile=args.model_profile,
-        organizer_backend=args.organizer_backend,
-        mcp_mode=args.mcp_mode,
-        plan=plan,
-        organizer_meta=organizer_meta,
-        synth_meta=synth_meta,
-        citation_gate=citation_gate,
-        subagent_results=stream_results,
-        dry_run=bool(args.dry_run),
-    )
-    (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+        stream_results.sort(key=lambda x: str(x.get("name")))
+        final_answer, synth_meta = synthesize_answer(
+            query=args.query,
+            synth_model=synth_model,
+            plan=plan,
+            subagent_results=stream_results,
+            dry_run=bool(args.dry_run),
+            postgres_only=(args.grounding_policy == "postgres_only"),
+            file_context=file_context,
+        )
+        citation_gate = apply_hard_citation_gate(
+            answer=final_answer,
+            query=args.query,
+            subagent_results=stream_results,
+            citation_gate_mode=args.citation_gate_mode,
+            repair_model=(args.citation_gate_repair_model.strip() or synth_model),
+            mcp_mode=args.mcp_mode,
+            mcp_base=args.mcp_base.rstrip("/"),
+            remote_ssh=args.remote_ssh,
+            remote_mcp_container=args.remote_mcp_container,
+            postgres_only=(args.grounding_policy == "postgres_only"),
+        )
+        final_answer = citation_gate.get("answer") or final_answer
+        elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+
+        stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+        out_dir = REPORT_ROOT / f"legalchat_agentic_harness_minimal_{stamp}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        result = {
+            "ok": True,
+            "started_at_utc": utc_now(),
+            "mode": "deep",
+            "config": {
+                "config_dir": str(config_dir),
+                "query": args.query,
+                "mode": "deep",
+                "model_profile": args.model_profile,
+                "organizer_model": organizer_model,
+                "worker_model": worker_model,
+                "synth_model": synth_model,
+                "organizer_backend": args.organizer_backend,
+                "opencode_sidecar_cmd": args.opencode_sidecar_cmd or None,
+                "opencode_sidecar_timeout_sec": args.opencode_sidecar_timeout_sec,
+                "mcp_mode": args.mcp_mode,
+                "mcp_base": args.mcp_base.rstrip("/"),
+                "remote_ssh": args.remote_ssh,
+                "remote_mcp_container": args.remote_mcp_container,
+                "max_workstreams": args.max_workstreams,
+                "max_steps": args.max_steps,
+                "parallelism": args.parallelism,
+                "effective_parallelism": effective_parallelism,
+                "citation_gate_mode": args.citation_gate_mode,
+                "citation_gate_repair_model": args.citation_gate_repair_model or None,
+                "grounding_policy": args.grounding_policy,
+                "dry_run": bool(args.dry_run),
+                "probe_limit": args.probe_limit,
+            },
+            "runtime_config": config_meta,
+            "mcp_startup": mcp_start_meta,
+            "classification": classification,
+            "pre_search_evidence_chars": len(pre_search_evidence),
+            "file_context_meta": file_context_meta,
+            "plan": plan,
+            "organizer_meta": organizer_meta,
+            "streams": stream_results,
+            "synth_meta": synth_meta,
+            "citation_gate": citation_gate,
+            "final_answer": final_answer,
+            "elapsed_ms": elapsed_ms,
+        }
+        (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "subagents.json").write_text(json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
+        summary = render_summary(
+            query=args.query,
+            organizer_model=organizer_model,
+            worker_model=worker_model,
+            synth_model=synth_model,
+            model_profile=args.model_profile,
+            organizer_backend=args.organizer_backend,
+            mcp_mode=args.mcp_mode,
+            plan=plan,
+            organizer_meta=organizer_meta,
+            synth_meta=synth_meta,
+            citation_gate=citation_gate,
+            subagent_results=stream_results,
+            dry_run=bool(args.dry_run),
+            mode="deep",
+            file_context_meta=file_context_meta,
+        )
+        (out_dir / "summary.md").write_text(summary, encoding="utf-8")
 
     if started_pid and not args.keep_local_mcp:
         try:
@@ -3716,6 +4096,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": True,
+                "mode": args.mode,
                 "out_dir": str(out_dir),
                 "summary_md": str(out_dir / "summary.md"),
                 "result_json": str(out_dir / "result.json"),
