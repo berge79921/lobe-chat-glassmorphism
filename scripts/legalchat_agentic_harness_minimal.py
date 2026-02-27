@@ -93,6 +93,10 @@ RECHTSGEBIET_PATTERNS: dict[str, list[str]] = {
     "zustellrecht": [
         r"\bZust(?:G|ell)\b", r"\bZustellung\b", r"\bHinterlegung\b",
         r"\bErsatzzustellung\b", r"\bZustellmangel\b", r"\b§\s*\d+\s*ZustG\b",
+        r"\bAbgabestelle\b", r"\bZustellversuch\b", r"\bZustellzeugnis\b",
+        r"\bHZÜ\b", r"\bHaager\s+Zustellung", r"\bRechtshilfe(?:ersuchen)?\b",
+        r"\bAnnahmeverweigerung\b", r"\bGeoForm\s*44\b", r"\b§\s*163\s*Geo\b",
+        r"\bZMR.Abfrage\b", r"\bOrtsabwes", r"\babgemeldet\b",
     ],
     "interzession": [
         r"\bInterzession\b", r"\bSchuldbeitritt\b", r"\b§\s*25[a-d]?\s*KSchG\b",
@@ -154,6 +158,7 @@ DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
     "sachenrecht": ["§ 367 ABGB", "§ 431 ABGB", "§ 480 ABGB", "§ 1500 ABGB"],
     "konsumentenschutz": ["§ 6 KSchG", "§ 9 KSchG", "§ 25c KSchG", "§ 25d KSchG"],
     "wohnungseigentum": ["§ 2 WEG", "§ 3 WEG", "§ 16 WEG", "§ 20 WEG", "§ 28 WEG", "§ 30 WEG", "§ 32 WEG", "§ 52 WEG"],
+    "zustellrecht": ["§ 2 ZustG", "§ 7 ZustG", "§ 8 ZustG", "§ 12 ZustG", "§ 17 ZustG", "§ 22 ZustG"],
 }
 
 SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
@@ -165,6 +170,10 @@ SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
                       ["§ 922 ABGB", "§ 932 ABGB", "§ 871 ABGB", "§ 874 ABGB", "§ 934 ABGB"]),
     "weg_erhaltung": ("wohnungseigentum", [r"\bErhaltung", r"\bHeiz", r"\bÖltank", r"\bÖlaustritt", r"\bMangel.*(?:allgemein|gemeinsam)", r"\bInstandhaltung", r"\bSanierung"],
                       ["§ 28 WEG", "§ 30 WEG", "§ 20 WEG", "§ 1318 ABGB"]),
+    "hzue_rechtshilfe": ("zustellrecht", [r"\bHZÜ\b", r"\bHaager\b", r"\bRechtshilfe", r"\bBMJ\b", r"\bUS.Complaint\b", r"\bSummons\b", r"\bAffidavit", r"\bGeoForm", r"\b§\s*163\s*Geo"],
+                         ["§ 17 ZustG", "§ 2 ZustG", "§ 7 ZustG", "§ 8 ZustG", "§ 12 ZustG"]),
+    "hinterlegung_abgabestelle": ("zustellrecht", [r"\bHinterlegung\b", r"\bAbgabestelle\b", r"\babgemeldet\b", r"\bOrtsabwes", r"\bwohn.*nicht\s*mehr", r"\bumgezogen\b"],
+                                  ["§ 17 ZustG", "§ 2 ZustG", "§ 8 ZustG"]),
 }
 
 _PARAGRAPH_RX = re.compile(r"§\s*(\d+[a-z]?)\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöü]{1,15})")
