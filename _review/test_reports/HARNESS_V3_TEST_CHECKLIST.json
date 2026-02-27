@@ -1,0 +1,155 @@
+{
+  "version": "v3.0",
+  "created": "2026-02-27",
+  "description": "LegalChat Harness V3 regression test checklist — 3 cases with pass/fail criteria and Claude Code baseline",
+  "notes": "Avoid overfitting to these 3 cases. Use for regression only, not as optimization target.",
+
+  "cases": [
+    {
+      "id": "CARMEN",
+      "name": "Interzession / Exekutionsrecht / KSchG",
+      "query": "Im Fall CARMEN geht es um Interzession, Exekutionsrecht und Konsumentenschutz. Die Ehefrau ist als Interzedentin einem Kredit des Ehemanns beigetreten. Nach Titulierung wird Exekution geführt. Welche Verteidigungsmöglichkeiten bestehen? Insbesondere: Oppositionsklage nach § 40 EO, Schutzmechanismen nach § 25d KSchG für Interzedenten, und Präklusionsfragen. Gibt es einschlägige OGH-Judikatur zu Interzession und § 40 EO?",
+      "domain": "exekution+interzession+konsumentenschutz",
+      "pass_criteria": {
+        "must_cite_paragraphs": ["§ 40 EO", "§ 25d KSchG"],
+        "must_not_cite": [],
+        "min_rs_cited": 4,
+        "min_tool_calls": 15,
+        "min_answer_chars": 2200
+      },
+      "harness_v3_result": {
+        "status": "PASS",
+        "rs_cited": ["RS0115165", "RS0113935", "RS0001355", "RS0000326", "RS0001356", "RS0115167"],
+        "tool_calls": 37,
+        "answer_chars": 4536,
+        "paragraphs_found": ["§ 35 EO", "§ 40 EO", "§ 25d KSchG", "§ 879 ABGB"],
+        "profile": "cheap_default",
+        "timestamp": "2026-02-26T23:16:48Z"
+      },
+      "claude_code_baseline": {
+        "rs_cited": [
+          "RS0115165", "RS0113935", "RS0001355", "RS0000326", "RS0001356", "RS0115167",
+          "RS0113693", "RS0108783", "RS0016806", "RS0016599", "RS0016613",
+          "RS0018972", "RS0016600", "RS0117818", "RS0016374"
+        ],
+        "paragraphs_found": ["§ 35 EO", "§ 40 EO", "§ 25d KSchG", "§ 25c KSchG", "§ 879 ABGB"],
+        "key_gaps_harness_vs_baseline": [
+          "§25c KSchG (Informationspflicht, Haftungsentfall, Beweislastumkehr) — stärkste Verteidigung",
+          "Interzession vs. echte Mitschuld Abgrenzung",
+          "Notariatsakt-Sonderregel bei §35 EO",
+          "Eventualmaxime §35 EO (RS0001356 vertieft)",
+          "Wirtschaftliche Überforderung — 2.5x-Grenze (RS0108783)"
+        ],
+        "depth_ratio": 0.6,
+        "notes": "Harness at ~60% of Claude Code depth. Correct but shallow."
+      }
+    },
+    {
+      "id": "KOLAR",
+      "name": "Zustellwirksamkeit / Ortsabwesenheit / ZustG",
+      "query": "Im Fall KOLAR gegen PFEFFER geht es um die Zustellwirksamkeit eines Zahlungsbefehls. Der Beklagte war zum Zeitpunkt der Zustellung ortsabwesend. Es stellt sich die Frage der Wiedereinsetzung in den vorigen Stand und der Zustellwirksamkeit nach ZustG. Wie ist die Rechtslage zur Zustellwirksamkeit bei Ortsabwesenheit? Welche Rolle spielt § 158 ZPO? Gibt es einschlägige OGH-Judikatur?",
+      "domain": "zustellrecht+verfahrensrecht",
+      "pass_criteria": {
+        "must_cite_paragraphs": ["§ 16 ZustG"],
+        "must_not_cite": [],
+        "min_rs_cited": 3,
+        "min_tool_calls": 12,
+        "min_answer_chars": 1800
+      },
+      "harness_v3_result": {
+        "status": "PASS",
+        "rs_cited": ["RS0001544", "RS0001584", "RS0036476", "RS0036832", "RS0127011"],
+        "tool_calls": 32,
+        "answer_chars": 3549,
+        "paragraphs_found": ["§ 16 Abs 2 ZustG", "§ 158 ZPO", "§ 7 Abs 3 EO", "§ 116 ZPO"],
+        "profile": "cheap_default",
+        "timestamp": "2026-02-26T23:08:33Z"
+      },
+      "claude_code_baseline": {
+        "rs_cited": ["RS0001544", "RS0001584", "RS0036476", "RS0036832", "RS0127011"],
+        "paragraphs_found": ["§ 16 ZustG", "§ 158 ZPO", "§ 7 Abs 3 EO"],
+        "depth_ratio": 0.85,
+        "notes": "Kolar is close to Claude Code quality. ZustG is a narrower domain."
+      }
+    },
+    {
+      "id": "ULLRICH",
+      "name": "Invaliditätspension / Sozialversicherungsrecht / ASVG",
+      "query": "Im Fall ULLRICH geht es um eine Invaliditätspension nach ASVG. Der Kläger behauptet, dass er aufgrund gesundheitlicher Einschränkungen nicht mehr arbeitsfähig ist. Die PVA hat den Antrag abgelehnt. Welche Voraussetzungen müssen für eine Invaliditätspension nach § 254 ASVG vorliegen? Gibt es einschlägige OGH-Judikatur zu den Verweisungsmöglichkeiten und zur Berufsunfähigkeit?",
+      "domain": "sozialversicherung",
+      "pass_criteria": {
+        "must_cite_paragraphs": ["§ 254 ASVG"],
+        "must_not_cite": ["§ 1295 ABGB", "§ 129 StGB"],
+        "min_rs_cited": 3,
+        "min_tool_calls": 10,
+        "min_answer_chars": 1500
+      },
+      "harness_v3_result": {
+        "status": "PASS",
+        "rs_cited": ["RS0084429", "RS0084399", "RS0084325"],
+        "tool_calls": 22,
+        "answer_chars": 2800,
+        "paragraphs_found": ["§ 254 ASVG", "§ 255 ASVG"],
+        "profile": "cheap_default",
+        "notes": "Domain classifier correctly identified sozialversicherung. No wrong-domain citations."
+      },
+      "claude_code_baseline": {
+        "depth_ratio": 0.7,
+        "notes": "ASVG is not in MCP zivilrecht-server scope. Both systems limited by available data."
+      }
+    }
+  ],
+
+  "model_profiles_to_test": [
+    {
+      "name": "cheap_default",
+      "organizer": "qwen/qwen3-coder-next",
+      "worker": "google/gemini-2.5-flash-lite",
+      "synth": "google/gemini-3-flash-preview",
+      "status": "baseline",
+      "notes": "Current V3 baseline. All 3 cases PASS."
+    },
+    {
+      "name": "grok_worker",
+      "organizer": "qwen/qwen3-coder-next",
+      "worker": "x-ai/grok-4.1-fast",
+      "synth": "google/gemini-3-flash-preview",
+      "status": "to_test",
+      "notes": "Test Grok as worker — better tool calling? More legal knowledge?"
+    },
+    {
+      "name": "kimi_swarm",
+      "organizer": "moonshotai/kimi-k2.5",
+      "worker": "moonshotai/kimi-k2.5",
+      "synth": "google/gemini-3-flash-preview",
+      "status": "to_test",
+      "notes": "User suggestion: Kimi K2.5 for swarm/organizer"
+    },
+    {
+      "name": "gemini3_worker",
+      "organizer": "qwen/qwen3-coder-next",
+      "worker": "google/gemini-3-flash-preview",
+      "synth": "google/gemini-3-flash-preview",
+      "status": "to_test",
+      "notes": "Upgrade worker to Gemini 3 Flash — stronger tool calling at higher cost"
+    }
+  ],
+
+  "optimization_levers": {
+    "high_impact": [
+      "Worker model upgrade (Flash Lite → Grok 4.1 / Gemini 3 Flash)",
+      "Worker deepening: force get_rechtssatz on found RS numbers",
+      "Query expansion: search related §§ (e.g. §25c when §25d is cited)"
+    ],
+    "medium_impact": [
+      "Worker max_steps increase (8 → 12)",
+      "Pre-search scatter with more parallel MCP calls",
+      "Synth model upgrade for better structure"
+    ],
+    "low_impact_high_risk": [
+      "Worker system prompt optimization (risk: overfitting)",
+      "Classifier LLM upgrade (cost increase)",
+      "More workstreams (diminishing returns)"
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+version: 1
+updated_at_utc: "2026-02-25T23:59:00Z"
+
+modes:
+  local_http:
+    base_url: http://127.0.0.1:8070
+  remote_http:
+    base_url: http://127.0.0.1:8070
+  remote_ssh:
+    ssh_host: root@46.225.110.68
+    container: mcp-zivilrecht
+
+guardrails:
+  statement_timeout_ms: 30000
+  max_result_rows: 50
+  max_query_length: 500
+  max_parallel_streams: 3
+
+roles:
+  organizer:
+    allow_tools:
+      - search_ogh_rechtssaetze
+      - search_ogh_entscheidungen
+      - get_rechtssatz
+      - hot_rs_search
+      - hot_cluster_context
+      - search_kommentar_paragraph
+      - search_kommentar_keyword
+      - search_by_paragraph
+      - search_by_schlagwort
+      - hot_rs_lookup
+      - hot_index_stats
+      - build_grounding_context
+      - detect_clusters
+      - ask_gemini_zivilrecht
+  worker:
+    allow_tools:
+      - search_ogh_rechtssaetze
+      - search_ogh_entscheidungen
+      - get_rechtssatz
+      - hot_rs_search
+      - hot_cluster_context
+      - search_kommentar_paragraph
+      - search_kommentar_keyword
+      - search_by_paragraph
+      - search_by_schlagwort
+      - hot_rs_lookup
+      - build_grounding_context
+      - detect_clusters
+      - ask_gemini_zivilrecht
+  synth:
+    allow_tools: []
+  citation_repair:
+    allow_tools: []
+
+tools:
+  search_ogh_rechtssaetze:
+    timeout_sec: 30
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 220
+  search_ogh_entscheidungen:
+    timeout_sec: 30
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 220
+  get_rechtssatz:
+    timeout_sec: 20
+    retry_count: 1
+    retry_backoff_sec: 0.5
+    max_limit: 1
+    max_query_length: 32
+  hot_rs_search:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 220
+  hot_cluster_context:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 20
+    max_query_length: 80
+  search_kommentar_paragraph:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 120
+  search_kommentar_keyword:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 220
+  search_by_paragraph:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 120
+  search_by_schlagwort:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 50
+    max_query_length: 120
+  hot_rs_lookup:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.5
+    max_limit: 20
+    max_query_length: 32
+  hot_index_stats:
+    timeout_sec: 30
+    retry_count: 0
+    retry_backoff_sec: 0
+    max_limit: 1
+    max_query_length: 0
+  build_grounding_context:
+    timeout_sec: 30
+    retry_count: 1
+    retry_backoff_sec: 0.8
+    max_limit: 3
+    max_query_length: 300
+  detect_clusters:
+    timeout_sec: 25
+    retry_count: 1
+    retry_backoff_sec: 0.5
+    max_limit: 10
+    max_query_length: 300
+  ask_gemini_zivilrecht:
+    timeout_sec: 40
+    retry_count: 1
+    retry_backoff_sec: 1.0
+    max_limit: 1
+    max_query_length: 500
