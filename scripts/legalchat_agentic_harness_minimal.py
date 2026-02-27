@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shlex
+import fnmatch
 import subprocess
 import sys
 import time
@@ -2878,14 +2879,20 @@ def load_case_context(
     context_dir: str,
     context_files: list[str],
     ocr_pdfs: bool,
+    exclude_patterns: list[str] | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """Load case files into a single context string (max ~2K tokens)."""
     meta: dict[str, Any] = {"files_read": [], "files_skipped": [], "ocr_count": 0, "final_chars": 0}
+    _user_excludes = set(exclude_patterns or [])
     parts: list[str] = []
     budget = _CONTEXT_MAX_CHARS
 
     def _skip(name: str) -> bool:
         if name in _CONTEXT_EXCLUDE:
+            return True
+        if name in _user_excludes:
+            return True
+        if any(fnmatch.fnmatch(name, pat) for pat in _user_excludes):
             return True
         return any(name.startswith(p) for p in _CONTEXT_EXCLUDE_PREFIXES)
 
@@ -2947,8 +2954,10 @@ def load_case_context(
     if context_dir:
         d = Path(context_dir).expanduser()
         if d.is_dir():
-            # Priority files first
+            # Priority files first (unless excluded)
             for name in _PRIORITY_FILES:
+                if _skip(name):
+                    continue
                 fp = d / name
                 if fp.is_file() and budget > 0:
                     _add(fp, _read_text(fp))
@@ -3893,6 +3902,7 @@ def main() -> int:
     ap.add_argument("--keep-local-mcp", action="store_true")
     ap.add_argument("--context-dir", default="", help="Case directory to read (*.md, *.txt, *.json, PDFs)")
     ap.add_argument("--context-file", default=[], action="append", help="Single file as context (repeatable)")
+    ap.add_argument("--context-exclude", default=[], action="append", help="Exclude file by name/glob (repeatable, e.g. FALLUEBERSICHT.md)")
     ap.add_argument("--ocr", action="store_true", help="OCR PDFs via pdftotext fast mode")
     args = ap.parse_args(raw_argv)
 
@@ -3923,6 +3933,7 @@ def main() -> int:
         context_dir=args.context_dir,
         context_files=args.context_file or [],
         ocr_pdfs=bool(args.ocr),
+        exclude_patterns=args.context_exclude or None,
     )
 
     started_at = time.perf_counter()
