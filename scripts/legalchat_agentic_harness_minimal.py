@@ -1470,7 +1470,24 @@ def run_pre_search_scatter(
                     results.append(f"[{tool_name}] {preview}")
             except Exception:
                 pass
-    return "\n".join(results)[:5000]
+    # Deduplicate: prioritize high-value tools, skip lines with only already-seen RS
+    _HIGH_VALUE = {"build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht"}
+    _seen_rs: set[str] = set()
+    deduped: list[str] = []
+    # High-value tools first
+    for line in results:
+        if any(f"[{t}]" in line for t in _HIGH_VALUE):
+            deduped.append(line)
+            _seen_rs.update(rs for rs in extract_rs_numbers(line))
+    # Then retrieval tools, skip if all RS already seen
+    for line in results:
+        if any(f"[{t}]" in line for t in _HIGH_VALUE):
+            continue
+        _line_rs = set(extract_rs_numbers(line))
+        if not _line_rs or (_line_rs - _seen_rs):
+            deduped.append(line)
+            _seen_rs.update(_line_rs)
+    return "\n".join(deduped)[:5000]
 
 
 def build_plan_with_organizer(
@@ -1826,11 +1843,12 @@ def sanitize_tool_args(tool_name: str, raw_args: dict[str, Any], query: str, pro
 
     if tool_name in {"search_ogh_rechtssaetze", "search_ogh_entscheidungen", "hot_rs_search"}:
         q = str(args.get("query") or "").strip()
-        # Deterministic behavior: prefer pipeline-derived fallback query over model-provided args.
-        if fallback and str(fallback.get("query") or "").strip():
-            q = str(fallback.get("query") or "").strip()
-        elif (not q) or (len(q) > max_query_length) or ("\n" in q) or q.lower().startswith("analysiere one-shot"):
-            return None
+        # Use model-provided query when valid; fallback only when empty/broken.
+        if (not q) or (len(q) > max_query_length) or ("\n" in q) or q.lower().startswith("analysiere one-shot"):
+            if fallback and str(fallback.get("query") or "").strip():
+                q = str(fallback.get("query") or "").strip()
+            else:
+                return None
         q_compact = _compact_search_query(q, max_terms=8)
         return {"query": (q_compact or q)[:max_query_length], "limit": limit}
 
@@ -2093,30 +2111,38 @@ def run_subagent_llm(
     _zero_result_sigs: set[str] = set()  # track tool+args combos that returned 0 results
 
     for step in range(1, max_steps + 1):
-        try:
-            raw_resp, latency_ms = openrouter_chat(
-                model=worker_model,
-                messages=messages,
-                max_tokens=1600,
-                temperature=0.0,
-                tools=(enabled_tools if enabled_tools else None),
-                tool_choice="auto",
-                provider=_openrouter_provider_for_model(worker_model),
-                reasoning=_openrouter_reasoning_for_role(worker_model, "worker"),
-                models=_openrouter_model_fallbacks(worker_model),
-                title=f"legalchat-agentic-subagent-{stream['name']}",
-            )
-        except Exception as e:
-            llm_error = str(e)
-            llm_calls.append(
-                {
-                    "step": step,
-                    "latency_ms": None,
-                    "finish_reason": "error",
-                    "tool_calls_count": 0,
-                    "error": llm_error,
-                }
-            )
+        _step_ok = False
+        for _retry in range(3):
+            try:
+                raw_resp, latency_ms = openrouter_chat(
+                    model=worker_model,
+                    messages=messages,
+                    max_tokens=1600,
+                    temperature=0.0,
+                    tools=(enabled_tools if enabled_tools else None),
+                    tool_choice="auto",
+                    provider=_openrouter_provider_for_model(worker_model),
+                    reasoning=_openrouter_reasoning_for_role(worker_model, "worker"),
+                    models=_openrouter_model_fallbacks(worker_model),
+                    title=f"legalchat-agentic-subagent-{stream['name']}",
+                )
+                _step_ok = True
+                break
+            except Exception as e:
+                if _retry >= 2:
+                    llm_error = str(e)
+                    llm_calls.append(
+                        {
+                            "step": step,
+                            "latency_ms": None,
+                            "finish_reason": "error",
+                            "tool_calls_count": 0,
+                            "error": llm_error,
+                        }
+                    )
+                else:
+                    time.sleep(2.0 * (_retry + 1))
+        if not _step_ok:
             break
         choice = ((raw_resp.get("choices") or [{}])[0] or {})
         msg = choice.get("message") or {}
@@ -2282,7 +2308,7 @@ def run_subagent_llm(
                     _looked_up_rs.add(rs_arg)
             prev = tt.get("payload_preview") or ""
             _found_rs.update(extract_rs_numbers(prev))
-        _unlooked = sorted(_found_rs - _looked_up_rs)[:3]
+        _unlooked = sorted(_found_rs - _looked_up_rs, reverse=True)[:5]
         for rs in _unlooked:
             _deep_tool = "hot_rs_lookup" if "hot_rs_lookup" in allowed else ("get_rechtssatz" if "get_rechtssatz" in allowed else "")
             if not _deep_tool:
@@ -2445,13 +2471,14 @@ def _build_synthesis_evidence_chunks(
             prev = tc.get("payload_preview")
             if not isinstance(prev, str) or not prev.strip():
                 continue
+            _hv = tc.get("tool") in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht")
             tool_evidence.append(
                 {
                     "tool": tc.get("tool"),
-                    "payload_preview": prev[:2000],
+                    "payload_preview": prev[:2400 if _hv else 1800],
                 }
             )
-            if len(tool_evidence) >= 10:
+            if len(tool_evidence) >= 16:
                 break
         item["tool_evidence"] = tool_evidence
         item["tool_evidence_count"] = len(tool_evidence)
