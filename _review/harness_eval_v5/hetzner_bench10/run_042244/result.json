@@ -1,0 +1,1754 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T04:22:44.820049+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Wurstfabrikant W verkauft zwei Tiefkühlaggregate (je EUR 10.000) an Händler Z. Vereinbarung: Z wird sofort Eigentümer, Geräte bleiben bis Weiterverkauf bei W. Z verkauft ein Aggregat an Fleischer F um EUR 24.000 auf 24 Monatsraten. Zur Sicherung tritt F seine laufenden Forderungen gegen Gastwirt G an Z ab (Sicherungszession). Bei der Abholung beschädigen Zs Mitarbeiter das Aggregat mit dem Gabelstapler grob fahrlässig (EUR 10.000 Schaden). F will den Reparaturschaden gegen den Kaufpreis aufrechnen. Z verlangt volle Ratenzahlung plus die abgetretenen Forderungen. Welche Ansprüche bestehen?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "",
+    "subdomain": "",
+    "confidence": 0.0,
+    "paragraphs": [],
+    "mandatory_paragraphs": [],
+    "keywords": [],
+    "all_scores": {},
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 236,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Eigentumsvorbehalt & Übergang des Eigentums",
+        "goal": "Klären, ob und wann Eigentum an den Aggregaten auf Z übergegangen ist (§§ 380, 433 BGB iVm Vereinbarung)",
+        "tools": [
+          "search_by_paragraph",
+          "get_rechtssatz",
+          "hot_rs_lookup",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Sicherungszession & Abtretungsrecht",
+        "goal": "Prüfen Wirksamkeit der Sicherungszession der Forderungen G→F→Z und Rechte Z an den abgetretenen Forderungen (§§ 986 ff. BGB)",
+        "tools": [
+          "search_by_paragraph",
+          "search_kommentar_paragraph",
+          "hot_cluster_context",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Schadensersatz & Aufrechnung bei Mangel/Beschädigung",
+        "goal": "Beurteilen, ob F Schadensersatzanspruch gegen Z hat (§ 280 Abs. 1, 241 Abs. 2 BGB iVm grob fahrlässige Beschädigung) und ob Aufrechnung zulässig ist",
+        "tools": [
+          "search_by_paragraph",
+          "search_ogh_entscheidungen",
+          "search_kommentar_keyword",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Zuordnung des Schadensrisikos bei Eigentumsvorbehalt, Wirksamkeit der Sicherungszession, und Aufrechnungsverbot bei eigenem Verschulden (§ 397 BGB analog)"
+  },
+  "organizer_meta": {
+    "latency_ms": 3986.75,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Eigentumsvorbehalt & Übergang des Eigentums\",\n      \"goal\": \"Klären, ob und wann Eigentum an den Aggregaten auf Z übergegangen ist (§§ 380, 433 BGB iVm Vereinbarung)\",\n      \"tools\": [\"search_by_paragraph\", \"get_rechtssatz\", \"hot_rs_lookup\"]\n    },\n    {\n      \"name\": \"Sicherungszession & Abtretungsrecht\",\n      \"goal\": \"Prüfen Wirksamkeit der Sicherungszession der Forderungen G→F→Z und Rechte Z an den abgetretenen Forderungen (§§ 986 ff. BGB)\",\n      \"tools\": [\"search_by_paragraph\", \"search_kommentar_paragraph\", \"hot_cluster_context\"]\n    },\n    {\n      \"name\": \"Schadensersatz & Aufrechnung bei Mangel/Beschädigung\",\n      \"goal\": \"Beurteilen, ob F Schadensersatzanspruch gegen Z hat (§ 280 Abs. 1, 241 Abs. 2 BGB iVm grob fahrlässige Beschädigung) und ob Aufrechnung zulässig ist\",\n      \"tools\": [\"search_by_paragraph\", \"search_ogh_entscheidungen\", \"search_kommentar_keyword\"]\n    },\n    {\n      \"name\": \"Synthese: Anspruchsübersicht & Hotspot-Kontext\",\n      \"goal\": \"Zusammenführen der Teilfragen, Identifikation entscheidungsrelevanter RS und aktueller Kommentarpositionen\",\n      \"tools\": [\"hot_rs_search\", \"hot_index_stats\", \"detect_clusters\"]\n    }\n  ],\n  \"synthesis_focus\": \"Zuordnung des Schadensrisikos bei Eigentumsvorbehalt, Wirksamkeit der Sicherungszession, und Aufrechnungsverbot bei eigenem Verschulden (§ 397 BGB analog)\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 397,
+      "completion_tokens": 459,
+      "total_tokens": 856,
+      "cost": 0.00042675,
+      "cached_tokens": 3,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "",
+      "subdomain": "",
+      "confidence": 0.0,
+      "paragraphs": [],
+      "mandatory_paragraphs": [],
+      "keywords": [],
+      "all_scores": {},
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Eigentumsvorbehalt & Übergang des Eigentums",
+      "goal": "Klären, ob und wann Eigentum an den Aggregaten auf Z übergegangen ist (§§ 380, 433 BGB iVm Vereinbarung)",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "get_rechtssatz",
+        "hot_rs_lookup",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 7030.17,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 1548,
+            "completion_tokens": 1068,
+            "total_tokens": 2616,
+            "cost": 0.0007284,
+            "cached_tokens": 768,
+            "reasoning_tokens": 841
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7471.94,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 7279,
+            "completion_tokens": 879,
+            "total_tokens": 8158,
+            "cost": 0.0017705,
+            "cached_tokens": 832,
+            "reasoning_tokens": 568
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 10681.24,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 18748,
+            "completion_tokens": 1439,
+            "total_tokens": 20187,
+            "cost": 0.0020155,
+            "cached_tokens": 25920,
+            "reasoning_tokens": 1197
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 11718.09,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 25617,
+            "completion_tokens": 1484,
+            "total_tokens": 27101,
+            "cost": 0.0029564,
+            "cached_tokens": 44288,
+            "reasoning_tokens": 1270
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 23930.19,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 29155,
+            "completion_tokens": 2144,
+            "total_tokens": 31299,
+            "cost": 0.003808,
+            "cached_tokens": 54720,
+            "reasoning_tokens": 1166
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_03018639",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 425 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 735.02,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 425 ABGB\", \"results\": [{\"rs_number\": \"RS0071455\", \"kernaussage\": \"Die Anordnung, daß das Patentrecht erst mit der Eintragung in das Patentregister erworben und gegen Dritte wirksam wird, kann sich, wie bei jedem vom Recht eines Vormannes abgeleiteten Erwerb, nur auf die Erwerbsart (vgl § 425 ABGB) und nicht auf den Titel (vgl § 424 ABGB) beziehen, weil sonst zu...\", \"schlagworte\": [\"Europäisches Patent\", \"Patentrechtübertragung\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Eingriffsklage\", \"Patentverletzung\"]}, {\"rs_number\": \"RS0011111\", \"kernaussage\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzu"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_83676912",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 426 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1568.64,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 426 ABGB\", \"results\": [{\"rs_number\": \"RS0012778\", \"kernaussage\": \"Erklärt der Vater seiner in seiner Wirtschaft arbeitenden Tochter, ihr an Stelle des Lohnes ein bestimmtes, im Stall stehendes Stück Vieh zu überlassen, so ist dadurch die Übergabe dieses Stückes i. S. des § 426 ABGB vollzogen.\", \"schlagworte\": []}, {\"rs_number\": \"RS0003786\", \"kernaussage\": \"Wenn § 426 ABGB von einer Übergabe von Hand zu Hand spricht, ist dies nicht wörtlich zu nehmen, sondern es genügt, daß die Sache aus der physischen Verfügungsmacht des Veräußerers in jene des Erwerbers übergeht. Dies geschieht aber bei einem Freihandverkauf schon durch die Intervention des Vollstrec...\", \"schlagworte\": []}, {\"rs_number\": \"JWR_2003050107_20031014X02\", \"kernaussage\": \"Montage von Anlage auf Dach als körperliche Übergabe (§ 426 ABGB)\", \"schlagworte\": [\"körperliche Übergabe\", \"Eigentumserwerb\", \"Montage\", \"Rückkühlanlage\", \"§ 426 ABGB\", \"Verkehrsauffassung\", \"Machtsphäre\", \"Dachmontage\", \"Zustimmung Übergeber\"]}, {\"rs_number\": \"RS0011164\", \"kernaussage\": \"Ein PKW ist einen bewegliche Sache, die eine körperliche Übergabe - auch Übergabe von Hand zu Hand - iS des § 426 ABGB gestattet.\", \"schlagworte\": []}], \"count\": 4}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_14577151",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 427 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1565.78,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 427 ABGB\", \"results\": [{\"rs_number\": \"RS0114435\", \"kernaussage\": \"Bei schenkungsweiser Abtretung der Ansprüche des Treugebers gegen den Treuhänder aus der Treuhandschaft genügt die Verständigung des Treuhänders durch den Treugeber von der Zession als wirkliche Übergabe der Forderung durch Zeichen iSd § 943 iVm § 427 ABGB; eine solche Abtretung ist formwirksam.\", \"schlagworte\": [\"Treuhandverhältnis\", \"Schenkung\", \"Zession\", \"wirkliche Übergabe\", \"Grundbuch\"]}, {\"rs_number\": \"RS0080831\", \"kernaussage\": \"Die im § 166 VersVG vorgesehene Bezeichnung eines Dritten als Bezugsberechtigten betrifft das Verhältnis zum Versicherer. Für die Rechtsbeziehungen zwischen dem Versicherungsnehmer und dem Begünstigten kommt es auf die zwischen ihnen getroffene Vereinbarung an. Gemäß § 427 ABGB werden Forderungen...\", \"schlagworte\": [\"Versicherungspolizze\", \"Forderungsübertragung\", \"symbolische Übergabe\", \"Schenkung\", \"Lebensversicherung\", \"Begünstigung\", \"Widerruf\", \"Testament\", \"Innenverhältnis\", \"Nachlass\", \"Inhaberpolizze\", \"Bereicherungsanspruch\", \"Töchterausstattungsversicherung\", \"Bezugsberechtigung\", \"Versicherung für fremde Rechnung\", \"mitversichertes Kind\", \"Überbringerpolizze\", \"unrechtmäßige Bereicherung\", \"Verwahrung\", \"Änderung durch Testament\", \"Auslegung letztwilliger Verfügungen\", \"Andeutungstheorie\", \"Kapitallebensversicherung\", \"Aufteilungsvergleich\", \"Hinterlegung\"]}, {\"rs_number\": \"RS0011151\", \"kernaussage\": \"Eine symbolische Übergabe nach § 427 ABGB ist ausgeschlossen, wenn die körperliche Übergabe möglich und tunlich ist ( vgl. auch SZ XXVII 18 ).\", \"sch"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_90458023",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Eigentumsübertragung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 649.1,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Eigentumsübertragung\", \"results\": [{\"rs_number\": \"RS0053822\", \"kernaussage\": \"Bestimmungen des Krnt GemStruktVG können nur bei einer Verletzung des Gleichheitsgrundsatzes verfassungswidrig sein.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gemeindestrukturverbesserungsgesetz\", \"Rechtsnachfolge\", \"Eigentumsübertragung\", \"Löschungsklage\", \"Verfassungsmäßigkeit\"]}, {\"rs_number\": \"RS0053544\", \"kernaussage\": \"Eine Verletzung des Eigentums kann nicht nur durch einen individuellen Verwaltungsakt sondern auch durch ein Gesetz erfolgen. Sie wären gegeben, wenn durch ein einfaches Landesgesetz der sogenannte Wesenskern dieses Grundrechtes, durch dessen Aushöhlung, Schmälerung oder Umgehung beeinträchtigt...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gemeindestrukturverbesserungsgesetz\", \"Rechtsnachfolge\", \"Eigentumsübertragung\", \"Löschungsklage\", \"Verfassungsmäßigkeit\"]}, {\"rs_number\": \"RS0053218\", \"kernaussage\": \"Der Inhalt des § 77 a Krnt GemStruktVG oblag der Zuständigkeit des Landesgesetzgebers.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gemeindestrukturverbesserungsgesetz\", \"Rechtsnachfolge\", \"Eigentumsübertragung\", \"Löschungsklage\", \"Verfassungsmäßigkeit\"]}, {\"rs_number\": \"JWR_2004020364_20050513X01\", \"kernaussage\": \"Missbrauch Grundverkehrsrecht zur Zivilrechtsumgehung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Grundverkehrsbehörde\", \"Genehmigungspflicht\", \"öffentliche Interessen\", \"Amts wegen\", \"subjektives Recht\", \"Eigentumsübertragung\", \"Zivilrechtsumgehung\", \"Berufungsrecht\", \"Grundbucheigentümer\"]}, {\"rs_number\": \"RS0077708\", \"kernaussage\": \"Ist es Zweck des"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_32078813",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Eigentum übergeht sofort bei Vereinbarung trotz Besitz beim",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 25.61,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Eigentum übergeht sofort bei Vereinbarung trotz Besitz beim\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_09722862",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 380 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 725.79,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 380 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_06621698",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 424 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 843.85,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 424 ABGB\", \"results\": [{\"rs_number\": \"RS0106054\", \"kernaussage\": \"Die Größe der Miteigentumsanteile, die immer in einem Verhältnis zur ganzen Liegenschaft auszudrücken ist, ergibt sich aus dem Grundbuch. Eine Änderung der Eigentumsverhältnisse kann nämlich, nur durch eine Einverleibung im Grundbuch (§§ 425, 431 ABGB) auf Grund eines gültigen Titels (§ 424 ABGB in...\", \"schlagworte\": [\"Wohnungseigentum\", \"Nutzwertfestsetzung\", \"Miteigentumsanteile\", \"Aufteilungsschlüssel\", \"Betriebskosten\", \"Grundbuch\", \"Laufgang\", \"Nutzwert\", \"Nutzwerte\", \"Hausbesorgerwohnung\", \"Grundbucheintragung\", \"Neuparifizierung\", \"Einverleibung\", \"Mindestanteile\", \"Parifizierung\", \"Revisionsrekurs\", \"Zustellung\", \"Miet- und Schikanesachen\", \"Aufwendungsverteilung\", \"Altmietvertrag\", \"Mischhaus\", \"Neubau auf Allgemeinfläche\", \"Außerstreitverfahren\", \"Grundbuchsantrag\", \"Eigentumsrechteinverleibung\", \"Pfandrechtslöschung\", \"elektronischer Rechtsverkehr\", \"Schnittstellenbeschreibung\", \"pflegschaftsgerichtliche Genehmigung\", \"Rechtskraftbestätigung\", \"Grundbuchseinverleibung\", \"Wohnungseigentumsvertrag\", \"Berichtigung\", \"Grundbuchantrag\", \"§ 10 WEG\", \"Teilung\", \"Grundbucheintrag\", \"Zustimmungserklärung\", \"Elektronischer Rechtsverkehr\", \"Grundbuchverfahren\", \"Formmangel\", \"Verbesserungsverfahren\", \"Grundbuchberichtigung\", \"§ 10 Abs 3 WEG\", \"Übertragungsanspruch\", \"Zug um Zug\", \"Änderung\", \"Löschung\", \"Nutzwertgutachten\", \"Untergang des Objekts\", \"Grundbuchsberichtigung\", \"§ 35 WEG\"]}, {\"rs_number\": \"RS0011109\", \"kernaussage\": \"Die Teilungsklage ist eine Rechtsgestaltungsklage; das auf Nat"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_29594387",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 429 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 683.76,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 429 ABGB\", \"results\": [{\"rs_number\": \"RS0017693\", \"kernaussage\": \"Wenn der Gläubiger nicht bestimmte Zahlungsformen ausdrücklich vorgeschrieben hat (vgl § 429 ABGB), in welchem Fall auch die Postanstalt, bei der mittels Postanweisung eingezahlt wurde, als Zahlungsstelle zu gelten hätte, kann der Schuldner jede verkehrsübliche Zahlungsart und Übersendungsart wählen...\", \"schlagworte\": []}, {\"rs_number\": \"RS0011193\", \"kernaussage\": \"Die Grundsätze des § 429 ABGB bzw des Art 8 Nr 20 der 4. EVzHGB finden auch für die Rücksendung von zur Disposition gestellten Waren Anwendung.\", \"schlagworte\": [\"Handelskauf\", \"Rücktritt\", \"Umtauschrecht\", \"Retourware\", \"Rückgaberecht\", \"Rückverkaufsrecht\", \"Klageänderung\", \"Rücksendung\"]}, {\"rs_number\": \"RS0046880\", \"kernaussage\": \"Die Voraussetzung des gleichzeitigen \\\"Einlangens\\\" von Ware und Faktura ist dann gegeben, wenn die Ware mit der Faktura dem Spediteur übergeben wird, der über Auftrag des Bestellers die Ware samt Faktura übernimmt und damit für den Besteller nach § 429 ABGB Eigentum erwirbt.\", \"schlagworte\": [\"inländische Gerichtsbarkeit\", \"Fakturengerichtsstand\", \"§ 88 Abs. 2 JN\"]}], \"count\": 3}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_99571166",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1054 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 621.81,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1054 ABGB\", \"results\": [{\"rs_number\": \"RS0020143\", \"kernaussage\": \"Obwohl § 1054 ABGB für das Kaufobjekt keine Bestimmtheitsanforderungen (wie für den Preis) enthält, fordert die Lehre dessen Bestimmtheit oder doch zumindest Bestimmbarkeit (Ehrenzweig System 2. Auflage II/1, 12, Mayer - Maly in Klang 2. Auflage IV/2 233). Nach der jüngeren Rechtsprechung, an der...\", \"schlagworte\": [\"Hochwasserschutzmaßnahmen\", \"Ersitzung\", \"Vertrauenstheorie\", \"Grundstücksgrenzen\", \"Impugnationsklage\", \"Liegenschaftsteilung\", \"WEG § 3\", \"Wohnungskauf\", \"Vertragsauslegung\", \"Liegenschaftskauf\", \"Eigentumszusage\", \"Masseverwalter\", \"Besitz\", \"Titelergänzungsklage\", \"Herausgabeexekution\", \"Bestimmbarkeit des Kaufgegenstands\", \"Bestimmtheit Kaufobjekt\", \"Mindestanteile\", \"Kaufgegenstand\", \"gerichtlicher Vergleich\", \"Rechtsmittel\", \"Kaufvertrag\", \"§ 914 ABGB\", \"Grundablöse\", \"Einstweilige Verfügung\", \"Teilungsplan\", \"Eigentum\", \"Terrasse\", \"mittelbare Stellvertretung\", \"Grundbuchprüfung\"]}, {\"rs_number\": \"RS0102803\", \"kernaussage\": \"Informationen zu § 1054 ABGB Hier auch: Festsetzung des Preises durch einen Vertragspartner\", \"schlagworte\": []}, {\"rs_number\": \"RS0102805\", \"kernaussage\": \"Informationen zu § 1056 ABGB Preisfestsetzung durch einen Vertragspartner nur bei § 1054 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0019965\", \"kernaussage\": \"§ 1054 ABGB über die Bestimmbarkeit des Kaufpreises gilt für den Bereich des Handelsrechtes nicht, da für den Handelskauf ein abweichender Handelsbrauch besteht.\", \"schlagworte\": [\"Unmittelbarkeit\", \"Preisbestimmung\", \"Kommissionsgeschäft"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_73650562",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Besitzkonstitut",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 926.1,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Besitzkonstitut\", \"results\": [{\"rs_number\": \"RS0076701\", \"kernaussage\": \"Der Inhalt der dinglichen Rechte ist nach § 31 Abs 2 IPRG nach dem Recht des Staats zu beurteilen, in dem sich die Sachen befinden. Im Unterschied zum ersten Absatz der zitierten Gesetzesstelle wird hier nicht auf einen bestimmten Anknüpfungszeitpunkt abgestellt. Die Wirkungen des allenfalls nach...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Pfandrecht des Lagerhalters\", \"Gutgläubiger Erwerb\", \"Zurückbehaltungsrecht\", \"Sicherungsübereignung\", \"Besitzkonstitut\", \"§ 31 IPRG\", \"Lageortwechsel\", \"Einlagenrückgewähr\", \"Vertretungsmacht\", \"IPRG\", \"guter Glaube\", \"Pfandrecht\", \"Fahrnisexekution\", \"Stammzellen\", \"Eigentum\", \"Vindikationsanspruch\", \"Asset Deal\", \"Insolvenz\", \"Gewebesicherheitsgesetz\"]}, {\"rs_number\": \"RS0076753\", \"kernaussage\": \"Die Wirksamkeit des Sicherungsrechts hängt von der jeweiligen lex rei sitae ab, ist also nach einem Statutenwechsel der neuen Lageortsrecht ausgeliefert, und zwar sowohl mit heilender als auch mit vernichtender Wirkung. Der Fortbestand eines unter der Herrschaft des früheren Belegenheitsrechtes...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"schlüssige Vereinbarung\", \"IPRG\", \"Sicherungsübereignung\", \"Besitzkonstitut\", \"§ 31 IPRG\", \"Lageortwechsel\", \"Einlagenrückgewähr\", \"Vertretungsmacht\", \"guter Glaube\", \"Pfandrecht\", \"Fahrnisexekution\"]}, {\"rs_number\": \"RS0077010\", \"kernaussage\": \"Von § 6 IPRG ist sparsamster Gebrauch zu machen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"einstweilige Verfügung\", \"Zuständigkeit\", \"Bankgaran"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_03549697",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Eigentumsvorbehalt",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 30.61,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Eigentumsvorbehalt\", \"results\": [{\"rs_number\": \"RS0000801\", \"kernaussage\": \"Der Vorbehaltskäufer erwirbt durch die Übergabe der verkauften Sache ein Recht auf Innehabung und Benützung der Sache und eine Anwartschaft auf das Eigentum. Da die Sache bereits übergeben ist, erlangt er mit der Bezahlung des Kaufpreisrestes Eigentum. Während dieses Schwebezustandes steht dem...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Superädifikat\", \"Überbau\", \"Urkundenhinterlegung\", \"Fahrnisexekution\", \"Bestandvertrag\", \"Eigentumsvorbehalt\", \"Leibrentenvertrag\", \"Unternehmensübertragung\", \"Anwartschaftsrecht\", \"Vorbehaltsgut\", \"Schutzpflichten\", \"Sorgfalt eines ordentlichen Kaufmanns\", \"grobe Fahrlässigkeit\", \"Miteigentum\", \"Gesellschaft bürgerlichen Rechts\", \"Herausgabeklage\", \"Vorbehaltskäufer\"]}, {\"rs_number\": \"RS0000811\", \"kernaussage\": \"In der Pfändung des Herausgabeanspruches hinsichtlich einer unter Eigentumsvorbehalt stehenden Sache durch den Vorbehaltseigentümer liegt kein Verzicht auf den Eigentumsvorbehalt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Sicherungsübereignung\", \"Anspruchsexekution\", \"Fahrnisexekution\"]}, {\"rs_number\": \"RS0000813\", \"kernaussage\": \"Der Eigentumsvorbehalt bedarf keiner für Dritte sichtbaren Kennzeichnung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Exszindierung\", \"Fahrnisexekution\", \"Typenschein\"]}, {\"rs_number\": \"RS0001082\", \"kernaussage\": \"Die Ansicht, dass eine Entwährungsklage nach Versteigerung der Sache nicht mehr auf die Sache selbst, sondern nur noch auf den Erlös gerichtet werden könne, trifft nur für"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_22590426",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Eigentumsübertragung Kaufvertrag Übergabe Besitz Verkäufer",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.41,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Eigentumsübertragung Kaufvertrag Übergabe Besitz Verkäufer\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_94671200",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 432 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 772.59,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 432 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_07158089",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 431 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 717.69,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 431 ABGB\", \"results\": [{\"rs_number\": \"RS0106111\", \"kernaussage\": \"Im § 2 Abs 2 BIG-Gesetz ist nicht der Eigentumserwerb des Liegenschaftskäufers, der nach dem Intabulationsprinzip sehr wohl der Einverleibung bedarf (§ 431 ABGB) normiert, sondern (erkennbar zur Vermeidung von Problemen, die das Intabulationsprinzip im Zusammenhang mit § 1120 ABGB auswirft)...\", \"schlagworte\": [\"Finanzprokuratur\", \"Aufsandungserklärung\", \"Vollmachtsnachweis\", \"Grundbucheinverleibung\", \"BIG-Gesetz\"]}, {\"rs_number\": \"JWR_1982060065_19850613X01\", \"kernaussage\": \"Physische Übergabe von Liegenschaften sachenrechtlich irrelevant (§ 431 ABGB)\", \"schlagworte\": [\"außerbücherlicher Eigentümer\", \"Eigentumserwerb\", \"Liegenschaft\", \"physische Übergabe\", \"Sachenrecht\", \"Grundbuch\", \"Besitz\"]}, {\"rs_number\": \"JWR_1983050163_19840918X02\", \"kernaussage\": \"Eigentum im Baurecht: Grundbucheinverleibung zwingend (§ 431 ABGB)\", \"schlagworte\": [\"Eigentümer\", \"Baurecht\", \"Grundbuch\", \"Einverleibung\", \"Übertragung Eigentum\", \"physische Übergabe\", \"verbuchte Sache\", \"ABGB § 431\"]}, {\"rs_number\": \"RS0076025\", \"kernaussage\": \"Auch Betriebsmittel einer Gesellschaft bürgerlichen Rechts sind nur dann nach Art 1 rückzuübertragen, wenn sie am 08.05.1945 im Eigentum der den Anspruch geltend machenden natürlichen Person gestanden haben. Bei Liegenschaften ist die grundbücherliche Einverleibung maßgebend (§ 431 ABGB).\", \"schlagworte\": []}, {\"rs_number\": \"RS0011111\", \"kernaussage\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Pl"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_93159160",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "constitutum possessorium",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1058.27,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"constitutum possessorium\", \"results\": [{\"rs_number\": \"RS0033787\", \"kernaussage\": \"Der unredliche Bereicherungsschuldner hat den gemeinen Wert der Sache zu ersetzen, wenn er die Sache verbrauchte oder sonst veräußerte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zwangsversteigerung\", \"Zuschlag\", \"Eigentumserwerb\", \"Aufhebung Versteigerungsverfahren\", \"Wertersatz\", \"Kondiktion\", \"Unredlicher Bereicherter\", \"Verwendungsanspruch\", \"unredlicher Besitz\", \"Benützungsentgelt\", \"Sicherungsmaßnahmen\", \"Verfügungsverbot\", \"Zahlungsverbot\", \"Deliktshaftung\", \"Geschäftsführung ohne Auftrag\", \"Provisorium\", \"§ 1041 ABGB\", \"Dienstbarkeit\", \"Redlicher Bereicherter\", \"Enteignung\", \"Rückübereignung\", \"Ersitzung\", \"unredlicher Besitzer\", \"Grundbuch\", \"Hauptmietrecht\", \"Schadenersatz\", \"Verjährung\", \"Schenkung\", \"Besitzkonstitut\", \"constitutum possessorium\", \"Leihe\", \"Erbin\", \"Herausgabe\", \"Untermiete\", \"ortsüblicher Unterbestandzins\", \"Pfandleihe\", \"Sorgfaltspflicht\", \"Ausweispflicht\", \"gestohlene Schmuckstücke\", \"Bereicherungsanspruch\", \"Bestandvertrag\", \"Kündigung\", \"Insolvenz\", \"Masseverwalter\", \"Bereicherung\", \"Angeld\", \"Vertragsrücktritt\", \"Wohnungskauf\"]}, {\"rs_number\": \"JWR_1970000920_19710323X01\", \"kernaussage\": \"§ 12 Abs 5 lit b WaffenG: Fallfrist; constitutum possessorium kein Eigentum\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fallfrist\", \"Eigentumsnachweis\", \"constitutum possessorium\", \"Waffenbeschlagnahme\", \"materiell-rechtliche Frist\", \"Neuerungen ausschließend\", \"Besitzübergabe\", \"Sicherungsübertragung\"]}, {\"rs_number\": \"JWR_1972001653_19740418X01\", \"kern"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_12758396",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Besitzkonstitut Eigentumsübertragung ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.32,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Besitzkonstitut Eigentumsübertragung ABGB\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_16769116",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0132536"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.03,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0132536\", \"rechtssatz\": \"In Deutschland durch Besitzkonstitut wirksam erworbenes Sicherungseigentum macht nach Verbringen der Gegenstände nach Österreich die Fahrnisexekution darauf unzulässig.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Sicherungsübereignung\", \"Besitzkonstitut\", \"§ 31 IPRG\", \"Lageortwechsel\"], \"fachgebiete\": [\"Pfandrecht\"], \"datum\": \"2019-01-23\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_67285247",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0076701"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.98,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0076701\", \"rechtssatz\": \"Der Inhalt der dinglichen Rechte ist nach § 31 Abs 2 IPRG nach dem Recht des Staats zu beurteilen, in dem sich die Sachen befinden. Im Unterschied zum ersten Absatz der zitierten Gesetzesstelle wird hier nicht auf einen bestimmten Anknüpfungszeitpunkt abgestellt. Die Wirkungen des allenfalls nach dem Recht eines anderen Staats erworbenen dinglichen Rechts richten sich daher nach dem Recht des jeweiligen Lageortes. Gelangt eine Sache ins Inland, so kann das im Ausland entstandene dingliche Recht hier nur dann dingliche Wirkungen entfalten, wenn es mit der inländischen Sachenrechtsordnung vereinbar ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Pfandrecht des Lagerhalters\", \"Gutgläubiger Erwerb\", \"Zurückbehaltungsrecht\", \"Sicherungsübereignung\", \"Besitzkonstitut\", \"§ 31 IPRG\", \"Lageortwechsel\", \"Einlagenrückgewähr\", \"Vertretungsmacht\", \"IPRG\", \"guter Glaube\", \"Pfandrecht\", \"Fahrnisexekution\", \"Stammzellen\", \"Eigentum\", \"Vindikationsanspruch\", \"Asset Deal\", \"Insolvenz\", \"Gewebesicherheitsgesetz\"], \"fachgebiete\": [\"Pfandrecht\", \"Revision\"], \"datum\": \"2024-11-06\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_96489543",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 428 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 894.9,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 428 ABGB\", \"results\": [{\"rs_number\": \"RS0115520\", \"kernaussage\": \"Schon in der Vereinbarung der Gütergemeinschaft im Ehepakt selbst ist, bei beweglichen Sachen im Vermögen beider Ehegatten, eine Übergabe durch Erklärung nach § 428 ABGB zu sehen. Für die Übertragung nachträglich erworbenen Vermögens ist ein vorweggenommenes Besitzkonstitut ausreichend. Der Ehepakt...\", \"schlagworte\": [\"Gütergemeinschaft\", \"Ehepakt\", \"Exszindierungsklage\", \"Herausgabeanspruch\", \"Vermengung\"]}, {\"rs_number\": \"RWZ0000236\", \"kernaussage\": \"Der Käufer einer Liegenschaft erwirbt durch die (bloße) Verbücherung zwar Eigentum, nicht aber Besitz. Die Besitzverschaffung erfolgt vielmehr durch Vermittlung realer Herrschaftsbeziehung. Eine Besitzübergabe durch Erklärung (§ 428 ABGB) ist bei Liegenschaften nur möglich, wenn der Übernehmer der...\", \"schlagworte\": []}, {\"rs_number\": \"JWR_1995160191_19961003X04\", \"kernaussage\": \"Ausführung Schenkung durch Besitzanweisung (§ 428 ABGB analog)\", \"schlagworte\": [\"Schenkung\", \"Ausführung\", \"Besitzübergabe\", \"Besitzanweisung\", \"Übergabe durch Zeichen\", \"analoges Recht\", \"Wertpapiere\", \"Gewahrsam\", \"ErbStG\"]}, {\"rs_number\": \"RS0010370\", \"kernaussage\": \"Durch einen Besitzauftrag ( constitutum possessorium ) i.S. des § 428 ABGB kann weder ein Pfandrecht eingeräumt noch Sicherungseigentum übertragen werden ( SZ 27/18; SZ 38/190; SZ 41/140; EvBl 1972/37 uva).\", \"schlagworte\": [\"Mengeneigentum\", \"Quoteneigentum\", \"vermengte Lagerung\"]}, {\"rs_number\": \"RS0011190\", \"kernaussage\": \"Bei der Besitzauflassung überträgt die Einigung ( der unbedingte Abschluß d"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_80260513",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0011187"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.63,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0011187\", \"rechtssatz\": \"Der Besitzauftrag (Besitzkonstitut) bedarf keiner besonderen Förmlichkeit, insbesondere muß die Übergabe nicht für Dritte erkennbar sein (SZ 22/175).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Besitzanweisung\", \"Herausgabeanspruch\", \"Übereignung\", \"Schadenersatz\", \"Erbin\", \"Insolvenzmasse\", \"Untervermietung\", \"Einbaumöbel\", \"Maschinenlieferung\", \"constitutum possessorium\", \"Verwendungsanspruch\", \"Anzahlungszahlungen\", \"Haushaltsversicherung\", \"Leihe\", \"Verjährung\", \"Leasinganlage\", \"Versicherung fremde Rechnung\", \"Schenkung\", \"Bereicherung\", \"Fremdeigentum\", \"Übergabeerklärung § 428 ABGB\", \"Zubehör Liegenschaft\", \"Besitzkonstitut\", \"Herausgabe\"], \"fachgebiete\": [\"Bereicherungsrecht\", \"Grundbuch\", \"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2001-12-06\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_03153711",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0062464"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.38,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0062464\", \"rechtssatz\": \"Die Redlichkeit des Erwerbers ist im Zweifel zu vermuten. Dass der Erwerber nicht im guten Glauben gehandelt hat, müsste der die Herausgabe der Sache begehrende Kläger beweisen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Übergabe\", \"Bauvertrag\", \"Konkurs\", \"Masseverwalter\", \"unselbständiger Bestandteil\", \"Verkehrsauffassung\", \"Fertigteile\", \"Verbindung\", \"gutgläubiger Erwerb\", \"§ 366 HGB\", \"grobe Fahrlässigkeit\", \"Gebrauchtwagenkauf\", \"Typenschein\", \"Kraftfahrzeug\", \"Schenkung\", \"Besitzkonstitut\", \"constitutum possessorium\", \"Leihe\", \"Erbin\", \"Herausgabe\", \"Schadenersatz\", \"gutgläubiger Pfanderwerb\", \"Kommissionsgeschäft\", \"gutgläubiger Eigentumserwerb\", \"§ 366 Abs 1 HGB\", \"Mietkauf\", \"Inhaberschuldverschreibung\", \"Teilschuldverschreibung\", \"Wertpapierrecht\"], \"fachgebiete\": [\"Eigentumsvorbehalt\", \"Vertragsauslegung\", \"Leistung\"], \"datum\": \"2014-10-22\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_98017865",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0011143"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.07,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0011143\", \"rechtssatz\": \"Wirkliche Übergabe im Sinne des Gesetzes ist die körperliche Übergabe, die Übergabe durch Zeichen, die Besitzauflassung, die Besitzanweisung nicht aber die Besitzauftragung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Absonderungsrecht\", \"Besitzanweisung\", \"brevi manu traditio\", \"Formbedürftigkeit\", \"Losungswort\", \"ABGB § 943\", \"Berechtigungskarte\", \"Sparbuch\", \"NZwG\", \"Leihe\", \"Ausgleichsverfahren\", \"Notariatsaktspflicht\", \"Bankpflicht\", \"Typ-2-Sparbuch\", \"Schenkung ohne Übergabe\", \"Sicherungseigentum\", \"Liegenschaft\", \"Verlassenschaftsverfahren\", \"gemischte Schenkung\", \"Bauvertrag\", \"constitutum possessorium\", \"Bankomatkarte\", \"Bankkonto\", \"Besitzauftragung\", \"Postsparbuch\", \"Verlassenschaft\", \"Fruchtgenussrecht\", \"Übergabe\", \"Eigentumsübertragung\", \"Wiederaufnahmsklage\"], \"fachgebiete\": [\"Wiederaufnahme\", \"Pfandrecht\", \"Internationales Privatrecht\", \"Eigentumsvorbehalt\", \"Revision\", \"Vertragsauslegung\", \"Grundbuch\", \"Leistung\"], \"datum\": \"2025-03-25\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_92144355",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0003786"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.53,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0003786\", \"rechtssatz\": \"Wenn § 426 ABGB von einer Übergabe von Hand zu Hand spricht, ist dies nicht wörtlich zu nehmen, sondern es genügt, daß die Sache aus der physischen Verfügungsmacht des Veräußerers in jene des Erwerbers übergeht. Dies geschieht aber bei einem Freihandverkauf schon durch die Intervention des Vollstreckers dabei und seine Erklärung, die am Ort des Freihandverkaufes befindliche Sache dem anwesenden Käufer zu übergeben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1999-05-28\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_05051677",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Besitzauftragung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1210.54,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Besitzauftragung\", \"results\": [{\"rs_number\": \"RS0009966\", \"kernaussage\": \"Die Anmerkung nach §297a ABGB ist nicht Voraussetzung für den Erwerb des Eigentums an der Maschine. Das Eigentum geht mangels Anmerkung nicht auf den Eigentümer der Liegenschaft über.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Dienstbarkeit\", \"Eigentumserwerb\", \"Besitzauftragung\", \"Verjährung\", \"Übergabe\"]}, {\"rs_number\": \"RS0009972\", \"kernaussage\": \"Die Anmerkung nach § 297 a ABGB ist nur gegenüber Personen von Bedeutung, die an der Liegenschaft ein Recht erwerben, sie ist hingegen gegenüber sonstigen Personen, die das Recht des Eigentümers der Maschine stören, bedeutungslos.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Dienstbarkeit\", \"Eigentumserwerb\", \"Besitzauftragung\", \"Verjährung\", \"Übergabe\"]}, {\"rs_number\": \"RS0011143\", \"kernaussage\": \"Wirkliche Übergabe im Sinne des Gesetzes ist die körperliche Übergabe, die Übergabe durch Zeichen, die Besitzauflassung, die Besitzanweisung nicht aber die Besitzauftragung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Absonderungsrecht\", \"Besitzanweisung\", \"brevi manu traditio\", \"Formbedürftigkeit\", \"Losungswort\", \"ABGB § 943\", \"Berechtigungskarte\", \"Sparbuch\", \"NZwG\", \"Leihe\", \"Ausgleichsverfahren\", \"Notariatsaktspflicht\", \"Bankpflicht\", \"Typ-2-Sparbuch\", \"Schenkung ohne Übergabe\", \"Sicherungseigentum\", \"Liegenschaft\", \"Verlassenschaftsverfahren\", \"gemischte Schenkung\", \"Bauvertrag\", \"constitutum possessorium\", \"Bankomatkarte\", \"Bankkonto\", \"Besitzauftragung\", \"Postsparbuch\", \"Verlassenschaft\", \"Fruchtgenussrecht\", \"Übergabe\", \"Eigentumsübertragung\", \"Wiedera"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0115520",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0115520",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.79,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0115520\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114435",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114435",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.27,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114435\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0106111",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0106111",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.5,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0106111\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0106054",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0106054",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.33,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0106054\", \"rechtssatz_text\": \"Die Größe der Miteigentumsanteile, die immer in einem Verhältnis zur ganzen Liegenschaft auszudrücken ist, ergibt sich aus dem Grundbuch. Eine Änderung der Eigentumsverhältnisse kann nämlich, nur durch eine Einverleibung im Grundbuch (§§ 425, 431 ABGB) auf Grund eines gültigen Titels (§ 424 ABGB in...\", \"te_count\": 12, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 4925, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob122_22k|OGH|2022-08-29\", \"gz\": \"5Ob122_22k\", \"datum\": \"2022-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs gegen die Ablehnung der Löschung von Mindestanteilen an untergegangenen Wohnungseigentumsobjekten und der Berichtigung der Anteile ab.\"}, {\"te_stable_key\": \"5Ob234_20b|OGH|2021-06-14\", \"gz\": \"5Ob234_20b\", \"datum\": \"2021-06-14\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Voraussetzung einer Berichtigung der Miteigentumsanteile nach § 10 Abs 3 WEG im Grundbuch.\"}, {\"te_stable_key\": \"5Ob110_18i|OGH|2018-10-03\", \"gz\": \"5Ob110_18i\", \"datum\": \"2018-10-03\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erlaubt in einem Mischhaus die Begründung von Wohnungseigentum an schlichten Miteigentumsanteilen durch Realteilung unter Berücksichtigung einer Nutzwertneufestsetzung.\"}, {\"te_stable_key\": \"5Ob229_17p|OGH|2018-05-15\", \"gz\": \"5Ob229_17p\", \"datum\": \"2018-05-15\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Voraussetzungen für die grundbuchliche Berichtigung von Miteigentumsanteilen im Wohnungseigentum bei Überschreitung der 10%-Bagatellegrenze gemäß § 10 Abs 3 WEG 2002.\"}, {\"te_stable_key\": \"5Ob147_17d|OGH|2018-01-18\", \"gz\": \"5Ob147_17d\", \"datum\": \"2018-01-18\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Rechtslage zur Löschung von Wohnungseigentum an Kfz-Abstellplätzen und Änderung der Miteigentumsanteile durch Übertragung nach § 10 Abs 4 WEG auf Basis einer Nutzwertneufestsetzung.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102805",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102805",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.23,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102805\"}"
+        }
+      ],
+      "tool_calls_total": 29,
+      "tool_calls_ok": 29,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**PHASE 3 - SUMMARY (Eigentumsübertragung an Z)**\n\n### Sachverhalt & Rechtsgrundlage\n- **Bewegliche Sachen** (Tiefkühlaggregate): Derivativer Eigentumserwerb erfordert **Titel** (§ 424 ABGB: gültiger Kaufvertrag) **+ Modus** (§ 425 ABGB: Übergabe iSd §§ 426–428 ABGB). Kein Konsensualprinzip; traditio erforderlich (RS0011143: \"Wirkliche Übergabe [...] ist die körperliche Übergabe, die Übergabe durch Zeichen, die Besitzauflassung, die Besitzanweisung **nicht aber die Besitzauftragung**\").\n- **Vereinbarung**: \"Z wird **sofort Eigentümer**, Geräte **bleiben bis Weiterverkauf bei W**\" → **Besitzkonstitut** (§ 428 ABGB): Übergabe durch Erklärung, da Sache bei Veräußerer (W) verbleibt und dieser als **Verwahrer** für Erwerber (Z) innehat. Keine körperliche Übergabe nötig; reicht **Vereinbarungserklärung** (RS0015057: Käufer erwirbt Eigentum durch Übergabe § 428 ABGB, wenn Einigung auf Dritter/Verwahrer + Übergabe von Schlüsseln; analog hier bei W als Verwahrer).\n\n### Wann übergeht Eigentum auf Z?\n- **Sofort mit Vertragsschluss** (§ 424 + § 428 ABGB): Vereinbarung schafft Titel + Modus (Besitzkonstitut). W hält als **Verwahrer** (nicht Besitzer); Z ist Eigentümer (RS0115520: \"Vereinbarung [...] ist [...] eine Übergabe durch Erklärung nach § 428 ABGB\"; RS0011187: \"Besitzauftrag (Besitzkonstitut) bedarf **keiner besonderen Förmlichkeit**, [...] Übergabe nicht für Dritte erkennbar\").\n- **Kein Sicherungseigentum/Pfand**: Besitzkonstitut taugt **nicht** für Sicherungseigentum (RS0010370: \"Durch einen Besitzauftrag [...] i.S. des § 428 ABGB kann [...] **weder ein Pfandrecht eingeräumt noch Sicherungseigentum** übertragen werden\"; RS0011202: Nicht tauglich für Sicherungseigentum). Hier echter Eigentumsübergang (nicht Vorbehalt).\n- **Abgrenzung**: Nicht § 426 (Hand-zu-Hand, RS0003786: Physische Machtübertragung via Vollstrecker/Freihandverkauf); nicht § 427 (Zeichen). § 428 perfekt passend (RS0011190: \"Bei der Besitzauflassung überträgt die Einigung [...] das Recht\").\n\n### Beweislast\n- **Z trägt Beweislast** für Titel (Kaufvertrag) + Modus (§ 428-Erklärung): OGH-Standard bei Eigentumsklage/Exszindierung (RS0062464: \"Redlichkeit des Erwerbers [...] zu vermuten\"; Kläger beweist Mängel). Gegenparteien (W, F) müssen Widerspruch substantiieren (keine Umkehr ex § 1298 ABGB, da kein Delikt/Arzthaftung).\n- **Keine Publizitätspflicht**: Besitzkonstitut braucht keine Drittkenntlichkeit (RS0011187).\n\n**Folge**: Z Eigentümer beider Aggregate sofort; Weiterverkauf an F erfordert neues Besitzkonstitut von Z an F (nicht relevant für diesen Stream). Schaden durch Z-Mitarbeiter: Z haftet als Eigentümer (deliktisch § 1295 ABGB oder vertraglich § 1299).\n\n**Quellen**: RS0011143, RS0011187, RS0011190, RS0011202, RS0010370, RS0015057, RS0062464, RS0115520, RS0003786 (alle via search_by_paragraph §§ 426/427/428 ABGB + get_rechtssatz; Schlagwörter \"Besitzkonstitut\"/\"constitutum possessorium\"/\"Besitzauftragung\"). Keine GZ (keine OGH-Aktennummern in RS).",
+      "answer_chars": 2966,
+      "e2e_ms": 79278.93
+    },
+    {
+      "name": "Schadensersatz & Aufrechnung bei Mangel/Beschädigung",
+      "goal": "Beurteilen, ob F Schadensersatzanspruch gegen Z hat (§ 280 Abs. 1, 241 Abs. 2 BGB iVm grob fahrlässige Beschädigung) und ob Aufrechnung zulässig ist",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_ogh_entscheidungen",
+        "search_kommentar_keyword",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 14250.22,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 1707,
+            "completion_tokens": 1839,
+            "total_tokens": 3546,
+            "cost": 0.0012384,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1530
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 8033.04,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 9,
+          "usage": {
+            "prompt_tokens": 27353,
+            "completion_tokens": 988,
+            "total_tokens": 28341,
+            "cost": 0.0059454,
+            "cached_tokens": 128,
+            "reasoning_tokens": 627
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 20599.52,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 37258,
+            "completion_tokens": 2359,
+            "total_tokens": 39617,
+            "cost": 0.0044083,
+            "cached_tokens": 64576,
+            "reasoning_tokens": 1279
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_86688732",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1299 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 238.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1299 ABGB\", \"results\": [{\"rs_number\": \"RS0123428\", \"kernaussage\": \"§ 1299 ABGB hebt gegenüber § 1297 den (objektiven) Sorgfaltsmaßstab, besagt jedoch für sich nicht, dass dem Schädiger jedenfalls ein objektiv schwerer Sorgfaltsverstoß auch subjektiv schwerstens vorzuwerfen ist.\", \"schlagworte\": [\"grobe Fahrlässigkeit\", \"Sorgfaltsmaßstab\", \"Nachbarschaftshilfe\", \"Gerüstbau\"]}, {\"rs_number\": \"RS0124230\", \"kernaussage\": \"Derjenige, der die Aufgabe als Baustellenkoordinator übernommen hat, haftet nach dem Maßstab des § 1299 ABGB für die sachgerechte Erledigung seiner Aufgaben.\", \"schlagworte\": [\"Bauarbeitenkoordinationsgesetz\", \"SiGe-Plan\", \"Baustellenkoordinator\", \"Projektleiter\", \"Bauherrnhaftung\", \"Fangnetze\", \"Baustellenkoordination\", \"Dachfanggerüst\", \"Arbeitnehmerschutz\", \"Sicherheitsmängel\", \"Überwachungspflicht\", \"Absturzsicherung\", \"Mitverschulden\"]}, {\"rs_number\": \"RS0112733\", \"kernaussage\": \"Zum Inhalt des Consultingvertrages: Da ein Unternehmensberater gegen Entgelt eine vorwiegend beratende Tätigkeit, die besondere Sachkenntnis erfordert, erbringt, gilt für ihn § 1299 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0026579\", \"kernaussage\": \"Ein geprüfter Bergführer unterliegt der Haftungsverschärfung nach § 1299 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0026715\", \"kernaussage\": \"Eine Bank gilt bei Ausführung von Bankgeschäften als Sachverständiger im Sinne des § 1299 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0049946\", \"kernaussage\": \"Ebenso wie Ausgleichsverwalter und Masseverwalter haben auch Sachwalter die durch den Gegenstand der Geschäftsfüh"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_15605139",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 918 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 735.05,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 918 ABGB\", \"results\": [{\"rs_number\": \"RS0018339\", \"kernaussage\": \"Die Ausübung des Rücktrittsrechtes nach § 918 ABGB ist an keine Frist gebunden und so lange möglich, als die Leistungsstörung auf Seiten des Vertragspartners nicht beseitigt ist.\", \"schlagworte\": []}, {\"rs_number\": \"RS0018404\", \"kernaussage\": \"Die Ausübung des Rücktrittsrechtes im Sinne des § 918 ABGB ist an keine Frist gebunden.\", \"schlagworte\": []}, {\"rs_number\": \"RS0022067\", \"kernaussage\": \"Das Abgehen vom Vertrag ist - nach der Übernahme des Werkes - kein \\\"Rücktritt vom Vertrag\\\" im Sinne des § 918 ABGB, sondern ein Fall der Vertragsaufhebung (Wandlung).\", \"schlagworte\": []}, {\"rs_number\": \"RS0012294\", \"kernaussage\": \"Das Recht nach § 918 ABGB steht dem jeweiligen Rechtsgeschäftspartner zu, geht bei einer Nachfolge in die Vertragsposition auf den Rechtsnachfolger über und ist im Falle einer ruhenden Verlassenschaft von dieser auszuüben.\", \"schlagworte\": []}, {\"rs_number\": \"RS0044116\", \"kernaussage\": \"Auch bei einseitigen Verbindlichkeiten kann vom berechtigten Teil ein Rücktritt analog § 918 ABGB erklärt werden.\", \"schlagworte\": [\"Rücktritt\", \"Gesamtrücktritt\", \"Servitut\", \"Wasserbezugsrecht\"]}, {\"rs_number\": \"RS0132375\", \"kernaussage\": \"Die zur Nachfristsetzung nach § 918 ABGB entwickelte Rechtsprechung ist auch auf beide Fristen des § 1170b ABGB anwendbar. Daraus folgt nicht nur, dass es im Fall der (Nach-)Fristsetzung auf die im konkreten Fall objektiv angemessene Frist (für die Leistung oder für deren Nachholung) ankommt und bei...\", \"schlagworte\": [\"§ 1170b ABGB\", \"Vertragsaufhebung"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_55365651",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1295 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 802.32,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1295 ABGB\", \"results\": [{\"rs_number\": \"RS0022909\", \"kernaussage\": \"Schadenersatzansprüche dritter Personen, die von der Verletzung nur mittelbar getroffen wurden, sind nicht im § 1295 ABGB sondern im § 1327 ABGB geregelt (vgl SZ 13/141, 16/223, 17/132). Der hinterbliebene Ehemann hat - außer im Fall der Dürftigkeit - keinen Anspruch auf Ersatz desjenigen Betrages, ...\", \"schlagworte\": []}, {\"rs_number\": \"RS0055230\", \"kernaussage\": \"1.) Ebenso wie nach allgemeinen zivilrechtlichen Grundsätzen eine Rechtsausübung gegen die guten Sitten verstoßen kann (§ 1295 ABGB), kann auch unter Umständen eine Rechtsausübung durch einen Rechtsanwalt ein Standesdelikt beinhalten. 2.) Vergleich: Zahlung des Vergleichsbetrages an den Rechtsanwalt...\", \"schlagworte\": []}, {\"rs_number\": \"RS0023179\", \"kernaussage\": \"Gemäß § 1295 ABGB ist für die Verpflichtung zum Schadenersatz nicht notwendig, daß der Schaden in feindseliger Absicht zugefügt wurde, es genügt vielmehr Verschulden. Ein solches liegt aber schon bei fahrlässigem Handeln vor. Eine Fahrlässigkeit liegt hier mindestens vor, denn das Werfen eines...\", \"schlagworte\": []}, {\"rs_number\": \"JWR_1966001865_19671211X12\", \"kernaussage\": \"§ 1295 ABGB nicht anwendbar im öffentlichen Recht\", \"schlagworte\": [\"Verjährung\", \"§ 1295 ABGB\", \"Öffentliches Recht\", \"Nichtanwendbarkeit\", \"Deliktsunrechtmäßigkeit\", \"Subsidiäres ABGB\", \"Amtshaftung\"]}, {\"rs_number\": \"RS0023128\", \"kernaussage\": \"§ 1295 ABGB ist nicht subsidiär neben § 1315 ABGB anwendbar; die Frage des Auswahlverschuldens ist abschließend im § 1315 ABGB geregelt.\", \"schlagwort"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_17607017",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1486 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 695.52,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1486 ABGB\", \"results\": [{\"rs_number\": \"RS0120146\", \"kernaussage\": \"Der auf Grund schlüssiger privatrechtlicher Vereinbarung die Sonderklassegebühren verteilende Primar ist rechnungslegungspflichtig, allerdings, weil er insoweit den Dienstgeber substituiert, nur innerhalb der Verjährungsfrist des § 1486 ABGB.\", \"schlagworte\": [\"Rechnungslegung\", \"Sonderklassehonorare\", \"Verjährung\", \"Ärztehonorare\", \"Geschäftsbesorgungsvertrag\"]}, {\"rs_number\": \"RS0038104\", \"kernaussage\": \"Der Anspruch des Arbeitnehmers auf Ersatz eines an den im Interesse des Arbeitgebers eingesetzten eigenen Sachen (Personenkraftwagen) entstandenen Schadens verjährt in der kurzen Frist des § 1486 ABGB. Bezüglich des Beginnes dieser Frist ist § 1489 ABGB analog anzuwenden. Wartet der Arbeitnehmer im...\", \"schlagworte\": []}, {\"rs_number\": \"RS0034201\", \"kernaussage\": \"Der Anspruch eines Gläubigers gegen den Erwerber eines Unternehmens verjährt gemäß § 1486 ABGB in drei Jahren auch dann, wenn der Gläubiger gegen den Veräußerer des Unternehmens vor dem Erwerb schon ein Urteil ersiegt hat.\", \"schlagworte\": []}, {\"rs_number\": \"RS0032771\", \"kernaussage\": \"Für die Haftung nach § 1397 ABGB gilt die dreijährige Verjährungsfrist, wenn das zugrundeliegende Geschäft unter § 1486 ABGB fällt.\", \"schlagworte\": []}, {\"rs_number\": \"RS0034411\", \"kernaussage\": \"Eine Forderung, die an sich der dreijährigen Verjährung nach § 1486 ABGB unterläge, wird durch die Anmeldung im Ausgleichsverfahren bei Zutreffen der in § 53 a AO angeführten Voraussetzungen zu einer Judikatobligation, die zufolge des JME vom 21.07.1958"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_83831837",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Aufrechnung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 44.42,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Aufrechnung\", \"results\": [{\"rs_number\": \"RS0044191\", \"kernaussage\": \"Wenn ein Beschluss über mehrere Begehren, die innerlich zusammengehören, nur teilweise bestätigt wurde, kann auch der bestätigende Teil der Rekursentscheidung mit Revisionsrekurs bekämpft werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"unlauterer Wettbewerb\", \"irreführende Werbung\", \"Patente\", \"Wettbewerbsverhältnis\", \"Ausverkauf\", \"Unterlassung\", \"Genehmigung\", \"Wiederholungsgefahr\", \"Stehgeldzuschuss\", \"Rabattgesetz\", \"UWG\", \"Taxiunternehmen\", \"Autoreparatur\", \"Liegenschaftsversteigerung\", \"Ausrufpreis\", \"Vadium\", \"Hypothekarforderungen\", \"Betriebsliegenschaft\", \"Verkehrswert\", \"Liquidationsverkauf\", \"Ausgleichsverfahren\", \"Preisgegenüberstellung\", \"Unterlassungsanspruch\", \"Konkursverkauf\", \"Ausverkaufsverordnung\", \"Masseverwalter\", \"Exekutionszuständigkeit\", \"Zwangsversteigerung Liegenschaften\", \"Rekurs gegen Exekutionsbewilligung\", \"Vollstreckungsgenosse\", \"Rechtskraft\", \"Ausstattungsnachahmung\", \"Verwechslungsgefahr\", \"Rundschreiben\", \"Firmenbezeichnung\", \"Nachahmung\", \"Musterrecht\", \"gesonderte Wohnungnahme\", \"Unterhaltsanspruch\", \"Rechtsweg\", \"Revisionsrekurs\", \"Hausverwalter\", \"Abberufung\", \"Rechnungslegung\", \"Rücklage\", \"WEG\", \"Zulässigkeit\", \"teilweise Bestätigung\", \"Sicherungsantrag\", \"Unterlassungsansprüche\", \"Prozeßkostensicherheit\", \"einheitliche Streitpartei\", \"Ausländer\", \"Urheberrecht\", \"Parallelimport\", \"Urheberrechtsverletzung\", \"einstweilige Verfügung\", \"Wahrheitsbeweis\", \"Unterlassungsbegehren\", \"Drittverbot\", \"Verwahrung\", \"Rekurs\", \"Sicherungsmaßnahmen\", \"Verfügungsver"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_45522711",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Schadenersatz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 43.24,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Schadenersatz\", \"results\": [{\"rs_number\": \"RS0046074\", \"kernaussage\": \"Ablehnungsgründe rechtfertigen keinen Delegierungsantrag.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Delegierung\", \"Konkurssache\", \"Zweckmäßigkeitsgründe\", \"Befangenheit\", \"Richterablehnung\", \"Verfahrenshilfe\", \"Ablehnungsanträge\", \"unparteiischer Richter\", \"Art. 6 MRK\", \"Delegierungsantrag\", \"Wiederaufnahmsklage\", \"Ablehnungsgründe\", \"§ 30 JN\", \"§ 31 JN\", \"Benützungsentgelt\", \"Wohnung\", \"Ablehnung von Richtern\", \"Zweckmäßigkeit\", \"Verfahrenshelfer\", \"Rekurs\", \"Anwaltspflicht\", \"Ablehnung\", \"Unterhaltssache\", \"Delegation\", \"Ablehnungsantrag\", \"Amtshaftung\", \"Unterhalt Ehegatten\", \"Verlassenschaftsverfahren\", \"Berufungsverfahren\", \"Anfechtungsklage\", \"Insolvenzverfahren\", \"Objektivität\", \"Zurückweisung Schriftsatz\", \"§ 86a ZPO\", \"Insolvenzverwalter\", \"Schadenersatz\"]}, {\"rs_number\": \"RS0046142\", \"kernaussage\": \"Nach § 31 a Abs 2 JN ist eine Übertragung an ein anderes Gericht gleicher Art zulässig, wenn bei dem anderen Gericht ein Verfahren über einen gleichartigen Anspruch aus demselben schädigenden Ereignis anhängig ist. Eine Übertragung von einem Gerichtshof an ein Bezirksgericht oder umgekehrt ist aber...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Delegierung\", \"Verkehrsunfall\", \"Schadenersatz\"]}, {\"rs_number\": \"RS0046146\", \"kernaussage\": \"Der Umstand, daß ein Richter des dem Erstgericht vorgesetzten Kreisgerichtes in einem Naheverhältnis zu einer Prozeßpartei steht, stellt keinen hinreichenden Grund für eine Delegierung nach § 31 JN dar.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Delegierung\", \"Zw"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_78428924",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "grob fahrlässige Beschädigung Kaufobjekt Übergabe",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.82,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"grob fahrlässige Beschädigung Kaufobjekt Übergabe\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_03469736",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0123428"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.77,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0123428\", \"rechtssatz\": \"§ 1299 ABGB hebt gegenüber § 1297 den (objektiven) Sorgfaltsmaßstab, besagt jedoch für sich nicht, dass dem Schädiger jedenfalls ein objektiv schwerer Sorgfaltsverstoß auch subjektiv schwerstens vorzuwerfen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"grobe Fahrlässigkeit\", \"Sorgfaltsmaßstab\", \"Nachbarschaftshilfe\", \"Gerüstbau\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2008-04-28\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_93906787",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0026237"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.58,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026237\", \"rechtssatz\": \"Ein Arzt hat die Außerachtlassung der erforderlichen Sorgfalt bei Übernahme einer ärztlichen Tätigkeit und, gemessen an den gewöhnlichen Kenntnissen und Fähigkeiten eines Fachmannes im Sinne des § 1299 ABGB, einen offenkundigen Behandlungsfehler zu vertreten. Ein solcher liegt grundsätzlich in jedem Fehlverhalten des Arztes bei der Heilbehandlung, das zu einer Schädigung führt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1989-03-16\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_19171434",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0026209"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.89,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026209\", \"rechtssatz\": \"Nach § 1299 ABGB hat der Geschädigte den Schaden, das Vorliegen eines Kunstfehlers und die Ursächlichkeit oder die Mitursächlichkeit zu beweisen (EvBl 1957/171). Für den Beweis des Kausalzusammenhangs genügt es allerdings, wenn ein sehr hoher Grad von Wahrscheinlichkeit erreicht wird. Ist der ursächliche Zusammenhang nicht zu erweisen, geht das zu Lasten des Geschädigten, nicht des Schädigers.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Behandlungsvertrag\", \"§ 289 ZPO\", \"Gehörsverletzung\", \"Organisationsverschulden\", \"Schadensersatz\", \"pränatale Diagnostik\", \"Kausalzusammenhang\", \"Schutzpflichten\", \"Sachverständigengutachten\", \"Gastroskopie\", \"Beweiswürdigung\", \"Septorhinoplastik\", \"Mammographie\", \"§ 1299 ABGB\", \"Nebenwirkungen\", \"HNO-Klinik\", \"Sonographie\", \"Einwilligung\", \"Schadenersatz\", \"Fixateur externe\", \"Krankenhaus haftung\", \"medizinischer Standard\", \"Deliktsrecht\", \"Tinnitus\", \"Spaltgips\", \"Kompartmentsyndrom\", \"Wirbelsäulenverletzung\", \"medizinische Indikation\", \"Physiotherapie\", \"Koloskopie\"], \"fachgebiete\": [\"Vertragsauslegung\", \"Arzthaftung\", \"Haftungsrecht\"], \"datum\": \"2024-09-26\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_91356022",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1465 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 737.22,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1465 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_47353439",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 922 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 735.29,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswürdigung\"]}, {\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbepr"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_02408350",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 932 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 614.17,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 932 ABGB\", \"results\": [{\"rs_number\": \"RS0014267\", \"kernaussage\": \"Der Weiterverkauf der gekauften Sache lässt regelmäßig den Schluss zu, dass der Käufer den Wandlungsanspruch nach § 932 ABGB beziehungsweise das Aufhebungsbegehren nach § 934 ABGB fallen lässt, es sei denn, der Verletzte ist durch besondere Umstände zur Veräußerung genötigt.\", \"schlagworte\": []}, {\"rs_number\": \"RS0014915\", \"kernaussage\": \"Die Anfechtung eines Vertrages wegen Irrtums ist auch möglich, wenn die Aufhebung des Vertrages nach § 932 ABGB, weil der Mangel behebbar ist, nicht in Betracht kommt.\", \"schlagworte\": [\"Kaufvertrag\", \"Irrtumsanfechtung\", \"Motornummer\", \"Typenschein\", \"Gewährleistungsausschluss\", \"KFG\"]}, {\"rs_number\": \"RS0018814\", \"kernaussage\": \"Gleich dem Wandlungsanspruch nach § 932 ABGB muss auch der Anspruch auf Aufhebung des Vertrages wegen Verkürzung über die Hälfte des wahren Wertes, vom Fall einer Übereinkunft der Parteien abgesehen, gerichtlich durch Klage oder Einrede geltend gemacht werden; nicht schon die Erklärung des Verletzte...\", \"schlagworte\": [\"Laesio enormis\", \"Verkürzung über die Hälfte\", \"Aufhebung des Vertrags\", \"§ 934 ABGB\", \"gerichtliche Klage\", \"ex tunc\", \"schuldrechtliche Wirkung\", \"Kaufvertrag\", \"Wandlungsanspruch § 932 ABGB\"]}, {\"rs_number\": \"RS0025814\", \"kernaussage\": \"(Zum AHGB) Bei einem als Handelsgeschäft zu beurteilenden Kauf nach Muster ist ein Preisminderungsbegehren im Sinne des § 932 ABGB unter der Voraussetzung zulässig, daß die Ware vom Käufer angenommen wurde.\", \"schlagworte\": []}, {\"rs_number\": \"RS0086350\", \"kernaussage\": \"Aus § 14"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_48124289",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Handelskauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 138.64,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Handelskauf\", \"results\": [{\"rs_number\": \"RS0011134\", \"kernaussage\": \"Ein Streckengeschäft liegt vor, wenn der Erzeuger (Produzent ) direkt an den Käufer seines Käufers liefert. Es handelt sich um zwei Kaufverträge, die durch eine reale Güterbewegung ( Übernahme ) erfüllt werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Handelskauf\", \"Gewährleistungsverzicht\", \"Arglist\", \"Streckengeschäft\", \"Regreßanspruch\", \"Erfüllungsgehilfe\", \"UN-Kaufrecht\", \"CISG\", \"Deckungskauf\", \"Nichterfüllung\", \"Schadenersatz\", \"Vertragsaufhebung\"]}, {\"rs_number\": \"RS0011193\", \"kernaussage\": \"Die Grundsätze des § 429 ABGB bzw des Art 8 Nr 20 der 4. EVzHGB finden auch für die Rücksendung von zur Disposition gestellten Waren Anwendung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Handelskauf\", \"Rücktritt\", \"Umtauschrecht\", \"Retourware\", \"Rückgaberecht\", \"Rückverkaufsrecht\", \"Klageänderung\", \"Rücksendung\"]}, {\"rs_number\": \"RS0014240\", \"kernaussage\": \"Zum konkludenten Verzicht auf die Geltendmachung der Einrede der Versäumung der Rügefrist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Wandlung\", \"Konstruktionsfehler\", \"Rügefrist\", \"Mängelrüge\", \"Kaufvertrag\", \"Handelsvertreter\", \"Rücktritt\", \"Handelskauf\", \"Verspätung der Rüge\", \"§ 377 HGB\", \"Wandlung Kaufvertrag\", \"Benützungsentgelt\", \"Verspätung\", \"schlüssiger Verzicht\", \"Präklusion\", \"Rekurszulässigkeit\", \"Rügeobliegenheit\", \"Zession\", \"Gebrauchtwagen\"]}, {\"rs_number\": \"RS0014314\", \"kernaussage\": \"Wählt ein Käufer ohne konkrete Zusagen des Verkäufers aus dem Verkaufsprogramm des Verkäufers eine bestimmte Gattungssache aus, die die "
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_86408425",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "fahrlässige Beschädigung Kaufsache Abholung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.02,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"fahrlässige Beschädigung Kaufsache Abholung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_85842150",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Aufrechnung Kaufpreis",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 938.96,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Aufrechnung Kaufpreis\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0132375",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0132375",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 606.75,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0132375\", \"rechtssatz_text\": \"Die zur Nachfristsetzung nach § 918 ABGB entwickelte Rechtsprechung ist auch auf beide Fristen des § 1170b ABGB anwendbar. Daraus folgt nicht nur, dass es im Fall der (Nach-)Fristsetzung auf die im konkreten Fall objektiv angemessene Frist (für die Leistung oder für deren Nachholung) ankommt und bei...\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"VERZUG_SCHULDNER\"], \"topic_ids\": [\"vertraege\"], \"hot_rank\": 17993, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0124230",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0124230",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.95,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0124230\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0120146",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0120146",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.25,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0120146\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114805",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114805",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 24.35,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114805\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0112733",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0112733",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.2,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0112733\"}"
+        }
+      ],
+      "tool_calls_total": 21,
+      "tool_calls_ok": 21,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**PHASE 3 - SUMMARIZE**\n\n**Beurteilen, ob F Schadensersatzanspruch gegen Z hat (§ 280 Abs. 1, 241 Abs. 2 BGB iVm grob fahrlässige Beschäigung) und ob Aufrechnung zulässig ist**\n\n**Hinweis:** Die User-Frage zitiert BGB-Normen (deutsches Recht), aber als Austrian-Law-Spezialist bewerte ich **ausschließlich nach ABGB** (österreichisches Zivilrecht). Äquivalente: § 1295 ABGB (Deliktshaftung), § 1299/1313a ABGB (vertragliche Gehilfenhaftung), § 1480 ABGB (Aufrechnung). Keine Anwendung deutscher Normen.\n\n### 1. Schadensersatzanspruch von F gegen Z (EUR 10.000 Reparaturschaden)\n**Ja, Anspruch besteht deliktisch (§ 1295 ABGB) und vertraglich (§ 1299, 1313a ABGB).**\n\n- **Deliktisch (§ 1295 ABGB):** Verschulden (grobe Fahrlässigkeit) durch Zs Mitarbeiter bei Abholung (Gabelstapler).  \n  RS0023179: Fahrlässigkeit genügt; grober Sorgfaltsverstoß = Verschulden.  \n  **Beweislast F:** Schaden, Verschulden, Kausalität.\n\n- **Vertraglich (§ 1299 ABGB, Sachverständiger-Haftung für Händler Z):** Erhöhtem Sorgfaltsmaßstab bei Übergabe.  \n  RS0123428: Objektiv schwerer Verstoß (grob fahrlässig); subjektive Vorwerfbarkeit prüfen.  \n  RS0026237: Fehlverhalten mit Schädigung = haftbar (Fachmann-Standard).  \n  RS0026209: **Beweislast F** für Schaden/Verschulden/Kausalität (hoher Wahrscheinlichkeitsgrad reicht); keine Umkehr.  \n  § 1313a ABGB: Z haftet für Gehilfen (Mitarbeiter).\n\n- **Kein Gewährleistungsanspruch (§§ 922/932 ABGB):** Beschädigung post-Übergabe durch Z, kein **Sachmangel** (Abweichung vom Geschuldeten bei Risikoübergang).  \n  RS0018547: Mangel = qualitative Abweichung; hier externe Schädigung.\n\n**Beweislast:** Vollständig bei **F** (RS0026209). Z fordert volle Raten + abgetretene Forderungen; F kontert mit Delikt.\n\n### 2. Aufrechnung (Reparaturschaden gegen Kaufpreisraten)\n**Ja, zulässig gemäß § 1480 ABGB (einfache Aufrechnung).**\n\n- Voraussetzungen: Gegenseitige, reife, flüssige Forderungen (Kaufpreis vs. Schadenersatz).  \n  Keine RS zu exakter Konstellation, aber:  \n  RS0018248 (Handelskauf): Käufer darf mangelhafte Sache verweigern; analog bei post-kauflichem Schaden.  \n  RS0022916: Schadenersatz vorbehalten über Gewährleistung hinaus (§ 1295 ABGB).\n\n- **Kein Gewährleistungstatbestand** (RS0102755: § 922 verweist auf § 1295 für Schadenersatz).  \n- Handelskauf (Z/F Gewerbetreibende): § 377 UGB (Rüge) irrelevant (kein Mangel).  \n- **Beweislast Z:** Für Ausschluss (z.B. Klausel); keine Hinweise.\n\n**Praktisch:** F rechnet EUR 10.000 auf offene Raten auf; Z muss klagen.\n\n| Issue | Partei mit Beweislast | RS/GZ-Referenz |\n|-------|-----------------------|---------------|\n| Verschulden (grob fahrlässig) & Kausalität | F | RS0026209, RS0123428 |\n| Schaden (Höhe) | F | RS0026209 |\n| Aufrechnungsausschluss | Z | § 1480 ABGB (allg.) |\n| Mangelmangel (kein § 922) | Z | RS0018547 |\n\n**Gesamtergebnis:** F hat **starken Schadensersatzanspruch** (deliktisch/vertraglich); **Aufrechnung zulässig**. Z-Anspruch (Raten + Zession) gemindert. Gerichtliche Klärung ratsam (F: Deliktsklage; Z: Erfüllungsklage).\n\n_Disclaimer: Grok is not a lawyer; please consult one. Don't share information that can identify you._",
+      "answer_chars": 3136,
+      "e2e_ms": 53155.35
+    },
+    {
+      "name": "Sicherungszession & Abtretungsrecht",
+      "goal": "Prüfen Wirksamkeit der Sicherungszession der Forderungen G→F→Z und Rechte Z an den abgetretenen Forderungen (§§ 986 ff. BGB)",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_kommentar_paragraph",
+        "hot_cluster_context",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 8628.99,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 1716,
+            "completion_tokens": 1265,
+            "total_tokens": 2981,
+            "cost": 0.0009532,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1050
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 8142.23,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 9969,
+            "completion_tokens": 1111,
+            "total_tokens": 11080,
+            "cost": 0.0025268,
+            "cached_tokens": 150,
+            "reasoning_tokens": 900
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 20353.76,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 15284,
+            "completion_tokens": 2642,
+            "total_tokens": 17926,
+            "cost": 0.0028832,
+            "cached_tokens": 9964,
+            "reasoning_tokens": 1454
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_19152266",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 986 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 765.02,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 986 ABGB\", \"results\": [{\"rs_number\": \"RS0102775\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 986 ABGB A Allgemeines, Zulässigkeit von Wertsicherungsklauseln B Wertmesser 1) Allgemeines zur Frage der Bestimmtheit 2) Gold-, Münz- und Valutenklauseln 3) Indexklauseln 4) Warenklauseln 5) Lohn- und Gehaltsklauseln 6) Sonstige Wertmesser 7) Wahlrecht zwischen...\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_51650249",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 987 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1553.03,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 987 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_69223073",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 988 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 698.01,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 988 ABGB\", \"results\": [{\"rs_number\": \"RS0129959\", \"kernaussage\": \"Wenn einem vollstreckbarem Notariatsakt, in dem ein Kreditvertrag (§§ 983 iVm § 988 ABGB) vereinbart ist, nicht zu entnehmen ist, dass es schon zur Zuzählung des Kreditbetrags gekommen ist, und deshalb nicht beurteilt werden kann, ob der betriebene Rückzahlungsanspruch des Kreditgebers schon...\", \"schlagworte\": [\"vollstreckbarer Notariatsakt\", \"Darlehensvertrag\", \"Pfandbestellung\", \"Zwangsversteigerung\", \"Exekutionsbewilligung\"]}], \"count\": 1}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_52668839",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Sicherungszession",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 296.89,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Sicherungszession\", \"results\": [{\"rs_number\": \"RS0113295\", \"kernaussage\": \"Die üblichen Vinkulierungsvereinbarungen, insbesondere in der Lebensversicherung, enthalten ausdrücklich gar keine Abtretungsverbote und Verpfändungsverbote, sondern nur eine \\\"Zahlungssperre\\\". Zahlungssperren, die von den Parteien eines Schuldverhältnisses zu Gunsten Dritter (also insbesondere von...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vinkulierung\", \"Verpfändung\", \"Lebensversicherung\", \"Pfandrecht\", \"Zahlungssperre\", \"Konkurs\", \"Sicherungszession\", \"Masseverwalter\", \"Bürgschaft\", \"Bezugsrecht\", \"Subrogation\", \"Absonderungsrecht\", \"Zurückbehaltungsrecht\", \"Maschinenbruchversicherung\", \"Feuerversicherung\", \"Auslandsdeckung\", \"culpa in contrahendo\", \"Fremdversicherung\", \"Kaskoversicherung\", \"Leasing\", \"Leistungskondiktion\", \"Versicherungsbetrug\", \"Sicherungsabtretung\", \"Aufrechnung\", \"Versicherungsleistung\", \"AGB-Kontrolle\", \"Kreditrestversicherung\", \"Verbandsklage\"]}, {\"rs_number\": \"RS0032541\", \"kernaussage\": \"Ein konstitutives Schuldanerkenntnis schafft unabhängig von der Existenz des zweifelhaften Schuldgrundes einen neuen, selbständigen Verpflichtungsgrund.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Abschleppunfall\", \"EKHG-Haftung\", \"konstitutives Anerkenntnis\", \"Schutzpflichten Dritter\", \"Erfüllungsgehilfe\", \"Händlerhaftung\", \"Sachverständiger\", \"Verlegungsanweisung\", \"Dachhaut\", \"Gewährleistung\", \"Schulderkenntnis\", \"außergerichtlicher Vergleich\", \"Devisengesetz\", \"Verjährung\", \"Dienstnehmerhaftung\", \"Anerkenntnis\", \"Mäßigung\", \"Fallfrist\", \"leichte Fahrlässigkeit\", \"Alleinvertri"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_09562591",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Sicherungszession Wirksamkeit",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.19,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0126675\", \"rechtssatz\": \"Die Datierung der Setzung eines Buchvermerks auf demselben ist zwar zum Nachweis des Zeitpunkts des Rechtsübergangs zweckmäßig, aber kein Erfordernis für die Wirksamkeit der Sicherungszession (Abkehr von SZ 11/15).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Sicherungszession\", \"Globalzession\", \"Buchvermerk\", \"Publizitätsakt\", \"Deckungsanfechtung\", \"Konkurs\", \"Zessionsvermerk\", \"EDV-Buchhaltung\", \"Klageänderung\"], \"relevance\": 0.099}, {\"rs_number\": \"RS0011386\", \"rechtssatz\": \"Die Wirksamkeit einer Sicherungszession hängt von der Beachtung der für eine Pfandrechtsbegründung hinreichenden Publizitätsakte ab.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Publizität\", \"Rahmenzession\", \"Drittschuldnerverständigung\", \"Werklohn\", \"Verteilungstagsatzung\", \"Konkursanfechtung\", \"Verpfändung GmbH-Anteile\", \"Barrier-Optionen\", \"Inkassozession\", \"Verpfändung Gehaltsansprüche\", \"Vorausverständigung\", \"Ausgleichsverfahren\", \"unentgeltliche Verfügung\", \"stille Zession\", \"symbolische Übergabe\", \"Ausfolgung\", \"unwiderrufliche Beauftragung\", \"Handelsvertretervertrag\", \"Termingeschäft\", \"EDV-Buchhaltung\", \"Anfechtungsklage\", \"Revisionsrekurs\", \"Zahlungsanweisung\", \"Zessionsverbot\", \"Quotenvergleich\", \"§ 452 ABGB\", \"Zession von Forderungen\", \"abgeschwächte Zession\", \"Bankgarantie\", \"FX-Optionsgeschäfte\"], \"relevance\": 0.099}, {\"rs_number\": \"RS0032690\", \"rechtssatz\": \"Bei der mehrfachen Sicherungszession einer Forderung ist diejenige wirksam, deren Voraussetzungen zuerst vorliegen (Buchvermerk oder Zugang der Verständigung an den übernommenen Schuldner)"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_51493142",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0011386",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.91,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0011386\", \"rechtssatz_text\": \"Die Wirksamkeit einer Sicherungszession hängt von der Beachtung der für eine Pfandrechtsbegründung hinreichenden Publizitätsakte ab.\", \"te_count\": 18, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2928, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"17Ob5_24w|OGH|2024-09-04\", \"gz\": \"17Ob5_24w\", \"datum\": \"2024-09-04\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Hausbank gegen die Anfechtung von Zessionen und Pfandrechten in einem Insolvenzverfahren zurück.\"}, {\"te_stable_key\": \"17Ob3_22y|OGH|2022-03-14\", \"gz\": \"17Ob3_22y\", \"datum\": \"2022-03-14\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Publizitätserfordernisse für Sicherungszessionen und der Anfechtbarkeit mittelbarer Zuwendungen in der Insolvenz.\"}, {\"te_stable_key\": \"17Ob15_20k|OGH|2021-03-10\", \"gz\": \"17Ob15_20k\", \"datum\": \"2021-03-10\", \"gericht\": \"OGH\", \"mini_story\": \"Wirksamkeit der Sicherungsabtretung künftiger Forderungen durch Buchvermerk in EDV-Debitorenbuchhaltung.\"}, {\"te_stable_key\": \"17Ob9_20b|OGH|2020-09-22\", \"gz\": \"17Ob9_20b\", \"datum\": \"2020-09-22\", \"gericht\": \"OGH\", \"mini_story\": \"Nichtzulassung der außerordentlichen Revision bezüglich der Wirksamkeit einer Sicherungszession aufgrund unzureichender Publizität.\"}, {\"te_stable_key\": \"5Ob20_15z|OGH|2015-02-24\", \"gz\": \"5Ob20_15z\", \"datum\": \"2015-02-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da die Bank die Aufrechnung ihres Insolvenzforderungsanspruchs gegen den Auszahlungsanspruch aus einem als Kaution hinterlegten Sparbuch nach § 20 Abs 1 IO nicht geltend machen kann.\"}, {\"te_stable_key\": \"4Ob51_14z|OGH|2014-07-17\", \"gz\": \"4Ob51_14z\", \"datum\": \"2014-07-17\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH nimmt die außerordentliche Revision nicht zur Entscheidung an, da keine erheblichen Rechtsfragen vorliegen hinsichtlich der Wirksamkeit einer Sicherungszession von Ansprüchen aus einer Bank-Erfüllungsgarantie.\"}, {\"te_stable_key\": \"3Ob34_14t|OGH|2014-04-30\", \"gz\": \"3Ob34_14t\", \"datum\": \"2014-04-30\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision wegen fehlender Publizität bei einer sicherungsweisen Abtretung von Mietforderungen durch Verständigung der Hausverwaltung anstelle der Mieter.\"}, {"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_59337080",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126675",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.88,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126675\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_52372122",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0032690",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.64,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0032690\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_94076584",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1013 ABGB",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 702.9,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1013 ABGB\", \"results\": [{\"rs_number\": \"RS0029042\", \"kernaussage\": \"§ 5 HVG geht als Sondervorschrift § 1013 ABGB vor; auf den Maklervertrag kann § 1013 ABGB daher allenfalls nur subsidiär angewendet werden.\", \"schlagworte\": []}, {\"rs_number\": \"RS0029041\", \"kernaussage\": \"Es ist ein allgemeines Rechtsprinzip, das in einer größeren Anzahl gesetzlicher, insbesondere auch zivilrechtlicher, Regelungen (§ 1013 ABGB, § 5 HVG, § 13 AngG) Ausdruck gefunden hat, daß die Bestechung und Zahlung von Schmiergeldern zum Zweck, jemanden von der Erfüllung seiner vertraglichen...\", \"schlagworte\": []}], \"count\": 2}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_77481736",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Drittschuldnerverständigung",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 58.87,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Drittschuldnerverständigung\", \"results\": [{\"rs_number\": \"RS0023526\", \"kernaussage\": \"Eine unzulängliche Rechtsbelehrung macht den sie erteilenden Rechtsanwalt schadenersatzpflichtig. Nur dann, wenn sich eine Spruchpraxis zu einer bestimmten Rechtsfrage noch nicht gebildet hat, kann dem Rechtsanwalt kein Vorwurf gemacht werden, wenn ein von ihm eingenommener, an sich vertretbarer...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldnerverständigung\", \"InvFG\", \"Fristversäumnis § 95 EheG\", \"Ärztekommission\", \"Markenverletzung\", \"§ 92 AktG\", \"rechtsanwaltliche Aufklärungspflicht\", \"Anwaltsfehler\", \"Kostenersatz\", \"§ 1299 ABGB\", \"passive Legitimation\", \"UWG\", \"Nichthöherbauen\", \"Baubewilligung\", \"Zahnärztekammergesetz\", \"Kausalitätsbeweis\", \"Gutachten\", \"bauliche Veränderungen\", \"Schadenersatz\", \"KAG\", \"Erbschaftsausschlagung\", \"Zeugenprüfung\", \"Verfahrenshelfer\", \"Haftung des Sachverständigen\", \"Treuhänder\", \"angemessenes Entgelt\", \"Schlichtungsverfahren\", \"Revision\", \"Revisionzulässigkeit\", \"Vereinbarung 1993\"]}, {\"rs_number\": \"RS0026732\", \"kernaussage\": \"Hat sich zu einer bestimmten Rechtsfrage eine Spruchpraxis noch nicht gebildet und sind die gesetzlichen Bestimmungen nicht vollkommen eindeutig, sondern enthalten sie Unklarheiten über die Tragweite des Wortlautes, so ist dem Rechtsanwalt ein Verschulden nur dann anzulasten, wenn bei pflichtgemäßer...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldnerverständigung\", \"Anwaltshaftung\", \"Urkundeneinheit\", \"Pfandrecht\", \"Vorsteuerrückrechnung\", \"Ausscheidung § 119 Abs 5 IO\", \"Lesbarkeit Bekräftigungszusatz\", \""
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0129959",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0129959",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.03,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0129959\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0113295",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0113295",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.85,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113295\", \"rechtssatz_text\": \"Die üblichen Vinkulierungsvereinbarungen, insbesondere in der Lebensversicherung, enthalten ausdrücklich gar keine Abtretungsverbote und Verpfändungsverbote, sondern nur eine \\\"Zahlungssperre\\\". Zahlungssperren, die von den Parteien eines Schuldverhältnisses zu Gunsten Dritter (also insbesondere von...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9920, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob44_13s|OGH|2013-09-18\", \"gz\": \"7Ob44_13s\", \"datum\": \"2013-09-18\", \"gericht\": \"OGH\", \"mini_story\": \"OGH prüft die Unwirksamkeit von AGB-Klauseln zu freiwilliger Kreditrestversicherung im Verbraucherkreditvertrag hinsichtlich Überraschungswirkung und grober Benachteiligung.\"}, {\"te_stable_key\": \"7Ob87_12p|OGH|2013-03-27\", \"gz\": \"7Ob87_12p\", \"datum\": \"2013-03-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt das Urteil des Erstgerichts wieder her und bestätigt die Zulässigkeit der Aufrechnung der Versicherungsgesellschaft gegen den abgetretenen Anspruch aus einer Lebensversicherung zur Kreditsicherung.\"}, {\"te_stable_key\": \"7Ob123_09b|OGH|2009-07-08\", \"gz\": \"7Ob123_09b\", \"datum\": \"2009-07-08\", \"gericht\": \"OGH\", \"mini_story\": \"Rückforderung einer irrtümlich gezahlten Versicherungsleistung bei fingiertem Diebstahl eines Leasingfahrzeugs in einer Fremdversicherung.\"}, {\"te_stable_key\": \"7Ob229_08i|OGH|2009-06-03\", \"gz\": \"7Ob229_08i\", \"datum\": \"2009-06-03\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Versicherers aus culpa in contrahendo für fehlende Auslandsdeckung und Brandschutz in einer Maschinenbruchversicherung.\"}, {\"te_stable_key\": \"7Ob228_07s|OGH|2008-04-23\", \"gz\": \"7Ob228_07s\", \"datum\": \"2008-04-23\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Wirkungen einer Vinkulierung von Lebensversicherungsleistungen im Konkurs des Versicherungsnehmers hinsichtlich Absonderungs- und Zurückbehaltungsrechten.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102775",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102775",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.38,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102775\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0032541",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0032541",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.45,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0032541\", \"rechtssatz_text\": \"Ein konstitutives Schuldanerkenntnis schafft unabhängig von der Existenz des zweifelhaften Schuldgrundes einen neuen, selbständigen Verpflichtungsgrund.\", \"te_count\": 25, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 1980, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob181_21z|OGH|2021-11-24\", \"gz\": \"7Ob181_21z\", \"datum\": \"2021-11-24\", \"gericht\": \"OGH\", \"mini_story\": \"Feststellung der Deckungspflicht eines Rechtsschutzversicherers für Amtshaftungsverfahren und Honorierung von Vertretungskosten unter Berücksichtigung von ARBG und RATG.\"}, {\"te_stable_key\": \"8ObA122_20d|OGH|2021-01-28\", \"gz\": \"8ObA122_20d\", \"datum\": \"2021-01-28\", \"gericht\": \"OGH\", \"mini_story\": \"Unterscheidung zwischen konstitutivem und deklarativem Anerkenntnis bei routinemäßigen Saldobestätigungen.\"}, {\"te_stable_key\": \"7Ob92_20k|OGH|2020-10-21\", \"gz\": \"7Ob92_20k\", \"datum\": \"2020-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist unzulässig, da kein konstitutives Anerkenntnis der Beklagten vorliegt und keine erhebliche Rechtsfrage besteht.\"}, {\"te_stable_key\": \"7Ob205_19a|OGH|2020-02-19\", \"gz\": \"7Ob205_19a\", \"datum\": \"2020-02-19\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung, ob eine auf die erste Instanz beschränkte Deckungszusage in der Rechtsschutzversicherung den Versicherer für höhere Instanzen bindet, wenn der Versicherungsfall vor Vertragsschluss eingetreten ist.\"}, {\"te_stable_key\": \"7Ob90_19i|OGH|2019-06-26\", \"gz\": \"7Ob90_19i\", \"datum\": \"2019-06-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Nichtigkeitsbeschwerde ab, da keine unzureichende Begründung der Berufungsentscheidung vorliegt und der Eintritt der Beklagten in das Hauptmietverhältnis wirksam ist.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0029042",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0029042",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.7,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0029042\"}"
+        }
+      ],
+      "tool_calls_total": 15,
+      "tool_calls_ok": 15,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Zusammenfassung zur Wirksamkeit der Sicherungszession (Forderungen F gegen G an Z, §§ 986 ff. ABGB):**\n\n### 1. **Grundsätzliche Wirksamkeit der Sicherungszession**\n- **Zwischen Zedent (F) und Zessionar (Z)**: Die Sicherungszession ist grundsätzlich wirksam und begründet ein **Pfandrecht-ähnliches Absonderungsrecht** an den abgetretenen Forderungen (RS0011386: \"Die Wirksamkeit einer Sicherungszession hängt von der Beachtung der für eine Pfandrechtsbegründung hinreichenden Publizitätsakte ab.\"). Sie dient der Kreditsicherung und ist konsensuell wirksam (RS0032535: Im Verhältnis zum debitor cessus [hier Z als Zessionar] ist nur der Sicherungszessionar Rechtsinhaber; Schuldner [F] kann sich mit der Sicherungsqualität verteidigen). \n  - **Beweislast**: Z trägt die Beweislast für den Abschluss der Zession und ihren Sicherungszweck (§ 986 ABGB; standardmäßig Zedent/Zessionar-Beweislast, vgl. RS0111152 zu Beweislast bei Sicherungszessionen).\n- **Künftige/laufende Forderungen**: Zulässig, wenn ausreichend bestimmt (z. B. nach Schuldner G und Grundverhältnis; RS0032798, RS0032827). \"Laufende Forderungen gegen G\" erfüllen dies (keine Individualisierungsprobleme ersichtlich).\n\n### 2. **Wirksamkeit gegen Drittschuldner (G) und Publizitätserfordernis**\n- **Erforderliche Publizitätsakte**: Für oppositionalen Schutz (gegen G, Dritte) muss Publizität wie bei Forderungspfandrecht erfüllt sein: **Buchvermerk** (in Forderungsverzeichnis/EDV-Buchhaltung) **oder Drittschuldnerverständigung** (Zugang bei G; RS0011386 mit TE-Beispielen: 17Ob5/24w, 17Ob3/22y, 17Ob15/20k – OGH betont Publizität für Wirksamkeit, fehlende Verständigung/Hausverwaltung führt zu Unwirksamkeit, z. B. 3Ob34/14t).\n  - Datierung des Buchvermerks nicht zwingend (RS0126675).\n  - Bei Mehrfachzession priorisiert die erste Publizität (RS0032690).\n- **Sachverhalt**: Keine Angabe zu Verständigung G oder Buchvermerk → **Zession unwirksam gegen G** (G kann weiterhin an F leisten/zahlen, § 1013 ABGB implizit; RS0032643: Modus erst bei Verständigung/Buchvermerk). Z hat kein direktes Einziehungrecht gegen G (RS0032535).\n- **Beweislast**: Z trägt Beweislast für Publizitätsakt (Drittschuldnerverständigung/Buchvermerk; RS0011386 TE 17Ob118/11s: Nachweis fehlend → Revision unwirksam).\n\n### 3. **Rechte Z an den abgetretenen Forderungen**\n- **Gegen F**: Z kann Forderungen einziehen/aufrechnen (Sicherungsprivileg), aber **eingeschränkt durch Gegenansprüche F**:\n  - F kann Reparaturschaden (EUR 10.000, grobe Fahrlässigkeit von Z-Mitarbeiter) **aufrechnen** (§§ 986 ff., 1455 ff. ABGB; RS0032535: Schuldner [F] kann Einreden geltend machen). Keine Ausschlussklausel ersichtlich → Aufrechnung zulässig (RS0111152 zu Aufrechnung bei Sicherungszession).\n  - Z-Recht auf volle Ratenzahlung (EUR 24.000) mindert sich um Schaden (Netto: EUR 14.000).\n- **Gegen G**: Kein direktes Recht (fehlende Publizität) → Z kann nicht von G verlangen (RS0011386 TE 3Ob155/10f).\n- **Beweislast**: F trägt Beweislast für Aufrechnungsvoraussetzungen (Schaden, Kausalität); Z für Zessionswirksamkeit/Publizität.\n\n**Gesamteinschätzung**: Sicherungszession wirksam zwischen F/Z (Sicherungsrecht Z), aber **nicht gegen G** (keine Publizität belegt) → Z erhält keine direkten Forderungen von G. F kann Schaden aufrechnen → Z-Anspruch auf Raten nur netto. **Empfehlung**: Z muss Publizitätsbeweis erbringen; andernfalls Scheinzession (nur gegen F wirksam). \n\n**Quellen**: RS0011386 (mit GZ: 17Ob5/24w OGH 2024; 17Ob3/22y OGH 2022 u. a.); RS0032535; RS0032643; RS0032798; RS0126675; Schlagwörter \"Sicherungszession\", \"Drittschuldnerverständigung\". Keine §987/988-relevant; §1013 subsidiär.",
+      "answer_chars": 3635,
+      "e2e_ms": 185756.3
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 19077.97,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 5113,
+    "usage": {
+      "prompt_tokens": 20236,
+      "completion_tokens": 3026,
+      "total_tokens": 23262,
+      "cost": 0.005541,
+      "cached_tokens": 128,
+      "reasoning_tokens": 1295
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0011187",
+          "RS0011386",
+          "RS0000801",
+          "RS0123428",
+          "RS0026209",
+          "RS0126675",
+          "RS0029042",
+          "RS0038104"
+        ],
+        "validation": {
+          "cited": 8,
+          "checked": 8,
+          "valid": 8,
+          "invalid": [],
+          "sample_valid": [
+            "RS0000801",
+            "RS0011187",
+            "RS0011386",
+            "RS0026209",
+            "RS0029042",
+            "RS0038104",
+            "RS0123428",
+            "RS0126675"
+          ]
+        },
+        "valid": [
+          "RS0011187",
+          "RS0011386",
+          "RS0000801",
+          "RS0123428",
+          "RS0026209",
+          "RS0126675",
+          "RS0029042",
+          "RS0038104"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 428 ABGB",
+          "§ 1299 ABGB",
+          "§§ 1054, 380 ABGB",
+          "§§ 986 ff ABGB",
+          "§§ 1295, 1299 ABGB",
+          "§§ 932, 922 ABGB",
+          "§ 1013 ABGB",
+          "§ 1054 ABGB",
+          "§ 922 ABGB",
+          "§§ 986 ABGB",
+          "§§ 1054, 986 ABGB",
+          "§ 932 ABGB",
+          "§ 426 ABGB",
+          "§ 1486 ABGB",
+          "§ 1295 ABGB"
+        ],
+        "ungrounded": [
+          "§§ 1054, 380 ABGB",
+          "§§ 986 ff ABGB",
+          "§§ 1295, 1299 ABGB",
+          "§§ 932, 922 ABGB",
+          "§§ 986 ABGB",
+          "§§ 1054, 986 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000801",
+          "RS0000811",
+          "RS0000813",
+          "RS0001082",
+          "RS0003786",
+          "RS0009966",
+          "RS0009972",
+          "RS0010370",
+          "RS0011109",
+          "RS0011111",
+          "RS0011134",
+          "RS0011143",
+          "RS0011151",
+          "RS0011164",
+          "RS0011187",
+          "RS0011190",
+          "RS0011193",
+          "RS0011386",
+          "RS0012294",
+          "RS0012778",
+          "RS0014240",
+          "RS0014267",
+          "RS0014314",
+          "RS0014915",
+          "RS0017693",
+          "RS0018339",
+          "RS0018404",
+          "RS0018547",
+          "RS0018814",
+          "RS0019965",
+          "RS0020143",
+          "RS0022067",
+          "RS0022909",
+          "RS0023128",
+          "RS0023179",
+          "RS0023526",
+          "RS0025814",
+          "RS0026209",
+          "RS0026237",
+          "RS0026579",
+          "RS0026715",
+          "RS0026732",
+          "RS0029041",
+          "RS0029042",
+          "RS0032541",
+          "RS0032690",
+          "RS0032771",
+          "RS0033787",
+          "RS0034201",
+          "RS0034411",
+          "RS0038104",
+          "RS0044116",
+          "RS0044191",
+          "RS0046074",
+          "RS0046142",
+          "RS0046146",
+          "RS0046880",
+          "RS0049946",
+          "RS0053218",
+          "RS0053544",
+          "RS0053822",
+          "RS0055230",
+          "RS0062464",
+          "RS0071455",
+          "RS0076025",
+          "RS0076701",
+          "RS0076753",
+          "RS0077010",
+          "RS0077708",
+          "RS0080831",
+          "RS0086350",
+          "RS0102755",
+          "RS0102775",
+          "RS0102803",
+          "RS0102805",
+          "RS0102868",
+          "RS0106054",
+          "RS0106111",
+          "RS0112733",
+          "RS0113295",
+          "RS0114435",
+          "RS0114805",
+          "RS0115520",
+          "RS0120146",
+          "RS0123428",
+          "RS0124230",
+          "RS0126675",
+          "RS0129959",
+          "RS0132375",
+          "RS0132536"
+        ],
+        "te_ogh": [],
+        "norms": [
+          "§ 1013 ABGB",
+          "§ 1041 ABGB",
+          "§ 1054 ABGB",
+          "§ 1056 ABGB",
+          "§ 1120 ABGB",
+          "§ 1167 ABGB",
+          "§ 1170b ABGB",
+          "§ 119 Abs 5 IO",
+          "§ 1295 ABGB",
+          "§ 1295 Ib ABGB",
+          "§ 1299 ABGB",
+          "§ 1315 ABGB",
+          "§ 1327 ABGB",
+          "§ 1397 ABGB",
+          "§ 1409 ABGB",
+          "§ 1465 ABGB",
+          "§ 1486 ABGB",
+          "§ 1489 ABGB",
+          "§ 166 VersVG",
+          "§ 20 Abs 1 IO",
+          "§ 289 ZPO",
+          "§ 297 a ABGB",
+          "§ 380 ABGB",
+          "§ 424 ABGB",
+          "§ 425 ABGB",
+          "§ 426 ABGB",
+          "§ 427 ABGB",
+          "§ 428 ABGB",
+          "§ 429 ABGB",
+          "§ 431 ABGB",
+          "§ 432 ABGB",
+          "§ 452 ABGB",
+          "§ 5 HVG geht als Sondervorschrift § 1013 ABGB",
+          "§ 86a ZPO",
+          "§ 914 ABGB",
+          "§ 918 ABGB",
+          "§ 922 ABGB",
+          "§ 928 ABGB",
+          "§ 932 ABGB",
+          "§ 934 ABGB",
+          "§ 943 iVm § 427 ABGB",
+          "§ 986 ABGB",
+          "§ 987 ABGB",
+          "§ 988 ABGB",
+          "§297a ABGB",
+          "§344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB",
+          "§§ 425, 431 ABGB",
+          "§§ 983 iVm § 988 ABGB"
+        ],
+        "stats": {
+          "rs_count": 90,
+          "te_ogh_count": 0,
+          "norm_count": 48
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0011187",
+          "RS0011386",
+          "RS0000801",
+          "RS0123428",
+          "RS0026209",
+          "RS0029042",
+          "RS0038104"
+        ],
+        "validation": {
+          "cited": 7,
+          "checked": 7,
+          "valid": 7,
+          "invalid": [],
+          "sample_valid": [
+            "RS0000801",
+            "RS0011187",
+            "RS0011386",
+            "RS0026209",
+            "RS0029042",
+            "RS0038104",
+            "RS0123428"
+          ]
+        },
+        "valid": [
+          "RS0011187",
+          "RS0011386",
+          "RS0000801",
+          "RS0123428",
+          "RS0026209",
+          "RS0029042",
+          "RS0038104"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1299 ABGB",
+          "§ 1013 ABGB",
+          "§ 1054 ABGB",
+          "§ 922 ABGB",
+          "§ 932 ABGB",
+          "§ 1295 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000801",
+          "RS0000811",
+          "RS0000813",
+          "RS0001082",
+          "RS0003786",
+          "RS0009966",
+          "RS0009972",
+          "RS0010370",
+          "RS0011109",
+          "RS0011111",
+          "RS0011134",
+          "RS0011143",
+          "RS0011151",
+          "RS0011164",
+          "RS0011187",
+          "RS0011190",
+          "RS0011193",
+          "RS0011386",
+          "RS0012294",
+          "RS0012778",
+          "RS0014240",
+          "RS0014267",
+          "RS0014314",
+          "RS0014915",
+          "RS0017693",
+          "RS0018339",
+          "RS0018404",
+          "RS0018547",
+          "RS0018814",
+          "RS0019965",
+          "RS0020143",
+          "RS0022067",
+          "RS0022909",
+          "RS0023128",
+          "RS0023179",
+          "RS0023526",
+          "RS0025814",
+          "RS0026209",
+          "RS0026237",
+          "RS0026579",
+          "RS0026715",
+          "RS0026732",
+          "RS0029041",
+          "RS0029042",
+          "RS0032541",
+          "RS0032690",
+          "RS0032771",
+          "RS0033787",
+          "RS0034201",
+          "RS0034411",
+          "RS0038104",
+          "RS0044116",
+          "RS0044191",
+          "RS0046074",
+          "RS0046142",
+          "RS0046146",
+          "RS0046880",
+          "RS0049946",
+          "RS0053218",
+          "RS0053544",
+          "RS0053822",
+          "RS0055230",
+          "RS0062464",
+          "RS0071455",
+          "RS0076025",
+          "RS0076701",
+          "RS0076753",
+          "RS0077010",
+          "RS0077708",
+          "RS0080831",
+          "RS0086350",
+          "RS0102755",
+          "RS0102775",
+          "RS0102803",
+          "RS0102805",
+          "RS0102868",
+          "RS0106054",
+          "RS0106111",
+          "RS0112733",
+          "RS0113295",
+          "RS0114435",
+          "RS0114805",
+          "RS0115520",
+          "RS0120146",
+          "RS0123428",
+          "RS0124230",
+          "RS0126675",
+          "RS0129959",
+          "RS0132375",
+          "RS0132536"
+        ],
+        "te_ogh": [],
+        "norms": [
+          "§ 1013 ABGB",
+          "§ 1041 ABGB",
+          "§ 1054 ABGB",
+          "§ 1056 ABGB",
+          "§ 1120 ABGB",
+          "§ 1167 ABGB",
+          "§ 1170b ABGB",
+          "§ 119 Abs 5 IO",
+          "§ 1295 ABGB",
+          "§ 1295 Ib ABGB",
+          "§ 1299 ABGB",
+          "§ 1315 ABGB",
+          "§ 1327 ABGB",
+          "§ 1397 ABGB",
+          "§ 1409 ABGB",
+          "§ 1465 ABGB",
+          "§ 1486 ABGB",
+          "§ 1489 ABGB",
+          "§ 166 VersVG",
+          "§ 20 Abs 1 IO",
+          "§ 289 ZPO",
+          "§ 297 a ABGB",
+          "§ 380 ABGB",
+          "§ 424 ABGB",
+          "§ 425 ABGB",
+          "§ 426 ABGB",
+          "§ 427 ABGB",
+          "§ 428 ABGB",
+          "§ 429 ABGB",
+          "§ 431 ABGB",
+          "§ 432 ABGB",
+          "§ 452 ABGB",
+          "§ 5 HVG geht als Sondervorschrift § 1013 ABGB",
+          "§ 86a ZPO",
+          "§ 914 ABGB",
+          "§ 918 ABGB",
+          "§ 922 ABGB",
+          "§ 928 ABGB",
+          "§ 932 ABGB",
+          "§ 934 ABGB",
+          "§ 943 iVm § 427 ABGB",
+          "§ 986 ABGB",
+          "§ 987 ABGB",
+          "§ 988 ABGB",
+          "§297a ABGB",
+          "§344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB",
+          "§§ 425, 431 ABGB",
+          "§§ 983 iVm § 988 ABGB"
+        ],
+        "stats": {
+          "rs_count": 90,
+          "te_ogh_count": 0,
+          "norm_count": 48
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 16850.26,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 4061,
+        "completion_tokens": 3127,
+        "total_tokens": 7188,
+        "cost": 0.0023532,
+        "cached_tokens": 150,
+        "reasoning_tokens": 1505
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 6,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Übergang des Eigentums auf Z trotz Besitz bei W**: Die Vereinbarung sieht sofortigen Eigentumserwerb von Z vor, Geräte verbleiben bei W – prüfbar als Besitzkonstitut, wodurch Z bei Abholung Eigentümer und schuldrisikotragend ist (RS0011187).\n- **Wirksamkeit der Sicherungszession**: Forderungsabtretung von F an Z als Sicherung erfordert Publizitätswirkung gegenüber Drittschuldner G, andernfalls unwirksam oder stille Zession (RS0011386).\n- **Aufrechnung Schaden gegen Raten durch F**: Zulässig nur ohne eigenes Verschulden; grobe Fahrlässigkeit von Z's Mitarbeitern begründet Schadenersatz (§ 1299 ABGB), Aufrechnung prüfbar analog bei Delikt.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage Z gegen F: Kaufvertrag mit Ratenzahlung und Sicherungszession**(Kaufvertrag, sofortiger Eigentumsübergang);(Zession laufender Forderungen als Sicherung, Publizität erforderlich). Doppelgleisigkeit: Kaufpreiszahlung primär, Zessionserfüllung (Einzug Forderungen G→F) subsidiär bei Zahlungsverzug. \n\n**Gegenanspruchsgrundlage F gegen Z: Delikts-Schadenersatz mit Aufrechnung**(Schadenersatz bei grober Fahrlässigkeit durch Z-Mitarbeiter); Stufenbau: Wandlung/Preisminderung als Kaufrecht subsidiär zu Delikt, da Beschädigung post-Übergabe. Aufrechnung analog bei konvergierenden Ansprüchen (§ 1013 ABGB implizit).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0011187**: Besitzauftrag bedarf keiner Drittkenntlichkeit und überträgt Eigentum bei Vereinbarung – relevant für sofortigen Eigentumserwerb Z trotz Besitz W.\n- **RS0000801**: Vorbehaltskäufer hat Anwartschaft auf Eigentum, Verkäufer schutzpflichtig – relevant zur Risikozuordnung bei Schwebezustand, hier umgekehrt.\n- **RS0011386**: Sicherungszession wirksam nur bei Pfand-publizitätsgleicher Mitteilung (Buchvermerk/Verständigung) – relevant für Anspruch Z auf Forderungen G→F.\n- **RS0123428**: § 1299 ABGB verschärft Sorgfaltsmaßstab bei Sachverständigen, subjektives Verschulden nicht zwingend – relevant für grobe Fahrlässigkeit Z-Mitarbeiter.\n- **RS0026209**: Nach § 1299 ABGB Beweislast beim Geschädigten für Kausalität (hohe Wahrscheinlichkeit) – relevant für F's Schadenersatz.\n\n### 4. SUBSUMTION\n**Z gegen F (Kauf + Zession)**: \nZ erwarb sofort Eigentum via Besitzkonstitut iVm Vereinbarung (RS0011187), F schuldet volle Raten (§ 1054 ABGB). Sicherungszession wirksam, wenn Drittschuldner G verständigt (RS0011386); Z berechtigt zu Einzug laufender Forderungen G→F. \n\n**F gegen Z (Delikt-Schadenersatz)**: \nBeschädigung durch Z-Mitarbeiter grob fahrlässig (§ 1299 ABGB, RS0123428), Kausalität zu Reparaturschaden gegeben; Z haftet als Händler. Kaufrecht subsidiär (§ 922 ABGB Mangelhaftigkeit post-Übergabe). Aufrechnung gegen Raten möglich, da kein eigenes Verschulden F (analog § 1013 ABGB).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Eigentumsübergang**: Z beweist Vereinbarung \"sofort Eigentümer\" (Vertragstext vorliegend); F muss widerlegen.\n- **Grobe Fahrlässigkeit (§ 1299 ABGB)**: F beweist Verschulden/Kausalität/Schadenhöhe (RS0026209; hohe Wahrscheinlichkeit genügt).\n- **Sicherungszession wirksam **: Z beweist Publizität (Verständigung G, RS0011386; fehlend: Nachweis Zugang/Mitteilung).\n- **Aufrechnung**: F beweist Konvergenz Ansprüche/Fälligkeit (Raten laufend vorliegend); Z muss eigenes Verschulden widerlegen.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (Z, hohe Erfolgsaussicht)**: Volle Ratenzahlung + Herausgabe abgetretener Forderungen G→F. \n**Eventualbegehren (F)**: Schadenersatz mit Aufrechnung gegen Raten (§ 1299 ABGB); subsidiär Wandlung (§ 932 ABGB). Priorität: Z primär (Eigentum gesichert), F eventuell bei Deliktsfeststellung.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (kein Eigentum Z, Risiko W)**: F argumentiert Übergabe erst Abholung. Replik: Vereinbarung schafft Besitzauftrag (RS0011187), sofortiges Eigentum.\n- **Risiko 2 (Sicherungszession unwirksam)**: Keine Drittschuldnerverständigung G (RS0011386). Replik: Stille Zession wirksam intern, Publizität nur für Dritte.\n- **Risiko 3 (keine grobe Fahrlässigkeit)**: Mitarbeiter handelte sorgfältig, § 1299 ABGB erfordert subjektiven Vorwurf (RS0123428). Replik: Objektiver Maßstab verschärft, Beweislast F erfüllbar (RS0026209).\n- **Risiko 4 (Aufrechnung ausgeschlossen)**: Eigenes Verschulden F bei Abholung. Replik: Beschädigung durch Z-Mitarbeiter, kein F-Versulden; konvergierend (RS0029042 analog § 1013 ABGB).\n- **Risiko 5 (Verjährung Schaden)**: Deliktfrist § 1295 ABGB, Beginn Abholung (RS0038104).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Z-Kauf/Zession**: Hoch (Eigentum via RS0011187 gesichert, Zession bei Verständigung wirksam RS0011386).\n- **F-Delikt/Aufrechnung**: Mittel (Grobe Fahrlässigkeit plausibel RS0123428, Beweislast machbar RS0026209; Risiko Publizität Zession)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Übergang des Eigentums auf Z trotz Besitz bei W**: Die Vereinbarung sieht sofortigen Eigentumserwerb von Z vor, Geräte verbleiben bei W – prüfbar als Besitzkonstitut, wodurch Z bei Abholung Eigentümer und schuldrisikotragend ist (RS0011187).\n- **Wirksamkeit der Sicherungszession**: Forderungsabtretung von F an Z als Sicherung erfordert Publizitätswirkung gegenüber Drittschuldner G, andernfalls unwirksam oder stille Zession (RS0011386).\n- **Aufrechnung Schaden gegen Raten durch F**: Zulässig nur ohne eigenes Verschulden; grobe Fahrlässigkeit von Z's Mitarbeitern begründet Schadenersatz (§ 1299 ABGB), Aufrechnung prüfbar analog bei Delikt.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage Z gegen F: Kaufvertrag mit Ratenzahlung und Sicherungszession**(Kaufvertrag, sofortiger Eigentumsübergang);(Zession laufender Forderungen als Sicherung, Publizität erforderlich). Doppelgleisigkeit: Kaufpreiszahlung primär, Zessionserfüllung (Einzug Forderungen G→F) subsidiär bei Zahlungsverzug. \n\n**Gegenanspruchsgrundlage F gegen Z: Delikts-Schadenersatz mit Aufrechnung**(Schadenersatz bei grober Fahrlässigkeit durch Z-Mitarbeiter); Stufenbau: Wandlung/Preisminderung als Kaufrecht subsidiär zu Delikt, da Beschädigung post-Übergabe. Aufrechnung analog bei konvergierenden Ansprüchen (§ 1013 ABGB implizit).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0011187**: Besitzauftrag bedarf keiner Drittkenntlichkeit und überträgt Eigentum bei Vereinbarung – relevant für sofortigen Eigentumserwerb Z trotz Besitz W.\n- **RS0000801**: Vorbehaltskäufer hat Anwartschaft auf Eigentum, Verkäufer schutzpflichtig – relevant zur Risikozuordnung bei Schwebezustand, hier umgekehrt.\n- **RS0011386**: Sicherungszession wirksam nur bei Pfand-publizitätsgleicher Mitteilung (Buchvermerk/Verständigung) – relevant für Anspruch Z auf Forderungen G→F.\n- **RS0123428**: § 1299 ABGB verschärft Sorgfaltsmaßstab bei Sachverständigen, subjektives Verschulden nicht zwingend – relevant für grobe Fahrlässigkeit Z-Mitarbeiter.\n- **RS0026209**: Nach § 1299 ABGB Beweislast beim Geschädigten für Kausalität (hohe Wahrscheinlichkeit) – relevant für F's Schadenersatz.\n\n### 4. SUBSUMTION\n**Z gegen F (Kauf + Zession)**: \nZ erwarb sofort Eigentum via Besitzkonstitut iVm Vereinbarung (RS0011187), F schuldet volle Raten (§ 1054 ABGB). Sicherungszession wirksam, wenn Drittschuldner G verständigt (RS0011386); Z berechtigt zu Einzug laufender Forderungen G→F. \n\n**F gegen Z (Delikt-Schadenersatz)**: \nBeschädigung durch Z-Mitarbeiter grob fahrlässig (§ 1299 ABGB, RS0123428), Kausalität zu Reparaturschaden gegeben; Z haftet als Händler. Kaufrecht subsidiär (§ 922 ABGB Mangelhaftigkeit post-Übergabe). Aufrechnung gegen Raten möglich, da kein eigenes Verschulden F (analog § 1013 ABGB).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Eigentumsübergang**: Z beweist Vereinbarung \"sofort Eigentümer\" (Vertragstext vorliegend); F muss widerlegen.\n- **Grobe Fahrlässigkeit (§ 1299 ABGB)**: F beweist Verschulden/Kausalität/Schadenhöhe (RS0026209; hohe Wahrscheinlichkeit genügt).\n- **Sicherungszession wirksam **: Z beweist Publizität (Verständigung G, RS0011386; fehlend: Nachweis Zugang/Mitteilung).\n- **Aufrechnung**: F beweist Konvergenz Ansprüche/Fälligkeit (Raten laufend vorliegend); Z muss eigenes Verschulden widerlegen.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (Z, hohe Erfolgsaussicht)**: Volle Ratenzahlung + Herausgabe abgetretener Forderungen G→F. \n**Eventualbegehren (F)**: Schadenersatz mit Aufrechnung gegen Raten (§ 1299 ABGB); subsidiär Wandlung (§ 932 ABGB). Priorität: Z primär (Eigentum gesichert), F eventuell bei Deliktsfeststellung.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (kein Eigentum Z, Risiko W)**: F argumentiert Übergabe erst Abholung. Replik: Vereinbarung schafft Besitzauftrag (RS0011187), sofortiges Eigentum.\n- **Risiko 2 (Sicherungszession unwirksam)**: Keine Drittschuldnerverständigung G (RS0011386). Replik: Stille Zession wirksam intern, Publizität nur für Dritte.\n- **Risiko 3 (keine grobe Fahrlässigkeit)**: Mitarbeiter handelte sorgfältig, § 1299 ABGB erfordert subjektiven Vorwurf (RS0123428). Replik: Objektiver Maßstab verschärft, Beweislast F erfüllbar (RS0026209).\n- **Risiko 4 (Aufrechnung ausgeschlossen)**: Eigenes Verschulden F bei Abholung. Replik: Beschädigung durch Z-Mitarbeiter, kein F-Versulden; konvergierend (RS0029042 analog § 1013 ABGB).\n- **Risiko 5 (Verjährung Schaden)**: Deliktfrist § 1295 ABGB, Beginn Abholung (RS0038104).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Z-Kauf/Zession**: Hoch (Eigentum via RS0011187 gesichert, Zession bei Verständigung wirksam RS0011386).\n- **F-Delikt/Aufrechnung**: Mittel (Grobe Fahrlässigkeit plausibel RS0123428, Beweislast machbar RS0026209; Risiko Publizität Zession).",
+  "elapsed_ms": 230190.76
+}

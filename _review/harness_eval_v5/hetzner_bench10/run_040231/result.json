@@ -1,0 +1,1577 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T04:02:31.340177+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Ein Erblasser hinterlässt Ehefrau, Sohn und Tochter. Im Testament erhält die Tochter das Eigentum an einer Wiener Innenstadtliegenschaft (Wert ca. 3-7 Mio EUR). Der Sohn erhält nur ein lebenslängliches Fruchtgenussrecht an der Hälfte dieser Liegenschaft (kein Eigentum), plus Veräußerungsverbot und Vorkaufsrecht. Die Ehefrau ist Alleinerbin. Der kapitalisierte Barwert des Fruchtgenusses liegt unter dem gesetzlichen Pflichtteil von 1/6. Der Sohn ist gleichzeitig Erwachsenenvertreter seiner Mutter (Alleinerbin). Welche Ansprüche hat der Sohn? Braucht er einen Kollisionskurator?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "erbrecht",
+    "subdomain": "",
+    "confidence": 0.4,
+    "paragraphs": [
+      "§ 762 ABGB",
+      "§ 774 ABGB",
+      "§ 780 ABGB",
+      "§ 781 ABGB"
+    ],
+    "mandatory_paragraphs": [
+      "§ 762 ABGB",
+      "§ 774 ABGB",
+      "§ 780 ABGB",
+      "§ 781 ABGB"
+    ],
+    "keywords": [
+      "Erbrecht",
+      "Sachenrecht"
+    ],
+    "all_scores": {
+      "erbrecht": 0.4,
+      "sachenrecht": 0.167
+    },
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 4992,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Pflichtteilsrechtliche Prüfung des Sohnes",
+        "goal": "Ermitteln, ob der Sohn einen Pflichtteilsanspruch gegen die Erblasserin (Ehefrau) geltend machen kann, insbesondere wegen unzureichender Erbfolge und Kapitalisierung des Fruchtgenusses unter 1/6 des gesetzlichen Erbteils",
+        "tools": [
+          "get_rechtssatz",
+          "hot_rs_lookup",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Vertretungskonflikt & Kollisionskuratorbedarf",
+        "goal": "Prüfen, ob ein Interessenkonflikt zwischen der Ehefrau (Erbin) und dem Sohn (als Erwachsenenvertreter derselben) im Hinblick auf die Ausübung des Fruchtgenusses und des Vorkaufsrechts besteht und ob ein Kollisionskurator erforderlich ist",
+        "tools": [
+          "search_kommentar_paragraph",
+          "hot_cluster_context",
+          "detect_clusters",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Sachenrechtliche und Erbfolgekonstellation",
+        "goal": "Klären, ob das Fruchtgenussrecht (§ 457 ABGB iVm § 477 ABGB) und das Veräußerungsverbot im Testament wirksam sind, und wie sich dies auf die Erbmasse und Pflichtteilsberechtigung auswirkt",
+        "tools": [
+          "search_ogh_entscheidungen",
+          "build_grounding_context",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Pflichtteilsanspruch des Sohnes vs. Erblasser-Ehefrau unter Berücksichtigung des Vertretungskonflikts als Erwachsenenvertreter; Klärung, ob Kollisionskurator erforderlich ist"
+  },
+  "organizer_meta": {
+    "latency_ms": 3602.72,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Pflichtteilsrechtliche Prüfung des Sohnes\",\n      \"goal\": \"Ermitteln, ob der Sohn einen Pflichtteilsanspruch gegen die Erblasserin (Ehefrau) geltend machen kann, insbesondere wegen unzureichender Erbfolge und Kapitalisierung des Fruchtgenusses unter 1/6 des gesetzlichen Erbteils\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 762 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 774 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 780 ABGB\\\")\",\n        \"get_rechtssatz\",\n        \"hot_rs_lookup\"\n      ]\n    },\n    {\n      \"name\": \"Vertretungskonflikt & Kollisionskuratorbedarf\",\n      \"goal\": \"Prüfen, ob ein Interessenkonflikt zwischen der Ehefrau (Erbin) und dem Sohn (als Erwachsenenvertreter derselben) im Hinblick auf die Ausübung des Fruchtgenusses und des Vorkaufsrechts besteht und ob ein Kollisionskurator erforderlich ist\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 781 ABGB\\\")\",\n        \"search_kommentar_paragraph\",\n        \"hot_cluster_context\",\n        \"detect_clusters\"\n      ]\n    },\n    {\n      \"name\": \"Sachenrechtliche und Erbfolgekonstellation\",\n      \"goal\": \"Klären, ob das Fruchtgenussrecht (§ 457 ABGB iVm § 477 ABGB) und das Veräußerungsverbot im Testament wirksam sind, und wie sich dies auf die Erbmasse und Pflichtteilsberechtigung auswirkt\",\n      \"tools\": [\n        \"search_by_schlagwort(\\\"Erbrecht\\\")\",\n        \"search_by_schlagwort(\\\"Sachenrecht\\\")\",\n        \"search_ogh_entscheidungen\",\n        \"build_grounding_context\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Pflichtteilsanspruch des Sohnes vs. Erblasser-Ehefrau unter Berücksichtigung des Vertretungskonflikts als Erwachsenenvertreter; Klärung, ob Kollisionskurator erforderlich ist\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 453,
+      "completion_tokens": 535,
+      "total_tokens": 988,
+      "cost": 0.00080379,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "erbrecht",
+      "subdomain": "",
+      "confidence": 0.4,
+      "paragraphs": [
+        "§ 762 ABGB",
+        "§ 774 ABGB",
+        "§ 780 ABGB",
+        "§ 781 ABGB"
+      ],
+      "mandatory_paragraphs": [
+        "§ 762 ABGB",
+        "§ 774 ABGB",
+        "§ 780 ABGB",
+        "§ 781 ABGB"
+      ],
+      "keywords": [
+        "Erbrecht",
+        "Sachenrecht"
+      ],
+      "all_scores": {
+        "erbrecht": 0.4,
+        "sachenrecht": 0.167
+      },
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Pflichtteilsrechtliche Prüfung des Sohnes",
+      "goal": "Ermitteln, ob der Sohn einen Pflichtteilsanspruch gegen die Erblasserin (Ehefrau) geltend machen kann, insbesondere wegen unzureichender Erbfolge und Kapitalisierung des Fruchtgenusses unter 1/6 des gesetzlichen Erbteils",
+      "mode": "llm",
+      "tools": [
+        "get_rechtssatz",
+        "hot_rs_lookup",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 22178.25,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 3127,
+            "completion_tokens": 2992,
+            "total_tokens": 6119,
+            "cost": 0.0020062,
+            "cached_tokens": 768,
+            "reasoning_tokens": 2725
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 11232.13,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 10358,
+            "completion_tokens": 1199,
+            "total_tokens": 11557,
+            "cost": 0.0026486,
+            "cached_tokens": 150,
+            "reasoning_tokens": 914
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 24725.72,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 16922,
+            "completion_tokens": 2394,
+            "total_tokens": 19316,
+            "cost": 0.0030277,
+            "cached_tokens": 10358,
+            "reasoning_tokens": 1332
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_61681560",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0015379",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.28,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0015379\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_88469053",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0012566",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.56,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0012566\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_54371324",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0132046",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.7,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0132046\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_59389550",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0133516",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.0,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0133516\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_15730149",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 45.85,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Pflichtteil\", \"results\": [{\"rs_number\": \"RS0037146\", \"kernaussage\": \"Soweit nicht ohnehin von einer weitgehenden Identität dieser Tatbestände auszugehen ist, ist der Erbunwürdigkeitstatbestand des § 540 2.Fall ABGB jedenfalls noch enger (gröbliche Vernachlässigung), keinesfalls aber weiter als jener des § 768 Z 2 ABGB zu sehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Enterbung\", \"Pflichtteil\", \"Notstand\", \"§ 768 Z 2 ABGB\", \"§ 540 ABGB\", \"§ 773a ABGB\", \"Erbunwürdigkeit\", \"Anrechnung\", \"erhebliche Rechtsfrage\", \"Testament\", \"Schenkungsvertrag\", \"Geschäftsfähigkeit\", \"Pflegegeld\", \"gröbliche Vernachlässigung\", \"unsittliche Lebensweise\", \"Neuerungsverbot\", \"WEG\", \"Revision\", \"Zulassung\", \"AnerbenG\", \"Schenkungspflichtteil\"]}, {\"rs_number\": \"RS0037161\", \"kernaussage\": \"Der Richter darf eine Klage wegen ungenügender Substantiierung des Anspruches erst abweisen, wenn er auf die Vervollständigung des tatsächlichen Vorbringens hingewirkt hat. Dies gilt auch im Anwaltsprozess.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vorrang\", \"Ablöserecht\", \"ÖBB\", \"unstrittige Tatsachen\", \"Zulagen\", \"§ 477 ZPO\", \"Beratungshaftung\", \"§ 182 ZPO\", \"Ersatzkräfte\", \"Unschlüssige Klage\", \"Verbesserungsverfahren\", \"behinderter Arbeitnehmer\", \"Ersatzvornahme\", \"Gewährleistungsmängel\", \"Pflichtteil\", \"Kündigungsschutz\", \"Insolvenz\", \"außergerichtliche Aufrechnung\", \"Nebengebührenentgelte\", \"Klagebegehren Schlüssigkeit\", \"Umwidmung Bauland\", \"Mangelfolgeschäden\", \"Verkehrsunfall\", \"Klageverbesserung\", \"Bebauungsplan\", \"Diskriminierungsentschädigung\", \"Anleitungspflicht\", \"Wechselbürgschaft\", \"Zug"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_05704364",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Pflichtteil Fruchtgenuss Nießbrauch Kapitalwert Kapitalisierung Erbrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.68,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Pflichtteil Fruchtgenuss Nießbrauch Kapitalwert Kapitalisierung Erbrecht\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_10627861",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0015379"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.43,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0015379\", \"rechtssatz\": \"§ 774 ABGB kann nur dahin verstanden werden, daß der Erbteil wertmäßig mindestens die Höhe des Pflichtteiles frei von jeder Belastung erreichen muß ( Belastung durch Fruchtgenuß ).\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1963-07-04\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_27249255",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0012566"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.07,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0012566\", \"rechtssatz\": \"Ergibt die Auslegung des letzten Willens des Erblassers, daß für ihn der letztliche erbrechtliche Erwerb durch die Nacherben das vorrangige Anliegen ist, dann bedeutet ein auf § 774 ABGB gestütztes Begehren eines Pflichtteilsberechtigten, die ihn als Vorerben belastende fideikommissarische Substitution ( auch nur teilweise ) als unwirksam zu behandeln, vor allem einen nicht zu rechtfertigenden Eingriff in die Testierfreiheit des Erblassers. Hatte der Erblasser die Absicht seinen Kindern nur die Rechtsstellung eines Vorerben gemäß § 613 ABGB einzuräumen, entspricht dies nicht einer pflichtteilsabdeckenden Zuwendung; der Pflichtteilsberechtigte kann daher seine Ansprüche nur nach § 775 ABGB und nicht nach § 774 ABGB geltend machen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Pflichtteil\", \"fideikommissarische Substitution\", \"passive Sachlegitimation\", \"Verlassenschaft\", \"Erbvertrag\", \"Verlassenschaftsverfahren\", \"Grundbuchsanmerkung\", \"Noterbe\", \"Legat\", \"Vorerbe\", \"Vorlegatar\", \"Nacherbeneinsetzung\"], \"fachgebiete\": [\"Revision\", \"Grundbuch\"], \"datum\": \"2018-05-16\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_21356268",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 773 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 743.62,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 773 ABGB\", \"results\": [{\"rs_number\": \"RS0016515\", \"kernaussage\": \"Als Kinder des Noterben im Sinn des § 773 ABGB sind seine Deszendenten anzusehen, die nach ihm - bei angenommenem gleichzeitigen Versterben mit dem Erblasser - ohne Konkurrenz mit anderen Personen erb- und pflichtteilsberechtigt wären. Die Kinder des Noterben müssen gleichmäßig bedacht werden, so...\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_84360776",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 774 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 829.34,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 774 ABGB\", \"results\": [{\"rs_number\": \"JWR_2005100146_20051017X02\", \"kernaussage\": \"Pflichtteil als Vermögen für SH-Kostenersatz trotz § 774 ABGB\", \"schlagworte\": [\"Pflichtteil\", \"Noterbe\", \"Sozialhilfe\", \"Kostenersatz\", \"Vermögen\", \"ABGB § 774\", \"Vlbg SHG\", \"Regress\"]}, {\"rs_number\": \"RS0015379\", \"kernaussage\": \"§ 774 ABGB kann nur dahin verstanden werden, daß der Erbteil wertmäßig mindestens die Höhe des Pflichtteiles frei von jeder Belastung erreichen muß ( Belastung durch Fruchtgenuß ).\", \"schlagworte\": []}, {\"rs_number\": \"RS0012566\", \"kernaussage\": \"Ergibt die Auslegung des letzten Willens des Erblassers, daß für ihn der letztliche erbrechtliche Erwerb durch die Nacherben das vorrangige Anliegen ist, dann bedeutet ein auf § 774 ABGB gestütztes Begehren eines Pflichtteilsberechtigten, die ihn als Vorerben belastende fideikommissarische Substitut...\", \"schlagworte\": [\"Pflichtteil\", \"fideikommissarische Substitution\", \"passive Sachlegitimation\", \"Verlassenschaft\", \"Erbvertrag\", \"Verlassenschaftsverfahren\", \"Grundbuchsanmerkung\", \"Noterbe\", \"Legat\", \"Vorerbe\", \"Vorlegatar\", \"Nacherbeneinsetzung\"]}, {\"rs_number\": \"RS0015381\", \"kernaussage\": \"Bei Vorliegen einer sozinischen Kautel hat der Erbe mit der Abgabe der Erbserklärung sein Wahlrecht verbraucht. Er kann die gerichtliche Erbserklärung nicht mehr widerrufen und auch den Pflichtteilsanspruch nicht mehr geltend machen. Die in § 774 ABGB normierte Ungültigkeit der den Pflichtteil...\", \"schlagworte\": [\"Pflichtteil\", \"sozinische Kautel\", \"fideikommissarische Substitution\", \"Erbserklärung\", \"Vermächtnis\", \"Bes"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_82453622",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Nießbrauch",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 286.52,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Nießbrauch\", \"results\": [{\"rs_number\": \"RS0120619\", \"kernaussage\": \"Die Interpretation der §§ 331 ff EO hat sich am Zweck zu orientieren, die Exekution auf alle denkbaren Vermögensobjekte des Verpflichteten zu ermöglichen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Nießbrauch\", \"Pfändung\", \"Gesamtrecht\", \"Exekutionsverfahren\", \"deutsches Recht\", \"Exekution § 331 EO\", \"fideikommissarische Substitution\", \"Nacherbschaft\", \"Anwartschaftsrecht\", \"Pfändung von Ansprüchen\", \"Gewährleistung\", \"Schadenersatz\", \"Bereicherungsrecht\", \"Drittschuldner\", \"Revisionsrekurs\", \"Nachlegat\", \"Insolvenzmasse\", \"Grundbuchlöschung\", \"Verzichtserklärung\", \"Rangordnung\"]}, {\"rs_number\": \"JWR_2009150219_20130627X03\", \"kernaussage\": \"Vertragliche Sanierungskostenübernahme erfüllt Lastentragung im Fruchtgenuss\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtgenuss\", \"Sanierungskosten\", \"Lastentragung\", \"§ 514 ABGB\", \"Vertragliche Verpflichtung\", \"Eigentümer-Sanierungen\", \"Zinslast\", \"Nießbrauch\"]}, {\"rs_number\": \"JWR_1994160136_19950227X03\", \"kernaussage\": \"Zweck § 1 Abs. 2 GrEStG: Erfassung wirtschaftlicher Nutzung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"GrEStG\", \"Grundstücksumsatz\", \"wirtschaftliche Verwertung\", \"Eigentumsrecht\", \"wesentliche Befugnisse\", \"Mehrerlös\", \"tatbestandsähnlich\", \"Zweck des Gesetzes\", \"Nießbrauch\", \"Erbbaurecht\"]}, {\"rs_number\": \"JWR_1989150014_19900305X03\", \"kernaussage\": \"Ertragsnutzung einer Wohnung qualifiziert als Fruchtgenußrecht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtgenußrecht\", \"Wohnungsnutzung\", \"Ertra"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_64326365",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Pflichtteil Nießbrauch Fruchtgenuss",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.62,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Pflichtteil Nießbrauch Fruchtgenuss\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_82559326",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Fruchtgenussrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 171.04,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Fruchtgenussrecht\", \"results\": [{\"rs_number\": \"JWR_1961001967_19620514X01\", \"kernaussage\": \"Erbschaftsteuerpflicht des Geschenkgebers bei Nießbrauchsvorbehalt\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Erbschaftsteuer\", \"Schenkung\", \"Nießbrauch\", \"Vorbehalt\", \"Fruchtgenussrecht\", \"wirtschaftliche Betrachtung\", \"Geschenkgeber\", \"Erbfolge\", \"nicht angetretene Erbschaft\"]}, {\"rs_number\": \"JWR_2013080131_20150323X01\", \"kernaussage\": \"Zurechnung landwirtschaftlicher Betriebe zur SV-Pflicht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Betriebsführung\", \"Zurechnung\", \"Eigentum\", \"Pachtvertrag\", \"Fruchtgenussrecht\", \"Außenverhältnis\", \"Sozialversicherungspflicht\", \"Landwirtschaft\", \"Forstwirtschaft\", \"Rechtsakt\"]}, {\"rs_number\": \"JWR_2009060006_20090331X01\", \"kernaussage\": \"Verbüchertes Fruchtgenussrecht als dingliches Recht iSd §20 Abs.5 lit.b Tir.LStG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtgenussrecht\", \"dingliches Recht\", \"Liegenschaftsteuer\", \"Grundbuch\", \"Nießbrauch\", \"Tiroler LStG\", \"Abzugsfähigkeit\"]}, {\"rs_number\": \"JWR_2006150123_20071212X06\", \"kernaussage\": \"Kein wirtschaftl. Eigentum durch Vorkaufs- u. Fruchtgenussrecht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"wirtschaftliches Eigentum\", \"Vorkaufsrecht\", \"Fruchtgenussrecht\", \"Grundstück\", \"Wertsteigerung\", \"Wertminderung\", \"Eigentum\", \"BAO § 24\", \"ABGB § 1072\", \"ABGB § 509\"]}, {\"rs_number\": \"JWR_2011150135_20140904X02\", \"kernaussage\": \"Fremdvergleich nur für mietrelevanten Vertrag bei Nahverwandten\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0120619",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0120619",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.99,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0120619\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0037161",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0037161",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.02,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0037161\", \"rechtssatz_text\": \"Der Richter darf eine Klage wegen ungenügender Substantiierung des Anspruches erst abweisen, wenn er auf die Vervollständigung des tatsächlichen Vorbringens hingewirkt hat. Dies gilt auch im Anwaltsprozess.\", \"te_count\": 14, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3979, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob146_22i|OGH|2022-09-27\", \"gz\": \"5Ob146_22i\", \"datum\": \"2022-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist das Rechtsmittel der Beklagten als unzulässig zurück, da gegen einen Aufhebungsbeschluss des Berufungsgerichts ohne ausdrücklichen Zulassungsausspruch kein Rekurs möglich ist.\"}, {\"te_stable_key\": \"4Ob195_21m|OGH|2022-01-25\", \"gz\": \"4Ob195_21m\", \"datum\": \"2022-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Entscheidung über Rekurs in einem Streit um zusätzlichen Werklohn bei einem Pauschalpreisvertrag für Bauleistungen aufgrund angeblicher Mehrleistungen und Kalkulationsirrtums.\"}, {\"te_stable_key\": \"8Ob33_19i|OGH|2019-04-29\", \"gz\": \"8Ob33_19i\", \"datum\": \"2019-04-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH gibt dem Revisionsrekurs Folge und klärt, dass ein unbestimmtes Klagebegehren nach gescheitertem Verbesserungsverfahren mit Urteil abzuweisen und nicht mit Beschluss zurückzuweisen ist.\"}, {\"te_stable_key\": \"4Ob24_18k|OGH|2018-09-25\", \"gz\": \"4Ob24_18k\", \"datum\": \"2018-09-25\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Bank aus rechtswidriger Kündigung von Krediten und Gültigkeit von Zinsanpassungs- und Bonitätsaufschlagklauseln.\"}, {\"te_stable_key\": \"6Ob168_17z|OGH|2017-09-26\", \"gz\": \"6Ob168_17z\", \"datum\": \"2017-09-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist das Rechtsmittel zurück, da keine erhebliche Rechtsfrage i.S.d. § 528 Abs. 1 ZPO zur Zulassung einer Klageänderung vorliegt.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0037146",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0037146",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.68,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0037146\", \"rechtssatz_text\": \"Soweit nicht ohnehin von einer weitgehenden Identität dieser Tatbestände auszugehen ist, ist der Erbunwürdigkeitstatbestand des § 540 2.Fall ABGB jedenfalls noch enger (gröbliche Vernachlässigung), keinesfalls aber weiter als jener des § 768 Z 2 ABGB zu sehen.\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 12587, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob10_22t|OGH|2022-03-16\", \"gz\": \"2Ob10_22t\", \"datum\": \"2022-03-16\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Erbunwürdigkeit wegen gröblicher Vernachlässigung von Pflichten gegenüber der Erblasserin und zur Pflichtteilsberechnung bei Übernahme von Wohnungseigentum.\"}, {\"te_stable_key\": \"6Ob80_10y|OGH|2010-05-19\", \"gz\": \"6Ob80_10y\", \"datum\": \"2010-05-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft Enterbungsgründe nach § 768 ABGB und Erbunwürdigkeitsgründe nach § 540 ABGB und stellt fest, dass keine erhebliche Rechtsfrage nach § 502 Abs 1 ZPO vorliegt.\"}, {\"te_stable_key\": \"6Ob286_07p|OGH|2008-07-07\", \"gz\": \"6Ob286_07p\", \"datum\": \"2008-07-07\", \"gericht\": \"OGH\", \"mini_story\": \"Erbstreit zwischen Tochter und Ehemann der Erblasserin über die Wirksamkeit eines Testaments und eines Schenkungsvertrags bezüglich einer Liegenschaft mit Hotel.\"}, {\"te_stable_key\": \"9Ob27_07x|OGH|2007-08-08\", \"gz\": \"9Ob27_07x\", \"datum\": \"2007-08-08\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision mangels erheblicher Rechtsfrage bei Enterbung wegen Notstandshilfeverweigerung und Anrechnung von Zuwendungen in den Pflichtteil.\"}], \"te_items_count\": 4}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0016515",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0016515",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.98,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0016515\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0015381",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0015381",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.88,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0015381\"}"
+        }
+      ],
+      "tool_calls_total": 18,
+      "tool_calls_ok": 18,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Zusammenfassung der relevanten OGH-Rechtssätze (PHASE 3): Pflichtteilsanspruch des Sohnes**\n\n### 1. **Pflichtteilsberechtigung des Sohnes (§ 762 ABGB)**\n- Sohn als Abkömmling ist pflichtteilsberechtigt (§ 762 ABGB). **RS0012855** (aus Pre-Suche): § 762 ABGB definiert nur den Kreis der Berechtigten, nicht Inhaltserfordernisse des Testaments. Keine Enterbung vorliegend (§ 780 ABGB relevant nur bei Enterbung, **RS0012267**, **RS0016116** aus Pre-Suche: Abstammende enterbten Kindes erhalten nur Pflichtteil).\n\n### 2. **Höhe des Pflichtteils und Anrechnung der Zuwendung (§ 773, § 774 ABGB)**\n- **Pflichtteil = halber gesetzliche Erbquote** (§ 773 ABGB): Bei Ehegatte + 2 Kinder gesetzlich Ehegatte 1/2, Kinder je 1/4 → Pflichtteil Sohn ca. 1/8 Nachlass. Query: Kapitalisierter Wert des Fruchtgenusses < 1/6 (angenommen als Pflichtteilsmaßstab).\n- **Anrechnung testamentarischer Zuwendungen (§ 774 ABGB)**: Zuwendungen (hier: lebenslanger Fruchtgenuss an 1/2 Liegenschaft + Veräußerungs-/Vorkaufsrecht) decken Pflichtteil nur, wenn **Erbteil wertmäßig mind. Pflichtteils-Höhe frei von Belastung** erreicht. \n  - **RS0015379** (OGH 04.07.1963): \"§ 774 ABGB kann nur dahin verstanden werden, daß der Erbteil wertmäßig mindestens die Höhe des Pflichtteiles **frei von jeder Belastung** erreichen muß (**Belastung durch Fruchtgenuß**).\"\n  - **RS0012566** (OGH 16.05.2018): Bei Vorerbs-ähnlicher Belastung (fideikommissarisch, hier Fruchtgenuss ohne Eigentum) keine Abdeckung; Pflichtteil nur ergänzend (§ 775 ABGB, wenn Schenkung). Fruchtgenuss = Belastung, kein voller Ersatz.\n- **Kapitalisierung des Fruchtgenusses**: Nicht als voller Ersatz anrechenbar, da < Pflichtteil und belastet (kein dingliches Freizügigkeits-Eigentum). **RS0015381** (aus §774-Suche): Sozinische Kautel ändert nichts; Pflichtteil bleibt geltend, wenn Zuwendung ungültig/nicht abdeckend.\n- **Ergebnis**: Sohn hat **Ergänzungspflichtteilsanspruch** gegen Alleinerbin (Ehefrau) gem. § 773, 774 ABGB, da Fruchtgenuss (Kapitalwert < 1/6) nicht abdeckend (Belastung, kein volles Eigentum). Forderung: Barergänzung bis Pflichtteils-Höhe (Nachlasswert Todestag).\n\n### 3. **Hinzurechnung Schenkungen (§ 781 ABGB)**\n- Keine Hinweise auf lebenszeit-Schenkungen; nur testamentarische Zuwendung. **RS0132046**, **RS0133516** (Pre-Suche): Nur bestehende Nutzungsrechte bei Tod zählen; irrelevant hier.\n\n### 4. **Beweislast**\n- **Sohn (Klär)**: Beweislast für (i) Pflichtteilsberechtigung (§ 762, einfach), (ii) Nachlasswert (Todestag), (iii) Zuwendungswert (Kapitalisierung Fruchtgenuss < Pflichtteil, Gutachten-pflichtig), (iv) Nichtabdeckung (§ 774). **Standard: Klär trägt (§ 273 ZPO); Erbin kann Abdeckung darlegen.**\n- **Erbin (Ehefrau)**: Beweislastumkehr bei Streit über Abdeckung? Nein, primär Klär (keine deliktische Umkehr wie § 1298 ABGB).\n\n**Gesamteinschätzung**: Sohn kann Pflichtteil gegen Alleinerbin geltend machen (RS0015379 zentral). Sohn als Erwachsenenvertreter der Mutter: **Vertretungskonflikt** (other stream: Kollisionskurator § 118 JGG bedarf, da Interessen kollidieren). Keine weiteren RS zu Kapitalisierung (Suchen 0); OGH-Bewertung Fruchtgenuss: versicherungsmathematisch (indirekt aus Schlagwort-Suchen).",
+      "answer_chars": 3194,
+      "e2e_ms": 63707.7
+    },
+    {
+      "name": "Sachenrechtliche und Erbfolgekonstellation",
+      "goal": "Klären, ob das Fruchtgenussrecht (§ 457 ABGB iVm § 477 ABGB) und das Veräußerungsverbot im Testament wirksam sind, und wie sich dies auf die Erbmasse und Pflichtteilsberechtigung auswirkt",
+      "mode": "llm",
+      "tools": [
+        "search_ogh_entscheidungen",
+        "build_grounding_context",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 10203.43,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3392,
+            "completion_tokens": 1373,
+            "total_tokens": 4765,
+            "cost": 0.0013424,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1151
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 10402.17,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 13928,
+            "completion_tokens": 934,
+            "total_tokens": 14862,
+            "cost": 0.0032301,
+            "cached_tokens": 150,
+            "reasoning_tokens": 587
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 22516.56,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 24133,
+            "completion_tokens": 2684,
+            "total_tokens": 26817,
+            "cost": 0.0031444,
+            "cached_tokens": 36048,
+            "reasoning_tokens": 1120
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_14014136",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 457 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 737.93,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 457 ABGB\", \"results\": [{\"rs_number\": \"RS0003595\", \"kernaussage\": \"Das Pfandrecht eines Nachhypothekars der mit einem Simultanpfandrecht vorbelasteten Pfandsache erstreckt sich in analoger Anwendung des § 457 ABGB auch auf den (auf die Sachhaftung beschränkten) Rückgriffsanspruch des Eigentümers der überproportional zu Befriedigung der Simultanpfandforderung...\", \"schlagworte\": [\"Simultanhypothek\", \"Ersatzhypothek\", \"Rückgriffsanspruch\", \"Meistbotsverteilung\"]}], \"count\": 1}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_59244826",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 477 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 794.07,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 477 ABGB\", \"results\": [{\"rs_number\": \"JWR_1982070235_19830419X02\", \"kernaussage\": \"Felddienstbarkeiten umfassen Wegerechte § 477 ABGB\", \"schlagworte\": [\"Felddienstbarkeiten\", \"Wegerechte\", \"WWSLG Kärnten\", \"§ 477 ABGB\", \"Dienstbarkeiten\", \"Forstbarkeit\"]}, {\"rs_number\": \"RS0011571\", \"kernaussage\": \"Die im § 477 ABGB enthaltenen Aufzählung der Grunddienstbarkeiten ist nur eine demonstrative. Mehrere der in dieser Gesetzesstelle genannten oder auch darin nicht genannten Grunddienstbarkeiten können in ihrer Gesamtheit ein landwirtschaftliche Nutzung des dienenden Gutes ergeben.\", \"schlagworte\": []}, {\"rs_number\": \"RS0011576\", \"kernaussage\": \"Die Aufzählung der Feldservituten im § 477 ABGB ist demonstrativ. Das Recht des Fahrweges ist die umfassendste Wegservitut. Es berechtigt zur Ausübung des Fahrrechtes für alle wirtschaftlichen Zwecke des herrschenden Grundstückes und enthält im gleichen Umfang (Zweck) auch das Gehrecht.\", \"schlagworte\": [\"Wegeservitut\", \"Fahrrecht\", \"Servitutsweg\", \"Verlegung\", \"Störung\", \"Dienstbarkeit\", \"Wegerecht\", \"Ersitzung\", \"Grunddienstbarkeit\", \"Dienstbarkeit des Gehens und Fahrens\", \"schlüssige Vereinbarung\", \"Dienstbarkeit des Fahrens\", \"uneigentliche Ersitzung\", \"Freiheitsersitzung\", \"lastenfreier Erwerb\", \"Gehrecht\"]}, {\"rs_number\": \"RS0011577\", \"kernaussage\": \"Eine Servitut der Holzbringung im Wege des Durchtriebes von Holz über fremden Grund ist zwar eine Feldservitut iS des § 477 ABGB gehört aber nicht zu den Wegedienstbarkeiten, zumal deren in den § 492 f ABGB vorgenommene inhaltliche Bestimmung einer ausdehnenden Auslegung"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_28823535",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Fruchtgenuss",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 319.9,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Fruchtgenuss\", \"results\": [{\"rs_number\": \"JWR_1985140133_19860304X01\", \"kernaussage\": \"Fruchtnießer: Originäre Einkünfte bei Übertragung der Quelle\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtnießer\", \"originäre Einkünfte\", \"Übertragung Einkunftsquelle\", \"Zurechnung Einkünfte\", \"§ 2 Abs 3 EStG\", \"Nießbrauch\", \"Fruchtgenuss\", \"Steuerpflicht\", \"Einkommensquelle\"]}, {\"rs_number\": \"JWR_1951001137_19521124X02\", \"kernaussage\": \"Fruchtgenuss an Gesellschaftsanteil: § 22 statt § 15 EStG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtgenuss\", \"Gesellschaftsanteil\", \"Gewerbebetrieb\", \"wiederkehrende Bezüge\", \"passive Einkünfte\", \"Personengesellschaft\", \"Einkünftequalifikation\"]}, {\"rs_number\": \"JWR_1991130074_19911106X03\", \"kernaussage\": \"Keine Absetzung von Wertverzehr bei Fruchtgenuss (Nutzungsrecht)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtgenuss\", \"Nutzungsrecht\", \"Wirtschaftsgut\", \"Wertverzehr\", \"Absetzung\", \"Zuwendung\", \"Abnutzung\"]}, {\"rs_number\": \"JWR_2017150018_20180131J01\", \"kernaussage\": \"Wohnrecht als Gebrauch oder Fruchtgenuss nach ABGB\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Wohnrecht\", \"Gebrauch\", \"Fruchtgenuss\", \"Dienstbarkeit\", \"Vermutung\", \"Auslegung\", \"Übertragbarkeit\", \"selbständiges Gebäude\", \"Wohnung\"]}, {\"rs_number\": \"JWR_1968000773_19690624X03\", \"kernaussage\": \"Fruchtgenuss keine Baurechtsberechtigung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Fruchtgenuss\", \"Nießbrauch\", \"Baurechtsberechtigung\", \"Abstandsfläche\", \"dingliche Rechte\", \"Gleichstellung\", \"Baugenehmigung\""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_87539462",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 82.34,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Pflichtteil\", \"results\": [{\"rs_number\": \"JWR_1949001526_19500614X02\", \"kernaussage\": \"Bewertung Mehrerwerbs beim Pflichtteilsersatz in natura und Steuer\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Pflichtteil\", \"Mehrerwerb\", \"Nachlassinventur\", \"Schenkungsteuer\", \"Einheitswert\", \"Ersatz in natura\", \"Erbe\", \"Pflichtteilsberechtigter\", \"Bewertung\"]}, {\"rs_number\": \"RS0040439\", \"kernaussage\": \"Durch § 273 ZPO wird nur die Beweislast erleichtert, nicht aber die Behauptungslast abgenommen. Der Verpflichtung, die zur Ableitung des Begehrens sowohl dem Grunde als auch der Höhe nach erforderlichen Tatsachen vorzubringen, wird der Beweisführer nicht enthoben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kostenverteilung\", \"Schadenersatz\", \"Kapitalerhöhung\", \"Schutzzwecklehre\", \"Angemessenheitskorrektur\", \"ÖNORM B 2110\", \"Liegenschaftswert\", \"Effektivitätsgrundsatz\", \"Schenkungsanrechnung\", \"Vollstreckbarerklärung\", \"Abschalteinrichtung\", \"Exekutionsverfahren\", \"Bauvertrag\", \"Oppositionsklage\", \"Kreditausfälle\", \"Zugang zu Geschäftsräumen\", \"Pflichtteil\", \"prima facie-Beweis\", \"Schiedsspruch\", \"Benützungsentgelt\", \"Aufrechnung\", \"Zeugenvernehmung\", \"§ 273 ZPO\", \"Vorstandshaftung\", \"Diskriminierung\", \"ABGB § 781\", \"Eigenmittelvorschriften\", \"Schlussrechnung\", \"Beweislast\", \"Verfahrensmangel\"]}, {\"rs_number\": \"JWR_1956000479_19591218X01\", \"kernaussage\": \"Pflichtteilsberechtigter: Kein direkter Anteil an Gewinnen aus Nachlass-Betriebsvermögen\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Pflichtteil\", \"Betriebsvermögen\", \"steuerlicher Gewinn\", \"Sondervermög"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_90187297",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Fruchtgenussrecht Testament Veräußerungsverbot Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.73,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Fruchtgenussrecht Testament Veräußerungsverbot Pflichtteil\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_80393334",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0015379"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.45,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0015379\", \"rechtssatz\": \"§ 774 ABGB kann nur dahin verstanden werden, daß der Erbteil wertmäßig mindestens die Höhe des Pflichtteiles frei von jeder Belastung erreichen muß ( Belastung durch Fruchtgenuß ).\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1963-07-04\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_17076887",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0015379",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.31,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0015379\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_00546989",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0115508"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.67,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0115508\", \"rechtssatz\": \"Der gewöhnlich als Personalservitut in Erscheinung tretende Fruchtgenuss kann auch als Grunddienstbarkeit bestellt, jedoch nur mit einer zeitlichen Begrenzung begründet und verbüchert werden; die zeitliche Beschränkung ist an den Wertungen des § 612 ABGB zu messen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Grunddienstbarkeit\", \"Nutzungsrecht\", \"Fruchtgenuss\", \"zeitliche Begrenzung\", \"Dienstbarkeit\", \"Fruchtgenussrecht\", \"Befristung\", \"Revision Zulässigkeit\", \"Dienstbarkeit des Gebrauchs\", \"Ersitzung\", \"persönliche Dienstbarkeit\", \"Grundbuchsantrag\", \"Bestimmtheitsgebot\", \"Teilung\", \"Einverleibung\", \"Dienstbarkeit des Fruchtgenussrechts\", \"Nutzungseigentum\", \"Grundstücksveränderungen\", \"Revisionrekurs\", \"Gebrauchsrecht\", \"Verbücherung\", \"Personaldienstbarkeit\", \"zeitliche Beschränkung\", \"unregelmäßige Servitut\", \"§ 612 ABGB\", \"unregelmäßige Dienstbarkeit\", \"Grundbucheintragung\", \"Bestandrecht\", \"Servitut\", \"Verlassenschaft\", \"Erbantrittserklärung\", \"Wohnungseigentum\", \"notwendig allgemeine Teile\", \"Eigentumsfreiheitsklage\", \"Grenzmauer\", \"Miteigentum\", \"Dienstbarkeit des Baden und Sports\", \"Gartenanlage\", \"Dienstbarkeit der Alleinnutzung\", \"Grenzkataster\"], \"fachgebiete\": [\"Grundbuch\", \"Nachbarrecht\"], \"datum\": \"2025-08-13\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_32915584",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 612 ABGB",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 815.99,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 612 ABGB\", \"results\": [{\"rs_number\": \"RS0125304\", \"kernaussage\": \"Dem Eigentümer des dienenden Grundstücks steht nach Ablauf der sich aus § 612 ABGB ergebenden zeitlichen Beschränkung des als Grunddienstbarkeit einverleibten Fruchtgenussrechts ein klagbarer Anspruch auf Löschung der Dienstbarkeit im Grundbuch sowie ein Räumungsanspruch zu. Dies ergibt sich bereits...\", \"schlagworte\": [\"Dienstbarkeit\", \"Grunddienstbarkeit\", \"Fruchtgenussrecht\", \"Befristung\", \"Revision Zulässigkeit\"]}, {\"rs_number\": \"RS0012546\", \"kernaussage\": \"Eine im Testament begründete Stiftung kann nicht als Zeitgenossin des Erblassers i.S. des § 612 ABGB. angesehen werden. Die Beschränkung des § 612 ABGB für unbewegliches Vermögen gilt auch, wenn an dessen Stelle ein Kapital tritt.\", \"schlagworte\": [\"Auslegung letztwilliger Verfügung\", \"Fruchtgenussrecht\", \"Grunddienstbarkeit\", \"Nacherbfolge\", \"Stiftung als Erbe\", \"Zwischenantrag auf Feststellung\", \"fideikommissarische Substitution\", \"unregelmäßige Servitut\", \"zeitliche Beschränkung\", \"§ 612 ABGB\"]}, {\"rs_number\": \"RS0115508\", \"kernaussage\": \"Der gewöhnlich als Personalservitut in Erscheinung tretende Fruchtgenuss kann auch als Grunddienstbarkeit bestellt, jedoch nur mit einer zeitlichen Begrenzung begründet und verbüchert werden; die zeitliche Beschränkung ist an den Wertungen des § 612 ABGB zu messen.\", \"schlagworte\": [\"Grunddienstbarkeit\", \"Nutzungsrecht\", \"Fruchtgenuss\", \"zeitliche Begrenzung\", \"Dienstbarkeit\", \"Fruchtgenussrecht\", \"Befristung\", \"Revision Zulässigkeit\", \"Dienstbarkeit des Gebrauchs\", \"Ersitzung\", \"persönliche Dienst"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_59149098",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Vermächtnis",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 101.86,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Vermächtnis\", \"results\": [{\"rs_number\": \"RS0042071\", \"kernaussage\": \"Die Beachtung von Neuerungen im Berufungsverfahren kann durch Revision nach § 503 Z 2, 3 und 4 ZPO nicht angefochten werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"§ 1111 ABGB\", \"Präklusivfrist\", \"Bestandverhältnis\", \"Mieterhaftung\", \"Verjährung\", \"UWG\", \"Werbeprospekt\", \"Nachahmung\", \"Irreführung\", \"Qualitätsangaben\", \"Sicherheitstüren\", \"Neuerungsverbot\", \"Traditio brevi manu\", \"Schenkungswiderruf\", \"Vertragszwang\", \"Behandlungsfehler\", \"Beweiserleichterung\", \"Sachverständigengutachten\", \"Beweiswürdigung\", \"Urlaubsabfindung\", \"Nichtigkeitsgrund\", \"Revisionsverfahren\", \"Berufungsverhandlung\", \"Vermächtnis\", \"Wohnungseigentum\", \"Testamentauslegung\", \"Legatserfüllung\", \"Geschäftsführung ohne Auftrag\", \"Zurückbehaltungsrecht\", \"Bürgschaft\", \"Sittenwidrigkeit\", \"Wucherverbot\", \"Firmenbuchstand\", \"Gerichtskundigkeit\", \"Geschäftsführerentlassung\", \"Kfz-Händlervertrag\", \"Kündigungsfrist\", \"GVO\", \"Art 85 EGV\", \"§ 879 Abs 3 ABGB\", \"Pistensicherungspflicht\", \"Mitverschulden\", \"Schmerzengeld\", \"Konkursforderung\", \"Bankgarantie\", \"Rechtsmissbrauch\", \"Berufungsverfahren\", \"Beweiswiederholung\", \"Haftrücklass\", \"Wegehalterhaftung\", \"Kurzparkzone\", \"Parkometerabgabe\", \"Geschäftsfähigkeit\", \"Verbrauchereigenschaft\", \"Zwangslage\", \"Unternehmerbegriff\", \"Markenverletzung\", \"Verwechslungsgefahr\", \"Unterscheidungskraft\", \"Wort-Bild-Marke\", \"Unterhaltsentgang\", \"Konsumquoten\", \"Naturalleistungen\", \"Beistandspflicht\"]}, {\"rs_number\": \"RS0042315\", \"kernaussage\": \"Streitwert einer Teilungsklage betreffend eine Lie"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_98718053",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Fruchtgenuss Pflichtteil Testament",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.53,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Fruchtgenuss Pflichtteil Testament\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_73800773",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "erbrecht",
+            "query": "Wirksamkeit eines lebenslangen Fruchtgenussrechts mit Veräußerungsverbot an Liegenschaft als Vermächtnis im Testament; Auswirkung auf Pflichtteil des Sohnes; Belastung der Erbmasse",
+            "max_clusters": 2,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.26,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0125304",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0125304",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.01,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0125304\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0042315",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0042315",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.68,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0042315\", \"rechtssatz_text\": \"Streitwert einer Teilungsklage betreffend eine Liegenschaft ist der (steuerliche) Einheitswert dieser Liegenschaft. An eine davon abweichende Festsetzung des Streitwerts durch das Berufungsgericht ist der OGH nicht gebunden.\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7168, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob254_12g|OGH|2013-01-24\", \"gz\": \"5Ob254_12g\", \"datum\": \"2013-01-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit einer als Revision zu behandelnden Berufung in einem Nichtigkeitsverfahren gegen Vorprozessurteile und verweist auf die Notwendigkeit einer Zulassungsentscheidung des Berufungsgerichts.\"}, {\"te_stable_key\": \"3Ob89_12b|OGH|2012-07-11\", \"gz\": \"3Ob89_12b\", \"datum\": \"2012-07-11\", \"gericht\": \"OGH\", \"mini_story\": \"Bewertung des Entscheidungsgegenstands in Exekutionsverfahren bei Vollstreckung eines Teilungsurteils über eine Liegenschaft mittels dreifachem Einheitswert gemäß § 60 Abs 2 JN.\"}, {\"te_stable_key\": \"5Ob203_08a|OGH|2008-09-23\", \"gz\": \"5Ob203_08a\", \"datum\": \"2008-09-23\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit des außerordentlichen Revisionsrekurses gegen Zurückweisung eines Rekurses im Verlassenschaftsverfahren wegen fehlenden Ausspruchs über den Wert des Entscheidungsgegenstands.\"}, {\"te_stable_key\": \"4Ob202_07w|OGH|2008-02-14\", \"gz\": \"4Ob202_07w\", \"datum\": \"2008-02-14\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Rekurs gegen die Aufhebung eines Urteils in einer Zivilteilungsklage ab und klärt die Beweislast bei Unzeiteinwänden aufgrund unklarer Rechtsverhältnisse an Liegenschaften mit Superädifikaten.\"}, {\"te_stable_key\": \"6Ob96_07x|OGH|2007-05-25\", \"gz\": \"6Ob96_07x\", \"datum\": \"2007-05-25\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Bewertung einer Klage auf Einwilligung in die Einverleibung als unwert ist zulässig, da der Wert unter § 502 Abs 2 ZPO liegt.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0042071",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0042071",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.67,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0042071\", \"rechtssatz_text\": \"Die Beachtung von Neuerungen im Berufungsverfahren kann durch Revision nach § 503 Z 2, 3 und 4 ZPO nicht angefochten werden.\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7165, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob210_24v|OGH|2025-02-19\", \"gz\": \"7Ob210_24v\", \"datum\": \"2025-02-19\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH-Revision prüft die Verjährung von Gewährleistungsansprüchen aus einem Kaufvertrag über ein VW-Fahrzeug im Dieselskandal-Kontext und die Auslegung eines konkludenten Verjährungsverzichts.\"}, {\"te_stable_key\": \"7Ob61_23f|OGH|2023-05-24\", \"gz\": \"7Ob61_23f\", \"datum\": \"2023-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung des Eintritts des Versicherungsfalls und des zeitlichen Risikoausschlusses gemäß ARB 2016 in einem Streit um Deckung für Ansprüche aus einem angeblichen Vermächtnis im Erbrecht.\"}, {\"te_stable_key\": \"5Ob22_21b|OGH|2021-08-30\", \"gz\": \"5Ob22_21b\", \"datum\": \"2021-08-30\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Abweisung der Klage gegen eine Mitbewohnerin wegen Feuchtigkeitszuleitung aus dem Nachbarwohnungseigentum ist unzulässig.\"}, {\"te_stable_key\": \"4Ob193_17m|OGH|2017-11-21\", \"gz\": \"4Ob193_17m\", \"datum\": \"2017-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH gibt der außerordentlichen Revision wegen Aktenwidrigkeit statt und stellt das Ersturteil über die Rückzahlung eines unwirksamen Refinanzierungsaufschlags in einem Konsumentenkredit wieder her.\"}, {\"te_stable_key\": \"4Ob51_16b|OGH|2016-04-20\", \"gz\": \"4Ob51_16b\", \"datum\": \"2016-04-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs der Beklagten gegen ein Unterlassungsverbot wegen Verwendung des Zeichens MAGIC MOUNTAIN zurück.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0040439",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0040439",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.05,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0040439\", \"rechtssatz_text\": \"Durch § 273 ZPO wird nur die Beweislast erleichtert, nicht aber die Behauptungslast abgenommen. Der Verpflichtung, die zur Ableitung des Begehrens sowohl dem Grunde als auch der Höhe nach erforderlichen Tatsachen vorzubringen, wird der Beweisführer nicht enthoben.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9276, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"9Ob35_25z|OGH|2025-07-17\", \"gz\": \"9Ob35_25z\", \"datum\": \"2025-07-17\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit der Revision und zur Berechnung des Benützungsentgelts bei Rücktritt vom Kaufvertrag eines Fahrzeugs mit unzulässiger Abschalteinrichtung unter Berücksichtigung von § 273 ZPO und des unionsrechtlichen Effektivitätsgrundsatzes.\"}, {\"te_stable_key\": \"6Ob136_22a|OGH|2022-12-21\", \"gz\": \"6Ob136_22a\", \"datum\": \"2022-12-21\", \"gericht\": \"OGH\", \"mini_story\": \"Streit über die Erstattung von Mehrkosten, die aus COVID-19-bedingten Schutzmaßnahmen bei der Ausführung von Bauarbeiten an einer Brücke entstanden sind.\"}, {\"te_stable_key\": \"9ObA84_16t|OGH|2016-07-26\", \"gz\": \"9ObA84_16t\", \"datum\": \"2016-07-26\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer Revision im Kontext von Diskriminierung bei Arbeitsverhältnisbegründung wegen fehlender Rechtsfrage und korrekter Anwendung von § 273 ZPO.\"}, {\"te_stable_key\": \"6Ob108_13w|OGH|2014-08-28\", \"gz\": \"6Ob108_13w\", \"datum\": \"2014-08-28\", \"gericht\": \"OGH\", \"mini_story\": \"Eine Bank klagt auf Schadenersatz wegen angeblicher Verletzung von Eigenmittelvorschriften des BWG durch eine konzerninterne Kapitalerhöhung und Ausgabe von Vorzugsaktien, die zu Kreditausfällen geführt habe.\"}, {\"te_stable_key\": \"8Ob18_14a|OGH|2014-03-24\", \"gz\": \"8Ob18_14a\", \"datum\": \"2014-03-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision wegen fehlender erheblicher Rechtsfrage zurück, da der Kläger den Eintritt eines Schadens durch versperrten Zugang zum Geschäftslokal nicht nachweisen konnte.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0012546",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0012546",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.62,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0012546\"}"
+        }
+      ],
+      "tool_calls_total": 17,
+      "tool_calls_ok": 17,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Zusammenfassung der Recherche (Phase 3): Wirksamkeit des Fruchtgenussrechts (§ 457 ABGB iVm § 477 ABGB – Korrektur: gemeint § 518 ABGB für persönlichen Fruchtgenuss/Nießbrauch) und Veräußerungsverbot; Auswirkungen auf Erbmasse/Pflichtteil**\n\n### 1. **Wirksamkeit des lebenslangen Fruchtgenussrechts (§ 518 ABGB als persönliche Dienstbarkeit/Personalservitut)**\n   - **Grundsätzlich wirksam als Vermächtnis**: Ein lebenslanger Fruchtgenuss (Nießbrauch) an einer Liegenschaft kann als Vermächtnis im Testament gültig an den Sohn vererbt werden (RS0115508: \"Der gewöhnlich als Personalservitut in Erscheinung tretende Fruchtgenuss kann [...] begründet\"; typisch persönlich, nicht dinglich). Keine Treffer zu § 457/477 ABGB relevant (diese regeln Pfand-/Servitutenerstreckung/Feldservituten; keine Erbrechtsrelevanz). Persönlicher Fruchtgenuss bindet den Alleinerben (Ehefrau) obligatorisch (§ 2249 ABGB Vermächtniserfüllung).\n   - **Dingliche Begründung (als Grunddienstbarkeit) eingeschränkt**: Nur möglich mit zeitlicher Begrenzung nach § 612 ABGB (RS0115508, RS0125304: \"zeitliche Beschränkung ist an den Wertungen des § 612 ABGB zu messen\"; RS0012546: Beschränkung gilt auch bei Kapitalersatz). Lebenslanger dinglicher Fruchtgenuss unwirksam (RS0125304: Eigentümer hat Löschungs-/Räumungsanspruch nach Ablauf). Hier: Persönlich (lebenslang am Sohn), daher wirksam, belastet aber Erbmasse.\n   - **Kein RS zu § 457/477 im Erbrecht; Suche ergab 0 relevante Treffer (nur Pfand-/Servitutenausdehnung).**\n\n### 2. **Wirksamkeit des Veräußerungsverbots und Vorkaufsrechts**\n   - **Veräußerungsverbot wahrscheinlich unwirksam/teils unwirksam**: Kein direkter RS gefunden. Als dingliche Belastung (an Liegenschaft) verstößt lebenslanges Verbot gegen § 612 ABGB (unbegrenzte Servitutverbote unzulässig; vgl. RS0115508/RS0125304). Obligatorisch (an Alleinerbin/Tochter): Freiheit des Geschäftsverkehrs (§ 422, 879 ABGB); ewige Bindung sittenwidrig (§ 879 ABGB). Vorkaufsrecht möglich, aber befristet/dringend (kein RS; analog RS0060629 zu obligatorischen Ansprüchen).\n   - **Auslegung als Vermächtnis**: Belastet Eigentum (Tochter), aber Alleinerbin (Ehefrau) muss erfüllen; Verbote mindern Erfüllbarkeit (RS0043463: Testamentauslegung als Rechts-/Tatfrage).\n\n### 3. **Auswirkungen auf Erbmasse und Pflichtteilsberechtigung (Sohn pflichtteilsberechtigt nach § 762 ABGB)**\n   - **Belastung der Erbmasse**: Fruchtgenuss mindert \"reinen Nachlass\" für Pflichtteilsberechnung (§§ 774, 788 ABGB). Erbteil muss \"wertmäßig mindestens die Höhe des Pflichtteils **frei von jeder Belastung** erreichen\" (RS0015379 zu § 774 ABGB explizit: \"Belastung durch Fruchtgenuß\"). Kapitalisierter Barwert < 1/6 → **Pflichtteilsminderung** (Sohn hat Ergänzungsanspruch § 786 ABGB; RS0107685: Anrechnung schlägt Zuwendungen dem Nachlass hinzu, Pflichtteile ziffernmäßig).\n     - Pflichtteil Sohn: Als Kind 1/2 gesetzlichen Erbteils (§ 757 ABGB; § 762 ABGB definiert Berechtigte; RS0012853: § 762 nur Kreis, kein Inhaltserfordernis). Bei Ehefrau + 2 Kinder: Gesetzlich Ehefrau 1/2, Kinder je 1/4 → Pflichtteil Kind 1/8 Nachlass. Hier <1/6 (vielleicht inkl. Anrechnung?); Minderung evident.\n   - **Hinzurechnung**: Fruchtgenuss an Hälfte Liegenschaft (3-7 Mio. €) als Zuwendung? Nur wenn Schenkung (§ 781 ABGB; RS0132046/RS0133516: Nutzungsrechte bei Hinzurechnung nur zum Tod bestehend; prüfen via Akteneinsicht).\n   - **§ 780 ABGB (Enterbung)**: Nicht relevant (keine Enterbung; RS0012267/RS0016116: Abstammende nur Pflichtteil bei Enterbung).\n   - **Beweislast**: Sohn (Pflichtteilsberechtigter) trägt Beweislast der Minderung/Höhe (Wert Fruchtgenuss, Nachlasswert; § 273 ZPO erleichtert, nicht enthebt – RS0040439). Alleinerbin (Ehefrau) Beweislast Gegenbehauptungen (z.B. Wert).\n\n### 4. **Ansprüche des Sohnes (fokussiert auf Streamziel)**\n   - **Primär: Pflichtteilsergänzungsklage** (§ 786 ABGB): Ergänzung auf vollen Pflichtteil (Geld; RS0107685). Fruchtgenuss zählt als Belastung (RS0015379), Verbot unwirksam → potenziell höherer Wert.\n   - **Sekundär: Vermächtnisklage** (§ 2249 ABGB): Erfüllung Fruchtgenuss (gegen Alleinerbin).\n   - **Kein Eigentum**: Nur Nutzungsrecht.\n\n### 5. **Kollisionskuratorbedarf? (kurz, da Parallelstream)**\n   - Ja: Sohn als Erwachsenenvertreter Mutter (Alleinerbin) hat Interessenkonflikt (eigenes Pflichtteil vs. Vertretung; § 276 ABGB Kollisionsfall; RS0108946 analog). Pflegschaftsgericht bestellt Kurator für Mutter.\n\n**Quellen**: RS0015379 (§774), RS0115508/RS0125304 (§612), RS0107685 (Anrechnung), RS0012853 (§762), RS0132046/RS0133516 (§781), RS0012267/RS0016116 (§780). Keine GZ (TE-Suchen 0); 0-Treffer bei spezifischen Queries → breitere RS priorisiert. Beweislast immer beim Beweisführer (Sohn für Minderung).",
+      "answer_chars": 4727,
+      "e2e_ms": 49041.03
+    },
+    {
+      "name": "Vertretungskonflikt & Kollisionskuratorbedarf",
+      "goal": "Prüfen, ob ein Interessenkonflikt zwischen der Ehefrau (Erbin) und dem Sohn (als Erwachsenenvertreter derselben) im Hinblick auf die Ausübung des Fruchtgenusses und des Vorkaufsrechts besteht und ob ein Kollisionskurator erforderlich ist",
+      "mode": "llm",
+      "tools": [
+        "search_kommentar_paragraph",
+        "hot_cluster_context",
+        "detect_clusters",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 16499.22,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3372,
+            "completion_tokens": 2777,
+            "total_tokens": 6149,
+            "cost": 0.0020437,
+            "cached_tokens": 128,
+            "reasoning_tokens": 2517
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 10517.04,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 23465,
+            "completion_tokens": 1884,
+            "total_tokens": 25349,
+            "cost": 0.0056158,
+            "cached_tokens": 128,
+            "reasoning_tokens": 1525
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 4881.51,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 9,
+          "usage": {
+            "prompt_tokens": 29682,
+            "completion_tokens": 668,
+            "total_tokens": 30350,
+            "cost": 0.0029868,
+            "cached_tokens": 53056,
+            "reasoning_tokens": 315
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 15999.52,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 33082,
+            "completion_tokens": 2171,
+            "total_tokens": 35253,
+            "cost": 0.0042183,
+            "cached_tokens": 62656,
+            "reasoning_tokens": 877
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_53005260",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kollisionskurator",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 85.21,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kollisionskurator\", \"results\": [{\"rs_number\": \"RS0109516\", \"kernaussage\": \"Im Streitwertbereich des § 14a AußStrG sind Rechtsmittel gegen Entscheidungen, gegen die nach dem Ausspruch gemäß § 13 Abs 1 Z 2 AußStrG der ordentliche Revisionsrekurs nicht zulässig ist, nur dem Gericht zweiter Instanz (sofort), nicht aber dem Obersten Gerichtshof vorzulegen (§ 16 Abs 2 Z 2...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unterhaltserhöhung\", \"Revisionsrekurs\", \"AußStrG\", \"Zulässigkeit\", \"Verbesserungsverfahren\", \"Unterhaltsvorschuss\", \"WGN 1997\", \"Kindesunterhalt\", \"Anspannung auf fiktives Einkommen\", \"Rechtliches Gehör\", \"Außerstreitverfahren\", \"Streitwert\", \"Antrag auf Abänderung\", \"Unterhaltsbemessung\", \"Prozentsatzmethode\", \"Sonderbedarf\", \"behindertes Kind\", \"Pflegegeld\", \"Unterhalt\", \"außerordentlicher Revisionsrekurs\", \"Unterhaltsbeschluß\", \"Verzugszinsen\", \"Entscheidungsgegenstand\", \"Unterhaltsleistung\", \"Obsorge\", \"Haager Übereinkommen\", \"Fristüberschreitung\", \"Dienstbarkeit\", \"Grundbuch\", \"Benützungsentgelt\", \"Unterhaltspflicht\", \"Unterhalt Minderjähriger\", \"Einheitswert\", \"Verbesserungsauftrag\", \"Unterhaltsvorschüsse\", \"§ 14a AußStrG\", \"Unterhaltsrückstand\", \"Abänderungsantrag\", \"Erhöhungsbegehren\", \"Zustellung\", \"Unterhaltsbeiträge\", \"Erhöhung\", \"Zulassungsvorstellung\", \"Streitgegenstand\", \"Unterhaltsbeitrag\", \"Zustellung Türkei\", \"Unterhaltsanspruch\", \"Unterhalt behindertes Kind\", \"Selbsterhaltungsfähigkeit\", \"Revisionszulässigkeit\", \"rechtliches Gehör\", \"Erbschaft\", \"Vermögenserträge\", \"Verlassenschaftsverfahren\", \"Mietrechtseintritt\", \"Räumungserlaubnis\", \""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_88424957",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Erwachsenenvertreter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 196.61,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Erwachsenenvertreter\", \"results\": [{\"rs_number\": \"RS0132535\", \"kernaussage\": \"Bei Einholung der Zustimmung ist die Übermittlung ganz allgemein gehaltener Kurzinformationen darüber, welche diagnostischen Maßnahmen (wie CCT, Röntgen, Blut- und Harnuntersuchung, EKG) zur Abklärung welchen Krankheitsbildes durchgeführt und welche Medikamente verabreicht werden müssen, jedenfalls...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Heilbehandlung ohne Zustimmung\", \"Gefahr im Verzug\", \"Sachwalter\", \"Erwachsenenvertreter\", \"Unterbringung\"]}, {\"rs_number\": \"RS0000083\", \"kernaussage\": \"Die gerichtliche Aufkündigung muß den aufgekündigten Bestandgegenstand so genau bezeichnen, daß kein Zweifel bestehen kann, auf welches Objekt sich die Aufkündigung bezieht. Nur bei unwesentlichen Fehlern in der Bezeichnung des Bestandgegenstandes, die keinen Zweifel an der Identität aufkommen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"gerichtliche Aufkündigung\", \"zwangsweise Räumung\", \"Exekutionstitel\", \"Bestimmtheit des Titels\", \"Bestandgegenstand\", \"Präzisierung\", \"Ergänzung der Kündigung\", \"Unternehmenspacht\", \"Kündigungsbezeichnung\", \"Betriebspflicht\", \"Bezeichnung des Bestandgegenstandes\", \"Richtigstellung\", \"unwesentlicher Fehler\", \"Berichtigung Bestandobjekt\", \"Räumungsklage\", \"außerordentliche Revision\", \"Nichtigkeitsgründe\", \"Mietvertrag\", \"Kündigung\", \"Tod des Mieters\", \"Kündigungstermin\", \"Neuerungsverbot\", \"Räumungsbegehren\", \"MRG\", \"Erwachsenenvertreter\", \"Lebensgemeinschaft\", \"Mietverhältnis\"]}, {\"rs_number\": \"RS0004403\", \"kernaussage\": \"Die Rechnungslegung ist eine unvertretbare Ha"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_05479046",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Kollisionskurator Erwachsenenvertreter Interessenkonflikt Erbrecht Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.42,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Kollisionskurator Erwachsenenvertreter Interessenkonflikt Erbrecht Pflichtteil\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_07014343",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 42.82,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Pflichtteil\", \"results\": [{\"rs_number\": \"RS0035411\", \"kernaussage\": \"Nur das Bestehen einer materiellen Streitgenossenschaft im Sinne des § 11 Z 1 ZPO vermag den Gerichtsstand der Streitgenossenschaft zu begründen. In Fällen, in denen für einen Streitgenossen noch weitere rechtserzeugende Tatsachen für die Ableitung des Anspruches hinzutreten oder bereits von...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bauvorhaben\", \"Wohnungseigentum\", \"Treuhandgeschäfte\", \"außerordentliche Revision\", \"Deckungskapital\", \"materielle Streitgenossenschaft\", \"Zusammenrechnung\", \"Fehlberatung\", \"Klagehäufung\", \"Rekurszulässigkeit\", \"Pflichtteil\", \"Legalzession\", \"Revisionzulässigkeit\", \"Streitwert\", \"inländische Gerichtsbarkeit\", \"Konsortialversicherung\", \"internationale Zuständigkeit\", \"Anscheinsvollmacht\", \"Streitgenossenschaft\", \"Amtshaftung\", \"Delegierung\", \"Liegenschaft im Ausland\", \"Zulässigkeit\", \"Deliktshaftung\", \"§ 54 HGB\", \"Erbrecht\", \"internationales Erbrecht\", \"Internationale Zuständigkeit\", \"österreichisch-schweizerischer Anerkennungs- und Vollstreckungsvertrag\", \"Gerichtsbarkeit\"]}, {\"rs_number\": \"RS0035450\", \"kernaussage\": \"Eine Berechtigung oder Verpflichtung aus demselben tatsächlichen oder rechtlichen Grund im Sinne des § 11 Z 1 ZPO setzt einen einheitlichen rechtserzeugenden Tatbestand voraus, ohne dass für einen Streitgenossen noch weitere rechtserzeugende Tatsachen für die Ableitung des Anspruches hinzutreten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Legalzession\", \"Fehlberatung\", \"§ 477 ZPO\", \"Revisionszulässigkeit\", \"Aufklärungspflicht\", \"Geschäftsführung ohne "
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_35235274",
+          "tool": "detect_clusters",
+          "args": {
+            "topic": "erbrecht",
+            "query": "Interessenkonflikt Erwachsenenvertreter Ehefrau Erbin Sohn Pflichtteil Fruchtgenuss Vorkaufsrecht Kollisionskurator"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.64,
+          "error": null,
+          "payload_preview": "\"Unknown tool: detect_clusters\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_11823935",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0127971",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.7,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127971\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_49171049",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0132348",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.83,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0132348\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_28517016",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0128524",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.24,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0128524\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_82869077",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Interessenkollision",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 105.22,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Interessenkollision\", \"results\": [{\"rs_number\": \"RS0060799\", \"kernaussage\": \"Bei Beurteilung der Frage, wie lange derjenige, der von der Bewilligung einer Eintragung vorschriftswidrig nicht verständigt wurde, diese Eintragung mit Rekurs anfechten kann, spielt die Frage, ob die Zustellung angeordnet worden oder auch diese Verfügung unterblieben war, keine Rolle. Das Rekursrec...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mappenberichtigung\", \"Rekursrecht\", \"Grundbuchseintragung\", \"Vollmacht\", \"Interessenkollision\", \"Pfandbestellung\", \"Insichgeschäft\", \"Grundbuchszustellung\", \"Umlegungsverfahren\", \"Grundbuch\", \"Miteigentum\", \"Rekursfrist\", \"Ersichtlichmachung\"]}, {\"rs_number\": \"RS0060806\", \"kernaussage\": \"Wird eine Person, der ein Grundbuchsbeschluss zuzustellen ist, vorschriftswidrig nicht verständigt, so erlischt ihr Rekursrecht erst dann, wenn die Eintragung auch mit Löschungsklage nicht mehr bekämpft werden könnte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Pfandrechtslöschpflicht\", \"Wohnrecht\", \"Dienstbarkeit\", \"Grundbuchsbeschluß\", \"Rekurs\", \"Veräußerungsverbot\", \"Belastungsverbot\", \"Pfandrechtseinverleibung\", \"Rekursrecht\", \"Grundbuch\", \"Vollmacht\", \"Interessenkollision\", \"Pfandbestellung\", \"Insichgeschäft\", \"Grundbuchszustellung\", \"Vorkaufsrecht\", \"Grundbucheinverleibung\", \"Rekursfrist\", \"Eigentumseinverleibung\", \"Schenkung\", \"Umlegungsverfahren\", \"Miteigentum\", \"Ersichtlichmachung\"]}, {\"rs_number\": \"RS0062298\", \"kernaussage\": \"Bestellung eines Liquidators durch das Gericht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Liquidatorenbestellung\", \"Offene Handelsgesells"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_29420204",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Interessenkonflikt Sachwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1068.48,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Interessenkonflikt Sachwalter\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_17790876",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Kollisionskurator Sachwalter Erbrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.72,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Kollisionskurator Sachwalter Erbrecht\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_37451485",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Erwachsenenvertreter Interessenkonflikt Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.98,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Erwachsenenvertreter Interessenkonflikt Pflichtteil\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_52179976",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0015379",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.08,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0015379\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_24425468",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0127971"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 812.69,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0127971\", \"rechtssatz\": \"Die Bestellung eines Kollisionskurators zur Durchsetzung von Unterhaltsansprüchen eines Minderjährigen gegenüber einem Elternteil fällt nicht unter den Richtervorbehalt des § 19 Abs 2 RPflG, sondern in die generelle Zuständigkeit des Rechtspflegers.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kollisionskurator\", \"Bestellung Kollisionskurator\", \"Unterhaltsfestsetzung\", \"Zuständigkeit Rechtspfleger\", \"Obsorge\", \"Interessenkollision\", \"Unterhaltsansprüche\", \"Pflege und Erziehung\", \"gesetzliche Vertretung\"], \"fachgebiete\": [\"Obsorge\", \"Kindesunterhalt\"], \"datum\": \"2012-10-24\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_68061395",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0099395"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 260.76,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0099395\", \"rechtssatz\": \"Zur Annahme einer Interessenkollision genügt objektiver Tatbestand. Subjektive Gründe in der Person des Vertreters sind nicht erforderlich. Interessenkollision besteht zwischen Vater und Kinder als Miterben wegen der notwendigen Erbteilung. Ihre Annahme ist keinesfalls offenbar gesetzwidrig (vgl JBl 1952,268).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Amtshaftung\", \"beschränkte Entmündigung\", \"Kollisionskurator\", \"Verjährung\", \"Pflegschaftsgericht\", \"Namensgebung\", \"Vaterschaft\", \"Vaterschaftsanerkenntnis\", \"Interessenkollision\", \"Jugendwohlfahrtsträger\", \"Minderjährige\", \"Interessenwiderspruch\", \"Elternvertretung\", \"uneheliches Kind\", \"Obsorge\", \"Interessenwiderstreit\", \"einstweiliger Sachwalter\", \"Verfahrenssachwalter\", \"Befangenheit\", \"Sachwalterbestellung\", \"Eignung des Sachwalters\", \"Außerordentlicher Revisionsrekurs\", \"Verlassenschaftskurator\", \"Verlassenschaftsverfahren\", \"Erbantritt\", \"AußStrG\"], \"fachgebiete\": [\"Amtshaftung\", \"Obsorge\", \"Revision\", \"Rekurs\"], \"datum\": \"2011-12-22\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_28287013",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0107600"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.59,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0107600\", \"rechtssatz\": \"Die Bestellung eines Kurators setzt nicht voraus, dass der Interessenwiderspruch schon zu einer Schädigung des Minderjährigen geführt hat, vielmehr soll durch die Bestellung des Kurators eine derartige Schädigung hintangehalten werden. Ein Kurator ist also schon dann zu bestellen, wenn aufgrund eines objektiv gegebenen Interessenwiderspruches eine Gefährdung der Interessen des Minderjährigen möglich ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unterhaltsfestsetzung\", \"alleinige Obsorge\", \"Unterhaltspflicht\", \"Interessenkollision\", \"Kindesunterhalt\", \"OGH 3 Ob 204/21b\", \"§ 277 ABGB\", \"Erbschaftsausschlagung\", \"Restgeldunterhalt\", \"GmbH\", \"Sachwalter\", \"Minderjähriger Kommanditist\", \"Unterhaltsansprüche\", \"Firmenbuch\", \"AußStrG\", \"Obsorge\", \"Rechtsnachfolge\", \"Außerordentlicher Revisionsrekurs\", \"Zuständigkeitsstreit\", \"Pflege und Erziehung\", \"Interessenkonflikt\", \"gesetzliche Vertretung\", \"Erbantritt\", \"Amtshaftung\", \"Kollisionskurator\", \"Scheidungsvergleich\", \"Schenkung\", \"Verlassenschaftskurator\", \"Anspannungspflicht\", \"Vorsorgevollmacht\"], \"fachgebiete\": [\"Kindesunterhalt\", \"Revision\", \"Amtshaftung\", \"Obsorge\"], \"datum\": \"2025-07-22\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_07492093",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0079249"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.7,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0079249\", \"rechtssatz\": \"Richtet sich der Antrag des Kindes auf Unterhaltsfestsetzung gegen den als Vertreter berufenen Elternteil, so liegt ein Fall des § 271 ABGB vor und es muss daher für das Kind ein besonderer Kurator bestellt werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kindesunterhalt\", \"Obsorge\", \"besonderer Kurator\", \"Vertretungsbefugnis\", \"nicht obsorgeberechtigter Elternteil\", \"Antragslegitimation\", \"Unterhaltsfestsetzung\", \"Kollisionskurator\", \"Abstammungsfeststellung\", \"Vaterschaftsvermutung\", \"Obsorgeberechtigung\", \"Unterhaltsnachzahlung\", \"Außerstreitverfahren\", \"Bestellung Kollisionskurator\", \"Zuständigkeit Rechtspfleger\", \"Interessenkollision\", \"Unterhaltsansprüche\", \"Pflege und Erziehung\", \"gesetzliche Vertretung\", \"alleinige Obsorge\", \"Interessenkonflikt\", \"Mutter als Vertreterin\", \"Rekurslegitimation\", \"Restgeldunterhalt\", \"Anspannungspflicht\"], \"fachgebiete\": [\"Kindesunterhalt\", \"Obsorge\"], \"datum\": \"2025-07-22\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_13918457",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Sachwalter Erbrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1060.95,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Sachwalter Erbrecht\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_81323937",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Erwachsenenschutz Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1016.28,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Erwachsenenschutz Pflichtteil\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_30951059",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kollisionskurator Verlassenschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 999.88,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kollisionskurator Verlassenschaft\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_06001548",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Interessenkonflikt Erwachsenenvertreter Erbin Pflichtteil",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.97,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Interessenkonflikt Erwachsenenvertreter Erbin Pflichtteil\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_14913238",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 281 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 954.07,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 281 ABGB\", \"results\": [{\"rs_number\": \"RS0087010\", \"kernaussage\": \"Es ist nicht offenbar gesetzwidrig, für den Fall, daß eine nahestehende Person nicht vorhanden ist und mangels Vorschlages des Sachwaltervereines auch keine von ihm namhaft gemachte Person zur Verfügung steht, eine in § 281 ABGB nicht genannte andere Person zum Sachwalter zu bestellen. Es widerspric...\", \"schlagworte\": []}, {\"rs_number\": \"RS0048291\", \"kernaussage\": \"Bei der Auswahl der Person des einstweiligen Sachwalters ist § 281 ABGB anzuwenden. Wenngleich dem Gericht bei der Auswahl jener Person, welche zum Sachwalter bestellt werden kann, ein Ermessensspielraum eingeräumt ist, ist nach dem zwingenden Wortlaut des § 281 Abs 3 ABGB dann, wenn es klar ist, ...\", \"schlagworte\": [\"einstweiliger Sachwalter\", \"Verfahrenssachwalter\", \"Befangenheit\", \"Interessenkollision\", \"Einstweiliger Verfahrenssachwalter\", \"Auswahl des Sachwalters\", \"§ 281 ABGB\", \"Sachwalterschaft\", \"Bestellung eines Sachwalters\", \"Bestellung mehrerer Sachwalter\", \"Sachwalterbestellung\", \"Revisionsrekurs\", \"AußStrG\", \"ABGB\", \"Erbschaftsverfahren\", \"Umbestellung Sachwalter\", \"Rechtskenntnisse\", \"Enthebung\", \"Bestellung\", \"Wohl des Betroffenen\", \"Obsorgekonflikt\", \"psychische Erkrankung\", \"Begründungspflicht\", \"Sachverständigengutachten\", \"Testierfähigkeit\", \"Auswahl Sachwalter\", \"Sachwalterumbestellung\", \"Wohl der Betroffenen\", \"neue Tatsache\", \"Bestellung Rechtsanwalt\", \"Eignung Sachwalter\", \"§ 279 ABGB\", \"Verfassungskonformität\", \"Prioritäten § 279 ABGB\", \"Einstweiliger Sachwalter\", \"Rechtsanwaltspflicht\", \"Rechtsanwältin\", "
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0132535",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0132535",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.45,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0132535\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109516",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109516",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.08,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0109516\", \"rechtssatz_text\": \"Im Streitwertbereich des § 14a AußStrG sind Rechtsmittel gegen Entscheidungen, gegen die nach dem Ausspruch gemäß § 13 Abs 1 Z 2 AußStrG der ordentliche Revisionsrekurs nicht zulässig ist, nur dem Gericht zweiter Instanz (sofort), nicht aber dem Obersten Gerichtshof vorzulegen (§ 16 Abs 2 Z 2...\", \"te_count\": 83, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 402, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob75_04m|OGH|2004-04-21\", \"gz\": \"7Ob75_04m\", \"datum\": \"2004-04-21\", \"gericht\": \"OGH\", \"mini_story\": \"Entscheidung über Revisionsrekurs in Unterhaltsangelegenheit im Außerstreitverfahren bezüglich Abzug bereits geleisteter Zahlungen.\"}, {\"te_stable_key\": \"10Ob12_04v|OGH|2004-03-16\", \"gz\": \"10Ob12_04v\", \"datum\": \"2004-03-16\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Zulässigkeit und Vorlegung eines außerordentlichen Revisionsrekurses in einem Unterhaltsverfahren gemäß AußStrG.\"}, {\"te_stable_key\": \"10Ob36_03x|OGH|2003-10-07\", \"gz\": \"10Ob36_03x\", \"datum\": \"2003-10-07\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit eines außerordentlichen Revisionsrekurses gegen eine Entscheidung im Kindesunterhaltsverfahren unter Berücksichtigung der Streitwertvorgaben des AußStrG.\"}, {\"te_stable_key\": \"2Ob145_04v|OGH|2003-06-17\", \"gz\": \"2Ob145_04v\", \"datum\": \"2003-06-17\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässige Vorlage eines Revisionsrekurses beim OGH in einem Verfahren über Kindesunterhaltsvorschüsse.\"}, {\"te_stable_key\": \"10Ob327_02i|OGH|2003-05-27\", \"gz\": \"10Ob327_02i\", \"datum\": \"2003-05-27\", \"gericht\": \"OGH\", \"mini_story\": \"Zur korrekten Einlegung eines Antrags auf Abänderung des Zulässigkeitsausspruchs im Revisionsrekursverfahren nach AußStrG bei Unterhaltsvergleichen.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0087010",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0087010",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.06,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0087010\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0062298",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0062298",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.13,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0062298\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0060806",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0060806",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.38,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0060806\", \"rechtssatz_text\": \"Wird eine Person, der ein Grundbuchsbeschluss zuzustellen ist, vorschriftswidrig nicht verständigt, so erlischt ihr Rekursrecht erst dann, wenn die Eintragung auch mit Löschungsklage nicht mehr bekämpft werden könnte.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15907, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob153_08y|OGH|2008-09-23\", \"gz\": \"5Ob153_08y\", \"datum\": \"2008-09-23\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision betrifft die Wirksamkeit einer Vollmacht zur Verbücherung eines Pfandrechts an einer Liegenschaft zur Sicherung der eigenen Schuld des Bevollmächtigten gegenüber einem Dritten.\"}, {\"te_stable_key\": \"5Ob102_08y|OGH|2008-08-26\", \"gz\": \"5Ob102_08y\", \"datum\": \"2008-08-26\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit des außerordentlichen Revisionsrekurses gegen die Abweisung der Einverleibung eines Eigentumsanteils an einer Liegenschaft mit einverleibtem Vorkaufsrecht.\"}, {\"te_stable_key\": \"5Ob55_05g|OGH|2005-06-21\", \"gz\": \"5Ob55_05g\", \"datum\": \"2005-06-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revisionen gegen die Einverleibung von Pfandrechten unter einem im Grundbuch eingetragenen Veräußerungs- und Belastungsverbot sind unberechtigt.\"}], \"te_items_count\": 3}"
+        }
+      ],
+      "tool_calls_total": 27,
+      "tool_calls_ok": 27,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Zusammenfassung der Findings (Phase 3)\n\n#### 1. **Bestehen eines Interessenkonflikts (§ 281 ABGB, RS0099395, RS0107600)**\n- **Objektiver Interessenkonflikt vorliegend**: Der Sohn als **Erwachsenenvertreter** (§ 274 ff ABGB) der Mutter (Alleinerbin) muss deren Interessen wahren, inkl. Abwehr von Pflichtteilsansprüchen des Sohnes selbst (§ 762 ABGB: Sohn pflichtteilsberechtigt als Abstammender; RS0012853). Die Mutter als Erbin hat Interesse an **Nachlassfeststellung und -abwicklung ohne Pflichtteilsbelastung** (§ 774 ABGB: Erbteil muss wertmäßig mind. Pflichtteil erreichen, frei von Belastungen wie Fruchtgenuss; RS0015379). Sohn profitiert jedoch von **Pflichtteilsminderung**, da kapitalisierter Fruchtgenuss < 1/6 liegt (§ 781 ABGB Hinzurechnung von Nutzungsrechten; RS0133516: Nutzungsrechte bei Hinzurechnung nur bis Erblasser-Tod relevant).\n  - **Spezifisch Fruchtgenuss/Vorkaufsrecht**: Sohns lebenslanger Fruchtgenuss an ½ Liegenschaft (Wert 3-7 Mio €, mit Veräußerungsverbot/Vorkaufsrecht) kollidiert mit mütterlichem Interesse an freier Verfügung/Verwertung als Erbin. Sohn könnte als Vertreter mütterliche Rechte einschränken, um eigenen Genuss/Vorkauf zu schützen (analog RS0099395: Kollision Vater-Kinder als Miterben bei Erbteilung; **objektiver Tatbestand genügt, subjektive Motive irrelevant**).\n- **RS-Beleg**: \n  | RS-Nummer | Kernaussage | Relevanz |\n  |-----------|-------------|----------|\n  | RS0099395 | Interessenkollision zwischen Vertreter (Vater) und Miterben (Kinder) bei Erbteilung objektiv gegeben; Annahme nicht gesetzwidrig (JBl 1952, 268). | Direkte Analogie: Sohn = Vertreter + pflichtteilsberechtigtes Kind vs. Mutter = Erbin. |\n  | RS0107600 | Kurator bei **objektivem Interessenwiderspruch**, sobald Gefährdung möglich (keine tatsächliche Schädigung erforderlich). | Präventiv: Sohns Vertretung gefährdet mütterliche Interessen (Pflichtteilsabwehr, Liegenschaftsverwertung). |\n  | RS0015379 | § 774 ABGB: Fruchtgenuss belastet Erbteil; muss wertmäßig Pflichtteil erreichen. | Sohns Anspruch mindert mütterlichen Nachlasswert. |\n\n- **Beweislast**: Sohn (als Antragsteller auf Vertretungsbefugnis/Handlungen) trägt **Darlegungslast für Fehlen von Kollision** (§ 281 Abs 3 ABGB: Ablehnungsgrund bei Kollision; RS0048291). Gericht prüft **amtseigen** auf Kollision (§ 281 ABGB; RS0087010).\n\n#### 2. **Erforderlichkeit eines Kollisionskurators/Sachwalterumbestellung**\n- **Ja, erforderlich**: Bei Erwachsenenschutz gilt § 281 ABGB (Prioritäten/Ablehnung bei Kollision; RS0048291: Ermessensspielraum, aber zwingend Wortlaut). Kollisionskurator (bzw. besonderer Sachwalter) bei objektiver Kollision, um **Wohl der Mutter** zu schützen (RS0107600; analog RS0079249: § 271 ABGB bei Unterhaltskonflikt gegen Vertreter-Elternteil).\n  - **Verfahren**: Gericht bestellt **besonderen Sachwalter/Kollisionskurator** ex officio (§ 281 ABGB, § 273 ABGB subsidiär; RS0107907). Kein Richtervorbehalt (RS0127971: Generell Rechtspfleger-zuständig).\n  - **Kein automatisches Verbot**: Sohns Vertretung nicht ipso iure unwirksam, aber **Umbestellung** bei nachgewiesener Kollision (RS0087010).\n- **RS-Beleg**:\n  | RS-Nummer | Kernaussage | Relevanz |\n  |-----------|-------------|----------|\n  | RS0127971 | Bestellung Kollisionskurators nicht Richtervorbehalt; Rechtspfleger-zuständig. | Verfahrensrechtlich: Sofort beantragbar. |\n  | RS0079249 | Besonderer Kurator, wenn Antrag gegen berufenen Vertreter-Elternteil (§ 271 ABGB). | Analogie: Sohns Pflichtteil = \"Antrag gegen Mutter\". |\n  | RS0048291 | § 281 ABGB bei Auswahl; klare Kollision → Ablehnung/Wechsel. | Bindend für Erwachsenenvertreter. |\n\n#### 3. **Sonstige Sohn-Ansprüche (kurz, parallel Streams vermeiden)**\n- **Pflichtteil**: Berechtigt (§ 762 ABGB; RS0012853). Hinzurechnung Fruchtgenuss prüfen (§ 781 ABGB; RS0132046). **Beweislast Sohn**: Höhe des kapitalisierten Werts (unter 1/6).\n- **Keine Enterbung**: § 780 ABGB irrelevant (RS0012267).\n\n**Empfehlung**: Sohn beantragt **gerichtliche Klärung** (§ 273 ABGB); Gericht entscheidet über Umbestellung. Keine Duplikation zu Pflichtteils-/Sachenrechts-Streams.",
+      "answer_chars": 4101,
+      "e2e_ms": 59727.73
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 25001.53,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 5631,
+    "usage": {
+      "prompt_tokens": 16042,
+      "completion_tokens": 3063,
+      "total_tokens": 19105,
+      "cost": 0.0047174,
+      "cached_tokens": 150,
+      "reasoning_tokens": 1264
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0015379",
+          "RS0012566",
+          "RS0115508",
+          "RS0099395",
+          "RS0040439",
+          "RS0127971",
+          "RS0037161",
+          "RS0107600"
+        ],
+        "validation": {
+          "cited": 8,
+          "checked": 8,
+          "valid": 8,
+          "invalid": [],
+          "sample_valid": [
+            "RS0012566",
+            "RS0015379",
+            "RS0037161",
+            "RS0040439",
+            "RS0099395",
+            "RS0107600",
+            "RS0115508",
+            "RS0127971"
+          ]
+        },
+        "valid": [
+          "RS0015379",
+          "RS0012566",
+          "RS0115508",
+          "RS0099395",
+          "RS0040439",
+          "RS0127971",
+          "RS0037161",
+          "RS0107600"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 773 ABGB",
+          "§ 774 ABGB",
+          "§ 457 ABGB",
+          "§ 612 ABGB",
+          "§ 775 ABGB",
+          "§ 613 ABGB",
+          "§ 271 ABGB",
+          "§ 773, 774 ABGB",
+          "§ 273 ZPO",
+          "§ 35 EO",
+          "§ 773/774 ABGB"
+        ],
+        "ungrounded": [
+          "§ 773, 774 ABGB",
+          "§ 35 EO",
+          "§ 773/774 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000083",
+          "RS0003595",
+          "RS0004403",
+          "RS0011571",
+          "RS0011576",
+          "RS0011577",
+          "RS0012546",
+          "RS0012566",
+          "RS0015379",
+          "RS0015381",
+          "RS0016515",
+          "RS0035411",
+          "RS0035450",
+          "RS0037146",
+          "RS0037161",
+          "RS0040439",
+          "RS0042071",
+          "RS0042315",
+          "RS0048291",
+          "RS0060799",
+          "RS0060806",
+          "RS0062298",
+          "RS0079249",
+          "RS0087010",
+          "RS0099395",
+          "RS0107600",
+          "RS0109516",
+          "RS0115508",
+          "RS0120619",
+          "RS0125304",
+          "RS0127971",
+          "RS0128524",
+          "RS0132046",
+          "RS0132348",
+          "RS0132535",
+          "RS0133516"
+        ],
+        "te_ogh": [
+          "3Ob204/21b"
+        ],
+        "norms": [
+          "§ 1072\", \"ABGB",
+          "§ 11 Z 1 ZPO",
+          "§ 1111 ABGB",
+          "§ 182 ZPO",
+          "§ 24\", \"ABGB",
+          "§ 271 ABGB",
+          "§ 273 ZPO",
+          "§ 277 ABGB",
+          "§ 279 ABGB",
+          "§ 281 ABGB",
+          "§ 281 Abs 3 ABGB",
+          "§ 331 EO",
+          "§ 457 ABGB",
+          "§ 477 ABGB",
+          "§ 477 ZPO",
+          "§ 492 f ABGB",
+          "§ 502 Abs 1 ZPO",
+          "§ 502 Abs 2 ZPO",
+          "§ 503 Z 2, 3 und 4 ZPO",
+          "§ 514 ABGB",
+          "§ 540 ABGB",
+          "§ 612 ABGB",
+          "§ 613 ABGB",
+          "§ 768 ABGB",
+          "§ 768 Z 2 ABGB",
+          "§ 773 ABGB",
+          "§ 773a ABGB",
+          "§ 774 ABGB",
+          "§ 775 ABGB",
+          "§ 879 Abs 3 ABGB",
+          "§§ 331 ff EO"
+        ],
+        "stats": {
+          "rs_count": 36,
+          "te_ogh_count": 1,
+          "norm_count": 31
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0015379",
+          "RS0012566"
+        ],
+        "validation": {
+          "cited": 2,
+          "checked": 2,
+          "valid": 2,
+          "invalid": [],
+          "sample_valid": [
+            "RS0012566",
+            "RS0015379"
+          ]
+        },
+        "valid": [
+          "RS0015379",
+          "RS0012566"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 773 ABGB",
+          "§ 774 ABGB",
+          "§ 457 ABGB",
+          "§ 612 ABGB",
+          "§ 775 ABGB",
+          "§ 613 ABGB",
+          "§ 271 ABGB",
+          "§ 273 ZPO"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000083",
+          "RS0003595",
+          "RS0004403",
+          "RS0011571",
+          "RS0011576",
+          "RS0011577",
+          "RS0012546",
+          "RS0012566",
+          "RS0015379",
+          "RS0015381",
+          "RS0016515",
+          "RS0035411",
+          "RS0035450",
+          "RS0037146",
+          "RS0037161",
+          "RS0040439",
+          "RS0042071",
+          "RS0042315",
+          "RS0048291",
+          "RS0060799",
+          "RS0060806",
+          "RS0062298",
+          "RS0079249",
+          "RS0087010",
+          "RS0099395",
+          "RS0107600",
+          "RS0109516",
+          "RS0115508",
+          "RS0120619",
+          "RS0125304",
+          "RS0127971",
+          "RS0128524",
+          "RS0132046",
+          "RS0132348",
+          "RS0132535",
+          "RS0133516"
+        ],
+        "te_ogh": [
+          "3Ob204/21b"
+        ],
+        "norms": [
+          "§ 1072\", \"ABGB",
+          "§ 11 Z 1 ZPO",
+          "§ 1111 ABGB",
+          "§ 182 ZPO",
+          "§ 24\", \"ABGB",
+          "§ 271 ABGB",
+          "§ 273 ZPO",
+          "§ 277 ABGB",
+          "§ 279 ABGB",
+          "§ 281 ABGB",
+          "§ 281 Abs 3 ABGB",
+          "§ 331 EO",
+          "§ 457 ABGB",
+          "§ 477 ABGB",
+          "§ 477 ZPO",
+          "§ 492 f ABGB",
+          "§ 502 Abs 1 ZPO",
+          "§ 502 Abs 2 ZPO",
+          "§ 503 Z 2, 3 und 4 ZPO",
+          "§ 514 ABGB",
+          "§ 540 ABGB",
+          "§ 612 ABGB",
+          "§ 613 ABGB",
+          "§ 768 ABGB",
+          "§ 768 Z 2 ABGB",
+          "§ 773 ABGB",
+          "§ 773a ABGB",
+          "§ 774 ABGB",
+          "§ 775 ABGB",
+          "§ 879 Abs 3 ABGB",
+          "§§ 331 ff EO"
+        ],
+        "stats": {
+          "rs_count": 36,
+          "te_ogh_count": 1,
+          "norm_count": 31
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 12123.96,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3635,
+        "completion_tokens": 3027,
+        "total_tokens": 6662,
+        "cost": 0.0022213,
+        "cached_tokens": 128,
+        "reasoning_tokens": 1557
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 2,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Pflichtteilsanspruch des Sohnes (§ 773 ABGB)**: Der kapitalisierte Wert des Fruchtgenussrechts liegt unter dem Pflichtteil von 1/6; die Frage ist, ob der Fruchtgenuss als Belastung den Erbteil unter § 774 ABGB mindert und einen Ergänzungsanspruch gegen die Alleinerbin begründet (RS0015379).\n- **Vertretungskonflikt und Kollisionskurator**: Als Erwachsenenvertreter der Alleinerbin besteht beim Sohn ein Interessenkonflikt bei Klage gegen seine Mutter.\n- **Wirksamkeit des Fruchtgenusses**: Lebenslänglicher Fruchtgenuss an Hälfte der Liegenschaft mit Veräußerungs-/Vorkaufsrecht als dingliches Recht (§ 457 ABGB iVm § 612 ABGB); prüfen, ob als Belastung für Pflichtteil anzurechnen.\n\n### 2. RECHTSGRUNDLAGEN\nPflichtteilsanspruch des Sohnes als Kind des Erblassers gegen Alleinerbin (Ehefrau) nach Stufenbau: Primär § 773 ABGB (Pflichtteil = 1/2 gesetzlichen Erbteils = 1/6 Nachlass), ergänzt durch § 774 ABGB (Zuwendungen wie Fruchtgenuss werden angerechnet, wenn wertmäßig pflichtteilsdeckend und frei von Belastung). Subsidär § 775 ABGB, falls Fruchtgenuss als bloße Vorerbschaft (§ 613 ABGB) auszulegen. Fruchtgenussrecht: § 457 ABGB (als Personalservitut oder begrenzte Grunddienstbarkeit § 612 ABGB). Kollisionskurator: § 271 ABGB analog.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0015379**: § 774 ABGB erfordert, dass Erbteil wertmäßig mindestens Pflichtteil frei von Belastungen wie Fruchtgenuss erreicht – relevant, da Sohns Fruchtgenuss Nachlass belasten könnte.\n- **RS0012566**: Bei Vorerbschaft (§ 613 ABGB) nur § 775 ABGB, nicht § 774, wenn Erblasser letztlichen Erwerb durch Nacherben priorisierte – relevant für Auslegung des Testaments (Tochter als Eigentümerin).\n\n### 4. SUBSUMTION\n**Pflichtteilsanspruch **: Sohn als Kind pflichtteilsberechtigt (1/6 Nachlass); Fruchtgenuss an Hälfte der Liegenschaft (Wert 3-7 Mio EUR) kapitalisiert unter 1/6, bildet Belastung (RS0015379); Testament zielt auf Eigentum Tochter ab (RS0012566), deckt aber nicht frei von Belastung (§ 774 ABGB); Ergänzungsanspruch gegen Alleinerbin (Ehefrau) besteht. \n**Kollisionskurator (§ 271 ABGB analog)**: Sohn als Erwachsenenvertreter der Erbin hat Interessenkonflikt (eigener Anspruch gegen Mutter); Kurator erforderlich, um Vertretung zu entlasten.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Nachlasswert und Pflichtteil (1/6)**: Sohn (Klager) muss Tatsachen zu Nachlasswert (Liegenschaft 3-7 Mio EUR) und Kapitalwert Fruchtgenuss beweisen (§ 273 ZPO erleichtert nur Beweislast, nicht Behauptungslast); fehlen: Gutachten zu Kapitalisierung – Sohn trägt volle Last.\n- **Belastung durch Fruchtgenuss**: Sohn beweist Unzureichendeckung (RS0015379); Erbin muss Gegenbeweis (frei von Belastung) führen; vorhanden: Testament-Text; fehlen: Auslegungsergebnis (RS0012566).\n- **Interessenkonflikt**: Sohn/Gericht prüft objektiv; fehlen: Beweise zu Vertretungsrolle und Konfliktwirkung.\n- **Fruchtgenusswirksamkeit**: Sohn beweist dingliche Natur (§ 612 ABGB); fehlen: Grundbucheintrag.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren** (hohe Erfolgsaussicht): Feststellung/Ergänzung Pflichtteil gegen Ehefrau als Alleinerbin, Zahlung des Mangels (basierend auf RS0015379); parallel Antrag auf Kollisionskurator (§ 271 ABGB analog). \n**Eventualbegehren** (niedriger): Umdeutung Fruchtgenuss als Vorerbschaft (§ 775 ABGB, RS0012566), falls § 774 scheitert. Priorität: Pflichtteil > Kuratorbestellung.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0012566)**: Testament als Vorerbschaft (§ 613 ABGB) auszulegen, nur § 775 ABGB – Replik: Fruchtgenuss kein Vorerbe, sondern dingliche Belastung (RS0015379), Testamentsauslegung priorisiert Eigentum Tochter nicht exklusiv.\n- **Risiko 2**: Lebenslanger Fruchtgenuss unwirksam als unbegrenzte Dienstbarkeit (§ 612 ABGB) – Replik: Als Personalservitut möglich, Belastung bleibt für Pflichtteil (RS0015379); Eintrag prüfbar.\n- **Risiko 3**: Klage ungenügend substantiiert, Abweisung ohne Verbesserung – Replik: § 273 ZPO erleichtert, Sohn muss vorbringen.\n- **Risiko 4**: Keine Kollisionskurator-Pflicht – Replik: Objektive Kollision plausibel.\n- **Risiko 5 (RS0015379)**: Fruchtgenuss deckt doch pflichtteilsfrei – Replik: Explizit \"frei von jeder Belastung\" erforderlich, Kapitalwert unter 1/6 widerlegt.\n\n### 8. ERFOLGSAUSSICHTEN\n- **Pflichtteil**: 80% (starke RS0015379-Unterstützung für Belastung, Kapitalwertmangel gegeben; Risiko Auslegung RS0012566).\n- **Kollisionskurator § 271 ABGB analog**: 50% (objektive Kollision plausibel)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Pflichtteilsanspruch des Sohnes (§ 773 ABGB)**: Der kapitalisierte Wert des Fruchtgenussrechts liegt unter dem Pflichtteil von 1/6; die Frage ist, ob der Fruchtgenuss als Belastung den Erbteil unter § 774 ABGB mindert und einen Ergänzungsanspruch gegen die Alleinerbin begründet (RS0015379).\n- **Vertretungskonflikt und Kollisionskurator**: Als Erwachsenenvertreter der Alleinerbin besteht beim Sohn ein Interessenkonflikt bei Klage gegen seine Mutter.\n- **Wirksamkeit des Fruchtgenusses**: Lebenslänglicher Fruchtgenuss an Hälfte der Liegenschaft mit Veräußerungs-/Vorkaufsrecht als dingliches Recht (§ 457 ABGB iVm § 612 ABGB); prüfen, ob als Belastung für Pflichtteil anzurechnen.\n\n### 2. RECHTSGRUNDLAGEN\nPflichtteilsanspruch des Sohnes als Kind des Erblassers gegen Alleinerbin (Ehefrau) nach Stufenbau: Primär § 773 ABGB (Pflichtteil = 1/2 gesetzlichen Erbteils = 1/6 Nachlass), ergänzt durch § 774 ABGB (Zuwendungen wie Fruchtgenuss werden angerechnet, wenn wertmäßig pflichtteilsdeckend und frei von Belastung). Subsidär § 775 ABGB, falls Fruchtgenuss als bloße Vorerbschaft (§ 613 ABGB) auszulegen. Fruchtgenussrecht: § 457 ABGB (als Personalservitut oder begrenzte Grunddienstbarkeit § 612 ABGB). Kollisionskurator: § 271 ABGB analog.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0015379**: § 774 ABGB erfordert, dass Erbteil wertmäßig mindestens Pflichtteil frei von Belastungen wie Fruchtgenuss erreicht – relevant, da Sohns Fruchtgenuss Nachlass belasten könnte.\n- **RS0012566**: Bei Vorerbschaft (§ 613 ABGB) nur § 775 ABGB, nicht § 774, wenn Erblasser letztlichen Erwerb durch Nacherben priorisierte – relevant für Auslegung des Testaments (Tochter als Eigentümerin).\n\n### 4. SUBSUMTION\n**Pflichtteilsanspruch **: Sohn als Kind pflichtteilsberechtigt (1/6 Nachlass); Fruchtgenuss an Hälfte der Liegenschaft (Wert 3-7 Mio EUR) kapitalisiert unter 1/6, bildet Belastung (RS0015379); Testament zielt auf Eigentum Tochter ab (RS0012566), deckt aber nicht frei von Belastung (§ 774 ABGB); Ergänzungsanspruch gegen Alleinerbin (Ehefrau) besteht. \n**Kollisionskurator (§ 271 ABGB analog)**: Sohn als Erwachsenenvertreter der Erbin hat Interessenkonflikt (eigener Anspruch gegen Mutter); Kurator erforderlich, um Vertretung zu entlasten.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Nachlasswert und Pflichtteil (1/6)**: Sohn (Klager) muss Tatsachen zu Nachlasswert (Liegenschaft 3-7 Mio EUR) und Kapitalwert Fruchtgenuss beweisen (§ 273 ZPO erleichtert nur Beweislast, nicht Behauptungslast); fehlen: Gutachten zu Kapitalisierung – Sohn trägt volle Last.\n- **Belastung durch Fruchtgenuss**: Sohn beweist Unzureichendeckung (RS0015379); Erbin muss Gegenbeweis (frei von Belastung) führen; vorhanden: Testament-Text; fehlen: Auslegungsergebnis (RS0012566).\n- **Interessenkonflikt**: Sohn/Gericht prüft objektiv; fehlen: Beweise zu Vertretungsrolle und Konfliktwirkung.\n- **Fruchtgenusswirksamkeit**: Sohn beweist dingliche Natur (§ 612 ABGB); fehlen: Grundbucheintrag.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren** (hohe Erfolgsaussicht): Feststellung/Ergänzung Pflichtteil gegen Ehefrau als Alleinerbin, Zahlung des Mangels (basierend auf RS0015379); parallel Antrag auf Kollisionskurator (§ 271 ABGB analog). \n**Eventualbegehren** (niedriger): Umdeutung Fruchtgenuss als Vorerbschaft (§ 775 ABGB, RS0012566), falls § 774 scheitert. Priorität: Pflichtteil > Kuratorbestellung.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0012566)**: Testament als Vorerbschaft (§ 613 ABGB) auszulegen, nur § 775 ABGB – Replik: Fruchtgenuss kein Vorerbe, sondern dingliche Belastung (RS0015379), Testamentsauslegung priorisiert Eigentum Tochter nicht exklusiv.\n- **Risiko 2**: Lebenslanger Fruchtgenuss unwirksam als unbegrenzte Dienstbarkeit (§ 612 ABGB) – Replik: Als Personalservitut möglich, Belastung bleibt für Pflichtteil (RS0015379); Eintrag prüfbar.\n- **Risiko 3**: Klage ungenügend substantiiert, Abweisung ohne Verbesserung – Replik: § 273 ZPO erleichtert, Sohn muss vorbringen.\n- **Risiko 4**: Keine Kollisionskurator-Pflicht – Replik: Objektive Kollision plausibel.\n- **Risiko 5 (RS0015379)**: Fruchtgenuss deckt doch pflichtteilsfrei – Replik: Explizit \"frei von jeder Belastung\" erforderlich, Kapitalwert unter 1/6 widerlegt.\n\n### 8. ERFOLGSAUSSICHTEN\n- **Pflichtteil**: 80% (starke RS0015379-Unterstützung für Belastung, Kapitalwertmangel gegeben; Risiko Auslegung RS0012566).\n- **Kollisionskurator § 271 ABGB analog**: 50% (objektive Kollision plausibel).",
+  "elapsed_ms": 112936.23
+}

@@ -1,0 +1,46 @@
+{
+  "workstreams": [
+    {
+      "name": "Anspruchsgrundlagen gegen Y (Verkäufer)",
+      "goal": "Ermitteln, ob X Anspruch auf Schadenersatz gegen Y gemäß Kaufrecht, Mangelhaftersatzpflicht und/oder PHG hat",
+      "tools": [
+        "hot_rs_lookup",
+        "search_kommentar_paragraph",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz"
+      ]
+    },
+    {
+      "name": "Anspruchsgrundlagen gegen Z (Hersteller)",
+      "goal": "Prüfen, ob X Anspruch gegen Z aufgrund Herstellerschutz (PHG), Delikt (§ 1321 ABGB) oder Produkthaftung hat",
+      "tools": [
+        "search_ogh_entscheidungen",
+        "hot_rs_search",
+        "get_rechtssatz",
+        "build_grounding_context",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "hot_rs_lookup"
+      ]
+    },
+    {
+      "name": "PHG-Anwendbarkeit und Haftungsausschluss",
+      "goal": "Klären, ob PHG greift (Produktdefinition, Inverkehrbringen, Verbraucherbezug) und ob Y/Z Haftungsausschlüsse geltend machen können",
+      "tools": [
+        "hot_index_stats",
+        "hot_cluster_context",
+        "detect_clusters",
+        "ask_gemini_zivilrecht",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ]
+    }
+  ],
+  "synthesis_focus": "Zentrale Frage: Greift das Produkthaftungsgesetz (PHG) für X gegen Z, und wie beeinflusst das die Haftungskette zwischen X, Y und Z? Priorisiere OGH-Rechtssätze und Kommentarliteratur zu §§ 1295, 1298, 1299, 1313a, 1325 ABGB sowie PHG-Anwendungsfälle."
+}

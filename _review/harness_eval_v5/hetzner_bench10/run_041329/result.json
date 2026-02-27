@@ -1,0 +1,1542 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T04:13:29.011575+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Eigentümer E verkauft seine Liegenschaft an B. B wird NICHT ins Grundbuch eingetragen. Anschließend verkauft E dieselbe Liegenschaft an A. A wird ordnungsgemäß ins Grundbuch eingetragen und wird damit bücherlicher Eigentümer. B erfährt davon und klagt auf Löschung der Eintragung des A und eigene Eintragung. Wer ist Eigentümer? Hat B Ansprüche gegen A auf Herausgabe? Oder nur gegen E?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "sachenrecht",
+    "subdomain": "",
+    "confidence": 0.167,
+    "paragraphs": [
+      "§ 367 ABGB",
+      "§ 431 ABGB",
+      "§ 480 ABGB",
+      "§ 1500 ABGB"
+    ],
+    "mandatory_paragraphs": [
+      "§ 367 ABGB",
+      "§ 431 ABGB",
+      "§ 480 ABGB",
+      "§ 1500 ABGB"
+    ],
+    "keywords": [
+      "Sachenrecht"
+    ],
+    "all_scores": {
+      "sachenrecht": 0.167
+    },
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 4347,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Eigentumsvorbehalt & Übergang des Eigentums bei Liegenschaften",
+        "goal": "Klären, wann Eigentum an Liegenschaften beim Käufer eintritt (§ 367, § 480 ABGB) und welche Rolle die Grundbucheintragung spielt",
+        "tools": [
+          "get_rechtssatz",
+          "hot_rs_lookup",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Schutz des nicht eingetragenen Käufers (B) vs. bücherlichem Eigentümer (A)",
+        "goal": "Prüfen, ob B Ansprüche gegen A (z.B. auf Herausgabe) oder nur gegen E hat – insbesondere im Lichte des § 1500 ABGB (Gutgläubigenschutz)",
+        "tools": [
+          "hot_cluster_context",
+          "search_kommentar_paragraph",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Rechtsprechungsübersicht & Hot RS-Suche",
+        "goal": "Identifizieren relevanter OGH-Entscheidungen zur Konstellation 'Doppelverkauf ohne Grundbucheintragung'",
+        "tools": [
+          "search_ogh_entscheidungen",
+          "hot_rs_search",
+          "detect_clusters",
+          "hot_index_stats",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Eigentumsgüterabwägung: Büchereigentum (A) vs. Vertragsposition (B); B hat i.d.R. keinen Herausgabeanspruch gegen A, sondern nur Schadensersatz- oder Erfüllungsansprüche gegen E (§ 431, § 1500 ABGB)."
+  },
+  "organizer_meta": {
+    "latency_ms": 3208.67,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Eigentumsvorbehalt & Übergang des Eigentums bei Liegenschaften\",\n      \"goal\": \"Klären, wann Eigentum an Liegenschaften beim Käufer eintritt (§ 367, § 480 ABGB) und welche Rolle die Grundbucheintragung spielt\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 367 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 480 ABGB\\\")\",\n        \"get_rechtssatz\",\n        \"hot_rs_lookup\"\n      ]\n    },\n    {\n      \"name\": \"Schutz des nicht eingetragenen Käufers (B) vs. bücherlichem Eigentümer (A)\",\n      \"goal\": \"Prüfen, ob B Ansprüche gegen A (z.B. auf Herausgabe) oder nur gegen E hat – insbesondere im Lichte des § 1500 ABGB (Gutgläubigenschutz)\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 1500 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 431 ABGB\\\")\",\n        \"hot_cluster_context\",\n        \"search_kommentar_paragraph\"\n      ]\n    },\n    {\n      \"name\": \"Rechtsprechungsübersicht & Hot RS-Suche\",\n      \"goal\": \"Identifizieren relevanter OGH-Entscheidungen zur Konstellation 'Doppelverkauf ohne Grundbucheintragung'\",\n      \"tools\": [\n        \"search_ogh_entscheidungen\",\n        \"hot_rs_search\",\n        \"detect_clusters\",\n        \"hot_index_stats\"\n      ]\n    },\n    {\n      \"name\": \"Synthese & Praxisleitfaden\",\n      \"goal\": \"Zusammenfassung der Rechtslage, Klärung der Anspruchsgrundlagen (Schadensersatz vs. Herausgabe) und Empfehlung für B\",\n      \"tools\": [\n        \"build_grounding_context\",\n        \"search_ogh_rechtssaetze\",\n        \"ask_gemini_zivilrecht\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Eigentumsgüterabwägung: Büchereigentum (A) vs. Vertragsposition (B); B hat i.d.R. keinen Herausgabeanspruch gegen A, sondern nur Schadensersatz- oder Erfüllungsansprüche gegen E (§ 431, § 1500 ABGB).\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 385,
+      "completion_tokens": 571,
+      "total_tokens": 956,
+      "cost": 0.0006249,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "sachenrecht",
+      "subdomain": "",
+      "confidence": 0.167,
+      "paragraphs": [
+        "§ 367 ABGB",
+        "§ 431 ABGB",
+        "§ 480 ABGB",
+        "§ 1500 ABGB"
+      ],
+      "mandatory_paragraphs": [
+        "§ 367 ABGB",
+        "§ 431 ABGB",
+        "§ 480 ABGB",
+        "§ 1500 ABGB"
+      ],
+      "keywords": [
+        "Sachenrecht"
+      ],
+      "all_scores": {
+        "sachenrecht": 0.167
+      },
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Eigentumsvorbehalt & Übergang des Eigentums bei Liegenschaften",
+      "goal": "Klären, wann Eigentum an Liegenschaften beim Käufer eintritt (§ 367, § 480 ABGB) und welche Rolle die Grundbucheintragung spielt",
+      "mode": "llm",
+      "tools": [
+        "get_rechtssatz",
+        "hot_rs_lookup",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 18240.54,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 2946,
+            "completion_tokens": 1842,
+            "total_tokens": 4788,
+            "cost": 0.00107575,
+            "cached_tokens": 3095,
+            "reasoning_tokens": 1655
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 12324.48,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 24137,
+            "completion_tokens": 1148,
+            "total_tokens": 25285,
+            "cost": 0.0053789,
+            "cached_tokens": 150,
+            "reasoning_tokens": 979
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 14719.14,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 26332,
+            "completion_tokens": 1765,
+            "total_tokens": 28097,
+            "cost": 0.00340565,
+            "cached_tokens": 50463,
+            "reasoning_tokens": 742
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_65360456",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Grundbuch",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9789.85,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Grundbuch\", \"results\": [{\"rs_number\": \"RS0004962\", \"kernaussage\": \"Wenn auch nach der in der Entscheidung SZ 22/99 vertretenen Auffassung die gem § 61 Abs 2 GBG mit der Streitanmerkung verbundenen Wirkungen gegen dritte Personen auch dann eintreten, wenn die Streitanmerkung nach dem Gesetz nicht zu bewilligen gewesen wäre, soferne der Bewilligungsbeschluss in...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schenkungswiderruf\", \"Streitanmerkung\", \"Grundbuch\", \"einstweilige Verfügung\", \"Rekurslegitimation\", \"AußStrG\", \"Grundbuchsperre\", \"Einverleibung Eigentumsrechts\", \"Konkurseröffnung\"]}, {\"rs_number\": \"RS0004992\", \"kernaussage\": \"Nicht über jeden Berichtigungsantrag nach § 104 GBG ist im Außerstreitverfahren zu entscheiden. Über die Frage des richtigen Ranges eines konkurrierenden Veräußerungs- und Belastungsverbotes und der Ranganmerkung der Veräußerung kann im Falle mangelnder Einigung nur im streitigen Verfahren entschied...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Grundbuch\", \"Richtigstellung\", \"Tagebuchzahl\", \"Belastungs- und Veräußerungsverbot\", \"Rang\", \"Grundbuchberichtigung\", \"Rangfolge\", \"Pfandrecht\", \"Reallast\", \"Vertrauensprinzip\", \"Rangordnung\", \"Wohnungseigentum\", \"§ 104 GBG\", \"Vollzugsfehler\", \"Klageanmerkung\", \"Dienstbarkeit\", \"Baurecht\", \"Vertrauensschutz\"]}, {\"rs_number\": \"RS0005044\", \"kernaussage\": \"Die einstweilige Verfügung gibt dem Gläubiger keinerlei Vorrecht vor anderen Gläubigern des Schuldners, sie begründet insbesondere kein Pfandrecht, sie kann kein dingliches Recht begründen, schafft keinen Rang für die Betreibung bei einer künftigen Zwa"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_24814913",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Eigentumserwerb",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 68.01,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Eigentumserwerb\", \"results\": [{\"rs_number\": \"RS0009792\", \"kernaussage\": \"Die Ersitzung des Eigentumsrechtes setzt Alleinbesitz voraus (Klang Komm VI, 577; GlUNF 5319 und 5920). Das Abmähen des Grases einer Wegparzelle genügt jedenfalls nicht für die Annahme eines Alleinbesitzes.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ersitzung\", \"Alleinbesitz\", \"forstwirtschaftliche Nutzung\", \"Schlägerung\", \"Waldgrundstück\", \"Wegdienstbarkeit\", \"Redlichkeit des Ersitzungsbesitzes\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"öffentlicher Weg\", \"Grundbuchsmappe\", \"Grenzfeststellung\", \"Seegrundstück\", \"Grenzerneuerung\", \"Pilotenreihe\", \"öffentliches Gewässer\", \"Grundbuch\", \"Wegrecht\", \"öffentliches Gut\", \"Dienstbarkeit\", \"Servitutsersitzung\", \"Eigentumseritzung\", \"Grenzverlauf\", \"Unterlassungsklage\", \"außerordentliche Revision\", \"Revisionsbeantwortung\", \"Freistellung\", \"Eigentumsersitzung\", \"Besitzredlichkeit\", \"Besitzwille\", \"Sachbesitz\", \"Öffentliches Gut\", \"Gemeingebrauch\", \"Grundbuchberichtigung\", \"Forstgesetz\", \"Ersitzung Eigentum\", \"Dienstbarkeit Wegrecht\", \"Grundbuch Einverleibung\", \"Grundverkehrsgenehmigung\", \"Redlichkeit\", \"Grundbuchkenntnis\", \"Bauführung\", \"Gemeinschaftsjagdrecht\", \"Besitzanrechnung\", \"Beweidung Alpen\", \"Samweg\", \"Besitzausübung\", \"bäuerliche Nutzungen\", \"Jagd\", \"Besitzakte\", \"Revision\", \"Besitzhandlungen\", \"Jagdpacht\", \"Weidenlassen\", \"Besitzmittler\", \"Parkrecht\", \"Grenzfestsetzung\", \"Wasserbett\", \"regelmäßig wiederkehrender ordentlicher höchster Wasserstand\", \"öffentliches Wassergut\", \"Wörthersee\", \"Ufermauer\", \"WRG\", \"Naturgrenze\", \"Grundsteuerk"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_43556875",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Eigentumserwerb Liegenschaft 431 ABGB Grundbucheintragung",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 814.91,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Eigentumserwerb Liegenschaft 431 ABGB Grundbucheintragung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_40100623",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 431 ABGB",
+            "limit": 50
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 768.43,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 431 ABGB\", \"results\": [{\"rs_number\": \"JWR_1994060172_19940915X01\", \"kernaussage\": \"Käufer ohne Grundbucheintrag hat nur Recht auf Sache (§ 431 ABGB)\", \"schlagworte\": [\"Liegenschaft\", \"Käufer\", \"Eigentumserwerb\", \"Grundbuch\", \"Recht an der Sache\", \"Recht auf die Sache\", \"ABGB § 431\", \"Parteistellung\"]}, {\"rs_number\": \"JWR_1983050163_19840918X02\", \"kernaussage\": \"Eigentum im Baurecht: Grundbucheinverleibung zwingend (§ 431 ABGB)\", \"schlagworte\": [\"Eigentümer\", \"Baurecht\", \"Grundbuch\", \"Einverleibung\", \"Übertragung Eigentum\", \"physische Übergabe\", \"verbuchte Sache\", \"ABGB § 431\"]}, {\"rs_number\": \"JWR_1995060048_19950622X02\", \"kernaussage\": \"Grundbucheintragung setzt gültigen Titel voraus (§ 431 ABGB)\", \"schlagworte\": [\"Grundbucheintragung\", \"Eigentumsübertragung\", \"Titelvoraussetzung\", \"ABGB § 431\", \"Publizitätseffekt\", \"Unrichtigkeit der Eintragung\", \"Teileintragung\"]}, {\"rs_number\": \"RS0134194\", \"kernaussage\": \"Der Gesetzestext erfordert es, dass Erwerb im Sinn des § 5 Abs 2 WEG nicht nur die sachenrechtliche Verfügung (§ 431 ABGB), sondern bereits den Rechtsvorgang erfasst, der dem liegenschaftsfremden Dritten einen Anspruch auf sachenrechtliche Übereignung des Mindestanteils gibt, mit dem das ausschließl...\", \"schlagworte\": [\"Wohnungseigentum\", \"KFZ-Abstellplätze\", \"Erwerbsbeschränkungen\", \"§ 5 Abs 2 WEG\", \"Grundbucheinverleibung\"]}, {\"rs_number\": \"JWR_1992060054_19920409X01\", \"kernaussage\": \"Käufer vor Grundbucheintrag: Nur Recht auf Sache (§ 431 ABGB)\", \"schlagworte\": [\"Käufer\", \"Liegenschaft\", \"Grundbuch\", \"Eigentumserwerb\", \"Recht an der Sache\", \"Recht"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_76418540",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0011290"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2587.61,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0011290\", \"rechtssatz\": \"Aus § 22 GBG und § 7 Grundbuchsnovelle 1942 ergibt sich, dass entgegen § 431 ABGB die außerbücherliche Übertragung einer Liegenschaft nicht rechtlich bedeutungslos ist. Der außerbücherliche Übernehmer kann seine Rechte übertragen und sie auch sowohl dem ursprünglichen Überträger wie dessen Rechtsnachfolger gegenüber geltend machen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Grundbuchsberichtigung\", \"Außerbücherliches Eigentum\", \"Aufsandungsurkunde\", \"Tabularbesitz\", \"Dienstbarkeit\", \"Wohnungsrecht\", \"Grundbuch\", \"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Konkursmasse\", \"Aussonderungsrecht\", \"Grundbuchseintrag\", \"Eintragungsprinzip\", \"kridamäßige Versteigerung\", \"Grunddienstbarkeit\", \"Geh- und Fahrtrecht\", \"Passivlegitimation\", \"Interessenabwägung\", \"Absperrung\", \"Revision\"], \"fachgebiete\": [\"Grundbuch\"], \"datum\": \"2017-01-24\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_25892063",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0011111"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.65,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0011111\", \"rechtssatz\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des Eigentums.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzung\", \"Überbau\", \"außerbücherliches Eigentum\", \"Urkundenhinterlegung\", \"Grundbuchberichtigung\", \"Gesellschaftsvermögen\", \"OHG-Ausscheiden\", \"Liegenschaftseinbringung\", \"Ersitzung\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"Eigentumsverschaffungspflicht\", \"außerbücherliche Veräußerung\", \"Verbücherung\", \"Eigentumserwerb durch Ersitzung\", \"Grenzverlauf Grundstücke\", \"Grundbuchsmappe\", \"Derivativer Eigentumserwerb\", \"außerbücherlicher Erwerber\", \"Rechnungslegung\", \"Nichtigkeitsberufung\", \"R"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_33084049",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0016268"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.54,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0016268\", \"rechtssatz\": \"Ist der Käufer einer fremden Sache Eigentümer geworden (zB nach § 367 ABGB oder § 366 HGB), hat der Verkäufer die Vertragspflicht erfüllt. Der Käufer kann keine Haftung wegen Rechtsmangels geltend machen und den Vertrag grundsätzlich auch nicht wegen Irrtums anfechten, es sei denn, dass besondere Interessen des über die Eigentumsverhältnisse irrenden Käufers bestehen, die nicht durch den nachfolgenden gutgläubigen Eigentumserwerb befriedigt werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bestandvertrag\", \"Inventarübernahme\", \"Eigentumsvorbehalt\", \"Grundverkehrsbehördliche Genehmigung\", \"Kommissionsgeschäft\", \"Wertpapiere\", \"Gutgläubiger Erwerb\", \"Arglist\", \"Scheckrückgriff\", \"gutgläubiger Erwerb\", \"§ 366 HGB\", \"Rechtsmangel\", \"Gewährleistung\", \"Leasingfahrzeug\", \"Irrtumsanfechtung\", \"Klaglosstellung\", \"Abgasskandal\", \"Umschaltlogik\", \"Dieselmotor EA 189\"], \"fachgebiete\": [\"Vertragsauslegung\", \"Gewährleistung\"], \"datum\": \"2023-03-29\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_64843921",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "JWR_1994050125_19941220X01"
+          },
+          "ok": false,
+          "status": null,
+          "latency_ms": null,
+          "error": "tool_args_unsuitable"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_37273225",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0034821"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.95,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0034821\", \"rechtssatz\": \"Der Schutz des § 1500 ABGB kommt nur dann in Betracht, wenn der gutgläubige Erwerber sofort nach erhaltener Kenntnis der Diskrepanz zwischen dem tatsächlichen und dem Grundbuchsstande nötigenfalls mit Klage einschreitet, weil der gute Glaube sonst durch die Duldung der Ausübung nicht verbücherter Rechte verloren wird. Auch die Ersitzung wird durch den Erwerb im Vertrauen auf das öffentliche Buch nicht unterbrochen, wenn die weitere Ausübung der Dienstbarkeit geduldet wird.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Beseitigungsanspruch\", \"Besitzschutz\", \"Grenzstreit\", \"Grundbuch\", \"Ersitzung\", \"Grundbuchsmappe\", \"guter Glaube\", \"Dienstbarkeit\", \"konkludente Einräumung\", \"Leitungsdienstbarkeit\", \"Wasserversorgung\", \"Unterlassungsanspruch\", \"nicht verbücherte Belastung\"], \"fachgebiete\": [\"Grundbuch\", \"Nachbarrecht\", \"Unterlassung\"], \"datum\": \"2009-07-06\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0134194",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0134194",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1029.32,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0134194\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0009792",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0009792",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 19.6,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0009792\", \"rechtssatz_text\": \"Die Ersitzung des Eigentumsrechtes setzt Alleinbesitz voraus (Klang Komm VI, 577; GlUNF 5319 und 5920). Das Abmähen des Grases einer Wegparzelle genügt jedenfalls nicht für die Annahme eines Alleinbesitzes.\", \"te_count\": 17, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3115, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob85/25f|OGH|2025-12-18\", \"gz\": \"6Ob85/25f\", \"datum\": \"2025-12-18\", \"gericht\": \"OGH\", \"mini_story\": \"Entscheidung des OGH über die Revision gegen die Bestätigung eines Urteils zur Feststellung einer Grenze nach § 851 Abs 2 ABGB.\"}, {\"te_stable_key\": \"3Ob145/25g|OGH|2025-11-26\", \"gz\": \"3Ob145/25g\", \"datum\": \"2025-11-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Zulässigkeit der außerordentlichen Revision gegen ein Urteil des OLG Graz.\"}, {\"te_stable_key\": \"1Ob130/25m|OGH|2025-11-11\", \"gz\": \"1Ob130/25m\", \"datum\": \"2025-11-11\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die außerordentliche Revision gegen ein Urteil des OLG Linz in einer Sache, die Feststellung, Eigentumseinverleibung und Unterlassung betrifft.\"}, {\"te_stable_key\": \"7Ob56_25y|OGH|2025-08-07\", \"gz\": \"7Ob56_25y\", \"datum\": \"2025-08-07\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision gegen die Annahme der Ersitzung einer Teilfläche eines öffentlichen Gutes durch redlichen Besitz.\"}, {\"te_stable_key\": \"4Ob115_24a|OGH|2025-04-11\", \"gz\": \"4Ob115_24a\", \"datum\": \"2025-04-11\", \"gericht\": \"OGH\", \"mini_story\": \"Eigentumserwerb durch Ersitzung eines Grenzstreifens mittels Pflanzung und Pflege von Kopfweidenbäumen sowie Schadenersatzanspruch wegen unbefugter Fällung durch die Gemeinde.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0005044",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0005044",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10554.24,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0005044\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0004992",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004992",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.74,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0004992\", \"rechtssatz_text\": \"Nicht über jeden Berichtigungsantrag nach § 104 GBG ist im Außerstreitverfahren zu entscheiden. Über die Frage des richtigen Ranges eines konkurrierenden Veräußerungs- und Belastungsverbotes und der Ranganmerkung der Veräußerung kann im Falle mangelnder Einigung nur im streitigen Verfahren entschied...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 14365, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob111_23v|OGH|2024-02-22\", \"gz\": \"5Ob111_23v\", \"datum\": \"2024-02-22\", \"gericht\": \"OGH\", \"mini_story\": \"Berichtigung eines Vollzugsfehlers im Grundbuch gemäß § 104 Abs 3 GBG bei später eingetragenen Rechten wie Baurecht und Dienstbarkeiten.\"}, {\"te_stable_key\": \"5Ob126_21x|OGH|2021-09-16\", \"gz\": \"5Ob126_21x\", \"datum\": \"2021-09-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der Rang einer Grundbucheintragung richtet sich nach dem tatsächlichen Einlangen des Grundbuchsstücks beim Grundbuchsgericht, unabhängig von der Vergabe einer Tagebuchzahl; ein unterbliebener Vollzug eines bewilligten Beschlusses über eine Klageanmerkung begründet einen berichtigbaren Vollzugsfehler\"}, {\"te_stable_key\": \"5Ob163_17g|OGH|2018-02-13\", \"gz\": \"5Ob163_17g\", \"datum\": \"2018-02-13\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit des Revisionsrekurses gegen die Berichtigung einer Anmerkung der Zusage der Einräumung von Wohnungseigentum nach § 40 Abs 2 WEG 2002 im Grundbuchverfahren.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0004962",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004962",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.05,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0004962\", \"rechtssatz_text\": \"Wenn auch nach der in der Entscheidung SZ 22/99 vertretenen Auffassung die gem § 61 Abs 2 GBG mit der Streitanmerkung verbundenen Wirkungen gegen dritte Personen auch dann eintreten, wenn die Streitanmerkung nach dem Gesetz nicht zu bewilligen gewesen wäre, soferne der Bewilligungsbeschluss in...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 14364, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob94_11a|OGH|2011-07-07\", \"gz\": \"5Ob94_11a\", \"datum\": \"2011-07-07\", \"gericht\": \"OGH\", \"mini_story\": \"Die Entscheidung klärt, ob Streitanmerkungen nach § 61 GBG einen Rang für die Einverleibung von Eigentumsrechten nach Konkurseröffnung iSd § 13 IO begründen.\"}, {\"te_stable_key\": \"8Ob116_06a|OGH|2007-10-18\", \"gz\": \"8Ob116_06a\", \"datum\": \"2007-10-18\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit einer Streitanmerkung nach § 61 GBG und Rekurslegitimation im AußStrG-Verfahren bezüglich Eigentum an einer Liegenschaft.\"}, {\"te_stable_key\": \"2Ob104_00h|OGH|2000-04-28\", \"gz\": \"2Ob104_00h\", \"datum\": \"2000-04-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs gegen die Aufhebung einer einstweiligen Verfügung ab, da die Streitanmerkung nach § 61 GBG die Ansprüche ausreichend sichert.\"}], \"te_items_count\": 3}"
+        }
+      ],
+      "tool_calls_total": 14,
+      "tool_calls_ok": 13,
+      "tool_calls_ok_rate": 0.929,
+      "llm_error": null,
+      "answer": "**PHASE 3 - SUMMARY (Sachenrecht: Eigentumsübergang an Liegenschaften)**\n\n### Wann tritt Eigentum ein (§§ 367, 431, 480 ABGB)?\n- **§ 367 ABGB (Bewegliche Sachen)**: Eigentum geht bei Übergabe (Tradition) über, soweit Konsensualprinzip gilt (RS0016268: Käufer wird Eigentümer, Vertragspflicht Verkäufers erfüllt; keine Gewährleistung mehr möglich, außer besondere Irrtumsinteressen). **Nicht anwendbar auf Liegenschaften** (vgl. Kontrast zu § 431 ABGB).\n- **§ 431 ABGB (Unbewegliche Sachen/Liegenschaften)**: **Eigentumstransfer ausschließlich durch Grundbucheinverleibung (Intabulationsprinzip)**. Physische Übergabe oder bloßer Kaufvertrag bewirken **keinen Eigentumsübergang** – Käufer hat nur **obligatorisches \"Recht auf die Sache\"** (nicht dinglich; RS0011111: Kein außerbücherliches Eigentum außer Ausnahmen § 425 ABGB; bloße Übergabe wirkt nicht; JWR_1992060054, JWR_1996050013, JWR_1994050125_19941220X01: Käufer vor Eintrag nur Recht auf Sache, kein Eigentumserwerb; RS0011290: Außerbücherliche Übertragung nicht bedeutungslos, aber Erwerber kann Rechte nur gegen Ursprünglichen geltend machen, nicht dinglich; JWR_1983050163_19840918X02: Einverleibung zwingend).\n- **§ 480 ABGB (Erwerbstitel für Dienstbarkeiten etc.)**: Vertrag (auch konkludent) als Titel für Dienstbarkeitsbestellung (RS0101795, RS0114010), **nicht primär relevant** für bloßen Eigentumserwerb an Liegenschaft (keine dingliche Wirkung ohne Einverleibung per § 431 ABGB).\n\n**Stream-Ziel-Ergebnis**: Eigentum an Liegenschaften tritt **erst mit Grundbucheintragung ein** (§ 431 ABGB maßgeblich). Vorheriger Käufer (B) erwirbt **kein Eigentum**, sondern nur **persönlich-rechtlichen Anspruch auf Einverleibung** gegen Verkäufer (E).\n\n### Fallkonstellation (Doppelveräußerung)\n- **A ist Eigentümer**: Als ordnungsgemäß eingetragenes \"bücherliches Eigentum\" (Vertrauensprinzip Grundbuch; § 431 ABGB). B's fehlender Eintrag verhindert dinglichen Schutz.\n- **B's Klage (Löschung A's Eintrag + eigene Eintragung)**: **Zum Scheitern verurteilt gegen A**. B hat nur Anspruch gegen E (z. B. Schadenersatz/Naturalrestitution; RS0011290). Kein Herausgabeanspruch gegen A (kein dingliches Recht B's; § 431 ABGB).\n- **§ 1500 ABGB (Schutz guten Glaubens)**: Schützt A als gutgläubigen Bücherlichen gegen nicht-eingetragene Rechte, **iff A bei Kenntnis der Diskrepanz sofort klagt** (RS0034821: Guter Glaube erlischt bei Duldung; Ersitzung unterbrochen). **Beweislast**: B trägt Nachweis von A's Kenntnis/Arglist (leichte Fahrlässigkeit schließt guten Glauben aus; Standard-Beweislastumkehr fehlt hier – Kläger B beweist Unredlichkeit).\n\n**Beweislast-Übersicht**:\n| Issue | Beweislast-Träger |\n|-------|-------------------|\n| B's Titel geltend (gegen E) | B (Vertrag/Übergabe) |\n| A's guter Glaube (§ 1500 ABGB) | B (muss Kenntnis/Arglist nachweisen) |\n| Einverleibungsvoraussetzungen (§ 431 ABGB) | B (gültiger Titel + Rang) |\n\n**Keine weiteren Calls nötig**: RS aus Phasen 1-2 (u. a. RS0011111, RS0011290, RS0034821, JWR-RS zu § 431) decken Kern ab. Parallel-Streams (Schutz B vs. A) ergänzen: B ungeschützt ohne Eintrag; A priorisiert (Vertrauensschutz).",
+      "answer_chars": 3118,
+      "e2e_ms": 73493.05
+    },
+    {
+      "name": "Rechtsprechungsübersicht & Hot RS-Suche",
+      "goal": "Identifizieren relevanter OGH-Entscheidungen zur Konstellation 'Doppelverkauf ohne Grundbucheintragung'",
+      "mode": "llm",
+      "tools": [
+        "search_ogh_entscheidungen",
+        "hot_rs_search",
+        "detect_clusters",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 15120.75,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3161,
+            "completion_tokens": 2039,
+            "total_tokens": 5200,
+            "cost": 0.0016292,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1802
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 4917.95,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 15208,
+            "completion_tokens": 586,
+            "total_tokens": 15794,
+            "cost": 0.0032194,
+            "cached_tokens": 768,
+            "reasoning_tokens": 307
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 6656.98,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 21570,
+            "completion_tokens": 871,
+            "total_tokens": 22441,
+            "cost": 0.0022723,
+            "cached_tokens": 36736,
+            "reasoning_tokens": 558
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 4608.96,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 33592,
+            "completion_tokens": 562,
+            "total_tokens": 34154,
+            "cost": 0.0030362,
+            "cached_tokens": 55104,
+            "reasoning_tokens": 249
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 14713.19,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 40823,
+            "completion_tokens": 1570,
+            "total_tokens": 42393,
+            "cost": 0.0045002,
+            "cached_tokens": 74304,
+            "reasoning_tokens": 579
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_20644162",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Grundbuch",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 26.75,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Grundbuch\", \"results\": [{\"rs_number\": \"RS0004496\", \"kernaussage\": \"Zur Bewilligung der Exekution nach § 350 EO bedarf es nicht einer formellen Aufsandungserklärung. Es genügt, dass der Anspruch auf Übertragung des Eigentums durch den Exekutionstitel gedeckt ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekution\", \"Wohnungseigentum\", \"gerichtlicher Vergleich\", \"bücherliche Eintragung\", \"Miteigentum\", \"Aufteilungsverfahren\", \"EheG\", \"§ 351 EO\", \"Belastungs- und Veräußerungsverbot\", \"Einverleibung Eigentumsrechts\", \"Exekution § 350 EO\", \"Schenkungswiderruf\", \"§ 364c ABGB\", \"Exekutionsbewilligung\", \"Wert des Entscheidungsgegenstands\", \"Revisionsrekurs\", \"Einheitswert\", \"Einverleibung\", \"Exekutionstitel\", \"Grundbuch\", \"Vorkaufsrecht\", \"Grundbuchseinverleibung\", \"Baurechtswohnungseigentum\", \"Kaufoption\", \"Wertsicherungsklausel\", \"Vertragsauslegung\"]}, {\"rs_number\": \"RS0004516\", \"kernaussage\": \"Nach dieser Bestimmung können nur Ansprüche, welche auf Einräumung, Übertragung, Beschränkung oder Aufhebung eines bücherlichen Rechts gerichtet sind, durch Vornahme der bezüglichen bücherlichen Eintragung bewilligt werden, nicht aber eine Unterteilung zweier Grundstücke auf Grund eines bereits...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekutionstitel\", \"Grundbuch\", \"Unterteilung\", \"§ 350 EO\"]}, {\"rs_number\": \"RS0004524\", \"kernaussage\": \"Für die Bewilligung einer Exekution gem § 350 EO gelten die Bestimmungen des Exekutionsverfahrens und nicht jene des Grundbuchverfahrens.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekution\", \"Grundbuch\", \"Aufhebungsbeschluss\", \"Rekurs\"]}, {\"rs_"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_52601168",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Doppelverkauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1072.4,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Doppelverkauf\", \"results\": [{\"rs_number\": \"RS0011111\", \"kernaussage\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzung\", \"Überbau\", \"außerbücherliches Eigentum\", \"Urkundenhinterlegung\", \"Grundbuchberichtigung\", \"Gesellschaftsvermögen\", \"OHG-Ausscheiden\", \"Liegenschaftseinbringung\", \"Ersitzung\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"Eigentumsverschaffungspflicht\", \"außerbücherliche Veräußerung\", \"Verbücherung\", \"Eigentumserwerb durch Ersitzung\", \"Grenzverlauf Grundstücke\", \"Grundbuchsmappe\", \"Derivativer Eigentumserwerb\", \"außerbücherlicher Erwerber\", \"Rechnungslegung\", \"Nic"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_88668464",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Doppelverkauf Liegenschaft Grundbuch Eintragung nicht eingetragen",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.22,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Doppelverkauf Liegenschaft Grundbuch Eintragung nicht eingetragen\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_28263315",
+          "tool": "search_ogh_entscheidungen",
+          "args": {
+            "query": "Doppelverkauf Liegenschaft ohne Grundbucheintragung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10830.8,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Doppelverkauf Liegenschaft ohne Grundbucheintragung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_23319579",
+          "tool": "hot_rs_search",
+          "args": {
+            "query": "Doppelverkauf Grundbuch Eintragung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 282.41,
+          "error": null,
+          "payload_preview": "{\"query\": \"Doppelverkauf Grundbuch Eintragung\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_68509049",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0011111"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.51,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0011111\", \"rechtssatz\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des Eigentums.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzung\", \"Überbau\", \"außerbücherliches Eigentum\", \"Urkundenhinterlegung\", \"Grundbuchberichtigung\", \"Gesellschaftsvermögen\", \"OHG-Ausscheiden\", \"Liegenschaftseinbringung\", \"Ersitzung\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"Eigentumsverschaffungspflicht\", \"außerbücherliche Veräußerung\", \"Verbücherung\", \"Eigentumserwerb durch Ersitzung\", \"Grenzverlauf Grundstücke\", \"Grundbuchsmappe\", \"Derivativer Eigentumserwerb\", \"außerbücherlicher Erwerber\", \"Rechnungslegung\", \"Nichtigkeitsberufung\", \"R"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_31098346",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0011465"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.27,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0011465\", \"rechtssatz\": \"Für die Beurteilung des Ranges nach § 13 KO sind die allgemeinen Vorschriften des Grundbuchsrechtes (§ 29 GBG) und damit der Zeitpunkt der Einbringung des Gesuches beim Grundbuchsgericht maßgebend.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Pfandrechtübertragung\", \"Grundbucheinverleibung\", \"Konkurseröffnung\", \"Rang der Eintragung\", \"Konkursmasse\", \"Grundbuchseintragung\", \"Pfandrechtseinverleibung\", \"Rangordnungsanmerkung\", \"Grundbuchsgesuch\", \"Antragslegitimation\", \"Rangordnung\", \"Teilung\", \"Abschreibung\", \"Wohnrecht\", \"dingliches Wohnrecht\", \"Legat\", \"Konkurs\", \"Grundbuch\", \"Masseverwalter\", \"Grundbuchsverfahren\", \"Rekurslegitimation\", \"Eigentumseinverleibung\", \"außerbücherliches Eigentum\", \"Besitzschutz\", \"Doppelverkauf\", \"Wohnungseigentum\", \"Verschwiegenheitspflicht\", \"Entbindung\", \"Veräußerungsverbot\", \"Belastungsverbot\", \"Höchstbetragspfandrechte\", \"besitzverstärktes Forderungsrecht\", \"Verkäuferkonkurs\", \"Ausgleichsverfahren\", \"Pfandrecht\", \"Grundbuchseintrag\", \"§ 13 AO\", \"Grundbuchsperre\", \"Streitanmerkung\", \"Einverleibung Eigentumsrechts\", \"Anwaltshaftung\", \"Kausalität\", \"überholende Kausalität\", \"Insolvenzantrag\", \"Grundbuchssperre\", \"Vormerkung\", \"Löschung\", \"Insolvenz\", \"Rechtskraft\"], \"fachgebiete\": [\"Pfandrecht\", \"Grundbuch\", \"Haftungsrecht\"], \"datum\": \"2025-06-03\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_61759645",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0050517"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.44,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0050517\", \"rechtssatz\": \"Die Errichtung einer verbücherungsfähigen Urkunde nach vorausgegangenem mündlichen Vertragsabschluß ist für sich allein und unter Abstellung auf die Verhältnisse im Zeitpunkt ihrer Errichtung anfechtbar. Kriterien der \\\"Benachteiligungsabsicht\\\" beim Doppelverkauf einer Liegenschaft (unter Bedachtnahme auf §§ 430, 440 ABGB).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anfechtung\", \"Benachteiligungsabsicht\", \"Doppelverkauf\"], \"fachgebiete\": [\"Grundbuch\"], \"datum\": \"1970-01-21\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_71043260",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0011111",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.41,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0011111\", \"rechtssatz_text\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"te_count\": 19, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"GRUNDBUCH_GRUNDLAGEN\"], \"topic_ids\": [\"sachenrecht\"], \"hot_rank\": 2709, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob6_24z|OGH|2024-03-05\", \"gz\": \"1Ob6_24z\", \"datum\": \"2024-03-05\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Berechtigung einer Eigentumsfreiheitsklage nach § 523 ABGB gegen die unbefugte Nutzung und Störung von Grundstücksflächen durch den Beklagten.\"}, {\"te_stable_key\": \"7Ob174_22x|OGH|2023-01-25\", \"gz\": \"7Ob174_22x\", \"datum\": \"2023-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung des Revisionsrekurses gegen die teilweise Abweisung der Neufestsetzung der Enteignungsentschädigung für eine Dienstbarkeit im Miteigentum.\"}, {\"te_stable_key\": \"5Ob148_22h|OGH|2022-09-27\", \"gz\": \"5Ob148_22h\", \"datum\": \"2022-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der Einverleibung eines Hälfteanteils an einer Liegenschaft und Eintragung eines Fruchtgenussrechts aufgrund unvollständiger Einantwortungsurkunde.\"}, {\"te_stable_key\": \"4Ob53_22f|OGH|2022-05-24\", \"gz\": \"4Ob53_22f\", \"datum\": \"2022-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet, dass der Streit um unberechtigte Eingriffe in das Alleineigentum an einer Liegenschaft im streitigen Verfahren zu führen ist und nicht im Außerstreitverfahren nach § 838a ABGB, da kein Miteigentum vorliegt.\"}, {\"te_stable_key\": \"6Ob54_22t|OGH|2022-05-18\", \"gz\": \"6Ob54_22t\", \"datum\": \"2022-05-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs gegen die Überweisung in das Außerstreitverfahren zurück und ordnet die Fortsetzung im streitigen Verfahren an, da die Klage den Schutz des Alleineigentums gemäß § 523 ABGB betrifft.\"}, {\"te_stable_key\": \"8Ob12_19a|OGH|2019-02-26\", \"gz\": \"8Ob12_19a\", \"datum\": \"2019-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Die Liegenschaft aus einem Leibrentenvertrag gehört mangels Grundbucheintragung nicht zur Insolvenzmasse und ist daher nicht nach §"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_87745187",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Doppelverkauf Liegenschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.8,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0004894\", \"rechtssatz\": \"Beim Doppelverkauf einer Liegenschaft können von den gefährdeten Ersterwerbern Unterlassungsansprüche abgeleitet und zur Abwehr eines drohenden Angriffs gewährt werden, die den Schutz der von den Antragsgegnern voraussichtlich herauszugebenden Liegenschaft und dort befindlicher Fahrnisse der gefährdeten Parteien gegen rechtswidrige Veränderung ihrer Substanz oder gegen Beschädigung durch die als schlechtgläubige Zweiterwerber anzusehenden Antragsgegner bezwecken. Ein Verschulden des Angreifers ist schon deshalb nicht erforderlich, weil mit dem Unterlassungsanspruch nicht Schadenersatz, sondern die Motivierung zu rechtmäßigem Handeln (Unterlassen) erreicht werden soll.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"einstweilige Verfügung\", \"Unterlassungsanspruch\", \"Doppelveräußerung\", \"Besitzstörung\", \"Ersterwerber\", \"Zweiterwerber\"], \"relevance\": 0.099}, {\"rs_number\": \"RS0050517\", \"rechtssatz\": \"Die Errichtung einer verbücherungsfähigen Urkunde nach vorausgegangenem mündlichen Vertragsabschluß ist für sich allein und unter Abstellung auf die Verhältnisse im Zeitpunkt ihrer Errichtung anfechtbar. Kriterien der \\\"Benachteiligungsabsicht\\\" beim Doppelverkauf einer Liegenschaft (unter Bedachtnahme auf §§ 430, 440 ABGB).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anfechtung\", \"Benachteiligungsabsicht\", \"Doppelverkauf\"], \"relevance\": 0.099}], \"count\": 2, \"query\": \"Doppelverkauf Liegenschaft\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_12254858",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Eintragungsgrundsatz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 277.65,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Eintragungsgrundsatz\", \"results\": [{\"rs_number\": \"JWR_2003070119_20040527X04\", \"kernaussage\": \"Auftrag § 9 Abs 3 ETG bei elektrischer Anlage an bücherlichen Eigentümer\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Auftrag ETG\", \"elektrische Anlage\", \"bücherlicher Eigentümer\", \"Hauseigentümer\", \"Eintragungsgrundsatz\", \"ABGB § 431\", \"außerbücherliches Eigentum\", \"Eigentumsübertragung\", \"physische Übergabe\"]}, {\"rs_number\": \"JWR_2003070119_20040527X03\", \"kernaussage\": \"Eigentum erst mit Eintragung, Wirkungen ab Antrags-Eingang\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Eigentumsübertragung\", \"Eintragungsgrundsatz\", \"bücherliche Einverleibung\", \"Grundbuchantrag\", \"Verfahrenswirkungen\", \"GBG\", \"ABGB\"]}, {\"rs_number\": \"JWR_1989070007_19920324X02\", \"kernaussage\": \"Übertragung Einforstungsrechte vor 1909 ohne Bewilligung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Einforstungsrechte\", \"Übertragung\", \"Behördliche Bewilligung\", \"Regulierungspatent 1853\", \"Waldnutzungsrechte\", \"Weidenutzungsrechte\", \"Öffentlich-rechtliche Belastung\", \"Eintragungsgrundsatz\"]}, {\"rs_number\": \"JWR_2003070087_20040708X01\", \"kernaussage\": \"Agrargemeinschaften-Nutzungsrechte unabhängig vom Grundbuch\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Agrargemeinschaften\", \"Nutzungsrechte\", \"Grundbuch\", \"Publizitätsgrundsatz\", \"Eintragungsgrundsatz\", \"deklarativer Charakter\", \"öffentliches Recht\", \"konstitutiv\"]}, {\"rs_number\": \"JWR_2006050165_20070521X03\", \"kernaussage\": \"Eigentümerfeststellung nach Zivilrecht mit Prüfung von Ausnahmen\", \"rechtsgebiet\": \"Ve"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_89957663",
+          "tool": "search_ogh_entscheidungen",
+          "args": {
+            "query": "431 ABGB Doppelverkauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10810.74,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"431 ABGB Doppelverkauf\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_00854134",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0004894"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.44,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0004894\", \"rechtssatz\": \"Beim Doppelverkauf einer Liegenschaft können von den gefährdeten Ersterwerbern Unterlassungsansprüche abgeleitet und zur Abwehr eines drohenden Angriffs gewährt werden, die den Schutz der von den Antragsgegnern voraussichtlich herauszugebenden Liegenschaft und dort befindlicher Fahrnisse der gefährdeten Parteien gegen rechtswidrige Veränderung ihrer Substanz oder gegen Beschädigung durch die als schlechtgläubige Zweiterwerber anzusehenden Antragsgegner bezwecken. Ein Verschulden des Angreifers ist schon deshalb nicht erforderlich, weil mit dem Unterlassungsanspruch nicht Schadenersatz, sondern die Motivierung zu rechtmäßigem Handeln (Unterlassen) erreicht werden soll.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"einstweilige Verfügung\", \"Unterlassungsanspruch\", \"Doppelveräußerung\", \"Besitzstörung\", \"Ersterwerber\", \"Zweiterwerber\"], \"fachgebiete\": [\"Unterlassung\"], \"datum\": \"1991-10-18\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_86743685",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "JWR_1992060054_19920409X01"
+          },
+          "ok": false,
+          "status": null,
+          "latency_ms": null,
+          "error": "tool_args_unsuitable"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_23212332",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004894",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.22,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0004894\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_26515213",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Doppelveräußerung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 455.21,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Doppelveräußerung\", \"results\": [{\"rs_number\": \"RS0026349\", \"kernaussage\": \"Die Sorgfaltspflicht eines Urkundenverfassers (Notars) darf nicht überspannt werden (Nachforschungen, ob die Kaufliegenschaft seinerzeit arisiert worden ist).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Notarhaftung\", \"Darlehen\", \"Geschäftsunfähigkeit\", \"Pfand\", \"Sachverständigenhaftung\", \"Holzschädlinge\", \"Fehlgutachten\", \"Holzbock\", \"Fichtenbock\", \"Testamentserrichtung\", \"Belehrungspflicht\", \"Sorgfaltspflicht\", \"Revisionszulässigkeit\", \"Klageverbindung\", \"gefälschte Flugscheine\", \"Vertragserrichter\", \"Haftung\", \"Kaufpreissicherung\", \"Pfandrecht\", \"Liegenschaftskauf\", \"Kaufpreiszahlung\", \"Grunderwerbssteuer\", \"Unbedenklichkeitsbescheinigung\", \"Leibrentenbelastung\", \"Kaufvertrag Eigentumswohnung\", \"Lastenfreiheit\", \"Grundbuch\", \"gerichtliche Versteigerung\", \"Doppelveräußerung\", \"Meistbot\", \"Zuschlag\", \"Wiederversteigerung\", \"Rechtsanwalts haftung\", \"Liegenschaftsveräußerung\", \"Rangordnungsanmerkung\", \"Übergabsvertrag\", \"Treuhandkaufpreis\", \"Lastenfreistellung\", \"Eigentumsvormerkung\", \"Aufklärungspflicht\", \"Wegerecht\", \"Dienstbarkeit\", \"Beratungspflicht\", \"Verlassenschaftsverfahren\", \"Pflichtteil\", \"Belastungs- und Veräußerungsverbot\", \"Grundbucheinverleibung\", \"Anwaltshaftung\", \"Schadenersatz\", \"Rechtsanwaltshaftung\", \"Außerordentliche Revision\", \"Konkurs\", \"Zession\", \"Masseverwalter\", \"Verfahrensfortsetzung\", \"Schadenersatz ex contractu\", \"Kaufpreisberichtigung\", \"Betrug\", \"Revision\", \"Verfahrensmangel\", \"Berufungsverfahren\", \"Nachlasskurator\", \"Sorgfaltspflichten\", \"Kaufvertrag\", \"Liegen"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_88820883",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Ersterkäufer Zweitkäufer Grundbuch",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.63,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Ersterkäufer Zweitkäufer Grundbuch\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_04984289",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "gutgläubiger Erwerb Liegenschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1084.03,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"gutgläubiger Erwerb Liegenschaft\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_40486567",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Doppelveräußerung Liegenschaft Eintragungsgrundsatz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.49,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Doppelveräußerung Liegenschaft Eintragungsgrundsatz\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_83920958",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0011111",
+            "te_limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.54,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0011111\", \"rechtssatz_text\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"te_count\": 19, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"GRUNDBUCH_GRUNDLAGEN\"], \"topic_ids\": [\"sachenrecht\"], \"hot_rank\": 2709, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob6_24z|OGH|2024-03-05\", \"gz\": \"1Ob6_24z\", \"datum\": \"2024-03-05\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Berechtigung einer Eigentumsfreiheitsklage nach § 523 ABGB gegen die unbefugte Nutzung und Störung von Grundstücksflächen durch den Beklagten.\"}, {\"te_stable_key\": \"7Ob174_22x|OGH|2023-01-25\", \"gz\": \"7Ob174_22x\", \"datum\": \"2023-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung des Revisionsrekurses gegen die teilweise Abweisung der Neufestsetzung der Enteignungsentschädigung für eine Dienstbarkeit im Miteigentum.\"}, {\"te_stable_key\": \"5Ob148_22h|OGH|2022-09-27\", \"gz\": \"5Ob148_22h\", \"datum\": \"2022-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der Einverleibung eines Hälfteanteils an einer Liegenschaft und Eintragung eines Fruchtgenussrechts aufgrund unvollständiger Einantwortungsurkunde.\"}, {\"te_stable_key\": \"4Ob53_22f|OGH|2022-05-24\", \"gz\": \"4Ob53_22f\", \"datum\": \"2022-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet, dass der Streit um unberechtigte Eingriffe in das Alleineigentum an einer Liegenschaft im streitigen Verfahren zu führen ist und nicht im Außerstreitverfahren nach § 838a ABGB, da kein Miteigentum vorliegt.\"}, {\"te_stable_key\": \"6Ob54_22t|OGH|2022-05-18\", \"gz\": \"6Ob54_22t\", \"datum\": \"2022-05-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs gegen die Überweisung in das Außerstreitverfahren zurück und ordnet die Fortsetzung im streitigen Verfahren an, da die Klage den Schutz des Alleineigentums gemäß § 523 ABGB betrifft.\"}, {\"te_stable_key\": \"8Ob12_19a|OGH|2019-02-26\", \"gz\": \"8Ob12_19a\", \"datum\": \"2019-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Die Liegenschaft aus einem Leibrentenvertrag gehört mangels Grundbucheintragung nicht zur Insolvenzmasse und ist daher nicht nach §"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_77592309",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004894",
+            "te_limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.13,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0004894\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_98141860",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0050517",
+            "te_limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.64,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0050517\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_98176602",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 431 ABGB",
+            "limit": 50
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 774.41,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 431 ABGB\", \"results\": [{\"rs_number\": \"RS0011111\", \"kernaussage\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzung\", \"Überbau\", \"außerbücherliches Eigentum\", \"Urkundenhinterlegung\", \"Grundbuchberichtigung\", \"Gesellschaftsvermögen\", \"OHG-Ausscheiden\", \"Liegenschaftseinbringung\", \"Ersitzung\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"Eigentumsverschaffungspflicht\", \"außerbücherliche Veräußerung\", \"Verbücherung\", \"Eigentumserwerb durch Ersitzung\", \"Grenzverlauf Grundstücke\", \"Grundbuchsmappe\", \"Derivativer Eigentumserwerb\", \"außerbücherlicher Erwerber\", \"Rechnungslegung\", \"Nichtigkeitsberufung\", \"Rek"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_44941629",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Doppelveräußerung Liegenschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1065.12,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Doppelveräußerung Liegenschaft\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_22393931",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Ersterwerber Zweiterwerber Liegenschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.03,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0033100\", \"rechtssatz\": \"Der Zweiterwerber, der die entzogene Liegenschaft bereits zurückgestellt hat, kann nicht zur Zahlung einer vom Ersterwerber der Liegenschaft entzogenen Hypothek verhalten werden. Auch ein Schadenersatzanspruch gegen ihn besteht nicht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.23}], \"count\": 1, \"query\": \"Ersterwerber Zweiterwerber Liegenschaft\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_54304163",
+          "tool": "search_ogh_entscheidungen",
+          "args": {
+            "query": "Doppelverkauf Liegenschaft Ersterkäufer",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10555.3,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Doppelverkauf Liegenschaft Ersterkäufer\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0033100",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0033100",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.47,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0033100\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026349",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026349",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.79,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026349\", \"rechtssatz_text\": \"Die Sorgfaltspflicht eines Urkundenverfassers (Notars) darf nicht überspannt werden (Nachforschungen, ob die Kaufliegenschaft seinerzeit arisiert worden ist).\", \"te_count\": 24, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2095, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob166_22s|OGH|2022-12-15\", \"gz\": \"3Ob166_22s\", \"datum\": \"2022-12-15\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Abweisung eines Schadenersatzanspruchs wegen angeblicher Verletzung von Belehrungs- und Aufklärungspflichten einer Rechtsanwältin als Vertragserrichterin ist unbegründet.\"}, {\"te_stable_key\": \"3Ob189_20w|OGH|2021-01-20\", \"gz\": \"3Ob189_20w\", \"datum\": \"2021-01-20\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision gegen die Entscheidung über die Haftung eines Rechtsanwalts als Vertragserrichter gemäß § 1299 ABGB bei der Errichtung eines Kaufvertrags über eine Liegenschaft.\"}, {\"te_stable_key\": \"4Ob244_18p|OGH|2019-01-29\", \"gz\": \"4Ob244_18p\", \"datum\": \"2019-01-29\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Entscheidung, dass Reihenhäuser mit gemeinsamen Einrichtungen kein Gebäude mit nicht mehr als zwei Wohnungen iSd § 1 Abs 2 Z 5 MRG darstellen und somit das MRG anwendbar ist, ist zurückzuweisen.\"}, {\"te_stable_key\": \"6Ob234_17f|OGH|2018-02-28\", \"gz\": \"6Ob234_17f\", \"datum\": \"2018-02-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Haftung einer Anwältin wegen unzweckmäßiger Beantragung eines Konkursverfahrens, das die Einverleibung des Eigentumsrechts der Mandantin verhinderte.\"}, {\"te_stable_key\": \"9Ob11_17h|OGH|2017-04-20\", \"gz\": \"9Ob11_17h\", \"datum\": \"2017-04-20\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der Revision zur Haftung eines Rechtsanwalts oder Notars als Vertragserrichter bei Verkauf kreditbelasteter Liegenschaften.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0004524",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004524",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.57,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0004524\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0004516",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004516",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.69,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0004516\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0004496",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0004496",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.13,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0004496\", \"rechtssatz_text\": \"Zur Bewilligung der Exekution nach § 350 EO bedarf es nicht einer formellen Aufsandungserklärung. Es genügt, dass der Anspruch auf Übertragung des Eigentums durch den Exekutionstitel gedeckt ist.\", \"te_count\": 7, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7707, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob180_21y|OGH|2021-12-22\", \"gz\": \"3Ob180_21y\", \"datum\": \"2021-12-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs der Betreibenden gegen die Ablehnung des Antrags auf Bewilligung der Exekution nach § 354 EO zurück, da der Titel eine Exekution nach § 350 EO ermöglicht.\"}, {\"te_stable_key\": \"8Ob47_20z|OGH|2020-08-25\", \"gz\": \"8Ob47_20z\", \"datum\": \"2020-08-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt das Urteil des Berufungsgerichts auf, da dieses das Klagebegehren mangels Bestimmtheit abwies, ohne dem Kläger die Verbesserungschance einzuräumen, und stellt fest, dass der Kläger Anspruch auf Einräumung von Baurechtswohnungseigentum hat.\"}, {\"te_stable_key\": \"3Ob152_18a|OGH|2018-10-24\", \"gz\": \"3Ob152_18a\", \"datum\": \"2018-10-24\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Zulässigkeit einer Exekution nach § 350 EO auf Basis eines gerichtlichen Vergleichs zur Einwilligung in einen Kaufvertrag über Miteigentumsanteile an einer Liegenschaft.\"}, {\"te_stable_key\": \"5Ob139_17b|OGH|2017-12-21\", \"gz\": \"5Ob139_17b\", \"datum\": \"2017-12-21\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung des Klagebegehrens zur Durchsetzung des Übertragungsanspruchs nach § 10 Abs 4 WEG 2002 bei Änderung der Miteigentumsanteile infolge Nutzwertneufestsetzung.\"}, {\"te_stable_key\": \"3Ob155_13k|OGH|2013-08-21\", \"gz\": \"3Ob155_13k\", \"datum\": \"2013-08-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung eines Revisionsrekurses gegen die Bewilligung der Einverleibung des Eigentums nach § 350 EO im Exekutionsverfahren.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 31,
+      "tool_calls_ok": 30,
+      "tool_calls_ok_rate": 0.968,
+      "llm_error": null,
+      "answer": "**Zusammenfassung (Phase 3):**\n\n### Wer ist Eigentümer?\n- **A ist (wirklicher) Eigentümer**: Gemäß **§ 431 ABGB (Eintragungsgrundsatz/Intabulationsprinzip)** geht das Eigentum an Liegenschaften **erst mit der Grundbucheinverleibung** auf den Erwerber über. B hat **kein außerbücherliches Eigentum** trotz Kaufvertrag mit E, da bloße Übergabe/Vertrag physisch irrelevant ist (RS0011111: \"Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des Eigentums\"; vgl. auch RS0011767, JWR_1992060054_19920409X01, JWR_1996050013_19960227X01: Vor-Eintrag nur \"Recht auf die Sache\", kein dingliches Recht). A als ordnungsgemäß eingetragener **bücherlicher Eigentümer** genießt **öffentlichen Glauben des Grundbuchs** (§ 431 ABGB iVm GBG; RS0011111 TE: z.B. 3Ob124_10x [2010]: Kein Eigentum durch Übergabe ohne Eintragung; 10Ob14_07t [2007]: Besitzverstärktes Nutzungsrecht des Nicht-Eingetragenen wirkt nicht dinglich ggü. späterem Erwerber).\n- **B's Klage (Löschung A's Eintrag + eigene Eintragung) scheitert**: Kein Rang/Vormerkung für B (§ 431 ABGB); A hat priorisiert eingetragen. B hat nur **obligatorisches Recht gegen E** auf Einverleibung/Eigentumsverschaffung (§ 367 ABGB ergänzend: Gutgläubiger Erwerb schützt A). RS0011111 (TE: 1Ob42_18k [2018], 8Ob12_19a [2019]) bestätigt: Nicht-eingetragener Vertrag erzeugt kein Eigentum, Grundbuch priorisiert.\n\n### Hat B Ansprüche gegen A auf Herausgabe?\n- **Nein**: Kein **petitorischer Anspruch** (§ 367 ABGB) gegen A, da B **kein Eigentum/Besitz** hat (nur Forderungsrecht gegen E; RS0011111). Gegen **gutgläubigen A** kein dinglicher Schutz (kein gutgläubiger Erwerb für B, da § 431 ABGB kein Konsensualprinzip erlaubt). Bei **Arglist A's** (Kenntnis von B-Vertrag) könnte B **Löschungsklage** (§ 61 GBG) + Naturalrestitution prüfen (RS0004894: Ersterwerber-Unterlassungsansprüche ggü. schlechtgläubigem Zweiterwerber möglich; RS0050517: Anfechtung Zweitvertrag bei Benachteiligungsabsicht). § 1500 ABGB irrelevant (Besitzschutz, nicht Eigentumsklage).\n- **Nur gegen E**: B hat **Schadenersatz** (§ 1299 ABGB) oder **Rücktritt** (§ 918 ABGB) gegen E (Doppelverkauf); Naturalrestitution/Herausgabe, falls B Besitz hat (RS0011111 Tags: Doppelveräußerung Liegenschaften).\n\n### Beweislast:\n| Issue | Beweislast-Träger |\n|-------|-------------------|\n| A's Gutgläubigkeit (keine Kenntnis B-Vertrag) | **B** (muss Arglist nachweisen für Löschung; Grundbuchschutz umkehrbar nur bei Beweis; RS0011111). |\n| B's obligatorisches Recht gegen E | **E** (Vertrag/Übergang; § 431 ABGB-Beweislastumkehr implizit zugunsten Eingetragenem). |\n| Doppelverkauf-Arglist E | **B** (initial), dann Umkehr bei offensichtlichem Verstoß (§ 367 ABGB). |\n\n**Keine Treffer zu § 480/§ 367/§ 1500 direkt relevant; Fokus § 431 ABGB**. Keine spezifische Doppelverkauf-GZ, aber RS0011111 (Cluster GRUNDBUCH_GRUNDLAGEN; 19 TE, z.B. 10Ob14_07t) deckt Konstellation ab.",
+      "answer_chars": 2927,
+      "e2e_ms": 88789.89
+    },
+    {
+      "name": "Schutz des nicht eingetragenen Käufers (B) vs. bücherlichem Eigentümer (A)",
+      "goal": "Prüfen, ob B Ansprüche gegen A (z.B. auf Herausgabe) oder nur gegen E hat – insbesondere im Lichte des § 1500 ABGB (Gutgläubigenschutz)",
+      "mode": "llm",
+      "tools": [
+        "hot_cluster_context",
+        "search_kommentar_paragraph",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 8270.04,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3105,
+            "completion_tokens": 1380,
+            "total_tokens": 4485,
+            "cost": 0.0011958,
+            "cached_tokens": 768,
+            "reasoning_tokens": 1151
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7277.77,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 20873,
+            "completion_tokens": 978,
+            "total_tokens": 21851,
+            "cost": 0.0046411,
+            "cached_tokens": 150,
+            "reasoning_tokens": 682
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 13623.19,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 43467,
+            "completion_tokens": 1578,
+            "total_tokens": 45045,
+            "cost": 0.0063522,
+            "cached_tokens": 20868,
+            "reasoning_tokens": 624
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_17214747",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Gutgläubiger Erwerb",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 651.58,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Gutgläubiger Erwerb\", \"results\": [{\"rs_number\": \"RS0054264\", \"kernaussage\": \"Nach deutschem Recht ist der Eigentumsvorbehalt als Sicherungsmittel bei Warenkreditgeschäften grundsätzlich zulässig und unbedenklich.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Sicherungseigentum\", \"Gutgläubiger Erwerb\"]}, {\"rs_number\": \"RS0034893\", \"kernaussage\": \"Besondere Erhebungen über die letzte Tagebuchzahl sind für den guten Glauben nicht erforderlich. Ihr kommt für den Grundbuchbenützer nämlich kein besonderer Informationswert zu. Ohne das Vorliegen von konkreten Verdachtsmomenten ist auch keine Einsicht in das Verzeichnis der gelöschten Eintragungen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gutgläubiger Erwerb\", \"Pfandrecht\", \"Grundbuchverbot\", \"Geschäftsunfähigkeit\"]}, {\"rs_number\": \"RS0042179\", \"kernaussage\": \"Wenn das Berufungsgericht der Ansicht ist, dass der Sachverhalt in der von ihm dargestellten Richtung noch nicht genügend geklärt ist, dann kann der OGH, der nicht Tatsacheninstanz ist, dem nicht entgegentreten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Miteigentumsteilung\", \"Naturalteilung\", \"Zivilteilung\", \"Pfandrecht\", \"Reallast\", \"Patenteingriff\", \"Entfeuchtungsrohr\", \"Patentansprüche\", \"Freundschaftskauf\", \"Schenkung\", \"wirkliche Übergabe\", \"falsa demonstratio\", \"Notariatszwang\", \"Schadenersatz\", \"Verjährung\", \"Schiedsgericht\", \"Unterbrechung der Verjährung\", \"Werkvertrag\", \"Gewährleistungsausschluss\", \"Vorausleistung\", \"vorzeitiger Abbruch\", \"Rekurszulässigkeit\", \"Mietrecht\", \"zurückweisender Teil\", \"Lieferbedingungen\", \"Gewährleistung\", \"Män"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_60675054",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Grundbuchsschutz",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1019.25,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Grundbuchsschutz\", \"results\": [{\"rs_number\": \"JWR_1994070026_19950523X09\", \"kernaussage\": \"Guter Glaube im Grundbuch: Ausschluss durch Fahrlässigkeit\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"guter Glaube\", \"Grundbuchsschutz\", \"Fahrlässigkeit\", \"leichte Fahrlässigkeit\", \"öffentlicher Glaube\", \"Grundbucheintrag\", \"ABGB § 1297\", \"GBG § 7\"]}], \"count\": 1}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_56679578",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Doppelverkauf Liegenschaft Grundbuch gutgläubiger Erwerber",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.54,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Doppelverkauf Liegenschaft Grundbuch gutgläubiger Erwerber\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_29070174",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 431 ABGB",
+            "limit": 50
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 705.69,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 431 ABGB\", \"results\": [{\"rs_number\": \"RS0011111\", \"kernaussage\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzung\", \"Überbau\", \"außerbücherliches Eigentum\", \"Urkundenhinterlegung\", \"Grundbuchberichtigung\", \"Gesellschaftsvermögen\", \"OHG-Ausscheiden\", \"Liegenschaftseinbringung\", \"Ersitzung\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"Eigentumsverschaffungspflicht\", \"außerbücherliche Veräußerung\", \"Verbücherung\", \"Eigentumserwerb durch Ersitzung\", \"Grenzverlauf Grundstücke\", \"Grundbuchsmappe\", \"Derivativer Eigentumserwerb\", \"außerbücherlicher Erwerber\", \"Rechnungslegung\", \"Nichtigkeitsberufung\", \"Rek"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_24943286",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1500 ABGB",
+            "limit": 50
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 679.56,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1500 ABGB\", \"results\": [{\"rs_number\": \"RS0034821\", \"kernaussage\": \"Der Schutz des § 1500 ABGB kommt nur dann in Betracht, wenn der gutgläubige Erwerber sofort nach erhaltener Kenntnis der Diskrepanz zwischen dem tatsächlichen und dem Grundbuchsstande nötigenfalls mit Klage einschreitet, weil der gute Glaube sonst durch die Duldung der Ausübung nicht verbücherter...\", \"schlagworte\": [\"Beseitigungsanspruch\", \"Besitzschutz\", \"Grenzstreit\", \"Grundbuch\", \"Ersitzung\", \"Grundbuchsmappe\", \"guter Glaube\", \"Dienstbarkeit\", \"konkludente Einräumung\", \"Leitungsdienstbarkeit\", \"Wasserversorgung\", \"Unterlassungsanspruch\", \"nicht verbücherte Belastung\"]}, {\"rs_number\": \"RS0034880\", \"kernaussage\": \"§ 1500 ABGB ist auf den Erwerb durch Erbgang nicht anwendbar.\", \"schlagworte\": [\"mündlicher Kaufvertrag\", \"Liegenschaftsübertragung\", \"Eigentumserwerb\", \"guter Glaube\", \"Ersitzung\", \"§ 1500 ABGB\", \"Erwerb im Erbgang\", \"Grundbuch\", \"Dienstbarkeit\", \"Wasserbezugsrecht\", \"Reallast\", \"Grundbuchsberichtigung\", \"Vollzugsfehler\", \"Belastungs- und Veräußerungsverbot\", \"Pfandrecht\", \"Eigentumsfreiheitsklage\", \"Klagehäufung\", \"Bewertung des Entscheidungsgegenstands\", \"Streitwert\", \"redlicher Besitz\", \"Grundbuchschutz\"]}, {\"rs_number\": \"RS0034952\", \"kernaussage\": \"§ 1500 ABGB findet auch auf den Eigentumserwerb durch Zuschlag bei solchen nicht verbücherten Rechten, die den Vorrang vor dem Befriedigungsrecht oder Pfandrecht des betreibenden Gläubigers hätten, Anwendung.\", \"schlagworte\": []}, {\"rs_number\": \"RS0034955\", \"kernaussage\": \"Der Tatbestand des § 1500 ABGB gilt über Ersitzung und Ver"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_45938974",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Doppelveräußerung",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8612.76,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Doppelveräußerung\", \"results\": [{\"rs_number\": \"RS0010417\", \"kernaussage\": \"Zum Pflichtenkreis und zur Haftung eines Notars, der Urkundenverfasser und Treuhänder beider Vertragsteile ist. Einer nachträglichen Weisung, die nur von einem Treugeber ausgeht, sachlich ungerechtfertigt ist und den anderen Treugeber belastet, darf der Treuhänder nicht nachkommen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kaufvertrag\", \"Kaufpreishinterlegung\", \"Scheck\", \"Treuhänder\", \"Aufsandungserklärung\", \"Grundverkehrsgesetz\", \"Notarhaftung\", \"Leibrentenbelastung\", \"Kaufvertrag Eigentumswohnung\", \"Lastenfreiheit\", \"Grundbuch\", \"Treuhand\", \"Pfandrecht\", \"Devisenrecht\", \"gerichtliche Versteigerung\", \"Doppelveräußerung\", \"Meistbot\", \"Zuschlag\", \"Wiederversteigerung\", \"Rangordnungsanmerkung\", \"Rechtsanwaltspflicht\", \"Grundbuchseintragung\", \"Liegenschaftsverkauf\", \"Staatsbürgerschaftsnachweis\", \"Rechtsanwaltshaftung\", \"Ranganmerkung\", \"Wohnungseigentum\", \"mehrseitige Treuhand\", \"Sorgfaltspflicht\", \"Rechtsanwalt\", \"Baufortschritt\", \"Treuhandschaft\", \"Anwalts-Sorgfaltspflicht\", \"Revision\", \"Treuhandvertrag\", \"Treuhänderpflichten\", \"Anwaltshaftung\", \"Verschuldenshaftung\", \"Kausalität\", \"Notar\", \"Übernahmebestätigung\", \"Revisionszulässigkeit\", \"Schadenersatz\", \"Verjährung\", \"Vorsteuerabzug\", \"UStG\"]}, {\"rs_number\": \"RS0010432\", \"kernaussage\": \"Zum Wesen des Treuhandgeschäftes.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Surrogationsprinzip\", \"Treuhand\", \"Belastungsverbot\", \"Treuhandvertrag\", \"Pflichtteilsverzicht\", \"Gerichtsstand des Vermögens\", \"Abtretung\", \"Miteigentum\", \"Fruchtgenußrecht\", \"Tre"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_94383733",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Doppelverkauf Liegenschaft",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1047.49,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Doppelverkauf Liegenschaft\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_31884011",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 367 ABGB",
+            "limit": 50
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1468.75,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 367 ABGB\", \"results\": [{\"rs_number\": \"RS0075374\", \"kernaussage\": \"Bis zum Inkrafttreten des Österreichischen Staatsvertrages war das Deutsche Eigentum in Österreich keinen Beschränkungen unterworfen. Die Besatzungsmächte konnten nach österreichischem Recht wirksam nur über Sachen verfügen, an denen sie rechtmäßig Eigentum erworben hatten. § 367 ABGB fand auf...\", \"schlagworte\": []}, {\"rs_number\": \"RS0111486\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 367 ABGB A Anwendungsbereich B Öffentliche Versteigerung C Befugter Gewerbsmann D Vertrauensmann des Eigentümers E Diverses Informationen zu § 366 ABGB Verweisungen: Zur Gutgläubigkeit des Erwerbers vgl § 326 A ABGB Vgl ferner die Entscheidungen zu §§ 366, 372, 402...\", \"schlagworte\": []}, {\"rs_number\": \"RS0010176\", \"kernaussage\": \"Die vom Käufer erst später erlangte Kenntnis von der wahren Rechtslage vermag an dem bereits eingetretenen Rechtserwerb nach § 367 ABGB nicht mehr zu ändern.\", \"schlagworte\": []}, {\"rs_number\": \"RS0010190\", \"kernaussage\": \"Für die Redlichkeit des Besitzers nach § 326 ABGB und für die Gutgläubigkeit des Erwerbers nach § 367 ABGB sind verschiedene Voraussetzungen bestimmend. Der gute Glauben nach § 367 ABGB besteht in der Überzeugung vom Eigentum des Vormannes, jene von der Verfügungsberechtigung des Veräußerers genügt...\", \"schlagworte\": [\"Ausgedinge\", \"Übergabsvertrag\", \"§ 368 ABGB\", \"Verdachtsmomente\", \"Exszindizierungsklage\", \"Werkunternehmer\", \"Unredlichkeit\", \"Superädifikat\", \"Schenkungsvertrag\", \"Redlichkeit\", \"gutgläubiger Eigentumserwerb\", \"gefälschte Dokumente\", \"Leas"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_71890669",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0011111",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.49,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0011111\", \"rechtssatz_text\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"te_count\": 19, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"GRUNDBUCH_GRUNDLAGEN\"], \"topic_ids\": [\"sachenrecht\"], \"hot_rank\": 2709, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob6_24z|OGH|2024-03-05\", \"gz\": \"1Ob6_24z\", \"datum\": \"2024-03-05\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Berechtigung einer Eigentumsfreiheitsklage nach § 523 ABGB gegen die unbefugte Nutzung und Störung von Grundstücksflächen durch den Beklagten.\"}, {\"te_stable_key\": \"7Ob174_22x|OGH|2023-01-25\", \"gz\": \"7Ob174_22x\", \"datum\": \"2023-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung des Revisionsrekurses gegen die teilweise Abweisung der Neufestsetzung der Enteignungsentschädigung für eine Dienstbarkeit im Miteigentum.\"}, {\"te_stable_key\": \"5Ob148_22h|OGH|2022-09-27\", \"gz\": \"5Ob148_22h\", \"datum\": \"2022-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der Einverleibung eines Hälfteanteils an einer Liegenschaft und Eintragung eines Fruchtgenussrechts aufgrund unvollständiger Einantwortungsurkunde.\"}, {\"te_stable_key\": \"4Ob53_22f|OGH|2022-05-24\", \"gz\": \"4Ob53_22f\", \"datum\": \"2022-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet, dass der Streit um unberechtigte Eingriffe in das Alleineigentum an einer Liegenschaft im streitigen Verfahren zu führen ist und nicht im Außerstreitverfahren nach § 838a ABGB, da kein Miteigentum vorliegt.\"}, {\"te_stable_key\": \"6Ob54_22t|OGH|2022-05-18\", \"gz\": \"6Ob54_22t\", \"datum\": \"2022-05-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs gegen die Überweisung in das Außerstreitverfahren zurück und ordnet die Fortsetzung im streitigen Verfahren an, da die Klage den Schutz des Alleineigentums gemäß § 523 ABGB betrifft.\"}, {\"te_stable_key\": \"8Ob12_19a|OGH|2019-02-26\", \"gz\": \"8Ob12_19a\", \"datum\": \"2019-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Die Liegenschaft aus einem Leibrentenvertrag gehört mangels Grundbucheintragung nicht zur Insolvenzmasse und ist daher nicht nach §"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_80650288",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0107070",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.63,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0107070\", \"rechtssatz_text\": \"§ 61 GBG 1955 behandelt nur die Zulässigkeit der Streitanmerkung bei Löschungsklage, regelt aber nicht die materiellrechtliche Frage, wann eine Klage auf Löschung einer ungültigen Eintragung gewährt wird. Sie ist immer dann gegeben, wenn die Einverleibung aus dem Grunde der ursprünglichen Nichtigkei...\", \"te_count\": 7, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 8465, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob140_24k|OGH|2025-06-03\", \"gz\": \"5Ob140_24k\", \"datum\": \"2025-06-03\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs gegen die Ablehnung der Löschung einer Eigentumsvormerkung wegen Insolvenz der Vormerkungsberechtigten und Rechtskraft der Bewilligung ab.\"}, {\"te_stable_key\": \"3Ob220_23h|OGH|2024-01-31\", \"gz\": \"3Ob220_23h\", \"datum\": \"2024-01-31\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH beurteilt die Zulässigkeit eines Baurechts an einer Dachdecker-Werkstatt als selbständiges Gebäude oder unselbständigen Gebäudeteil im Sinne von § 1 Abs 3 BauRG im Kontext einer Löschungsklage.\"}, {\"te_stable_key\": \"3Ob113_19t|OGH|2019-08-29\", \"gz\": \"3Ob113_19t\", \"datum\": \"2019-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Löschungsklage gegen die Einverleibung des Eigentumsrechts an einer Eigentumswohnung aufgrund eines materiell unwirksamen Versäumungsurteils und fehlender Gutgläubigkeit der Erwerberin.\"}, {\"te_stable_key\": \"5Ob189_16d|OGH|2016-11-22\", \"gz\": \"5Ob189_16d\", \"datum\": \"2016-11-22\", \"gericht\": \"OGH\", \"mini_story\": \"Die Streitanmerkung gemäß § 61 GBG ist bei einer Klage auf Löschung der Anmerkung einer Benützungsregelung nach § 17 WEG nicht zulässig, da Benützungsregelungen obligatorischen Charakter haben und keine dinglichen Rechte begründen.\"}, {\"te_stable_key\": \"7Ob213_06h|OGH|2006-09-27\", \"gz\": \"7Ob213_06h\", \"datum\": \"2006-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt den erstinstanzlichen Beschluss über die Ablehnung einer Streitanmerkung nach § 61 GBG wieder her, da das Eventualbegehren keine materielle Unrichtigkeit der Grundbucheintragung wegen Irrtumsanfechtung oder Dissens behauptet.\"}, {\"te_stable_key\": \"9Ob84_06b|OGH|2006-08-11\", \"gz\": \"9Ob84_06b\", \"datum\": \"2006-08-11\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit einer Streitanmerkung nach § 61 GBG "
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_11504609",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0013489",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.48,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0013489\", \"rechtssatz_text\": \"Für den mangelnden guten Glauben des Erwerbers einer Liegenschaft hinsichtlich der Freiheit von Dienstbarkeiten ist der angebliche Dienstbarkeitsberechtigte (hier: Kläger) beweispflichtig. Diese Beweispflicht geht nicht so weit, ihn auch mit dem Beweis der Tatsache zu belasten, der Erwerber (hier:...\", \"te_count\": 12, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 4636, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob109/25z|OGH|2025-12-16\", \"gz\": \"8Ob109/25z\", \"datum\": \"2025-12-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH fasst einen Beschluss über die Revision der beklagten Partei gegen ein bestätigendes Berufungsurteil.\"}, {\"te_stable_key\": \"3Ob216_18p|OGH|2018-12-19\", \"gz\": \"3Ob216_18p\", \"datum\": \"2018-12-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Ersitzung einer streitigen Grundstücksfläche zwischen Nachbarliegenschaften und prüft den Gutglaubenserwerb der Beklagten nach § 1500 ABGB.\"}, {\"te_stable_key\": \"3Ob26_17w|OGH|2017-06-07\", \"gz\": \"3Ob26_17w\", \"datum\": \"2017-06-07\", \"gericht\": \"OGH\", \"mini_story\": \"Streit um die Feststellung eines Geh- und Fahrrechts über den strittigen Weg zum Grundstück K durch Ersessenheit oder vertragliche Einräumung.\"}, {\"te_stable_key\": \"2Ob171_14g|OGH|2015-04-09\", \"gz\": \"2Ob171_14g\", \"datum\": \"2015-04-09\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage vorliegt und die Vorinstanzen die Ersitzung einer Wegedienstbarkeit sowie den Mangel an Gutgläubigkeit des Erwerbers korrekt festgestellt haben.\"}, {\"te_stable_key\": \"5Ob27_14b|OGH|2014-09-04\", \"gz\": \"5Ob27_14b\", \"datum\": \"2014-09-04\", \"gericht\": \"OGH\", \"mini_story\": \"Streit über das Vorliegen einer offenkundigen Dienstbarkeit für die Zufahrt zum Klägergrundstück GST-NR 127 über die Zufahrtsstraße auf dem Beklagtengrundstück GST-NR 129.\"}, {\"te_stable_key\": \"10Ob5_14d|OGH|2014-02-25\", \"gz\": \"10Ob5_14d\", \"datum\": \"2014-02-25\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung des gutgläubigen Eigentumserwerbs einer Liegenschaft hinsichtlich Freiheit von Dienstbarkeiten trotz fehlender Eintragung im Grundbuch.\"}, {\"te_stable_key\": \"1Ob97_10m|OGH|2010-07-06\", \"gz\": \"1Ob97_10m\", \"datum\": \"2010-07-06\", \"gericht\": \"OGH\", \"mini_story\": \"Die Kläger"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_28357410",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0034821",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.32,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0034821\", \"rechtssatz_text\": \"Der Schutz des § 1500 ABGB kommt nur dann in Betracht, wenn der gutgläubige Erwerber sofort nach erhaltener Kenntnis der Diskrepanz zwischen dem tatsächlichen und dem Grundbuchsstande nötigenfalls mit Klage einschreitet, weil der gute Glaube sonst durch die Duldung der Ausübung nicht verbücherter...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15268, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob259_15g|OGH|2016-01-20\", \"gz\": \"3Ob259_15g\", \"datum\": \"2016-01-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück und bestätigt die Verurteilung zur Beseitigung rechtswidrig verlegter Leitungen auf Nachbargrund mangels Erwerbstitel für eine Dienstbarkeit.\"}, {\"te_stable_key\": \"1Ob116_09d|OGH|2009-07-06\", \"gz\": \"1Ob116_09d\", \"datum\": \"2009-07-06\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt die Feststellung der Nichtberechtigung der Beklagten zur Ausübung einer nicht verbücherten und nicht offenkundigen Dienstbarkeit des Wasserbezugs wieder her, da diese durch gutgläubigen Erwerb erlischt.\"}, {\"te_stable_key\": \"9Ob26_00i|OGH|2000-07-12\", \"gz\": \"9Ob26_00i\", \"datum\": \"2000-07-12\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung der Ersitzung strittiger Waldfläche durch gutgläubige Bewirtschaftung seit 1949 trotz Abweichung von der Grundbuchsmappe.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111486",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111486",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 21.77,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0111486\", \"rechtssatz_text\": \"Übersicht der Entscheidungen zu § 367 ABGB A Anwendungsbereich B Öffentliche Versteigerung C Befugter Gewerbsmann D Vertrauensmann des Eigentümers E Diverses Informationen zu § 366 ABGB Verweisungen: Zur Gutgläubigkeit des Erwerbers vgl § 326 A ABGB Vgl ferner die Entscheidungen zu §§ 366, 372, 402...\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"GUTGLAEUBIGER_ERWERB\"], \"topic_ids\": [\"sachenrecht\"], \"hot_rank\": 18011, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0075374",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0075374",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.23,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0075374\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0054264",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0054264",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.71,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0054264\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0042179",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0042179",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.23,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0042179\", \"rechtssatz_text\": \"Wenn das Berufungsgericht der Ansicht ist, dass der Sachverhalt in der von ihm dargestellten Richtung noch nicht genügend geklärt ist, dann kann der OGH, der nicht Tatsacheninstanz ist, dem nicht entgegentreten.\", \"te_count\": 344, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 42, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob41_04m|OGH|2004-07-06\", \"gz\": \"7Ob41_04m\", \"datum\": \"2004-07-06\", \"gericht\": \"OGH\", \"mini_story\": \"Auslegung der Klauseln Art 6 Abs 1 und 2 ARB/EA 95 in einer Rechtsschutzversicherung als Risikobeschreibung oder Obliegenheit bei verspäteter Meldung eines Verwaltungsstrafverfahrens.\"}, {\"te_stable_key\": \"7Ob120_04d|OGH|2004-06-16\", \"gz\": \"7Ob120_04d\", \"datum\": \"2004-06-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit eines Rekurses gegen einen Aufhebungsbeschluss in einem Feststellungsverfahren über die Haftung eines Geschäftsführers für Verjährungsverluste aus einem Leasingvertrag.\"}, {\"te_stable_key\": \"8ObA5_04z|OGH|2004-03-12\", \"gz\": \"8ObA5_04z\", \"datum\": \"2004-03-12\", \"gericht\": \"OGH\", \"mini_story\": \"Bei ordentlicher Kündigung des Handelsvertretervertrags durch den Vertreter ist der Ausgleichsanspruch nach § 24 Abs 3 Z 1 HVertrG gewahrt, wenn dem Unternehmer zurechenbare Umstände Anlass gegeben haben, ohne dass in der Kündigungserklärung Gründe genannt oder ein 'wichtiger Grund' nach § 22 HVertr\"}, {\"te_stable_key\": \"7Ob25_04h|OGH|2004-02-25\", \"gz\": \"7Ob25_04h\", \"datum\": \"2004-02-25\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines libanesischen Komplementärs einer KEG als persönlich haftender Gesellschafter und Bürge aus einem Getränkebezugsvertrag unter Anwendung des IPRG und HGB.\"}, {\"te_stable_key\": \"10ObS195_03d|OGH|2003-12-16\", \"gz\": \"10ObS195_03d\", \"datum\": \"2003-12-16\", \"gericht\": \"OGH\", \"mini_story\": \"Streit um den Pflegebedarf einer Minderjährigen mit zystischer Fibrose zur Gewährung von Pflegegeld der Stufe 1 oder 2 nach TPGG.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0034955",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0034955",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.7,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0034955\"}"
+        }
+      ],
+      "tool_calls_total": 17,
+      "tool_calls_ok": 17,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Zusammenfassung der rechtlichen Lage (Sachenrecht, Liegenschaften):**\n\n### 1. **Eigentümer der Liegenschaft**\n- **A ist (bücherlicher) Eigentümer** i.S. des **§ 431 ABGB** (Eintragungsgrundsatz/Intabulationsprinzip): Eigentum an Liegenschaften geht erst mit grundbücherlicher Einverleibung über. B erlangt durch bloßen Kaufvertrag kein Eigentum (\"Recht **auf** die Sache\", nicht **an** der Sache; vgl. RS0011111 [OGH, Cluster GRUNDBUCH_GRUNDLAGEN]; JWR_1992060054_19920409X01; JWR_1996050013_19960227X01). E behält bis Einverleibung von A Eigentum, das dann auf A übergeht (RS0011290; RS0011767).\n- **B's Klage auf Löschung der A-Eintragung und eigene Einverleibung scheitert**: B hat keinen dinglichen Anspruch; nur obligatorisches Forderungsrecht gegen E (RS0015122; RS0011226). Löschungsklage gegen A erfordert Nichtigkeit/Unrichtigkeit der Einverleibung (RS0107070); Gutgläubigkeit von A schließt dies aus (s.u.).\n\n**Beweislast**: B trägt Beweislast für Unrichtigkeit der Eintragung und Schlechtgläubigkeit von A (§ 273 ZPO; RS0013489: Beweispflicht des Klägers für mangelnden guten Glauben des Erwerbers).\n\n### 2. **B's Ansprüche gegen A (z.B. Herausgabe)**\n- **Kein Anspruch gegen A auf Herausgabe/Naturalrestitution/Eigentumsklage**: Doppelveräußerung schützt den zweiten, grundbücherlich eingetragenen Erwerber (A). B hat **keinen petitorischen Anspruch** gegen A (RS0015122: \"Im Falle der Doppelveräußerung einer Liegenschaft steht dem ersten Käufer gegen den zweiten bücherlich eingetragenen Käufer kein Anspruch auf Herausgabe der Liegenschaft zu.\"). Grund: **§ 1500 ABGB** (Gutgläubigenschutz) schützt A als redlichen Erwerber, der auf Grundbuch vertraut (RS0034821: Schutz erlischt bei Duldung der Diskrepanz ohne sofortige Klage; RS0034776; RS0034972). § 367 ABGB (Gutgläubigerwerb bewegliche Sachen) unanwendbar auf Liegenschaften (RS0011111; RS0115735).\n- Offenkundiger Besitz von B könnte guten Glauben von A ausschließen (RS0011233; RS0011226), aber bei fehlendem Besitz/Besitzausübung von B (nicht ersichtlich) gilt A als gutgläubig (RS0013489: Kläger beweispflichtig für Fahrlässigkeit/Mangel an Gutgläubigkeit).\n\n**Beweislast**: B trägt volle Beweislast für Schlechtgläubigkeit von A (Kenntnis der Vorveräußerung; RS0013489; § 1500 ABGB). A profitiert von Publizitätsschutz des Grundbuchs.\n\n### 3. **B's Ansprüche gegen E**\n- **Ja, volle Ansprüche gegen E**: Kaufvertrag wirksam; E schuldet Einverleibung (§ 431 ABGB), bei Nichterfüllung Schadenersatz/Naturalrestitution/Rücktritt (§§ 918, 932 ABGB; RS0011118). B hat besitzverstärktes Forderungsrecht bei Übergabe (§ 943 ABGB; RS0011228).\n\n**Beweislast**: E trägt Beweislast für Erfüllung/Einwendungen (Vertragspflichten).\n\n**§ 480 ABGB**: Irrelevant (Dienstbarkeitsbestellung); keine Belastung ersichtlich (RS0101795).\n\n**Gesamtergebnis**: **A ist Eigentümer**. B klagt erfolglos gegen A (kein Herausgeberrecht); ausschließlich gegen E (Schadenersatz etc.).",
+      "answer_chars": 2932,
+      "e2e_ms": 46681.9
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 23555.42,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 4569,
+    "usage": {
+      "prompt_tokens": 20194,
+      "completion_tokens": 2717,
+      "total_tokens": 22911,
+      "cost": 0.0053781,
+      "cached_tokens": 128,
+      "reasoning_tokens": 1245
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0011111",
+          "RS0011290",
+          "RS0004894",
+          "RS0034821",
+          "RS0013489"
+        ],
+        "validation": {
+          "cited": 5,
+          "checked": 5,
+          "valid": 5,
+          "invalid": [],
+          "sample_valid": [
+            "RS0004894",
+            "RS0011111",
+            "RS0011290",
+            "RS0013489",
+            "RS0034821"
+          ]
+        },
+        "valid": [
+          "RS0011111",
+          "RS0011290",
+          "RS0004894",
+          "RS0034821",
+          "RS0013489"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 431 ABGB",
+          "§ 1500 ABGB",
+          "§ 431/1500 ABGB"
+        ],
+        "ungrounded": [
+          "§ 431/1500 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0004496",
+          "RS0004516",
+          "RS0004524",
+          "RS0004894",
+          "RS0004962",
+          "RS0004992",
+          "RS0005044",
+          "RS0009792",
+          "RS0010176",
+          "RS0010190",
+          "RS0010417",
+          "RS0010432",
+          "RS0011111",
+          "RS0011290",
+          "RS0011465",
+          "RS0013489",
+          "RS0016268",
+          "RS0026349",
+          "RS0033100",
+          "RS0034821",
+          "RS0034880",
+          "RS0034893",
+          "RS0034952",
+          "RS0034955",
+          "RS0042179",
+          "RS0050517",
+          "RS0054264",
+          "RS0075374",
+          "RS0107070",
+          "RS0111486",
+          "RS0134194"
+        ],
+        "te_ogh": [
+          "1Ob130/25m",
+          "3Ob145/25g",
+          "6Ob85/25f",
+          "8Ob109/25z"
+        ],
+        "norms": [
+          "§ 1299 ABGB",
+          "§ 13 IO",
+          "§ 1409 ABGB",
+          "§ 1500 ABGB",
+          "§ 22 GBG und § 7 Grundbuchsnovelle 1942 ergibt sich, dass entgegen § 431 ABGB",
+          "§ 326 A ABGB",
+          "§ 326 ABGB",
+          "§ 350 EO",
+          "§ 351 EO",
+          "§ 354 EO",
+          "§ 364c ABGB",
+          "§ 366 ABGB",
+          "§ 367 ABGB",
+          "§ 368 ABGB",
+          "§ 425 ABGB",
+          "§ 431 ABGB",
+          "§ 5 Abs 2 WEG nicht nur die sachenrechtliche Verfügung (§ 431 ABGB",
+          "§ 523 ABGB",
+          "§ 838a ABGB",
+          "§ 851 Abs 2 ABGB",
+          "§§ 430, 440 ABGB"
+        ],
+        "stats": {
+          "rs_count": 31,
+          "te_ogh_count": 4,
+          "norm_count": 21
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0011111",
+          "RS0011290",
+          "RS0004894",
+          "RS0034821",
+          "RS0013489"
+        ],
+        "validation": {
+          "cited": 5,
+          "checked": 5,
+          "valid": 5,
+          "invalid": [],
+          "sample_valid": [
+            "RS0004894",
+            "RS0011111",
+            "RS0011290",
+            "RS0013489",
+            "RS0034821"
+          ]
+        },
+        "valid": [
+          "RS0011111",
+          "RS0011290",
+          "RS0004894",
+          "RS0034821",
+          "RS0013489"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 431 ABGB",
+          "§ 1500 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0004496",
+          "RS0004516",
+          "RS0004524",
+          "RS0004894",
+          "RS0004962",
+          "RS0004992",
+          "RS0005044",
+          "RS0009792",
+          "RS0010176",
+          "RS0010190",
+          "RS0010417",
+          "RS0010432",
+          "RS0011111",
+          "RS0011290",
+          "RS0011465",
+          "RS0013489",
+          "RS0016268",
+          "RS0026349",
+          "RS0033100",
+          "RS0034821",
+          "RS0034880",
+          "RS0034893",
+          "RS0034952",
+          "RS0034955",
+          "RS0042179",
+          "RS0050517",
+          "RS0054264",
+          "RS0075374",
+          "RS0107070",
+          "RS0111486",
+          "RS0134194"
+        ],
+        "te_ogh": [
+          "1Ob130/25m",
+          "3Ob145/25g",
+          "6Ob85/25f",
+          "8Ob109/25z"
+        ],
+        "norms": [
+          "§ 1299 ABGB",
+          "§ 13 IO",
+          "§ 1409 ABGB",
+          "§ 1500 ABGB",
+          "§ 22 GBG und § 7 Grundbuchsnovelle 1942 ergibt sich, dass entgegen § 431 ABGB",
+          "§ 326 A ABGB",
+          "§ 326 ABGB",
+          "§ 350 EO",
+          "§ 351 EO",
+          "§ 354 EO",
+          "§ 364c ABGB",
+          "§ 366 ABGB",
+          "§ 367 ABGB",
+          "§ 368 ABGB",
+          "§ 425 ABGB",
+          "§ 431 ABGB",
+          "§ 5 Abs 2 WEG nicht nur die sachenrechtliche Verfügung (§ 431 ABGB",
+          "§ 523 ABGB",
+          "§ 838a ABGB",
+          "§ 851 Abs 2 ABGB",
+          "§§ 430, 440 ABGB"
+        ],
+        "stats": {
+          "rs_count": 31,
+          "te_ogh_count": 4,
+          "norm_count": 21
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 14798.63,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3505,
+        "completion_tokens": 2739,
+        "total_tokens": 6244,
+        "cost": 0.002048,
+        "cached_tokens": 150,
+        "reasoning_tokens": 1382
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 1,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Übergang des Eigentums an Liegenschaften**: Gemäß § 431 ABGB tritt Eigentum erst mit Grundbucheintragung ein; B erlangt kein Eigentum mangels Eintragung und bleibt bei einem Recht auf die Sache.\n- **Ansprüche des Ersterwerbers B gegen Zweiterwerber A**: B hat keinen dinglichen Herausgabeanspruch gegen A, da A als eingetragener bücherlicher Eigentümer geschützt ist; Ansprüche B's richten sich ausschließlich gegen E.\n- **Gutgläubigenschutz des A**: § 1500 ABGB schützt A als gutgläubigen Erwerber vor nicht verbücherten Rechten B's, sofern A unverzüglich gegen Diskrepanzen vorgeht.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage (publizianische Klage B gegen A auf Löschung und Eintragung)**: § 431 ABGB (Eintragungsgrundsatz für Liegenschaften: Eigentumsübergang konstitutiv mit Eintragung; außerbücherliche Übereignung bewirkt keinen Eigentumsübergang). \n**Eventualanspruchsgrundlage (persönlicher Anspruch B gegen E)**: § 431 ABGB iVm § 1500 ABGB (B hat Recht auf die Sache gegen E; A genießt Gutgläubigenschutz als bücherlicher Erwerber).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0011111**: Kein außerbücherliches Eigentum bei Liegenschaften möglich; Übergang nur mit Eintragung gem § 431 ABGB – relevant, da B trotz Vertrag kein Eigentum erworben hat.\n- **RS0011290**: Außerbücherliche Übertragung hat begrenzte Wirkungen (übertragbar, geltendmachbar), aber kein volles Eigentum – relevant für B's schwache Position vor Eintragung.\n- **RS0004894**: Beim Doppelverkauf können Ersterwerber Unterlassungsansprüche gegen schlechtgläubige Zweiterwerber geltend machen – relevant als Ausnahme für vorläufigen Schutz B's, nicht für Eigentum.\n- **RS0034821**: § 1500 ABGB schützt gutgläubigen Erwerber nur bei sofortiger Reaktion auf Diskrepanzkenntnis – relevant für A's Schutz gegen B's Ansprüche.\n\n### 4. SUBSUMTION\n**Hauptanspruchsgrundlage (§ 431 ABGB – publizianische Klage gegen A)**: B schloss gültigen Kaufvertrag mit E, erlangte jedoch mangels Grundbucheintragung kein Eigentum (RS0011111); A erwarb als Zweiterkäufer mit Eintragung volles bücherliches Eigentum; Löschungsklage B's scheitert, da A's Eintragung konstitutiv wirksam ist und kein außerbücherliches Eigentum B's existiert (RS0011290). \n**Eventualanspruchsgrundlage (§ 431 ABGB iVm § 1500 ABGB – Anspruch gegen E)**: B hat als nicht eingetragener Käufer Recht auf die Sache gegen E (Erfüllungspflicht zur Eintragung oder Schadensersatz); gegen A kein Herausgabeanspruch, da A gutgläubig geschützt (RS0034821); Eigentümer ist A.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Gültigkeit von B's Kaufvertrag mit E**: B beweist Vertragsschluss (Kaufurkunde).\n- **Grundbucheintragung von A**: Gerichtliche Kenntnis (öffentlich).\n- **Gutglaube von A (§ 1500 ABGB)**: B beweist mangelnden guten Glauben A's (RS0013489).\n- **Schlechtglaube A's für Unterlassung (RS0004894)**: B beweist Kenntnis von B's Vertrag.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (hohe Erfolgsaussicht)**: Feststellung, dass A Eigentümer ist; Abweisung von B's Löschungsklage (§ 431 ABGB). \n**Eventualbegehren (mittlere Erfolgsaussicht)**: Falls B gegen E klagt: Erfüllung/ Schadensersatz gegen E; keine Klage gegen A auf Herausgabe priorisieren, da B nur Ansprüche gegen E hat.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0011111)**: Gericht erkennt außerbücherliches Eigentum B's an – Replik: RS0011111 schließt dies explizit aus, da § 431 ABGB Eintragung konstitutiv macht.\n- **Risiko 2 (RS0004894)**: Unterlassungsanspruch B's gegen A wegen Doppelverkauf – Replik: RS0004894 gewährt nur Schutz vor Veränderung, nicht Löschung/Eintragung; dingliches Eigentum bleibt bei A.\n- **Risiko 3 (RS0034821)**: Verlust von A's Gutgläubigkeit durch Duldung – Replik: RS0034821 erfordert B's Beweis für Kenntnis/Duldung; Schutz hält.\n- **Risiko 4 (RS0011290)**: B's außerbücherliche Position übertragbar und geltendmachbar – Replik: RS0011290 begrenzt auf Wirkungen gegen E, nicht gegen guten Glauben A's (§ 431 ABGB).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Publizianische Klage B gegen A (§ 431 ABGB)**: 10% (Eintragungsgrundsatz schützt A absolut).\n- **Anspruch B gegen E **: 80% (Recht auf Sache gegen Verkäufer; A dinglich geschützt)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Übergang des Eigentums an Liegenschaften**: Gemäß § 431 ABGB tritt Eigentum erst mit Grundbucheintragung ein; B erlangt kein Eigentum mangels Eintragung und bleibt bei einem Recht auf die Sache.\n- **Ansprüche des Ersterwerbers B gegen Zweiterwerber A**: B hat keinen dinglichen Herausgabeanspruch gegen A, da A als eingetragener bücherlicher Eigentümer geschützt ist; Ansprüche B's richten sich ausschließlich gegen E.\n- **Gutgläubigenschutz des A**: § 1500 ABGB schützt A als gutgläubigen Erwerber vor nicht verbücherten Rechten B's, sofern A unverzüglich gegen Diskrepanzen vorgeht.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage (publizianische Klage B gegen A auf Löschung und Eintragung)**: § 431 ABGB (Eintragungsgrundsatz für Liegenschaften: Eigentumsübergang konstitutiv mit Eintragung; außerbücherliche Übereignung bewirkt keinen Eigentumsübergang). \n**Eventualanspruchsgrundlage (persönlicher Anspruch B gegen E)**: § 431 ABGB iVm § 1500 ABGB (B hat Recht auf die Sache gegen E; A genießt Gutgläubigenschutz als bücherlicher Erwerber).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0011111**: Kein außerbücherliches Eigentum bei Liegenschaften möglich; Übergang nur mit Eintragung gem § 431 ABGB – relevant, da B trotz Vertrag kein Eigentum erworben hat.\n- **RS0011290**: Außerbücherliche Übertragung hat begrenzte Wirkungen (übertragbar, geltendmachbar), aber kein volles Eigentum – relevant für B's schwache Position vor Eintragung.\n- **RS0004894**: Beim Doppelverkauf können Ersterwerber Unterlassungsansprüche gegen schlechtgläubige Zweiterwerber geltend machen – relevant als Ausnahme für vorläufigen Schutz B's, nicht für Eigentum.\n- **RS0034821**: § 1500 ABGB schützt gutgläubigen Erwerber nur bei sofortiger Reaktion auf Diskrepanzkenntnis – relevant für A's Schutz gegen B's Ansprüche.\n\n### 4. SUBSUMTION\n**Hauptanspruchsgrundlage (§ 431 ABGB – publizianische Klage gegen A)**: B schloss gültigen Kaufvertrag mit E, erlangte jedoch mangels Grundbucheintragung kein Eigentum (RS0011111); A erwarb als Zweiterkäufer mit Eintragung volles bücherliches Eigentum; Löschungsklage B's scheitert, da A's Eintragung konstitutiv wirksam ist und kein außerbücherliches Eigentum B's existiert (RS0011290). \n**Eventualanspruchsgrundlage (§ 431 ABGB iVm § 1500 ABGB – Anspruch gegen E)**: B hat als nicht eingetragener Käufer Recht auf die Sache gegen E (Erfüllungspflicht zur Eintragung oder Schadensersatz); gegen A kein Herausgabeanspruch, da A gutgläubig geschützt (RS0034821); Eigentümer ist A.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Gültigkeit von B's Kaufvertrag mit E**: B beweist Vertragsschluss (Kaufurkunde).\n- **Grundbucheintragung von A**: Gerichtliche Kenntnis (öffentlich).\n- **Gutglaube von A (§ 1500 ABGB)**: B beweist mangelnden guten Glauben A's (RS0013489).\n- **Schlechtglaube A's für Unterlassung (RS0004894)**: B beweist Kenntnis von B's Vertrag.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (hohe Erfolgsaussicht)**: Feststellung, dass A Eigentümer ist; Abweisung von B's Löschungsklage (§ 431 ABGB). \n**Eventualbegehren (mittlere Erfolgsaussicht)**: Falls B gegen E klagt: Erfüllung/ Schadensersatz gegen E; keine Klage gegen A auf Herausgabe priorisieren, da B nur Ansprüche gegen E hat.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0011111)**: Gericht erkennt außerbücherliches Eigentum B's an – Replik: RS0011111 schließt dies explizit aus, da § 431 ABGB Eintragung konstitutiv macht.\n- **Risiko 2 (RS0004894)**: Unterlassungsanspruch B's gegen A wegen Doppelverkauf – Replik: RS0004894 gewährt nur Schutz vor Veränderung, nicht Löschung/Eintragung; dingliches Eigentum bleibt bei A.\n- **Risiko 3 (RS0034821)**: Verlust von A's Gutgläubigkeit durch Duldung – Replik: RS0034821 erfordert B's Beweis für Kenntnis/Duldung; Schutz hält.\n- **Risiko 4 (RS0011290)**: B's außerbücherliche Position übertragbar und geltendmachbar – Replik: RS0011290 begrenzt auf Wirkungen gegen E, nicht gegen guten Glauben A's (§ 431 ABGB).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Publizianische Klage B gegen A (§ 431 ABGB)**: 10% (Eintragungsgrundsatz schützt A absolut).\n- **Anspruch B gegen E **: 80% (Recht auf Sache gegen Verkäufer; A dinglich geschützt).",
+  "elapsed_ms": 137248.67
+}

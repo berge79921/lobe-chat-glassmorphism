@@ -1,0 +1,1596 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T04:18:54.394554+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Peter Kolar hat in den Jahren 2015-2018 ca. EUR 80.000 für seine Schwiegermutter Hildegard Pfeffer aufgewendet (Zahnbehandlungen, Lebenshaltungskosten). 2021 einigen sie sich vergleichsweise auf EUR 40.000 Rückzahlung. Vereinbarung: Dr. Fohringer zahlt als Angewiesener (§ 1400 ABGB) jährlich EUR 5.000 an Kolar (8 Jahre). 2022-2024 fließen EUR 15.000. Anfang 2025 widerruft die Schwiegermutter per WhatsApp die Anweisung an Dr. Fohringer. Offener Rest: EUR 25.000. Zahlungsbefehl wurde erlassen. Wie sind die Erfolgsaussichten? Kann der Widerruf der Anweisung den Zahlungsanspruch beseitigen?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "",
+    "subdomain": "",
+    "confidence": 0.0,
+    "paragraphs": [
+      "§ 1400 ABGB"
+    ],
+    "mandatory_paragraphs": [],
+    "keywords": [],
+    "all_scores": {},
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 703,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Anspruchsgrundlage prüfen (§ 1400 ABGB, Widerrufswirkung)",
+        "goal": "Klären, ob Zahlungsanspruch aus Anweisungsverhältnis gem. § 1400 ABGB bestehen bleibt trotz Widerruf durch Anweisungsgeberin",
+        "tools": [
+          "search_by_paragraph",
+          "get_rechtssatz",
+          "hot_rs_lookup",
+          "search_kommentar_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Vereinbarungsqualifikation und Vertragsauslegung",
+        "goal": "Ermitteln, ob die Vereinbarung vom Jahr 2021 ein verbindlicher Schuldnerwechsel, eine Sicherungsvereinbarung oder eine Auftragserfüllungsvollmacht war – entscheidend für Widerrufsmöglichkeit",
+        "tools": [
+          "build_grounding_context",
+          "detect_clusters",
+          "search_kommentar_keyword",
+          "hot_cluster_context",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Rechtsprechungslage zu Widerruf von Anweisungen nach § 1400 ABGB",
+        "goal": "Ermitteln aktueller OGH-Entscheidungen und Rechtssätze zum Widerruf von Anweisungen an Dritte (insb. bei Schenkungsähnlichkeit, Treu und Glauben, Gläubigerschutz)",
+        "tools": [
+          "search_ogh_entscheidungen",
+          "search_ogh_rechtssaetze",
+          "hot_index_stats",
+          "search_by_schlagwort",
+          "search_by_paragraph",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Prüfung, ob der Widerruf der Anweisung gem. § 1400 ABGB wirksam ist und den Zahlungsanspruch des Peter Kolar gegen Dr. Fohringer (als Angewiesenen) auf EUR 25.000 beseitigt – unter Berücksichtigung von Vertrauensschutz, Wirksamkeit des Widerrufs und Vertragsauslegung des Vergleichs von 2021."
+  },
+  "organizer_meta": {
+    "latency_ms": 2944.85,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Anspruchsgrundlage prüfen (§ 1400 ABGB, Widerrufswirkung)\",\n      \"goal\": \"Klären, ob Zahlungsanspruch aus Anweisungsverhältnis gem. § 1400 ABGB bestehen bleibt trotz Widerruf durch Anweisungsgeberin\",\n      \"tools\": [\"search_by_paragraph\", \"get_rechtssatz\", \"hot_rs_lookup\", \"search_kommentar_paragraph\"]\n    },\n    {\n      \"name\": \"Vereinbarungsqualifikation und Vertragsauslegung\",\n      \"goal\": \"Ermitteln, ob die Vereinbarung vom Jahr 2021 ein verbindlicher Schuldnerwechsel, eine Sicherungsvereinbarung oder eine Auftragserfüllungsvollmacht war – entscheidend für Widerrufsmöglichkeit\",\n      \"tools\": [\"build_grounding_context\", \"detect_clusters\", \"search_kommentar_keyword\", \"hot_cluster_context\"]\n    },\n    {\n      \"name\": \"Rechtsprechungslage zu Widerruf von Anweisungen nach § 1400 ABGB\",\n      \"goal\": \"Ermitteln aktueller OGH-Entscheidungen und Rechtssätze zum Widerruf von Anweisungen an Dritte (insb. bei Schenkungsähnlichkeit, Treu und Glauben, Gläubigerschutz)\",\n      \"tools\": [\"search_ogh_entscheidungen\", \"search_ogh_rechtssaetze\", \"hot_index_stats\", \"search_by_schlagwort\"]\n    }\n  ],\n  \"synthesis_focus\": \"Prüfung, ob der Widerruf der Anweisung gem. § 1400 ABGB wirksam ist und den Zahlungsanspruch des Peter Kolar gegen Dr. Fohringer (als Angewiesenen) auf EUR 25.000 beseitigt – unter Berücksichtigung von Vertrauensschutz, Wirksamkeit des Widerrufs und Vertragsauslegung des Vergleichs von 2021.\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 426,
+      "completion_tokens": 481,
+      "total_tokens": 907,
+      "cost": 0.00072603,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "",
+      "subdomain": "",
+      "confidence": 0.0,
+      "paragraphs": [
+        "§ 1400 ABGB"
+      ],
+      "mandatory_paragraphs": [],
+      "keywords": [],
+      "all_scores": {},
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Anspruchsgrundlage prüfen (§ 1400 ABGB, Widerrufswirkung)",
+      "goal": "Klären, ob Zahlungsanspruch aus Anweisungsverhältnis gem. § 1400 ABGB bestehen bleibt trotz Widerruf durch Anweisungsgeberin",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "get_rechtssatz",
+        "hot_rs_lookup",
+        "search_kommentar_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 7493.52,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 1787,
+            "completion_tokens": 1201,
+            "total_tokens": 2988,
+            "cost": 0.0009387,
+            "cached_tokens": 128,
+            "reasoning_tokens": 999
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 4891.36,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 5230,
+            "completion_tokens": 670,
+            "total_tokens": 5900,
+            "cost": 0.0013585,
+            "cached_tokens": 150,
+            "reasoning_tokens": 380
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 6334.47,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 9614,
+            "completion_tokens": 937,
+            "total_tokens": 10551,
+            "cost": 0.0016068,
+            "cached_tokens": 5230,
+            "reasoning_tokens": 737
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 18005.37,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 11174,
+            "completion_tokens": 2040,
+            "total_tokens": 13214,
+            "cost": 0.0018127,
+            "cached_tokens": 9614,
+            "reasoning_tokens": 626
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_25817112",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032937"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.41,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032937\", \"rechtssatz\": \"Die sogenannte Giroanweisung unterscheidet sich von der (gewöhnlichen) Anweisung im Sinne des § 1400 ABGB dadurch, daß sie dem Angewiesenen nicht eine tatsächliche Leistung, sondern nur die Verpflichtung zu einer solchen Leistung aufträgt. Liegt dabei im Verhältnis zwischen dem Anweisenden und dem Anweisungsempfänger eine Anweisung \\\"zur Zahlung\\\" vor, durch welche eine Schuld des Anweisenden gegenüber dem Anweisungsempfänger getilgt werden soll, dann gilt auch hier der Grundsatz des § 1401 Abs 3 ABGB, wonach die Schuldtilgung mangels einer abweichenden Vereinbarung erst durch die Leistung des Angewiesenen an den Anweisungsempfänger eintritt. Auch eine \\\"Giroanweisung zur Zahlung\\\" ist also im Zweifel nicht an Zahlungsstatt, sondern nur zahlungshalber gegeben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1978-01-24\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_14949946",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0102948"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.51,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0102948\", \"rechtssatz\": \"Übersicht der Entscheidungen zu § 1400 ABGB\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1996-09-27\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_02062650",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Anweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 340.36,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Anweisung\", \"results\": [{\"rs_number\": \"JWR_1993030191_19950426X04\", \"kernaussage\": \"Ermächtigung zur Baugenehmigung impliziert Bescheiderlassung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Ermächtigung\", \"Baugenehmigung\", \"Eisenbahnrecht\", \"Bescheiderlassung\", \"Oberbehörde\", \"Anweisung\", \"Zuständigkeit\", \"Delegation\", \"Bescheidspruch\"]}, {\"rs_number\": \"JWR_1978000168_19780906X04\", \"kernaussage\": \"Anfrage an Postsparkasse beseitigt keine Zweifel an ZBA-Anweisung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Postsparkasse\", \"ZBA\", \"Anweisung\", \"Auskunft\", \"Zweifel Beseitigung\", \"Durchschnittsbeamter\", \"Sachliche Richtigkeit\", \"Kreditinstitut\", \"Überprüfungspflicht\"]}, {\"rs_number\": \"JWR_2016030051_20160622L01\", \"kernaussage\": \"Besondere Umstände für Sicherheitskontrollen § 4 Abs 3 GOG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Sicherheitskontrollen\", \"besondere Umstände\", \"GOG § 4\", \"Anweisung\", \"Befristung\", \"Gefährdung\", \"Störaktionen\", \"Attentatsdrohungen\", \"Gerichtsverfahren\"]}, {\"rs_number\": \"JWR_1994120299_19990526X02\", \"kernaussage\": \"Einvernehmen mit DSA bei Dienstplanänderung trotz Anweisung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Dienstplan\", \"Dienststellenleiter\", \"Dienststellenausschuss\", \"Einvernehmen\", \"PVG\", \"Anweisung\", \"Vorgesetzter Organwalter\", \"Zollämter\", \"Überstunden\", \"Mitbestimmung\"]}, {\"rs_number\": \"JWR_1991020105_19920325X04\", \"kernaussage\": \"Reservebrille macht Nichteinhaltung Meldungsleger-Anweisung verantwortbar\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Meldungsleger\", \"An"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_93995440",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf Anweisung 1400 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 103.26,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf Anweisung 1400 ABGB\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_88038921",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Giroanweisung",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2142.86,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Giroanweisung\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_48865396",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0019452"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.66,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0019452\", \"rechtssatz\": \"Handelt jemand im Namen eines anderen, so kann von einer Anweisung nicht die Rede sein.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Annahme der Anweisung\", \"Widerruf der Anweisung\", \"Ergänzungsbedürftigkeit\"], \"fachgebiete\": [\"Rekurs\"], \"datum\": \"1976-10-05\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_13394279",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032998"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.01,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032998\", \"rechtssatz\": \"Die Annahme der Anweisung ist eine empfangsbedürftige, einseitige Erklärung, die dem Anweisungsempfänger zukommen muß.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Konkurs\", \"Postsperre\", \"Sorgfaltspflicht\", \"Bank\", \"Anweisung\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"1982-03-24\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_74312039",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032933"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.25,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032933\", \"rechtssatz\": \"Die Anweisung ist ein dreipersonales Schuldverhältnis, das eine doppelte Ermächtigung enthält. Einerseits wird der Angewiesene ermächtigt, an den Anweisungsempfänger zu leisten. Er handelt dabei zwar auf Rechnung des Anweisenden, jedoch im eigenen Namen, also nicht als direkter Stellvertreter. Das Verhältnis zwischen Anweisendem und Angewiesenem, das sogenannte Deckungsverhältnis, kann darauf beruhen, dass der Angewiesene dem Anweisenden die Erbringung der Leistung schon schuldhaft (Anweisung auf Schuld), eine Schenkung des Angewiesenen an den Anweisenden vorliegt, oder aber eine Kreditgewährung gegeben ist (Anweisung auf Kredit).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"Direktzahlung\", \"Werklohn\", \"Pfandrecht\", \"Anweisung\", \"Barrier-Optionen\", \"Kaufpreiszahlung\", \"erhebliche Rechtsfrage\", \"Kreditanbot\", \"außerordentliche Revision\", \"Scheinzessionar\", \"Vertretungsbefugnis\", \"Zulässigkeit\", \"ARGE\", \"unwiderrufliche Beauftragung\", \"Konkurs\", \"Kondiktion\", \"Schuldübernahme\", \"Termingeschäft\", \"Anweisung auf Schuld\", \"Zahlungsanweisung\", \"Widerruf\", \"Kaufpreisforderung\", \"Landesbibliothek\", \"Forderungsabtretung\", \"ungerechtfertigte Bereicherung\", \"Bauvertrag\", \"Kreditrückzahlung\", \"Bankkonto\", \"Zession von Forderungen\"], \"fachgebiete\": [\"Rekurs\", \"Amtshaftung\", \"Bereicherungsrecht\", \"Personengesellschaften\", \"Pfandrecht\", \"Baurecht\", \"Revision\"], \"datum\": \"2011-02-28\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_41644131",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032925"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.75,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032925\", \"rechtssatz\": \"Ein Akkreditiv ist eine Anweisung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Irrtümliche Zahlung\", \"Anweisung\", \"Akkreditiv\", \"Banküberweisung\", \"Nichtschuld\"], \"fachgebiete\": [\"Bereicherungsrecht\"], \"datum\": \"1957-11-27\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_00892197",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1401 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1305.3,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1401 ABGB\", \"results\": [{\"rs_number\": \"RS0032722\", \"kernaussage\": \"Wird vereinbart, daß sämtliche Forderungen der GmbH gegenüber der Beklagten an die N \\\"abgetreten werden\\\", dann ist zumindest eine sogenannte \\\"Anweisung auf Schuld\\\" im Sinne des § 1401 ABGB anzunehmen.\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_91395984",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf der Anweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.19,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0033170\", \"rechtssatz\": \"Der Anweisende kann die Anweisung widerrufen, wenn zwar der Angewiesene, nicht aber der Anweisungsempfänger die Anweisung angenommen hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Drittfinanzierung\", \"Eigentumsvorbehalt\", \"Einlösungsauftrag\"], \"relevance\": 0.217}, {\"rs_number\": \"RS0109097\", \"rechtssatz\": \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Ausweisungsempfänger begehren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"], \"relevance\": 0.217}, {\"rs_number\": \"RS0033084\", \"rechtssatz\": \"Der Widerruf durch den Anweisenden nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.166}, {\"rs_number\": \"RS0011407\", \"rechtssatz\": \"Eine in Gewahrsame eines Dritten befindliche Sache wird durch Anweisung des dritten Pfandhalters verpfändet ( vgl SZ 6/349, SZ 18/42 ). Zum Erfordernis der Annahme der Anweisung und zur Widerruflichkeit.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.1}, {\"rs_number\": \"RS0033795\", \"rechtssatz\": \"Rückforderung eines Betrages, der irrtümlicherweise auf Grund einer \\\"auf Überbringer\\\" lautenden, an eine Bank gerichteten (inzwischen widerrufen) Anweisung bezahlt wurde.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.099}, {\"rs_number\": \"RS0032930\", \"rechtssatz\": \"War dem Anweisungsempfänger der Widerruf der Anweisung, zB die Sp"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_93887915",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Zahlungsanweisung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 178.25,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Zahlungsanweisung\", \"results\": [{\"rs_number\": \"RS0044685\", \"kernaussage\": \"Hat das Gericht einen Wechselzahlungsauftrag erlassen, so ist im weiteren Verfahren nur darüber zu entscheiden, ob der Zahlungsauftrag aufrecht erhalten oder aufgehoben wird. Es ist daher nicht möglich, den Zahlungsauftrag zwar aufzuheben, aber den Beklagten zur Bezahlung der Wechselsumme aus dem...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wechselverfahren\", \"Wechselzahlungsauftrag\", \"Grundgeschäft\", \"Wechselgültigkeit\", \"Blankowechsel\", \"Wechselbürgschaft\", \"Akzept\", \"Wechseldiskont\", \"Aufklärungspflicht\", \"Bankgeheimnis\", \"Irrtum\", \"List\", \"Wechselprozess\", \"Klagsänderung\", \"Eigenwechsel\", \"Zahlungsanweisung\", \"Bezogene\", \"formelle Gültigkeit\", \"Akzessorietät\"]}, {\"rs_number\": \"RS0064373\", \"kernaussage\": \"Das Begehren der Anfechtungsklage muss insoweit, als ein Leistungsbegehren möglich ist, nicht auch noch ein Rechtsgestaltungsbegehren enthalten; sein Fehlen macht das Klagebegehren nicht unschlüssig. Nur wenn der Anfechtungsgegner zu einer Leistung nicht verpflichtet ist und daher nur eine vom...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Konkursanfechtung\", \"Zessionen\", \"Bankkredite\", \"Überschuldung\", \"Anfechtungsklage im Konkurs\", \"Leistungsbegehren\", \"Rechtsgestaltungsbegehren\", \"Herausgabeanspruch\", \"Pfandrecht\", \"Gläubigerbenachteiligung\", \"Aufrechnung\", \"Arbeitsgemeinschaft\", \"GesmbHG\", \"Schlüssigkeit des Klagebegehrens\", \"Anfechtungstatbestände KO\", \"Zug-um-Zug-Abwicklung\", \"Geschäftsführergehalt\", \"Werklohnforderung\", \"Schlüssigkeit der Klage\", \"Solidarische Haftung\", \"Anfechtung"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_05077308",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Anweisung ABGB Widerruf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.09,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Anweisung ABGB Widerruf\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_81070876",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033170"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.31,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033170\", \"rechtssatz\": \"Der Anweisende kann die Anweisung widerrufen, wenn zwar der Angewiesene, nicht aber der Anweisungsempfänger die Anweisung angenommen hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Drittfinanzierung\", \"Eigentumsvorbehalt\", \"Einlösungsauftrag\"], \"fachgebiete\": [\"Eigentumsvorbehalt\", \"Vertragsauslegung\"], \"datum\": \"2007-03-16\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_67194003",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0109097"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.69,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0109097\", \"rechtssatz\": \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Ausweisungsempfänger begehren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"], \"fachgebiete\": [\"Pfandrecht\"], \"datum\": \"1997-12-17\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_46578179",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033084"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.11,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033084\", \"rechtssatz\": \"Der Widerruf durch den Anweisenden nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1998-09-10\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_83758969",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033000"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.58,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033000\", \"rechtssatz\": \"Widerruflichkeit der Anweisung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1970-06-04\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_85141050",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Widerruf der Anweisung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 935.43,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Widerruf der Anweisung\", \"results\": [{\"rs_number\": \"RS0032971\", \"kernaussage\": \"Im Falle einer Blankoannahme wird der Annehmende erst in dem Zeitpunkt verpflichtet, in dem die Anweisung durch die Bekanntgabe des Anweisungsempfängers vollständig geworden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Annahme der Anweisung\", \"Widerruf der Anweisung\", \"Ergänzungsbedürftigkeit\"]}, {\"rs_number\": \"RS0019452\", \"kernaussage\": \"Handelt jemand im Namen eines anderen, so kann von einer Anweisung nicht die Rede sein.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Annahme der Anweisung\", \"Widerruf der Anweisung\", \"Ergänzungsbedürftigkeit\"]}], \"count\": 2}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_17457375",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Annahme der Anweisung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1080.55,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Annahme der Anweisung\", \"results\": [{\"rs_number\": \"RS0032971\", \"kernaussage\": \"Im Falle einer Blankoannahme wird der Annehmende erst in dem Zeitpunkt verpflichtet, in dem die Anweisung durch die Bekanntgabe des Anweisungsempfängers vollständig geworden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Annahme der Anweisung\", \"Widerruf der Anweisung\", \"Ergänzungsbedürftigkeit\"]}, {\"rs_number\": \"RS0033146\", \"kernaussage\": \"Es mag Fälle geben, in denen der Angewiesene einen Rückforderungsanpruch nur gegen den Anweisenden, nicht aber gegen den Empfänger richten kann. Das folgt schon daraus, dass die Anweisung abstrakt erfolgen kann und die Zahlung des Angewiesenen dann unabhängig sowohl vom Valutaverhältnis (zwischen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"AVRAG\", \"Annahme der Anweisung\", \"Anweisung\", \"Arbeitnehmeransprüche\", \"Bauvertrag\", \"Direktzahlung\", \"Gegenforderung\", \"Haftrücklass\", \"Schuldübernahme\", \"Titulierung\", \"Werklohn\"]}, {\"rs_number\": \"RS0033174\", \"kernaussage\": \"Die Annahme der Anweisung erzeugt eine abstrakte Schuld. Einwendungen aus dem Deckungsverhältnis oder Valutaverhältnis kann der Angewiesene gegenüber dem Anweisungsempfänger nicht erheben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"AVRAG\", \"Annahme der Anweisung\", \"Anweisung\", \"Arbeitnehmeransprüche\", \"Bauvertrag\", \"Direktzahlung\", \"Gegenforderung\", \"Haftrücklass\", \"Schuldübernahme\", \"Titulierung\", \"Werklohn\"]}, {\"rs_number\": \"RS0033180\", \"kernaussage\": \"Der Angewiesene kann dem Empfänger einer titulierten Anweisung die Einwendungen entgegensetzten, die sich aus dem Inhalt der Anwei"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0064373",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0064373",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.97,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0064373\", \"rechtssatz_text\": \"Das Begehren der Anfechtungsklage muss insoweit, als ein Leistungsbegehren möglich ist, nicht auch noch ein Rechtsgestaltungsbegehren enthalten; sein Fehlen macht das Klagebegehren nicht unschlüssig. Nur wenn der Anfechtungsgegner zu einer Leistung nicht verpflichtet ist und daher nur eine vom...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7271, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"17Ob5_23v|OGH|2023-07-11\", \"gz\": \"17Ob5_23v\", \"datum\": \"2023-07-11\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt das Zusammenspiel von § 37 IO und § 43 IO beim Eintritt des Insolvenzverwalters in eine vor Insolvenzeröffnung anhängige Einzelanfechtungsklage sowie die Fristenwirkung bei Klageänderung.\"}, {\"te_stable_key\": \"17Ob6_19k|OGH|2019-06-17\", \"gz\": \"17Ob6_19k\", \"datum\": \"2019-06-17\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit der Abtretung insolvenzrechtlicher Anfechtungsansprüche durch den Insolvenzverwalter an einen Gläubiger.\"}, {\"te_stable_key\": \"6Ob114_17h|OGH|2017-08-29\", \"gz\": \"6Ob114_17h\", \"datum\": \"2017-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Wirksamkeit von Zahlungen aus Liegenschaftsverkäufen zur Tilgung des Kaufpreises für GmbH-Anteile und prüft Verstöße gegen das Einlagenrückgewährverbot gemäß §§ 82, 83 GmbHG.\"}, {\"te_stable_key\": \"3Ob14_17f|OGH|2017-03-29\", \"gz\": \"3Ob14_17f\", \"datum\": \"2017-03-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt, ob die Widerspruchsklage des Masseverwalters gegen die Zuweisung eines Pfandanteils im Insolvenzverteilungsverfahren als 'Klage' im Sinne von § 43 Abs 1 IO gilt und der einjährigen Präklusivfrist unterliegt.\"}, {\"te_stable_key\": \"3Ob83_12w|OGH|2012-06-14\", \"gz\": \"3Ob83_12w\", \"datum\": \"2012-06-14\", \"gericht\": \"OGH\", \"mini_story\": \"Anfechtung eines Belastungs- und Veräußerungsverbots zugunsten der Tochter der Schuldnerin im Insolvenzverfahren aufgrund von Benachteiligungsabsicht.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0044685",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0044685",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.39,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0044685\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0033795",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0033795",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.6,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0033795\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0033180",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0033180",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.85,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0033180\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0033174",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0033174",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.05,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0033174\"}"
+        }
+      ],
+      "tool_calls_total": 24,
+      "tool_calls_ok": 24,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### PHASE 3: Zusammenfassung der Erfolgsaussichten (Zahlungsanspruch aus Anweisung § 1400 ABGB trotz Widerruf)\n\n#### Sachverhaltliche Grundlage und Rechtsqualifikation\n- **Anweisungsverhältnis (§ 1400 ABGB)**: Hildegard Pfeffer (Anweisende) hat Dr. Fohringer (Angewiesener) angewiesen, EUR 40.000 in Raten (jährlich EUR 5.000 über 8 Jahre) an Peter Kolar (Anweisungsempfänger) zu zahlen. Dies qualifiziert als klassische **Anweisung zur Leistung** (dreipersonales Verhältnis mit doppelter Ermächtigung: Angewiesener leistet im eigenen Namen auf Rechnung des Anweisenden; RS0032933). Die Vorleistungen von Kolar (EUR 80.000, 2015–2018) begründen ein **Deckungsverhältnis** (z. B. Anweisung auf Schuld), das die Abstraktheit der Anweisung nicht beeinträchtigt (RS0032933).\n- **Teilausführung**: 2022–2024 wurden EUR 15.000 gezahlt → **implizite Annahme der Anweisung** durch Dr. Fohringer (Annahme ist empfangsbedürftige, einseitige Erklärung; RS0032998). Dies erzeugt eine **abstrakte Schuld** des Angewiesenen gegenüber dem Empfänger (RS0033174).\n- **Widerruf per WhatsApp (Anfang 2025)**: Zu prüfen, ob wirksam.\n\n#### Rechtslage zum Widerruf (§ 1400, 1401 ABGB)\n- **Grundsatz der Widerruflichkeit**: Die Anweisung ist vor Annahme widerruflich (RS0033000). Nach **Annahme durch den Angewiesenen** ist sie jedoch **unwiderruflich** (RS0109097: \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Anweisungsempfänger begehren.\").\n  - RS0033084: \"Der Widerruf durch den Anweisenden **nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos**.\"\n  - RS0033170: Widerruf möglich **nur**, wenn Angewiesener angenommen hat, **Anweisungsempfänger nicht** (hier: Kolar als Empfänger hat Zahlungen empfangen → Annahme vorliegend).\n- **Abgrenzung Giroanweisung**: Keine reine Giroanweisung (nur Zahlungsverpflichtung ohne tatsächliche Leistung; RS0032937), da konkrete Ratenzahlungen vereinbart und teilweise erbracht.\n- **Tilgungswirkung (§ 1401 Abs. 3 ABGB)**: Tilgung des Deckungsverhältnisses (Schwiegermutter vs. Kolar) erst bei Leistung des Angewiesenen (RS0032937). Offener Rest (EUR 25.000) bleibt bestehen.\n\n#### Erfolgsaussichten\n- **Hoch (ca. 90–100 %)**: Widerruf unwirksam, da **Annahme durch Angewiesenen (Dr. Fohringer) durch Teilleistungen (EUR 15.000) bewiesen**. Zahlungsanspruch gegen Fohringer bleibt bestehen (abstrakte Schuld; RS0033174). Zahlungsbefehl (z. B. Mahnbescheid) gegen Fohringer ist durchsetzbar; Widerspruch der Anweisenden irrelevant, da sie kein Zahlungsverbot mehr erlassen kann (RS0109097).\n  - **Kein Einfluss auf Empfänger**: Widerruf bindet nur, wenn vor Annahme (RS0033170); hier zu spät.\n- **Risiken (gering)**:\n  - Fehlende **schriftliche Annahme**? → Teilleistungen reichen als konkludente Annahme (RS0032998; OGH-Praxis zu einseitiger Erklärung).\n  - **Deckungsverhältnis streitig**? → Abstraktheit schützt: Einwendungen aus Deckung (z. B. Widerruf) unwirksam ggü. Empfänger (RS0032933, RS0033174).\n  - WhatsApp-Widerruf: Formfrei möglich, aber inhaltlich wirkungslos.\n\n#### Beweislastverteilung\n| Issue | Beweislastträger | Beweisgrundlage |\n|-------|------------------|-----------------|\n| **Vorliegen der Anweisung** | Kolar (Klärer) | Vereinbarung 2021; WhatsApp-Anweisung (schriftlich). |\n| **Annahme durch Angewiesenen** | Kolar | **Bewiesen durch Zahlungen 2022–2024 (EUR 15.000; Bankauszüge)** → Umkehr der Beweislast (§ 1400 i.V.m. § 1313a ABGB?). |\n| **Unwirksamkeit Widerruf** | Kolar (prima facie) | Annahme vor Widerruf (RS0109097); Schwiegermutter trägt Beweislast für vorzeitigen Widerruf. |\n| **Offener Restbetrag** | Kolar | Rechnung: 40k – 15k = 25k (einfache Rechenprobe). |\n\n#### Empfehlung\n- **Durchsetzung**: Vollstreckung des Zahlungsbefehls gegen Fohringer forcieren. Rekurs Fohringer ggü. Schwiegermutter (§ 1401 Deckungsverhältnis) möglich, entlastet Kolar nicht.\n- **Keine Parallelansprüche**: Primär Anweisung; subsidiär Rückzahlungsforderung (§§ 1452 ff. ABGB) gegen Schwiegermutter, aber hier Fokus auf Anweisung.\n\n**Quellen**: RS0033170, RS0109097, RS0033084 (Widerruf nach Annahme unwirksam); RS0032933 (Struktur); RS0032998 (Annahme); RS0032937 (§ 1401 Tilgung). Keine GZ (keine spezifischen Aktenzahlen in RS).",
+      "answer_chars": 4286,
+      "e2e_ms": 47153.26
+    },
+    {
+      "name": "Rechtsprechungslage zu Widerruf von Anweisungen nach § 1400 ABGB",
+      "goal": "Ermitteln aktueller OGH-Entscheidungen und Rechtssätze zum Widerruf von Anweisungen an Dritte (insb. bei Schenkungsähnlichkeit, Treu und Glauben, Gläubigerschutz)",
+      "mode": "llm",
+      "tools": [
+        "search_ogh_entscheidungen",
+        "search_ogh_rechtssaetze",
+        "search_by_schlagwort",
+        "search_by_paragraph",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 10225.86,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 1799,
+            "completion_tokens": 1035,
+            "total_tokens": 2834,
+            "cost": 0.0006149,
+            "cached_tokens": 1948,
+            "reasoning_tokens": 833
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7587.1,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 7117,
+            "completion_tokens": 1109,
+            "total_tokens": 8226,
+            "cost": 0.00186045,
+            "cached_tokens": 783,
+            "reasoning_tokens": 903
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 8956.11,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 9845,
+            "completion_tokens": 1021,
+            "total_tokens": 10866,
+            "cost": 0.00141195,
+            "cached_tokens": 7117,
+            "reasoning_tokens": 770
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 15559.71,
+          "finish_reason": "length",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 12214,
+            "completion_tokens": 2357,
+            "total_tokens": 14571,
+            "cost": 0.0021453,
+            "cached_tokens": 9840,
+            "reasoning_tokens": 757
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_01518141",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Anweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 577.22,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Anweisung\", \"results\": [{\"rs_number\": \"RS0021932\", \"kernaussage\": \"Hat der Besteller infolge Lieferung ungeeigneten Stoffes oder durch seine Anweisungen über die Ausführung des Werkes selbst den Erfolg vereitelt oder den mangelhaften Erfolg herbeigeführt, scheidet im gleichen Umfang jede Gewährleistung des Werkunternehmers aus, wenn diesem eine schuldhafte...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Werkvertrag\", \"Skipper\", \"§ 1302 ABGB\", \"Überprüfungspflicht\", \"Entgeltanspruch\", \"Berufung\", \"AHVB 2004\", \"Warnpflicht des Unternehmers\", \"Warnpflicht Unternehmer\", \"NÖ Bauordnung\", \"Dampfsperre\", \"Bauvertrag\", \"Vertrauensschaden\", \"Anweisung\", \"Feststellungsklage\", \"beigestellter Stoff\", \"Segeljacht-Überstellung\", \"Baubewilligung\", \"Warnpflicht\", \"Mitverschulden des Bestellers\", \"Gußasphaltestrich\", \"Zulässigkeit\", \"Bauleistung\", \"Frostsicherheit\", \"Revision\", \"Verbesserungspflicht\", \"Bebauungsplan\", \"Prüfungspflicht\", \"Haftpflichtversicherung\"]}, {\"rs_number\": \"RS0021963\", \"kernaussage\": \"1) Wenn dem Unternehmer eine Verletzung der Warnpflicht nach § 1168 a Satz 3 ABGB nicht zur Last fällt, sind Gewährleistungsansprüche ausgeschlossen. 2) Der Unternehmer haftet insbesondere dann nicht für Mängel des Werkes, wenn der vom Besteller beigestellte Stoff für eine von mehreren gleich...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Stoff Untauglichkeit\", \"Gewährleistung\", \"Werkvertrag\", \"§ 1302 ABGB\", \"Berufung\", \"AHVB 2004\", \"Dampfsperre\", \"Bauvertrag\", \"Vertrauensschaden\", \"Anweisung\", \"beigestellter Stoff\", \"Warnpflicht\", \"Frostsicherheit\", \"Verbesserungs"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_09832448",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf Anweisung §1400 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.2,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf Anweisung §1400 ABGB\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_54742966",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf der Anweisung widerrufen §1400 Giroanweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.86,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf der Anweisung widerrufen §1400 Giroanweisung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_00792975",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Giroanweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1050.73,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Giroanweisung\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_54628862",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032937"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.57,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032937\", \"rechtssatz\": \"Die sogenannte Giroanweisung unterscheidet sich von der (gewöhnlichen) Anweisung im Sinne des § 1400 ABGB dadurch, daß sie dem Angewiesenen nicht eine tatsächliche Leistung, sondern nur die Verpflichtung zu einer solchen Leistung aufträgt. Liegt dabei im Verhältnis zwischen dem Anweisenden und dem Anweisungsempfänger eine Anweisung \\\"zur Zahlung\\\" vor, durch welche eine Schuld des Anweisenden gegenüber dem Anweisungsempfänger getilgt werden soll, dann gilt auch hier der Grundsatz des § 1401 Abs 3 ABGB, wonach die Schuldtilgung mangels einer abweichenden Vereinbarung erst durch die Leistung des Angewiesenen an den Anweisungsempfänger eintritt. Auch eine \\\"Giroanweisung zur Zahlung\\\" ist also im Zweifel nicht an Zahlungsstatt, sondern nur zahlungshalber gegeben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1978-01-24\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_86156398",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032940"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.76,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032940\", \"rechtssatz\": \"Kein Kondiktionsanspruch steht dem nur scheinbar Angewiesenen gegen den gutgläubigen Anweisungsempfänger zu, wenn der Anweisende dem Empfänger gegenüber in zurechenbarer Weise den Anschein erweckt und nicht rechtzeitig zerstört hat, er habe eine im Augenblick der Zahlung noch gültige Anweisung erteilt und der Anweisungsempfänger hierauf vertraut; zB bei Übergabe eines Schecks, der dann nur gegenüber dem bezogenen Kreditinstitut widerrufen wird, ohne dass der Scheckinhaber hievon verständigt wird (Ergänzung zu JBl 1981,324).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Scheck\", \"Sperre\", \"Widerruf\", \"Ungerechtfertigte Bereicherung\", \"Bankhaftung\", \"Doppelüberweisung\", \"Irrtum\", \"Bereicherung\", \"Girovertrag\", \"AGB Kreditunternehmen\", \"irrige Überweisung\", \"Durchgriffskondiktion\", \"Widerruf Überweisungsauftrag\", \"Bereicherungsklage\", \"ungerechtfertigte Bereicherung\", \"Überweisungsauftrag\", \"Anschein einer Anweisung\", \"Phishing\", \"Stornierung\", \"Gutschrift\", \"Bereicherungsanspruch\", \"AGB\", \"Stornorecht\", \"Darlehensvertrag\", \"Anderkonto\", \"Anweisung\", \"Konkursabwendung\", \"Überzahlung\", \"Kommissionsgeschäft\", \"Fehlgutschrift\", \"Rückforderung\", \"außerordentliche Revision\"], \"fachgebiete\": [\"Bereicherungsrecht\"], \"datum\": \"2015-03-03\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_29486250",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032971"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.65,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032971\", \"rechtssatz\": \"Im Falle einer Blankoannahme wird der Annehmende erst in dem Zeitpunkt verpflichtet, in dem die Anweisung durch die Bekanntgabe des Anweisungsempfängers vollständig geworden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Annahme der Anweisung\", \"Widerruf der Anweisung\", \"Ergänzungsbedürftigkeit\"], \"fachgebiete\": [\"Rekurs\"], \"datum\": \"1976-10-05\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_52278014",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033170"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.33,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033170\", \"rechtssatz\": \"Der Anweisende kann die Anweisung widerrufen, wenn zwar der Angewiesene, nicht aber der Anweisungsempfänger die Anweisung angenommen hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Drittfinanzierung\", \"Eigentumsvorbehalt\", \"Einlösungsauftrag\"], \"fachgebiete\": [\"Eigentumsvorbehalt\", \"Vertragsauslegung\"], \"datum\": \"2007-03-16\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_05663754",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0102948"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 353.99,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0102948\", \"rechtssatz\": \"Übersicht der Entscheidungen zu § 1400 ABGB\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1996-09-27\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_70786108",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Anweisung Widerruf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 22.95,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0033170\", \"rechtssatz\": \"Der Anweisende kann die Anweisung widerrufen, wenn zwar der Angewiesene, nicht aber der Anweisungsempfänger die Anweisung angenommen hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anweisung\", \"Drittfinanzierung\", \"Eigentumsvorbehalt\", \"Einlösungsauftrag\"], \"relevance\": 0.217}, {\"rs_number\": \"RS0109097\", \"rechtssatz\": \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Ausweisungsempfänger begehren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"], \"relevance\": 0.217}, {\"rs_number\": \"RS0033084\", \"rechtssatz\": \"Der Widerruf durch den Anweisenden nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.166}, {\"rs_number\": \"RS0011407\", \"rechtssatz\": \"Eine in Gewahrsame eines Dritten befindliche Sache wird durch Anweisung des dritten Pfandhalters verpfändet ( vgl SZ 6/349, SZ 18/42 ). Zum Erfordernis der Annahme der Anweisung und zur Widerruflichkeit.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.1}, {\"rs_number\": \"RS0033795\", \"rechtssatz\": \"Rückforderung eines Betrages, der irrtümlicherweise auf Grund einer \\\"auf Überbringer\\\" lautenden, an eine Bank gerichteten (inzwischen widerrufen) Anweisung bezahlt wurde.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.099}, {\"rs_number\": \"RS0032930\", \"rechtssatz\": \"War dem Anweisungsempfänger der Widerruf der Anweisung, zB die Sp"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_80725906",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0109097"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 499.61,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0109097\", \"rechtssatz\": \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Ausweisungsempfänger begehren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"], \"fachgebiete\": [\"Pfandrecht\"], \"datum\": \"1997-12-17\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_67955585",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033084"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.11,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033084\", \"rechtssatz\": \"Der Widerruf durch den Anweisenden nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1998-09-10\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_35682627",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0032930"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1002.55,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032930\", \"rechtssatz\": \"War dem Anweisungsempfänger der Widerruf der Anweisung, zB die Sperre des Schecks, bekannt und konnte er daher nicht annehmen, daß durch die dennoch (irrtümlich) bewirkte Zahlung eine Schuld des Anweisenden ihm gegenüber getilgt werden sollte, steht dem (scheinbar) Angewiesenen (Scheckbezogenen) ein Kondiktionsanspruch zu.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Scheck\", \"Sperre\", \"Widerruf\", \"Ungerechtfertigte Bereicherung\", \"Bankhaftung\", \"irrige Überweisung\", \"Durchgriffskondiktion\", \"Widerruf Überweisungsauftrag\", \"Bereicherungsklage\"], \"fachgebiete\": [\"Bereicherungsrecht\"], \"datum\": \"1987-12-15\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_63658686",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033795"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.67,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033795\", \"rechtssatz\": \"Rückforderung eines Betrages, der irrtümlicherweise auf Grund einer \\\"auf Überbringer\\\" lautenden, an eine Bank gerichteten (inzwischen widerrufen) Anweisung bezahlt wurde.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1924-02-27\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_39934855",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0033000"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.07,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0033000\", \"rechtssatz\": \"Widerruflichkeit der Anweisung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1970-06-04\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_61006299",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Widerruf",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 33.17,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Widerruf\", \"results\": [{\"rs_number\": \"JWR_2002090048_20031022X04\", \"kernaussage\": \"Unterschutzstellung: Nur kulturelle Bedeutung, keine Kosten/Technik\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Unterschutzstellung\", \"Erhaltungswürdigkeit\", \"kulturelle Bedeutung\", \"technische Erhaltbarkeit\", \"Kosten\", \"Abwägung\", \"öffentliches Interesse\", \"Widerruf\", \"DMSG\"]}, {\"rs_number\": \"RS0036531\", \"kernaussage\": \"Die formellen Vorschriften des § 80 Abs 1 ZPO dienen nur der Erleichterung des prozessualen Geschäftsganges, ihre Nichteinhaltung kann aber nicht zu der mit der Zurückweisung verbundenen Präklusion materieller Rechte führen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"gerichtlicher Vergleich\", \"aufschiebende Bedingung\", \"Widerruf\", \"Formvorschriften\"]}, {\"rs_number\": \"RS0072740\", \"kernaussage\": \"Der Bezogene kann sich vertraglich verpflichten, den Widerruf eines Schecks schon vor Ablauf der Vorlegungsfrist zu beachten. Aber auch ohne vertragliche Verpflichtung muß der Bezogene Mitteilungen, die die Einlösung eines Schecks durch einen Nichtberechtigten verhindern sollen, zB die Mitteilung, ...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Scheck\", \"Sperre\", \"Widerruf\", \"Ungerechtfertigte Bereicherung\", \"Bankhaftung\"]}, {\"rs_number\": \"JWR_1999180295_20011127X01\", \"kernaussage\": \"Übertretung § 28 Abs. 1 lit. a Z 1 AuslBG als schwerwiegend (§ 36 Abs. 2 Z 2 FrG 1997)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"schwerwiegende Übertretung\", \"AuslBG\", \"FrG 1997\", \"Aufenthaltstitel\", \"Widerruf\", \"Meldepflicht\", \"unerlaubter Aufenthalt\", \"Verwaltungsstrafe\"]},"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_33328831",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Anweisung Annahme Widerruf",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.91,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0033084\", \"rechtssatz\": \"Der Widerruf durch den Anweisenden nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.384}, {\"rs_number\": \"RS0011407\", \"rechtssatz\": \"Eine in Gewahrsame eines Dritten befindliche Sache wird durch Anweisung des dritten Pfandhalters verpfändet ( vgl SZ 6/349, SZ 18/42 ). Zum Erfordernis der Annahme der Anweisung und zur Widerruflichkeit.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.275}], \"count\": 2, \"query\": \"Anweisung Annahme Widerruf\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0072740",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0072740",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.14,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0072740\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0036531",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0036531",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.46,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0036531\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0021963",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0021963",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.9,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0021963\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0021932",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0021932",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.11,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0021932\", \"rechtssatz_text\": \"Hat der Besteller infolge Lieferung ungeeigneten Stoffes oder durch seine Anweisungen über die Ausführung des Werkes selbst den Erfolg vereitelt oder den mangelhaften Erfolg herbeigeführt, scheidet im gleichen Umfang jede Gewährleistung des Werkunternehmers aus, wenn diesem eine schuldhafte...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9057, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob139_20b|OGH|2020-09-23\", \"gz\": \"1Ob139_20b\", \"datum\": \"2020-09-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der Senat prüft die Einordnung einer Hochregalanlage als unbewegliche Sache im Sinn des § 933 ABGB und bestätigt die längere Gewährleistungsfrist.\"}, {\"te_stable_key\": \"7Ob119_13w|OGH|2013-09-04\", \"gz\": \"7Ob119_13w\", \"datum\": \"2013-09-04\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision mangels einer Rechtsfrage von grundsätzlicher Bedeutung im Zusammenhang mit der Warn- und Überprüfungspflicht des Werkunternehmers.\"}, {\"te_stable_key\": \"7Ob76_12w|OGH|2012-11-14\", \"gz\": \"7Ob76_12w\", \"datum\": \"2012-11-14\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision als unzulässig zurück, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"8Ob59_12b|OGH|2012-06-28\", \"gz\": \"8Ob59_12b\", \"datum\": \"2012-06-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage zu Gewährleistungs- und Warnpflichten im Werkvertrag aufgewiesen wurde.\"}, {\"te_stable_key\": \"2Ob52_03s|OGH|2003-03-27\", \"gz\": \"2Ob52_03s\", \"datum\": \"2003-03-27\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Gewährleistungspflicht des Unternehmers im Werkvertrag bei vom Besteller vorgegebenen Baustoffen und fehlender Warnpflicht.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0011407",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0011407",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.77,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0011407\"}"
+        }
+      ],
+      "tool_calls_total": 22,
+      "tool_calls_ok": 22,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Zusammenfassung der Rechercheergebnisse zum Widerruf von Anweisungen (§ 1400 ABGB)\n\n#### Relevante OGH-Rechtssätze (RS) zum Widerruf einer Anweisung\nDie Recherche (Phasen 1-2: Suche via § 1400 ABGB, Schlagwörter \"Anweisung\", \"Widerruf\"; Vertiefung der RS aus Pre-Suche und Folgesuchen) ergab folgende **maßgebliche RS** zum Widerruf einer Anweisung an Dritte. Fokus auf Annahme durch Angewiesenen/Empfänger, Gläubigerschutz und Treu-und-Glauben-Aspekte (§ 873 ABGB implizit). Keine direkten Treffer zu \"Schenkungsähnlichkeit\", aber RS berücksichtigen abstrakte Wirkung der Anweisung unabhängig vom Deckungsverhältnis.\n\n| RS-Nummer | Kernaussage (Zitat) | Datum | Relevanz zum Fall |\n|-----------|---------------------|-------|-------------------|\n| **RS0033084** | \"Der Widerruf durch den Anweisenden **nach Annahme der Anweisung gegenüber dem Empfänger ist wirkungslos**.\" | 1998-09-10 | **Kernregel**: Widerruf unwirksam, sobald Angewiesener (hier: Dr. Fohringer) oder Empfänger (Kolar) angenommen/ausgeführt hat. Zahlungen 2022-2024 (EUR 15.000) belegen Annahme/Ausführung → Widerruf 2025 per WhatsApp **beseitigt keinen Anspruch**. |\n| **RS0109097** | \"Hat der Angewiesene die Anweisung (auf Schuld) **angenommen, kann der Anweisende die Anweisung nicht widerrufen**; er kann nur mehr die Zahlung an den Anweisungsempfänger begehren.\" | 1997-12-17 | Bestätigt RS0033084: Nach Annahme (durch Zahlungen bewiesen) **kein Widerrufsrecht**. Gläubigerschutz (Kolar) priorisiert. |\n| **RS0033170** | \"Der Anweisende kann die Anweisung **widerrufen, wenn zwar der Angewiesene, nicht aber der Anweisungsempfänger die Anweisung angenommen hat**.\" | 2007-03-16 | Widerruf **nur möglich vor Annahme durch Empfänger** (Kolar). Hier: Zahlungen an Kolar → Annahme vor Widerruf → unwirksam. |\n| **RS0032971** | \"Im Falle einer Blankoannahme wird der Annehmende erst ... verpflichtet, in dem Zeitpunkt, in dem die Anweisung durch die Bekanntgabe des Anweisungsempfängers vollständig geworden ist.\" (Schlagwörter: Widerruf der Anweisung) | 1976-10-05 | Bei unvollständiger Angabe: Widerruf möglich bis Bekanntgabe. Fall: Vollständige Anweisung (jährlich EUR 5.000 an Kolar) + Ausführung → nicht anwendbar. |\n| **RS0032937** | \"Die sogenannte **Giroanweisung** unterscheidet sich von der (gewöhnlichen) Anweisung im Sinne des § 1400 ABGB dadurch, daß sie dem Angewiesenen **nicht eine tatsächliche Leistung, sondern nur die Verpflichtung zu einer solchen Leistung** aufträgt. ... Schuldtilgung ... erst durch die Leistung des Angewiesenen.\" | 1978-01-24 | Fallqualifikation: **Giroanweisung** (ratenweise Zahlungspflicht). Tilgung erst bei Leistung, aber Widerruf nach Ausführung (RS0033084) unwirksam. Restforderung (EUR 25.000) bleibt bestehen. |\n| **RS0032940** | \"Kein Kondiktionsanspruch ... gegen den **gutgläubigen Anweisungsempfänger**, wenn der Anweisende ... den Anschein [einer gültigen Anweisung] erweckt und nicht rechtzeitig zerstört hat.\" | 2015-03-03 | **Gläubigerschutz** (Kolar): Gutgläubig, da Zahlungen akzeptiert. Widerruf schützt Pfeffer nicht vor Anspruch Kolars. Treu und Glauben: Pfeffer trug Anschein (Vereinbarung 2021). |\n\nWeitere RS (weniger zentral): \n- RS0032930 (1987): Kondiktion bei bekanntem Widerruf → hier nicht bekannt vor Zahlungen.\n- RS0033000 (1970): Allg. Widerruflichkeit vor Annahme.\n\n**Keine aktuellen RS (post-2015) zu exaktem Szenario**, aber RS0032940 (2015) bestätigt Gläubigerschutz. Keine RS zu Schenkungsähnlichkeit (Vergleich 2021 auf EUR 40.000 könnte § 1400 primär qualifizieren; ggf. § 872 ABGB-Schenkung, aber Anweisung dominiert).\n\n#### Erfolgsaussichten für Peter Kolar (Zahlungsbefehl gegen Dr. Fohringer)\n- **Hoch (ca. 90-100%)**: Widerruf **beseitigt den Anspruch nicht** (RS0033084, RS0109097). Dr. Fohringer als Angewiesener haftet abstrakt gegenüber Kolar nach Annahme/Ausführung (Zahlungen 2022-2024). Rest EUR 25.000 fällig (8 Jahre à EUR 5.000 minus EUR 15.000).\n  - **Grund**: Anweisung wirkt als **selbständiger Verpflichtungsgrund** (§ 1401 ABGB; vgl. RS0032937). Widerruf nach Leistungsteil unwirksam.\n  - **Gläubigerschutz**: Kolar gutgläubig (RS0032940); Treu und Glauben schützt Empfänger.\n  - **Keine Schenkungsähnlichkeit relevant**: Vereinbarung 2021 ist Anweisung (§ 1400), nicht rückwirkend widerrufbar als Schenkung (§ 872 ABGB erfordert Form, hier Vergleichsvertrag).\n\n#### Beweislastverteilung\n| Issue | Beweislastträger | Begründung/RS |\n|-------|------------------|---------------|\n| **Annahme/Ausführung der Anweisung** | Pfeffer (Anweisende) | Muss Widerrufsfähigkeit beweisen (keine Annahme); Kolar: Zahlungsbelege (EUR 15.000) umkehrt Last (RS0033084/0109097). |\n| **Gültigkeit der Anweisung 2021** | Kolar | Standardlast (§ 282 ZPO); WhatsApp-Vereinbarung + Zahlungen beweisen. |\n| **Gutgläubigkeit Kolars** | Pfeffer | Muss Anscheinszerstörung vor Zahlungen beweisen (RS0032940); unwahrscheinlich. |\n| **Widerrufswirkung** |",
+      "answer_chars": 4904,
+      "e2e_ms": 50145.96
+    },
+    {
+      "name": "Vereinbarungsqualifikation und Vertragsauslegung",
+      "goal": "Ermitteln, ob die Vereinbarung vom Jahr 2021 ein verbindlicher Schuldnerwechsel, eine Sicherungsvereinbarung oder eine Auftragserfüllungsvollmacht war – entscheidend für Widerrufsmöglichkeit",
+      "mode": "llm",
+      "tools": [
+        "build_grounding_context",
+        "detect_clusters",
+        "search_kommentar_keyword",
+        "hot_cluster_context",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 8033.49,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 2183,
+            "completion_tokens": 1193,
+            "total_tokens": 3376,
+            "cost": 0.0010106,
+            "cached_tokens": 150,
+            "reasoning_tokens": 984
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 8694.8,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 7851,
+            "completion_tokens": 1257,
+            "total_tokens": 9108,
+            "cost": 0.0021762,
+            "cached_tokens": 150,
+            "reasoning_tokens": 951
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 8056.37,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 13615,
+            "completion_tokens": 1162,
+            "total_tokens": 14777,
+            "cost": 0.00212635,
+            "cached_tokens": 7851,
+            "reasoning_tokens": 864
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 20071.26,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 15213,
+            "completion_tokens": 1823,
+            "total_tokens": 17036,
+            "cost": 0.0019126,
+            "cached_tokens": 13610,
+            "reasoning_tokens": 786
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_52504126",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Anweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 451.48,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Anweisung\", \"results\": [{\"rs_number\": \"JWR_1979001573_19790621X01\", \"kernaussage\": \"Vermutung ordnungsgemäßer Organisation von Anwaltskanzleien\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Anwaltskanzlei\", \"Fristversäumnis\", \"Kanzleipersonal\", \"Anweisung\", \"Ordnungsstrafe\", \"§ 34 VwGG\", \"Organisation\", \"Versehen\", \"Vermutung\"]}, {\"rs_number\": \"RS0021744\", \"kernaussage\": \"Der Unternehmer ist in der Regel nicht verpflichtet, im Rahmen der ihn nach § 1168a ABGB treffenden Verpflichtung besondere, sonst nicht übliche Prüfungen und Untersuchungen anzustellen. Er hat den Besteller nur zu warnen, wenn er bei gehöriger, von ihm zu erwartender Sachkenntnis die Untauglichkeit...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Silo-Einsturz\", \"statische Berechnung\", \"Bewehrungsplan\", \"Rückgriffsanspruch\", \"Bauvertrag\", \"Schachtabteufung\", \"Gefrierverfahren\", \"unvorhergesehene Bodenverhältnisse\", \"Nachforderungen\", \"Werkvertrag\", \"Warnpflicht\", \"Beigestelltes Material\", \"Verschulden\", \"Brunnenbohrung\", \"Fehlbohrung\", \"Werkunternehmer\", \"Fließregel\", \"Korrosion\", \"Sanitäranlage\", \"Warnpflicht Unternehmer\", \"Grundwasser\", \"Bautechnikgesetz\", \"Warnpflicht des Werkunternehmers\", \"Werklohn\", \"Mängelrüge\", \"Fußbodenaufbau\", \"Ö-Normen\", \"Prüfpflicht\", \"§ 1168a ABGB\", \"Baugrundprüfung\", \"Grundwasserisolierung\", \"Kellerabdichtung\", \"Verfliesung\", \"Gewährleistung\", \"Betonyp-Platten\", \"Planungsfehler\", \"Untergrundprüfung\", \"Ölaustritt\", \"Heizungsanlage\", \"Schadenersatz\", \"Schadenersatz aus Werkvertrag\", \"Mitverschulden\", \"Anweisung\", \"beigestellter Stoff\", \"Niveauregler\", \"Subunt"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_40552488",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Giroanweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2180.74,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Giroanweisung\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_12959268",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "1400 ABGB Widerruf Anweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.99,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"1400 ABGB Widerruf Anweisung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_49543322",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Schuldnerwechsel Auftragserfüllung Sicherungsvereinbarung 1400 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.35,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Schuldnerwechsel Auftragserfüllung Sicherungsvereinbarung 1400 ABGB\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_81384700",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0032937",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.65,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0032937\", \"rechtssatz_text\": \"Die sogenannte Giroanweisung unterscheidet sich von der (gewöhnlichen) Anweisung im Sinne des § 1400 ABGB dadurch, daß sie dem Angewiesenen nicht eine tatsächliche Leistung, sondern nur die Verpflichtung zu einer solchen Leistung aufträgt. Liegt dabei im Verhältnis zwischen dem Anweisenden und dem...\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"ANWEISUNG\"], \"topic_ids\": [\"mehrpersonal\"], \"hot_rank\": 18042, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_41670898",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102948",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.01,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102948\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_65071323",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0017140",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.48,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0017140\", \"rechtssatz_text\": \"1.) Der bankgeschäftliche Überweisungsauftrag besteht aus der Weisung des Kunden an die Kreditunternehmung, welche er gemäß eines Vertrages mit der Kreditunternehmung erteilt und welcher dieses im Rahmen der getroffenen Vereinbarung nachzukommen hat. 2.) Der Überweisungsauftrag ist kein Vertrag...\", \"te_count\": 9, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 6220, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob28_15s|OGH|2015-03-12\", \"gz\": \"7Ob28_15s\", \"datum\": \"2015-03-12\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist mangels erheblicher Rechtsfrage unzulässig, da die Bank den Überweisungsauftrag bei fehlender Kontodeckung rechtmäßig ablehnen durfte und kein Schadenersatzanspruch eines Dritten besteht.\"}, {\"te_stable_key\": \"2Ob204_10d|OGH|2011-10-20\", \"gz\": \"2Ob204_10d\", \"datum\": \"2011-10-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt die Stornierbarkeit irrtümlicher innerbetrieblicher Umbuchungen vom Giro- auf das Kreditkonto einer Kreditnehmerin und deren Auswirkungen auf die Bürgschaftshaftung.\"}, {\"te_stable_key\": \"7Ob57_11z|OGH|2011-08-31\", \"gz\": \"7Ob57_11z\", \"datum\": \"2011-08-31\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erklärt die Revision mangels erheblicher Rechtsfrage für unzulässig in einem Fall über einen per E-Mail erteilten Überweisungsauftrag und ungerechtfertigte Bereicherung.\"}, {\"te_stable_key\": \"9Ob3_08v|OGH|2009-02-24\", \"gz\": \"9Ob3_08v\", \"datum\": \"2009-02-24\", \"gericht\": \"OGH\", \"mini_story\": \"Die Bank kann Gutschriften stornieren, wenn kein gültiger Überweisungsauftrag vorliegt, auch wenn der Empfänger gutgläubig handelte.\"}, {\"te_stable_key\": \"2Ob107_08m|OGH|2009-02-19\", \"gz\": \"2Ob107_08m\", \"datum\": \"2009-02-19\", \"gericht\": \"OGH\", \"mini_story\": \"Berechtigung einer Bank zur Stornierung einer durch Phishing entstandenen unberechtigten Gutschrift und daraus resultierender Bereicherungsanspruch gegen den Empfänger.\"}, {\"te_stable_key\": \"3Ob166_08w|OGH|2008-09-03\", \"gz\": \"3Ob166_08w\", \"datum\": \"2008-09-03\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung der Haftung einer Bank aus einer Überweisungsbestätigung als Sicherheit für Werklohnforderungen eines Subunternehmers gegenüber Bauherren.\"}, {\"te_stable_key\": \"6Ob8_07f|OGH|2007-03-16\", \"gz\": \"6Ob8_07f\", \"datum\": \"2007-0"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_46995952",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0019551",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.63,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0019551\", \"rechtssatz_text\": \"Das abstrakte Geschäft der Anweisung besteht in einer doppelten Ermächtigung: des Anweisungsempfängers zur Empfangnahme der Leistung und des Angewiesenen zur Erbringung einer Leistung im eigenen Namen aus eigenem Vermögen für Rechnung des Anweisenden. Von dem wirtschaftlich nahestehenden Geschäft...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9009, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob75_24h|OGH|2024-06-18\", \"gz\": \"6Ob75_24h\", \"datum\": \"2024-06-18\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer ordentlichen Revision wegen Fehlens einer erheblichen Rechtsfrage in einem Verfahren um Rechnungslegung und Zahlung von Umsatzbeteiligungen aus einer Vereinbarung gegen eine Verlassenschaft und eine GmbH.\"}, {\"te_stable_key\": \"10Ob14_23s|OGH|2023-08-22\", \"gz\": \"10Ob14_23s\", \"datum\": \"2023-08-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Annahme und Titulierung einer Anweisung zur Zahlung eines Honorars aus einem Kaufvertrag über ein Schaubergwerk sowie die Aufrechnung mit Ansprüchen übernommener Arbeitnehmer.\"}, {\"te_stable_key\": \"6Ob186_20a|OGH|2020-12-17\", \"gz\": \"6Ob186_20a\", \"datum\": \"2020-12-17\", \"gericht\": \"OGH\", \"mini_story\": \"Nichtzulassung einer Revision gegen die Abweisung eines Bereicherungsanspruchs aus einer Zahlung im Kontext ungültiger GmbH-Anteilsabtretungen in einem dreipersonalen Verhältnis.\"}, {\"te_stable_key\": \"9Ob1_15k|OGH|2015-04-29\", \"gz\": \"9Ob1_15k\", \"datum\": \"2015-04-29\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision, da keine erhebliche Rechtsfrage zur Wirksamkeit einer Anweisung gemäß § 1400 ABGB vorliegt.\"}, {\"te_stable_key\": \"9Ob43_10d|OGH|2011-02-28\", \"gz\": \"9Ob43_10d\", \"datum\": \"2011-02-28\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision mangels Geltendmachung einer erheblichen Rechtsfrage gemäß § 502 Abs 1 ZPO.\"}, {\"te_stable_key\": \"6Ob218_05k|OGH|2005-12-15\", \"gz\": \"6Ob218_05k\", \"datum\": \"2005-12-15\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Verbindlichkeit eines unwiderruflichen Einlösungsauftrags einer Bank zur Begleichung einer Kaufpreisforderung im Kontext eines mit Eigentumsvorbehalt belasteten Kaufs.\"}], \"te_items_count\": 6}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_85218513",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Schuldnerwechsel",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 437.37,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Schuldnerwechsel\", \"results\": [{\"rs_number\": \"JWR_2009170264_20100810X06\", \"kernaussage\": \"Kein Schuldnerwechsel bei Eigentumsübergang für Bauabgaben ohne Gesetz\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Schuldnerwechsel\", \"Eigentumsübergang\", \"Bauabgabe\", \"Bauwerber\", \"Abgabenanspruch\", \"Rechtsnachfolge\", \"Bauordnung\"]}, {\"rs_number\": \"JWR_2003170246_20040517X01\", \"kernaussage\": \"Kein Schuldnerwechsel bei Eigentümerwechsel für Bauabgabe ohne explizite Vorschrift\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Schuldnerwechsel\", \"Eigentumsübergang\", \"Bauabgabe\", \"Pfandrecht\", \"Stmk BauG\", \"Abgabenschuldner\", \"Grundstück\", \"gesetzliche Anordnung\", \"Pfandhaftung\"]}, {\"rs_number\": \"JWR_1992170267_19950721X04\", \"kernaussage\": \"Keine dingliche Wirkung des Abgabenschuldverhältnisses bei Eigentümerwechsel\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"dingliche Wirkung\", \"Abgabenschuldverhältnis\", \"Eigentümerwechsel\", \"Schuldnerwechsel\", \"Baugenehmigungsabgabe\", \"Tir BauO 1989\", \"Tir LAO 1984\"]}, {\"rs_number\": \"JWR_1973001896_19741017X01\", \"kernaussage\": \"Keine Antragslegitimation durch Zahlung fremder Zollschuld\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zollerlass\", \"Billigkeitsgründe\", \"Antragslegitimation\", \"Zollschuld\", \"Zahlung Dritter\", \"Schuldnerwechsel\", \"Subrogation\", \"Zollbehörde\"]}, {\"rs_number\": \"JWR_1986170199_19910405X02\", \"kernaussage\": \"Keine dingliche Wirkung der Abgabenschuld im Vlbg KanalG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Abgabenschuldverhältnis\", \"in-rem-Wirkung\", \"dingliche Wirkung\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_35583857",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Anweisung auf Schuld Widerruf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.35,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0109097\", \"rechtssatz\": \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Ausweisungsempfänger begehren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"], \"relevance\": 0.453}, {\"rs_number\": \"RS0109098\", \"rechtssatz\": \"Der betreibende Gläubiger, dem eine gefährdete Forderung zur Einziehung überwiesen wurde, kann eine nicht angenommene Anweisung auf Schuld vor deren Befolgung widerrufen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"], \"relevance\": 0.254}, {\"rs_number\": \"RS0032930\", \"rechtssatz\": \"War dem Anweisungsempfänger der Widerruf der Anweisung, zB die Sperre des Schecks, bekannt und konnte er daher nicht annehmen, daß durch die dennoch (irrtümlich) bewirkte Zahlung eine Schuld des Anweisenden ihm gegenüber getilgt werden sollte, steht dem (scheinbar) Angewiesenen (Scheckbezogenen) ein Kondiktionsanspruch zu.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Scheck\", \"Sperre\", \"Widerruf\", \"Ungerechtfertigte Bereicherung\", \"Bankhaftung\", \"irrige Überweisung\", \"Durchgriffskondiktion\", \"Widerruf Überweisungsauftrag\", \"Bereicherungsklage\"], \"relevance\": 0.189}], \"count\": 3, \"query\": \"Anweisung auf Schuld Widerruf\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_48669732",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "1400 ABGB Anweisung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.99,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0032937\", \"rechtssatz\": \"Die sogenannte Giroanweisung unterscheidet sich von der (gewöhnlichen) Anweisung im Sinne des § 1400 ABGB dadurch, daß sie dem Angewiesenen nicht eine tatsächliche Leistung, sondern nur die Verpflichtung zu einer solchen Leistung aufträgt. Liegt dabei im Verhältnis zwischen dem Anweisenden und dem Anweisungsempfänger eine Anweisung \\\"zur Zahlung\\\" vor, durch welche eine Schuld des Anweisenden gegenüber dem Anweisungsempfänger getilgt werden soll, dann gilt auch hier der Grundsatz des § 1401 Abs 3 ABGB, wonach die Schuldtilgung mangels einer abweichenden Vereinbarung erst durch die Leistung des Angewiesenen an den Anweisungsempfänger eintritt. Auch eine \\\"Giroanweisung zur Zahlung\\\" ist also im Zweifel nicht an Zahlungsstatt, sondern nur zahlungshalber gegeben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.26}, {\"rs_number\": \"RS0032946\", \"rechtssatz\": \"Anweisung im Sinne der §§ 1400 ff ABGB.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.254}], \"count\": 2, \"query\": \"1400 ABGB Anweisung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_82529824",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109097",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.92,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109097\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_72720159",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109098",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.21,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109098\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_78535859",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0032930",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.61,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0032930\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_03526909",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1401 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 818.6,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1401 ABGB\", \"results\": [{\"rs_number\": \"RS0032722\", \"kernaussage\": \"Wird vereinbart, daß sämtliche Forderungen der GmbH gegenüber der Beklagten an die N \\\"abgetreten werden\\\", dann ist zumindest eine sogenannte \\\"Anweisung auf Schuld\\\" im Sinne des § 1401 ABGB anzunehmen.\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_80739214",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "mehrpersonal",
+            "query": "§ 1400 ABGB Anweisung Widerruf nach Annahme durch Angewiesenen Schuldnerwechsel oder Auftragserfüllung",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.05,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_95321675",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Anweisung ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1006.84,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Anweisung ABGB\", \"results\": [{\"rs_number\": \"RS0109093\", \"kernaussage\": \"Auch die sicherungsweise Forderungsabtretung - bei der allerdings die Publizitätsvorschriften einzuhalten sind, fällt unter § 300a Abs 1 (und nicht unter § 300a Abs 2) EO.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"]}, {\"rs_number\": \"RS0109097\", \"kernaussage\": \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Ausweisungsempfänger begehren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\"]}, {\"rs_number\": \"RS0109095\", \"kernaussage\": \"Der an eine Bank erteilte Überweisungsauftrag ist ein Sonderfall der bürgerlich-rechtliche Anweisung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Drittschuldner\", \"Forderungspfändung\", \"Zahlungsverbot\", \"Erlagspflicht\", \"Anweisung ABGB\", \"Giroüberweisung\", \"Irrtümliche Gutschrift\", \"Rückbuchung\", \"AGB Kreditinstitute\", \"Phishing\", \"Stornierung\", \"Gutschrift\", \"Bereicherungsanspruch\", \"Girovertrag\", \"AGB\", \"Stornorecht\", \"Überweisungsauftrag\", \"ungerechtfertigte Bereicherung\", \"formelle Auftragsstrenge\", \"Bürgschaft\", \"Bankbuchungen\", \"Aufrechnung\", \"Sparguthaben\", \"Kommissionsgeschäft\", \"Fehlgutschrift\", \"Rückforderung\", \"außerordentliche Revision\", \"Kontodeckung\", \"Schadenersatzanspruch\", \"Zahlungsdienstleister\"]}, {\"rs_number\": \"RS0109094\", \"kernaussage\": \"Auf Anweisungen ist § 300a Abs 1 EO nicht anal"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109095",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109095",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.68,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0109095\", \"rechtssatz_text\": \"Der an eine Bank erteilte Überweisungsauftrag ist ein Sonderfall der bürgerlich-rechtliche Anweisung.\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7488, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob229_16i|OGH|2017-09-28\", \"gz\": \"2Ob229_16i\", \"datum\": \"2017-09-28\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision klärt die Aktivlegitimation einer deutschen Testamentsvollstreckerin in einem österreichischen Erbstreit und die Beweislast bei fehlendem Nachweis eines Treuhandverhältnisses oder Rechtsgrundlosigkeit einer Vermögensübertragung.\"}, {\"te_stable_key\": \"7Ob28_15s|OGH|2015-03-12\", \"gz\": \"7Ob28_15s\", \"datum\": \"2015-03-12\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist mangels erheblicher Rechtsfrage unzulässig, da die Bank den Überweisungsauftrag bei fehlender Kontodeckung rechtmäßig ablehnen durfte und kein Schadenersatzanspruch eines Dritten besteht.\"}, {\"te_stable_key\": \"1Ob17_15d|OGH|2015-03-03\", \"gz\": \"1Ob17_15d\", \"datum\": \"2015-03-03\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Beklagten zurück, die gegen die Verurteilung zur Rückzahlung einer irrtümlichen Gutschrift aus einem Kommissionsgeschäft gerichtet ist.\"}, {\"te_stable_key\": \"2Ob204_10d|OGH|2011-10-20\", \"gz\": \"2Ob204_10d\", \"datum\": \"2011-10-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt die Stornierbarkeit irrtümlicher innerbetrieblicher Umbuchungen vom Giro- auf das Kreditkonto einer Kreditnehmerin und deren Auswirkungen auf die Bürgschaftshaftung.\"}, {\"te_stable_key\": \"7Ob57_11z|OGH|2011-08-31\", \"gz\": \"7Ob57_11z\", \"datum\": \"2011-08-31\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erklärt die Revision mangels erheblicher Rechtsfrage für unzulässig in einem Fall über einen per E-Mail erteilten Überweisungsauftrag und ungerechtfertigte Bereicherung.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109094",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109094",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.5,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109094\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109093",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109093",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.13,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109093\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0032946",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0032946",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.4,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0032946\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0032722",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0032722",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.71,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0032722\"}"
+        }
+      ],
+      "tool_calls_total": 22,
+      "tool_calls_ok": 22,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Classification der 2021-Vereinbarung (RS/GZ-begründet):**\n\n- **Keine Schuldnerwechsel (Delegation/Expromissio, § 1447 ABGB iVm § 1449 ABGB):** Keine Rechtsnachfolge oder Novation; Dr. Fohringer bleibt primärer Schuldner (Rückzahlung an Pfeffer), zahlt nur als Angewiesener für Rechnung Pfeffers (RS0032937: Giroanweisung vs. § 1400 ABGB-Anweisung; Angewiesener leistet aus eigenem Vermögen für Anweisenden). Suche nach \"Schuldnerwechsel\" ergab 0 relevante RS zu § 1400 (nur Verwaltungsrecht, zB JWR_2009170264_20100810X06). Kein Wechsel der Schuldnerschaft.\n\n- **Keine reine Sicherungsvereinbarung (§ 879 ABGB oder Treuhand):** Primär Rückzahlungsvereinbarung via wiederholter Anweisung; Sicherungselement (jährl. Raten) sekundär. RS0019551: Abstraktes Anweisungsgeschäft als doppelte Ermächtigung (Anweisungsempfänger + Angewiesener); wirtschaftlich nahestehend, aber obligatorisch.\n\n- **Auftragserfüllungsvollmacht / Anweisung iSd § 1400 ABGB (maßgeblich):** Vereinbarung schafft dreipersonales Verhältnis: Pfeffer (Anweisende) weist Dr. Fohringer (Angewiesener) an, an Kolar (Anweisungsempfänger) zu leisten (jährl. EUR 5.000). RS0032937 (OGH, Cluster ANWEISUNG, Topic mehrpersonal): Unterscheidet \"gewöhnliche\" § 1400-Anweisung (tatsächliche Leistung) von Giroanweisung (Verpflichtung zur Leistung); Schuldtilgung erst bei Erfüllung (§ 1401 Abs 3 ABGB, RS0032722). RS0017140: Ähnlich bankgeschäftl. Überweisungsauftrag als Weisung/Anweisung.\n\n**Widerrufsmöglichkeit (entscheidend für Erfolgsaussichten):**\n- **Nach Annahme unwiderruflich:** RS0109097 (Schlagwort \"Anweisung ABGB\"): \"Hat der Angewiesene die Anweisung (auf Schuld) angenommen, kann der Anweisende die Anweisung nicht widerrufen; er kann nur mehr die Zahlung an den Anweisungsempfänger begehren.\" Zahlungen 2022-2024 (EUR 15.000) belegen implizite/explizite Annahme durch Dr. Fohringer (RS0109098: Widerruf nur vor Annahme möglich). WhatsApp-Widerruf 2025 wirkungslos.\n- RS0032930: Widerruf bekannt? → Keine Tilgung, aber Kondiktion möglich (nicht hier relevant).\n- **Erfolgsaussichten Kolar: Hoch (80-90%):** Zahlungsbefehl gegen Dr. Fohringer durchsetzbar; Rest EUR 25.000 fällig. Pfeffer haftet ggf. deliktisch/vertraglich (§ 1299 ABGB), falls Anweisung bindend. Keine RS zu WhatsApp-Widerruf als einseitiger Kündigung.\n\n**Beweislast (für jeden Tatbestand):**\n| Issue | Beweislastträger | Beleg |\n|-------|------------------|-------|\n| Annahme der Anweisung durch Dr. Fohringer | Kolar (positive Tatsache) | Bereits erbracht (Zahlungen 2022-2024); WhatsApp-Kommunikation prüfbar. |\n| Bindung der Anweisung / Kein Widerruf | Kolar (§ 1400/1401 ABGB) | RS0109097; Tilgung erst bei Leistung (RS0032937). Pfeffer trägt Beweislast für Ausnahmen (zB Irrtum). |\n| Rückzahlungsanspruch (Ursprung) | Kolar | Darlehens-/Schenkungsirrtum (§§ 870/1456 ABGB); Vereinbarung 2021 als Anerkenntnis. |\n| Widerrufswirkung | Pfeffer (negative Tatsache) | Muss Annahme widerlegen (RS0109098); Zahlungen sprechen dagegen. |\n\n**Empfehlung:** Mahnbescheid/Zahlungsbefehl fortsetzen; Klage auf Feststellung bindender Anweisung (RS0019551). Keine Interzession (§ 25c KSchG)/§ 879 ABGB (separate Regime, 0 Treffer).",
+      "answer_chars": 3162,
+      "e2e_ms": 53895.02
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 15845.24,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 4448,
+    "usage": {
+      "prompt_tokens": 16326,
+      "completion_tokens": 2516,
+      "total_tokens": 18842,
+      "cost": 0.0045007,
+      "cached_tokens": 150,
+      "reasoning_tokens": 1023
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": false,
+    "before": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0032933",
+          "RS0032998",
+          "RS0109097",
+          "RS0033170",
+          "RS0033084",
+          "RS0032937",
+          "RS0032971",
+          "RS0019452"
+        ],
+        "validation": {
+          "cited": 8,
+          "checked": 8,
+          "valid": 8,
+          "invalid": [],
+          "sample_valid": [
+            "RS0019452",
+            "RS0032933",
+            "RS0032937",
+            "RS0032971",
+            "RS0032998",
+            "RS0033084",
+            "RS0033170",
+            "RS0109097"
+          ]
+        },
+        "valid": [
+          "RS0032933",
+          "RS0032998",
+          "RS0109097",
+          "RS0033170",
+          "RS0033084",
+          "RS0032937",
+          "RS0032971",
+          "RS0019452"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1400 ABGB",
+          "§ 1401 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0011407",
+          "RS0017140",
+          "RS0019452",
+          "RS0019551",
+          "RS0021744",
+          "RS0021932",
+          "RS0021963",
+          "RS0032722",
+          "RS0032925",
+          "RS0032930",
+          "RS0032933",
+          "RS0032937",
+          "RS0032940",
+          "RS0032946",
+          "RS0032971",
+          "RS0032998",
+          "RS0033000",
+          "RS0033084",
+          "RS0033146",
+          "RS0033170",
+          "RS0033174",
+          "RS0033180",
+          "RS0033795",
+          "RS0036531",
+          "RS0044685",
+          "RS0064373",
+          "RS0072740",
+          "RS0102948",
+          "RS0109093",
+          "RS0109094",
+          "RS0109095",
+          "RS0109097",
+          "RS0109098"
+        ],
+        "te_ogh": [],
+        "norms": [
+          "§ 1168 a Satz 3 ABGB",
+          "§ 1168a ABGB",
+          "§ 1302 ABGB",
+          "§ 1400 ABGB",
+          "§ 1401 ABGB",
+          "§ 1401 Abs 3 ABGB",
+          "§ 300a Abs 1 (und nicht unter § 300a Abs 2) EO",
+          "§ 300a Abs 1 EO",
+          "§ 37 IO",
+          "§ 43 Abs 1 IO",
+          "§ 43 IO",
+          "§ 502 Abs 1 ZPO",
+          "§ 80 Abs 1 ZPO",
+          "§ 933 ABGB",
+          "§1400 ABGB",
+          "§§ 1400 ff ABGB"
+        ],
+        "stats": {
+          "rs_count": 33,
+          "te_ogh_count": 0,
+          "norm_count": 16
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0032933",
+          "RS0032998",
+          "RS0109097",
+          "RS0033170",
+          "RS0033084",
+          "RS0032937",
+          "RS0032971",
+          "RS0019452"
+        ],
+        "validation": {
+          "cited": 8,
+          "checked": 8,
+          "valid": 8,
+          "invalid": [],
+          "sample_valid": [
+            "RS0019452",
+            "RS0032933",
+            "RS0032937",
+            "RS0032971",
+            "RS0032998",
+            "RS0033084",
+            "RS0033170",
+            "RS0109097"
+          ]
+        },
+        "valid": [
+          "RS0032933",
+          "RS0032998",
+          "RS0109097",
+          "RS0033170",
+          "RS0033084",
+          "RS0032937",
+          "RS0032971",
+          "RS0019452"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1400 ABGB",
+          "§ 1401 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0011407",
+          "RS0017140",
+          "RS0019452",
+          "RS0019551",
+          "RS0021744",
+          "RS0021932",
+          "RS0021963",
+          "RS0032722",
+          "RS0032925",
+          "RS0032930",
+          "RS0032933",
+          "RS0032937",
+          "RS0032940",
+          "RS0032946",
+          "RS0032971",
+          "RS0032998",
+          "RS0033000",
+          "RS0033084",
+          "RS0033146",
+          "RS0033170",
+          "RS0033174",
+          "RS0033180",
+          "RS0033795",
+          "RS0036531",
+          "RS0044685",
+          "RS0064373",
+          "RS0072740",
+          "RS0102948",
+          "RS0109093",
+          "RS0109094",
+          "RS0109095",
+          "RS0109097",
+          "RS0109098"
+        ],
+        "te_ogh": [],
+        "norms": [
+          "§ 1168 a Satz 3 ABGB",
+          "§ 1168a ABGB",
+          "§ 1302 ABGB",
+          "§ 1400 ABGB",
+          "§ 1401 ABGB",
+          "§ 1401 Abs 3 ABGB",
+          "§ 300a Abs 1 (und nicht unter § 300a Abs 2) EO",
+          "§ 300a Abs 1 EO",
+          "§ 37 IO",
+          "§ 43 Abs 1 IO",
+          "§ 43 IO",
+          "§ 502 Abs 1 ZPO",
+          "§ 80 Abs 1 ZPO",
+          "§ 933 ABGB",
+          "§1400 ABGB",
+          "§§ 1400 ff ABGB"
+        ],
+        "stats": {
+          "rs_count": 33,
+          "te_ogh_count": 0,
+          "norm_count": 16
+        }
+      }
+    },
+    "repair": null,
+    "answer": "### 1. KERNFRAGEN\n- **Wirksamkeit der Anweisung iSd § 1400 ABGB**: Die Vereinbarung von 2021 stellt eine Anweisung dar, bei der Pfeffer (Anweisende) Fohringer (Angewiesener) anweist, an Kolar (Empfänger) zu zahlen; entscheidend ist die Annahme durch Fohringer (RS0032933).\n- **Annahme der Anweisung durch den Angewiesenen**: Vorliegen einer Annahme macht den Widerruf unwirksam, da Zahlungen 2022-2024 (EUR 15.000) auf Annahme hindeuten (RS0032998, RS0109097).\n- **Wirksamkeit des Widerrufs per WhatsApp**: Widerruf nur möglich, solange weder Angewiesener noch Empfänger angenommen haben; nach Annahme wirkungslos (RS0033170, RS0033084).\n\n### 2. RECHTSGRUNDLAGEN\nHauptanspruchsgrundlage: **§ 1400 ABGB** (Anweisung als dreipersonales Schuldverhältnis mit Ermächtigung des Angewiesenen zur Leistung im eigenen Namen; RS0032933).  \n**§ 1401 ABGB** ergänzend (bei Anweisung auf Schuld tilgt Leistung des Angewiesenen die Schuld des Anweisenden erst bei Erfüllung; RS0032937).  \nKeine weiteren Anspruchsgrundlagen (zB Schuldübernahme oder Abtretung) ersichtlich; kein Stufenbau oder Doppelgleisigkeit erforderlich.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0033170**: Anweisende kann widerrufen, wenn Angewiesener, aber nicht Empfänger angenommen hat – relevant, da hier umgekehrt Annahme durch Angewiesenen (Zahlungen) vorlag.\n- **RS0109097**: Nach Annahme der Anweisung durch Angewiesenen unwiderrufbar; Anweisender kann nur Zahlung begehren – direkt anwendbar, da Fohringer gezahlt hat.\n- **RS0033084**: Widerruf nach Annahme gegenüber Empfänger wirkungslos – schützt Kolars Anspruch trotz WhatsApp-Widerruf.\n- **RS0032998**: Annahme ist empfangsbedürftige Erklärung, die Angewiesenen zukommen muss – Zahlungen belegen Annahme.\n- **RS0032933**: Anweisung ermächtigt Angewiesenen zur Leistung aus eigenem Vermögen – qualifiziert Vereinbarung 2021.\n\n### 4. SUBSUMTION\n**§ 1400 ABGB**: Vereinbarung 2021 ist Anweisung (Pfeffer weist Fohringer an, 8x EUR 5.000 an Kolar zu zahlen); Fohringer als Angewiesener hat angenommen (Zahlungen EUR 15.000 2022-2024 als einseitige Erklärung; RS0032998), wodurch abstrakte Schuld gegen Kolar entsteht (RS0032933). Widerruf 2025 per WhatsApp unwirksam (RS0109097, RS0033084). Restanspruch EUR 25.000 besteht.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Annahme durch Fohringer**: Kolar (Klär) muss beweisen (Annahme als tatbestandsmäßige Voraussetzung; RS0032998) – vorliegen: Zahlungen EUR 15.000 (Bankauszüge/Zahlungsbelege als Beweis).  \n- **Inhalt/Wirksamkeit Vereinbarung 2021**: Kolar beweist (Vertragsschluss; § 1400 ABGB) – fehlt: Schriftsatz der Vereinbarung (indiziell durch Zahlungsbefehl/Zahlungen).  \n- **Widerrufswissen/Bekanntgabe**: Fohringer muss beweisen, Widerruf vor Zahlungen bekannt/angemessen (RS0033170) – fehlt: WhatsApp-Nachweis vor 2025-Zahlungen.  \n- **Restsumme EUR 25.000**: Kolar arithmetisch beweisen (40.000 - 15.000) – vorliegen: Zahlungsbefehl.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren**: Verurteilung Fohringers zur Zahlung EUR 25.000 zzgl. Zins aus Anweisung (§ 1400 ABGB; hohe Erfolgsaussicht durch Zahlungen als Annahme).  \n**Eventualbegehren**: Feststellung unwirksamem Widerrufs (RS0033084) – nur bei Streit um Annahme; niedrige Priorität.  \nPriorisierung: Direkt Vollstreckung aus Zahlungsbefehl/Clage auf Erfüllung; keine Alternativen.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0033170)**: Widerruf wirksam, da Empfänger (Kolar) nicht angenommen – **Replik**: Umgekehrt; Annahme durch Angewiesenen (Fohringer) via Zahlungen genügt für Unwiderruflichkeit (RS0109097).  \n- **Risiko 2 (RS0032971)**: Blankoannahme unvollständig, Widerruf bis Bekanntgabe Empfänger möglich – **Replik**: Keine Blankoannahme; konkrete Zahlungen an Kolar belegen vollständige Annahme (RS0032998).  \n- **Risiko 3 (RS0032937)**: Giroanweisung nur zahlungshalber, Tilgung erst bei Leistung – **Replik**: Verstärkt Anspruch; Fohringers Teilleistung tilgt nur gezahltes Quantum, Rest bleibt (RS0109097).  \n- **Risiko 4 (RS0033084)**: Widerruf vor Annahme Empfänger wirksam – **Replik**: Zahlungen 2022-2024 = Annahme gegenüber Empfänger; Widerruf wirkungslos (RS0032933).  \n- **Risiko 5 (RS0019452)**: Keine Anweisung, wenn Stellvertretung – **Replik**: Fohringer leistet im eigenen Namen (Zahlungen), keine Stellvertretung (RS0032933).\n\n### 8. ERFOLGSAUSSICHTEN\n- **§ 1400 ABGB (Anweisung)**: 90% (starke Belege durch Zahlungen als Annahme; Widerruf unwirksam per RS0109097/RS0033084; Zahlungsbefehl vorhanden)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Wirksamkeit der Anweisung iSd § 1400 ABGB**: Die Vereinbarung von 2021 stellt eine Anweisung dar, bei der Pfeffer (Anweisende) Fohringer (Angewiesener) anweist, an Kolar (Empfänger) zu zahlen; entscheidend ist die Annahme durch Fohringer (RS0032933).\n- **Annahme der Anweisung durch den Angewiesenen**: Vorliegen einer Annahme macht den Widerruf unwirksam, da Zahlungen 2022-2024 (EUR 15.000) auf Annahme hindeuten (RS0032998, RS0109097).\n- **Wirksamkeit des Widerrufs per WhatsApp**: Widerruf nur möglich, solange weder Angewiesener noch Empfänger angenommen haben; nach Annahme wirkungslos (RS0033170, RS0033084).\n\n### 2. RECHTSGRUNDLAGEN\nHauptanspruchsgrundlage: **§ 1400 ABGB** (Anweisung als dreipersonales Schuldverhältnis mit Ermächtigung des Angewiesenen zur Leistung im eigenen Namen; RS0032933).  \n**§ 1401 ABGB** ergänzend (bei Anweisung auf Schuld tilgt Leistung des Angewiesenen die Schuld des Anweisenden erst bei Erfüllung; RS0032937).  \nKeine weiteren Anspruchsgrundlagen (zB Schuldübernahme oder Abtretung) ersichtlich; kein Stufenbau oder Doppelgleisigkeit erforderlich.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0033170**: Anweisende kann widerrufen, wenn Angewiesener, aber nicht Empfänger angenommen hat – relevant, da hier umgekehrt Annahme durch Angewiesenen (Zahlungen) vorlag.\n- **RS0109097**: Nach Annahme der Anweisung durch Angewiesenen unwiderrufbar; Anweisender kann nur Zahlung begehren – direkt anwendbar, da Fohringer gezahlt hat.\n- **RS0033084**: Widerruf nach Annahme gegenüber Empfänger wirkungslos – schützt Kolars Anspruch trotz WhatsApp-Widerruf.\n- **RS0032998**: Annahme ist empfangsbedürftige Erklärung, die Angewiesenen zukommen muss – Zahlungen belegen Annahme.\n- **RS0032933**: Anweisung ermächtigt Angewiesenen zur Leistung aus eigenem Vermögen – qualifiziert Vereinbarung 2021.\n\n### 4. SUBSUMTION\n**§ 1400 ABGB**: Vereinbarung 2021 ist Anweisung (Pfeffer weist Fohringer an, 8x EUR 5.000 an Kolar zu zahlen); Fohringer als Angewiesener hat angenommen (Zahlungen EUR 15.000 2022-2024 als einseitige Erklärung; RS0032998), wodurch abstrakte Schuld gegen Kolar entsteht (RS0032933). Widerruf 2025 per WhatsApp unwirksam (RS0109097, RS0033084). Restanspruch EUR 25.000 besteht.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Annahme durch Fohringer**: Kolar (Klär) muss beweisen (Annahme als tatbestandsmäßige Voraussetzung; RS0032998) – vorliegen: Zahlungen EUR 15.000 (Bankauszüge/Zahlungsbelege als Beweis).  \n- **Inhalt/Wirksamkeit Vereinbarung 2021**: Kolar beweist (Vertragsschluss; § 1400 ABGB) – fehlt: Schriftsatz der Vereinbarung (indiziell durch Zahlungsbefehl/Zahlungen).  \n- **Widerrufswissen/Bekanntgabe**: Fohringer muss beweisen, Widerruf vor Zahlungen bekannt/angemessen (RS0033170) – fehlt: WhatsApp-Nachweis vor 2025-Zahlungen.  \n- **Restsumme EUR 25.000**: Kolar arithmetisch beweisen (40.000 - 15.000) – vorliegen: Zahlungsbefehl.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren**: Verurteilung Fohringers zur Zahlung EUR 25.000 zzgl. Zins aus Anweisung (§ 1400 ABGB; hohe Erfolgsaussicht durch Zahlungen als Annahme).  \n**Eventualbegehren**: Feststellung unwirksamem Widerrufs (RS0033084) – nur bei Streit um Annahme; niedrige Priorität.  \nPriorisierung: Direkt Vollstreckung aus Zahlungsbefehl/Clage auf Erfüllung; keine Alternativen.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0033170)**: Widerruf wirksam, da Empfänger (Kolar) nicht angenommen – **Replik**: Umgekehrt; Annahme durch Angewiesenen (Fohringer) via Zahlungen genügt für Unwiderruflichkeit (RS0109097).  \n- **Risiko 2 (RS0032971)**: Blankoannahme unvollständig, Widerruf bis Bekanntgabe Empfänger möglich – **Replik**: Keine Blankoannahme; konkrete Zahlungen an Kolar belegen vollständige Annahme (RS0032998).  \n- **Risiko 3 (RS0032937)**: Giroanweisung nur zahlungshalber, Tilgung erst bei Leistung – **Replik**: Verstärkt Anspruch; Fohringers Teilleistung tilgt nur gezahltes Quantum, Rest bleibt (RS0109097).  \n- **Risiko 4 (RS0033084)**: Widerruf vor Annahme Empfänger wirksam – **Replik**: Zahlungen 2022-2024 = Annahme gegenüber Empfänger; Widerruf wirkungslos (RS0032933).  \n- **Risiko 5 (RS0019452)**: Keine Anweisung, wenn Stellvertretung – **Replik**: Fohringer leistet im eigenen Namen (Zahlungen), keine Stellvertretung (RS0032933).\n\n### 8. ERFOLGSAUSSICHTEN\n- **§ 1400 ABGB (Anweisung)**: 90% (starke Belege durch Zahlungen als Annahme; Widerruf unwirksam per RS0109097/RS0033084; Zahlungsbefehl vorhanden).",
+  "elapsed_ms": 75769.86
+}

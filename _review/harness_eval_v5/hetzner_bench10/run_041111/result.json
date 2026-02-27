@@ -1,0 +1,1866 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T04:11:11.567653+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Brigitte Buchner gebar am 21.11.2008 gesunde Drillinge nach IVF-Behandlung im Krankenhaus der Stadtgemeinde A. Sie hatte mit dem behandelnden Arzt Dr. Kindermann vereinbart, nur zwei Embryonen einzusetzen, um Mehrlingsschwangerschaft zu vermeiden. Tatsächlich wurden drei Embryonen eingesetzt. Haben Brigitte und ihr Ehemann Hubert Schadenersatzansprüche gegen den Arzt und/oder das Krankenhaus wegen der unerwünschten Drillingsgeburt? Wie ist die Rechtslage beim sogenannten Wrongful Birth?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "",
+    "subdomain": "",
+    "confidence": 0.0,
+    "paragraphs": [],
+    "mandatory_paragraphs": [],
+    "keywords": [],
+    "all_scores": {},
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 227,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Wrongful Birth – Rechtsgrundlagen & OGH-Rechtsprechung",
+        "goal": "Identify core legal basis and leading OGH rulings on wrongful birth claims in Austria",
+        "tools": [
+          "get_rechtssatz",
+          "search_ogh_rechtssaetze",
+          "search_ogh_entscheidungen",
+          "search_by_schlagwort",
+          "search_by_paragraph",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Schadenersatzrechtliche Voraussetzungen prüfen",
+        "goal": "Clarify liability elements (Vertrags- vs. Deliktsrecht, Aufklärungsmangel, Kausalität) für Elternansprüche",
+        "tools": [
+          "search_by_paragraph",
+          "search_kommentar_paragraph",
+          "build_grounding_context",
+          "hot_cluster_context",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Hot-Index & Kommentar-Kontext für §§ 1306, 1311 ABGB & 1296a ABGB",
+        "goal": "Extract up-to-date doctrinal and jurisprudential commentary on parental standing and damages in IVF-misadventure cases",
+        "tools": [
+          "hot_index_stats",
+          "hot_rs_lookup",
+          "search_kommentar_keyword",
+          "detect_clusters",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz"
+        ]
+      }
+    ],
+    "synthesis_focus": "Analyze whether Brigitte and Hubert Buchner have valid claims for non-pecuniary and/or pecuniary damages against Dr. Kindermann and/or the hospital under Austrian law, focusing on breach of contract/duty of care, informed consent, and the special doctrine of 'Wrongful Birth' (unerwünschte Schwangerschaft/Mehrlingsschwangerschaft)."
+  },
+  "organizer_meta": {
+    "latency_ms": 5184.85,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Wrongful Birth – Rechtsgrundlagen & OGH-Rechtsprechung\",\n      \"goal\": \"Identify core legal basis and leading OGH rulings on wrongful birth claims in Austria\",\n      \"tools\": [\"get_rechtssatz\", \"search_ogh_rechtssaetze\", \"search_ogh_entscheidungen\", \"search_by_schlagwort\"]\n    },\n    {\n      \"name\": \"Schadenersatzrechtliche Voraussetzungen prüfen\",\n      \"goal\": \"Clarify liability elements (Vertrags- vs. Deliktsrecht, Aufklärungsmangel, Kausalität) für Elternansprüche\",\n      \"tools\": [\"search_by_paragraph\", \"search_kommentar_paragraph\", \"build_grounding_context\", \"hot_cluster_context\"]\n    },\n    {\n      \"name\": \"Hot-Index & Kommentar-Kontext für §§ 1306, 1311 ABGB & 1296a ABGB\",\n      \"goal\": \"Extract up-to-date doctrinal and jurisprudential commentary on parental standing and damages in IVF-misadventure cases\",\n      \"tools\": [\"hot_index_stats\", \"hot_rs_lookup\", \"search_kommentar_keyword\", \"detect_clusters\"]\n    }\n  ],\n  \"synthesis_focus\": \"Analyze whether Brigitte and Hubert Buchner have valid claims for non-pecuniary and/or pecuniary damages against Dr. Kindermann and/or the hospital under Austrian law, focusing on breach of contract/duty of care, informed consent, and the special doctrine of 'Wrongful Birth' (unerwünschte Schwangerschaft/Mehrlingsschwangerschaft).\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 343,
+      "completion_tokens": 373,
+      "total_tokens": 716,
+      "cost": 0.00042102,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "",
+      "subdomain": "",
+      "confidence": 0.0,
+      "paragraphs": [],
+      "mandatory_paragraphs": [],
+      "keywords": [],
+      "all_scores": {},
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Hot-Index & Kommentar-Kontext für §§ 1306, 1311 ABGB & 1296a ABGB",
+      "goal": "Extract up-to-date doctrinal and jurisprudential commentary on parental standing and damages in IVF-misadventure cases",
+      "mode": "llm",
+      "tools": [
+        "hot_rs_lookup",
+        "search_kommentar_keyword",
+        "detect_clusters",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 10406.17,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 1629,
+            "completion_tokens": 1349,
+            "total_tokens": 2978,
+            "cost": 0.0009811,
+            "cached_tokens": 128,
+            "reasoning_tokens": 1066
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 11564.37,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 8871,
+            "completion_tokens": 1538,
+            "total_tokens": 10409,
+            "cost": 0.0025207,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1293
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 19320.06,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 27399,
+            "completion_tokens": 1881,
+            "total_tokens": 29280,
+            "cost": 0.0025317,
+            "cached_tokens": 25924,
+            "reasoning_tokens": 1534
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 17012.21,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 46854,
+            "completion_tokens": 1806,
+            "total_tokens": 48660,
+            "cost": 0.004052,
+            "cached_tokens": 62980,
+            "reasoning_tokens": 629
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_48806080",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Arzthaftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 78.79,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Arzthaftung\", \"results\": [{\"rs_number\": \"RS0034908\", \"kernaussage\": \"Die dreijährige Verjährungsfrist beginnt - solange noch kein tatsächlicher Schade eingetreten ist - erst zu laufen, wenn der Eintritt des Schadens für die klagende Partei mit Sicherheit voraussehbar wird (JBl 1964/371).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ölzentralheizung\", \"Entlüftungsrohr\", \"Tanküberfüllung\", \"Haftung\", \"Bauordnung\", \"Verjährung\", \"Regressanspruch\", \"Schadenersatzpflicht\", \"Feststellungsklage\", \"Anscheinsvollmacht\", \"Duldungsvollmacht\", \"Inkassobefugnis\", \"Wechsel\", \"Rindermastgeschäft\", \"ÖBB-Tarife\", \"Verdienstentgang\", \"Schadenersatz\", \"Vertragsauslegung\", \"Schadensminderung\", \"Kaufvertrag\", \"Dissolutionsvereinbarung\", \"Zwangsversteigerung\", \"Konkursanfechtung\", \"Zession\", \"Treuhand\", \"Klageänderung\", \"Anfechtungsfrist\", \"Anwaltshaftung\", \"gerichtlicher Vergleich\", \"Werkvertrag\", \"Mängelbehebung\", \"Schadensersatz\", \"Haushaltshilfe\", \"Sozialversicherungspflicht\", \"Meldepflicht\", \"Dienstvertrag\", \"Schadenersatzanspruch\", \"Kunstfehler\", \"Optionsvertrag\", \"Sachhaftung\", \"Rangordnung\", \"Grundbucheintragung\", \"Beginn der Verjährungsfrist\", \"Sachverständigengutachten\", \"Vollmachtsüberschreitung\", \"Gewährleistung Rechtsmangel\", \"Servitut Wegerecht\", \"Bindungswirkung Vorprozess\", \"Verjährungsbeginn\", \"Geschäftsführerhaftung\", \"Sozialversicherungsbeiträge\", \"fahrlässige Krida\", \"Bindungswirkung Strafurteil\", \"Prozesskosten\", \"Schlechterfüllung\", \"Steuerberaterhaftung\", \"Buchführung\", \"Umsatzsteuer\", \"Touristenexport\", \"Buchnachweis\", \"Werkabnahme\", \"Rechnungsprüfung\", \"Konkurs"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_34030159",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Künstliche Befruchtung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1464.1,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Künstliche Befruchtung\", \"results\": [{\"rs_number\": \"JWR_2005150138_20070924X01\", \"kernaussage\": \"Künstliche Befruchtung als außergewöhnliche Belastung iSd EStG § 34\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Künstliche Befruchtung\", \"Außergewöhnliche Belastung\", \"Absetzbarkeit\", \"Medizinische Kosten\", \"EStG § 34\", \"Krankheitskosten\", \"IVF\", \"Unfruchtbarkeit\"]}], \"count\": 1}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_17461963",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Wrongful Birth",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.69,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Wrongful Birth\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_66063266",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "IVF Embryonen einsetzen Fehler Drillingschwangerschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.54,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"IVF Embryonen einsetzen Fehler Drillingschwangerschaft\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_45531663",
+          "tool": "search_kommentar_keyword",
+          "args": {
+            "keyword": "Wrongful Birth IVF",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.69,
+          "error": null,
+          "payload_preview": "{\"keyword\": \"Wrongful Birth IVF\", \"law\": null, \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_45704513",
+          "tool": "detect_clusters",
+          "args": {
+            "topic": "arzthaftung",
+            "query": "Wrongful Birth IVF zu viele Embryonen Drillingsgeburt Eltern Schadenersatz"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.93,
+          "error": null,
+          "payload_preview": "\"Unknown tool: detect_clusters\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_13561223",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1299 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 676.0,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1299 ABGB\", \"results\": [{\"rs_number\": \"RS0038202\", \"kernaussage\": \"Ärzte haben nach § 1299 ABGB den Mangel der gewissenhaften Betreuung ihrer Patienten nach Maßgabe der ärztlichen Wissenschaft und Erfahrung zu vertreten, also jene Sorgfalt, die von einem ordentlichen und pflichtgetreuen Durchschnittsarzt in der konkreten Situation erwartet wird.\", \"schlagworte\": [\"Radiologe\", \"AUVA-Haftung\", \"Behandlungsvertrag\", \"§ 289 ZPO\", \"Harnverhalt\", \"Diagnostik\", \"Frozen Shoulder\", \"Klinikhaftung\", \"Gynäkomastie\", \"Sachverständigengutachten\", \"Gastroskopie\", \"Syndesmose\", \"Computertomographie\", \"Motorradunfall\", \"Wirbelsäulenoperation\", \"Arztfehler\", \"Einwilligung\", \"Nervenmonitoring\", \"postoperative Mobilität\", \"Schadenersatz\", \"state of the art\", \"Infektionsschutz\", \"Mastektomie\", \"Diagnostikfehler\", \"Ärztliche Sorgfalt\", \"Zuggurtung\", \"Liposuction\", \"Deliktsrecht\", \"Revision Zulässigkeit\", \"Guidelines\"]}, {\"rs_number\": \"RS0041397\", \"kernaussage\": \"Die Unterfertigung einer Grundbuchseingabe, ohne deren Inhalt zu überprüfen, begründet einen Mangel an der von einem Rechtsanwalt anzuwendenden Aufmerksamkeit, den er nach § 1299 ABGB zu vertreten hat.\", \"schlagworte\": [\"Höchstbetragspfandrecht\", \"Löschung\", \"Schadenersatz\", \"Bevollmächtigter\", \"Grundbuch\"]}, {\"rs_number\": \"RS0102908\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 1299 ABGB A Allgemeines 1) Beweislast 2) Tätigkeit des gerichtlichen SV 3) Sonstiges B Haftung der Ärzte und Krankenpfleger C Haftung der Rechtsanwälte D Haftung der Notare E Haftung der Wirtschaftssachverständigen (Wirtschaftsprüfer usw) "
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_22438449",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1313a ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1034.81,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0108033\", \"kernaussage\": \"Der Beklagte haftet als Notar nach § 1299 ABGB. Danach hat er den Mangel der erforderlichen, nicht gewöhnlichen Kenntnisse zu vertreten. Für seinen Substituten hat er nach § 1313a ABGB einzustehen.\", \"schlagworte\": [\"Notarhaftung\", \"Blindheit\", \"Notariatszwang\", \"Sorgfaltspflicht\", \"Bürgschaft\", \"Leseprobe\", \"Ehevertrag\", \"Notariatsaktform\", \"Notarsubstitut\", \"Haftung\", \"Gütertrennung\"]}, {\"rs_number\": \"RS0115779\", \"kernaussage\": \"Der Reiseveranstalter unterliegt der (normalen) verschuldensabhängigen vertraglichen Haftung. Er haftet aus dem Reiseveranstaltungsvertrag auch soweit, als dieser eine Obhutspflicht für die Sachen des Vertragspartners (als Nebenpflicht) umfasst und hat dabei gemäß § 1313a ABGB für ein allfälliges...\", \"schlagworte\": [\"Reiseveranstalterhaftung\", \"Hotelhaftung\", \"Einsteigdiebstahl\", \"Erfüllungsgehilfe\", \"Sorgfaltspflicht\", \"Reiseveranstalter\", \"Verkehrssicherungspflicht\", \"Stiegengeländer\", \"Auslandshotel\", \"Reisevermittler\", \"Auswahlverschulden\", \"Aufklärungspflicht\", \"Haftung\", \"Selbstbedienungsbuffet\", \"Rutschunfall\"]}, {\"rs_number\": \"RS0123219\", \"kernaussage\": \"Ein Wertpapierdienstleistungsunternehmen haftet gemäß § 1313a ABGB für das Verhalten von Personen, derer es sich bei der Erbringung der Wertpapierdienstleistungen bediente. Ein Anlageberater ist grundsätzlich als Erfüllungsgehilfe seinem Geschäftsherrn zuzurechnen.\", \"schlagworte\": [\"Anlageberatung\", \"Erfüllungsgehilfe\", \"Haftung\", \"WAG\", \"Veruntreuung\", \"Wertpapierdienstleistungsunternehmen\", \"Anlagebera"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_66237344",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Behandlungsvertrag",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 150.53,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Behandlungsvertrag\", \"results\": [{\"rs_number\": \"RS0041614\", \"kernaussage\": \"Der Partei bleibt die Möglichkeit offen, erst mit dem Rechtsmittel gegen die Endentscheidung die Überprüfung des nicht abgesondert anfechtbaren Beschlusses zu begehren. Dieses Recht kann sie auch nicht dadurch verlieren, dass sie inzwischen eine von der Endentscheidung liegende Entscheidung...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Nebenintervention\", \"Behandlungsvertrag\", \"Prozessökonomie\", \"Versteigerung\", \"Diesel-Abgasmanipulation\", \"Organisationsverschulden\", \"Kostenrekurs\", \"Vorlagepflicht\", \"Pfandrecht\", \"ZPO-Anwendung\", \"EuGH Vorabentscheidung\", \"Sachverständigengutachten\", \"§ 366 ZPO\", \"Zwischenrekurs\", \"Sachverständigenauskunft\", \"§ 190 ZPO\", \"Wandlung\", \"rechtliches Interesse\", \"UWG\", \"Mietzinsminderung\", \"Zulässigkeit\", \"Mangelfolgeschaden\", \"Verschulden\", \"Passivlegitimation\", \"Rekursunzulässigkeit\", \"Sachverständigenablehnung\", \"Revisionsrekurs\", \"GlBG\", \"Mehrbettzimmer\", \"Gewährleistung\"]}, {\"rs_number\": \"RS0042151\", \"kernaussage\": \"Verletzt das Berufungsgericht den Grundsatz, dass es von den erstinstanzlichen Feststellungen in Wahrnehmung der Beweisrüge nur dann abgehen darf, wenn es alle zur Feststellung der rechtserheblichen Tatsachen erforderlichen Beweise, die das Erstgericht unmittelbar aufgenommen hat, selbst wiederholt...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unmittelbarkeitsgrundsatz\", \"Beweiswiederholung\", \"Berufungsverhandlung\", \"Verkehrssicherungspflicht\", \"Holzstoß\", \"Landwirt\", \"Gastwirtschaft\", \"Kind\", \"Kaufvertrag\", \"Inzahlungnahme\", \"Doppelkauf\", \"einh"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_33641125",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "künstliche Befruchtung Haftung Fehler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 457.19,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"künstliche Befruchtung Haftung Fehler\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_23042073",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0131060"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.13,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0131060\", \"rechtssatz\": \"Ein totgeborenes Kind ist jedenfalls in den letzten Wochen vor dem errechneten Geburtstermin für beide Elternteile „Angehöriger“ und Teil der „Kernfamilie“; sowohl bei der werdenden Mutter als auch beim werdenden Vater ist eine intensive Gefühlsbindung zu vermuten. Das Gegenteil hätte der Schädiger zu beweisen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Arzthaftung\", \"Totgeburt\", \"Trauerschmerzen\", \"CTG-Befund\", \"Behandlungsfehler\"], \"fachgebiete\": [\"Arzthaftung\"], \"datum\": \"2016-08-30\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_65470315",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0123936"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.48,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0123936\", \"rechtssatz\": \"Die in der Rechtsprechung des Obersten Gerichtshofs (beispielsweise) genannten Kriterien wie das Alter von Unfallopfer und Angehörigen oder das Bestehen einer Haushaltsgemeinschaft sind bloß Hilfstatsachen, also Indizien, aus denen in der Regel auf die im Einzelfall nur schwer beweisbare Intensität der Gefühlsgemeinschaft geschlossen werden kann.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Trauerschmerzengeld\", \"Verkehrsunfall\", \"Familienangehörige\", \"Haushaltsgemeinschaft\", \"Intensität der familiären Bindung\", \"Arzthaftung\", \"Totgeburt\", \"Trauerschmerzen\", \"CTG-Befund\", \"Behandlungsfehler\"], \"fachgebiete\": [\"Haftungsrecht\", \"Arzthaftung\"], \"datum\": \"2016-08-30\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_98787517",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Aufklärungsfehler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5089.51,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Aufklärungsfehler\", \"results\": [{\"rs_number\": \"RS0031082\", \"kernaussage\": \"Keine Globalbemessung, wenn die Folgen der Körperbeschädigung noch nicht voraussehbar sind.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"entschiedene Rechtssache\", \"hypoxische Enzephalopathie\", \"Alkohol am Steuer\", \"Organisationsverschulden\", \"Aufklärungsfehler\", \"Mahnklage\", \"Pflegekosten\", \"PTBS\", \"Beweiswürdigung\", \"Conus-Cauda-Syndrom\", \"Behandlungsfehler\", \"Verunstaltungsentschädigung\", \"§ 1326 ABGB\", \"Teilanspruch\", \"außerordentliche Revision\", \"sexueller Missbrauch\", \"Klageerweiterung\", \"Schmerzensgeld\", \"Jugendliche Täter\", \"Persönlichkeitsstörung\", \"Haftung\", \"Fehlbehandlung\", \"neuropathische Schmerzen\", \"Verkehrsunfall\", \"Haftpflichtversicherung\", \"Besuchskosten\", \"Streitwertgrenze\", \"Haftpflicht\", \"CTG-Interpretation\"]}, {\"rs_number\": \"RS0031196\", \"kernaussage\": \"Auch wenn ein Teilschmerzengeld für einen bestimmten Zeitraum begehrt wird, hat das Gericht mit einer Globalbemessung des Schmerzengeldes vorzugehen und sich dabei innerhalb des ziffernmäßigen Begehrens zu halten, wenn eine zeitliche Beschränkung unbegründet ist. (Klägerin begehrte hier für einen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Organisationsverschulden\", \"Kollision\", \"Deckungsbeitrag\", \"Kompensation\", \"Conus-Cauda-Syndrom\", \"Solidarhaftung\", \"neuropathische Schmerzen\", \"Verkehrsunfall\", \"Haftpflicht\", \"Selbständiger\", \"Schmerzquantifizierung\", \"Zahlungswidmung\", \"Kaiserschnitt\", \"Berufsunfähigkeit\", \"Heilungskosten\", \"Nachlasszugehörigkeit\", \"Übergabe\", \"Tinnitus\", \"Schulungsmängel\", \"Spätfolgen\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_38515349",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kunstfehler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10900.63,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kunstfehler\", \"results\": [{\"rs_number\": \"RS0081692\", \"kernaussage\": \"Die Kenntnis der Mangelhaftigkeit oder Schädlichkeit der geleisteten Arbeit, wird dem Vorsatz gleichgehalten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Haftpflichtversicherung\", \"AHVB 1986\", \"EHVB 1986\", \"Risikoausschluss\", \"Vorsatz\", \"grobe Fahrlässigkeit\", \"Brandschutzvorschriften\", \"Abgrabungsarbeiten\", \"Zufahrtsweg\", \"Gartenmauer\", \"Stützmauer\", \"Baubewilligung\", \"Bauführer\", \"Leistungsfreiheit\", \"Betriebshaftpflichtversicherung\", \"bedingter Vorsatz\", \"Pölzung\", \"Statik\", \"Versicherungsschutz\", \"AHVB\", \"Arzthaftung\", \"fahrlässige Körperverletzung\", \"gewerbsmäßiger Betrug\", \"AHVB 2001\", \"EHVB 2001\", \"Arbeitnehmerschutzverordnung\", \"fahrlässige Tötung\", \"Grobe Fahrlässigkeit\", \"SiGe-Plan\", \"Elektroschutzverordnung\", \"Absonderungsrecht\", \"Ärztehaftpflicht\", \"Risikoausschlüsse\", \"Kunstfehler\", \"Vorsatzausschluss\", \"Arztfehlbehandlung\"]}, {\"rs_number\": \"RS0090872\", \"kernaussage\": \"Bei Konkurrenz (alternativer Kausalität) zwischen einem Haftungsgrund aus einem ärztlichen Behandlungsfehler und einem vom Geschädigten zu vertretenden Zufall kommen das aus § 1302 ABGB ableitbare Grundprinzip der Anerkennung möglicher Verursachung als Zurechnungselement und der aus § 1304 ABGB...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"ärztlicher Behandlungsfehler\", \"Geburtsschaden\", \"Plazentainsuffizienz\", \"Nabelschnurumschlingung\", \"alternative Kausalität\", \"Dokumentationspflicht\", \"Arzthaftung\", \"Kunstfehler\", \"Schmerzengeld\", \"Adäquanztheorie\", \"summierte Einwirkungen\", \"Kausalitätsbeweis\", \"Anscheinsbeweis\", \"Sch"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_97512573",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "unerwünschte Mehrlingsschwangerschaft Haftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 628.18,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"unerwünschte Mehrlingsschwangerschaft Haftung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_28782345",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "fehlgeschlagene Sterilisation Schadenersatz Erziehungskosten",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.37,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"fehlgeschlagene Sterilisation Schadenersatz Erziehungskosten\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_16592623",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "IVF viele Embryonen Schadenersatz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.25,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"IVF viele Embryonen Schadenersatz\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_59691343",
+          "tool": "search_kommentar_keyword",
+          "args": {
+            "keyword": "Wrongful Birth Arzthaftung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.31,
+          "error": null,
+          "payload_preview": "{\"keyword\": \"Wrongful Birth Arzthaftung\", \"law\": null, \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_20549885",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0038202"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.05,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0038202\", \"rechtssatz\": \"Ärzte haben nach § 1299 ABGB den Mangel der gewissenhaften Betreuung ihrer Patienten nach Maßgabe der ärztlichen Wissenschaft und Erfahrung zu vertreten, also jene Sorgfalt, die von einem ordentlichen und pflichtgetreuen Durchschnittsarzt in der konkreten Situation erwartet wird.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Radiologe\", \"AUVA-Haftung\", \"Behandlungsvertrag\", \"§ 289 ZPO\", \"Harnverhalt\", \"Diagnostik\", \"Frozen Shoulder\", \"Klinikhaftung\", \"Gynäkomastie\", \"Sachverständigengutachten\", \"Gastroskopie\", \"Syndesmose\", \"Computertomographie\", \"Motorradunfall\", \"Wirbelsäulenoperation\", \"Arztfehler\", \"Einwilligung\", \"Nervenmonitoring\", \"postoperative Mobilität\", \"Schadenersatz\", \"state of the art\", \"Infektionsschutz\", \"Mastektomie\", \"Diagnostikfehler\", \"Ärztliche Sorgfalt\", \"Zuggurtung\", \"Liposuction\", \"Deliktsrecht\", \"Revision Zulässigkeit\", \"Guidelines\"], \"fachgebiete\": [\"Haftungsrecht\", \"Arzthaftung\", \"Revision\"], \"datum\": \"2025-08-12\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_52155523",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0113727"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.04,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0113727\", \"rechtssatz\": \"Erleidet der Geschädigte infolge eines mangels entsprechender Aufklärung durch den Arzt nicht durch die Einwilligung des Patienten gerechtfertigten Eingriffs einen Schaden, so beginnt die Verjährungsfrist erst zu laufen, wenn ihm bekannt ist, dass verschiedene Alternativen bestanden hätten, zwischen denen er hätte wählen können, wäre er über die mit jeder der Alternativen verbundenen Risiken aufgeklärt worden. Über dieses Wissen wird ein Laie nicht verfügen; Klarheit wird daher regelmäßig erst ein Sachverständigengutachten schaffen, zu dessen Einholung der Geschädigte aber nicht verpflichtet ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Einwilligung\", \"Behandlungsvertrag\", \"Geburtsverletzung\", \"Fehlbegutachtung\", \"Kenntnis Anspruchsgrund\", \"Legalzession\", \"Ärztliche Aufklärungspflicht\", \"Kaiserschnitt\", \"Sachverständigengutachten\", \"Aufklärungspflicht\", \"Verjährungsbeginn\", \"Ärztliche Aufklärung\", \"Erb'sche Lähmung\", \"Erkundigungsobliegenheit\", \"Behandlungsfehler\", \"Verdienstentgang\", \"Regress\", \"Kenntnis des Sachverhalts\", \"Hirntumor\", \"Verjährung\", \"Laienkenntnis\", \"§ 1489 ABGB\", \"Beckenendlage\", \"Erkundigungsplicht\", \"Verjährungsfrist\", \"Arzthaftung\", \"Zwischenurteil\", \"Beginn der Verjährung\", \"Anscheinsbeweis\", \"Bluttransfusion\"], \"fachgebiete\": [\"Arzthaftung\", \"Haftungsrecht\"], \"datum\": \"2019-05-07\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0123219",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0123219",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.58,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0123219\", \"rechtssatz_text\": \"Ein Wertpapierdienstleistungsunternehmen haftet gemäß § 1313a ABGB für das Verhalten von Personen, derer es sich bei der Erbringung der Wertpapierdienstleistungen bediente. Ein Anlageberater ist grundsätzlich als Erfüllungsgehilfe seinem Geschäftsherrn zuzurechnen.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17459, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10Ob62_15p|OGH|2016-06-28\", \"gz\": \"10Ob62_15p\", \"datum\": \"2016-06-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Versicherungsmaklers als Erfüllungsgehilfe für fehlerhafte Beratung bei Genussscheinen aufgrund Verletzung von Aufklärungspflichten gemäß WAG 1996.\"}, {\"te_stable_key\": \"1Ob48_12h|OGH|2012-12-13\", \"gz\": \"1Ob48_12h\", \"datum\": \"2012-12-13\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer deutschen Bank für Aufklärungs- und Warnpflichten bei kreditfinanzierten Wertpapierinvestments österreichischer Kunden über einen österreichischen Berater.\"}, {\"te_stable_key\": \"2Ob66_11m|OGH|2011-09-16\", \"gz\": \"2Ob66_11m\", \"datum\": \"2011-09-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da die Haftung eines Wertpapierdienstleistungsunternehmens gemäß § 1313a ABGB für Erfüllungsgehilfen grundsätzlich gilt und Ausnahmen für Eigenhaftung des Vertreters hier nicht vorliegen.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0115779",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0115779",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.49,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0115779\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0108033",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0108033",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.14,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0108033\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102908",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102908",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.83,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102908\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0090872",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0090872",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.78,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0090872\", \"rechtssatz_text\": \"Bei Konkurrenz (alternativer Kausalität) zwischen einem Haftungsgrund aus einem ärztlichen Behandlungsfehler und einem vom Geschädigten zu vertretenden Zufall kommen das aus § 1302 ABGB ableitbare Grundprinzip der Anerkennung möglicher Verursachung als Zurechnungselement und der aus § 1304 ABGB...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9709, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob30_22s|OGH|2022-02-23\", \"gz\": \"3Ob30_22s\", \"datum\": \"2022-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung einer außerordentlichen Revision gegen die Abweisung von Schadenersatzansprüchen wegen Baumängeln und merkantiler Wertminderung.\"}, {\"te_stable_key\": \"1Ob11_21f|OGH|2021-03-23\", \"gz\": \"1Ob11_21f\", \"datum\": \"2021-03-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Kausalität zwischen einer verspäteten Notsectio und den schweren Hirnschäden einer Frühgeborenen und ordnet eine Klarstellung der Feststellungen an.\"}, {\"te_stable_key\": \"6Ob137_20w|OGH|2020-09-29\", \"gz\": \"6Ob137_20w\", \"datum\": \"2020-09-29\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung bei alternativer Kausalität zwischen Behandlungsfehler und Vorschädigung in einem Arzthaftungsfall.\"}, {\"te_stable_key\": \"6Ob17_20y|OGH|2020-02-20\", \"gz\": \"6Ob17_20y\", \"datum\": \"2020-02-20\", \"gericht\": \"OGH\", \"mini_story\": \"Kein Behandlungsfehler eines Hausarztes durch unzureichende Kontaktaufnahme mit Patient nach Auffälligkeit im MRT-Befund, da Telefonversuch und Standardbrief ausreichend waren.\"}, {\"te_stable_key\": \"8Ob59_14f|OGH|2014-07-23\", \"gz\": \"8Ob59_14f\", \"datum\": \"2014-07-23\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der außerordentlichen Revision in einem Arzthaftungsfall bezüglich Kausalität und Schadensfolgen einer verzögerten Diagnose.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 25,
+      "tool_calls_ok": 25,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Zusammenfassung der Rechtslage (basierend auf OGH-Rechtsprechung und §§ ABGB):**\n\n### 1. **Aktivlegitimation der Eltern (Parental Standing)**\nBeide Elternteile (Brigitte und Hubert Buchner) haben volle Prozess- und Anspruchslegitimation als Geschädigte im Arzthaftungsrecht. Dies gilt auch bei IVF-Behandlungen als Behandlungsvertrag (§ 1299 ABGB iVm § 1313a ABGB für Erfüllungsgehilfen/Krankenhaus). OGH-Rechtsprechung bestätigt intensive Gefühlsbindung und Kernfamilienstatus für werdende Eltern (RS0131060: Totgeborenes Kind als \"Angehöriger\"; analog für lebende Drillinge; Beweislast für Gegenteil beim Schädiger). Kriterien wie Haushaltsgemeinschaft und Alter sind Hilfsindizien für Bindungsintensität (RS0123936). **Beweislast**: Kläger tragen nur Naturalitätskausalität; Schädiger muss fehlende Bindung beweisen (RS0131060).\n\n### 2. **Haftungsgrundlagen (Kunstfehler/Behandlungsfehler vs. Aufklärungsfehler)**\n- **Vertraglich/deliktisch**: IVF als Behandlungsvertrag (Arzt + Krankenhaus als Haftungseinheit via § 1313a ABGB). Sorgfaltsverstoß nach § 1299 ABGB: \"Ordentlicher Durchschnittsarzt\" hätte vereinbarte 2 Embryonen eingesetzt (RS0038202: Sorgfalt nach \"state of the art\" ärztlicher Wissenschaft/Erfahrung; hier klarer Eingriff gegen Patientenwunsch). Beweislastumkehr nach § 1298 ABGB (Werkvertragsanalogie): Arzt/Krankenhaus müssen Schuldlosigkeit (kein Verschulden + Gehilfen) beweisen. Deliktisch (§ 1295, § 1325 ABGB) subsidiär möglich.\n- **Keine separaten Regime**: Keine Treffer zu IVF-spezifischen Regimen (§§ 922/932 Gewährleistung oder § 25c KSchG irrelevant). Allg. Arzthaftung gilt (RS0113727: Aufklärungsfehler ergänzend, wenn Risiken Mehrlingsschwangerschaft nicht erläutert; Verjährung erst bei Sachverständigengutachten-Kenntnis).\n- **Wrongful Birth**: Keine OGH-RS zu Drillings-IVF oder \"Wrongful Birth\". Analog fehlgeschlagene Sterilisation: Haftung für Schwangerschafts-/Geburtsfolgen (Schmerzengeld, Mehkosten), **nicht volle Erziehungskosten** bei gesundem Kind (Leben kein Schaden; OGH-Linie: Keine \"Kostenersatz\" für Erziehung, da positive Lebensbilanz; vgl. RS0123936 Trauerschmerz-Kriterien). Hier: Gesunde Drillinge → Begrenzter Schaden (z.B. Mehkosten Drillings vs. Zwillinge: Intensivstation, Pflege; keine Unterhaltsentgang/Erziehungskosten). **Beweislast**: Eltern Kausalität (Mehrling durch 3 Embryonen); Arzt Fehlen von Kunstfehler (§ 1298 ABGB).\n\n### 3. **Schadenspositionen & Beweislast**\n| Schadensart | Umfang | Beweislast | RS-Referenz |\n|-------------|--------|------------|-------------|\n| **Schmerzengeld** (Schwangerschaft/Geburt) | Ja, für unerwünschte Drillingsbelastung (Risikoschwangerschaft). | Eltern: Wahrscheinlichkeit; Arzt: Kein Fehler. | RS0038202 (§1299); RS0113727 (Aufklärung). |\n| **Mehraufwendungen** (z.B. Drillingspflege vs. Zwillinge) | Ja (med. Kosten, Betreuung); Vorteilsausgleich (Familienbeihilfe anrechenbar, RS0047813). | §1298 ABGB-Umkehr. | RS0131060 (Angehörigen-Schaden). |\n| **Erziehungskosten (Wrongful Birth)** | Nein/Sehr eingeschränkt (gesunde Kinder: Keine Nettokostenhaftung; ggf. vorübergehende Mehbelastung). | Eltern: Fehlende hypothet. Einwilligung. | Analog RS0123936 (Bindung kein Schaden). |\n| **Verdienstentgang** | Ja, wenn nachweisbar (Mutterschutz etc.). | §1298 ABGB. | RS0038202. |\n\n**Gesamteinschätzung**: Haftung wahrscheinlich (Kunstfehler: Vereinbarungsbruch), aber Schaden begrenzt (gesunde Kinder). Keine OGH-RS zu identischem Fall (Suchen: 0 Treffer \"IVF Embryonen Drillings\", \"Wrongful Birth\"); Lehre/OGH-Arzthaftung analog (RS0038202, RS0113727). Empfehlung: Sachverständigengutachten (§ 362 ZPO) für Sorgfalt/§ 1298. Verjährung: § 1489 ABGB ab Schadenskenntnis (RS0113727).",
+      "answer_chars": 3691,
+      "e2e_ms": 83979.61
+    },
+    {
+      "name": "Schadenersatzrechtliche Voraussetzungen prüfen",
+      "goal": "Clarify liability elements (Vertrags- vs. Deliktsrecht, Aufklärungsmangel, Kausalität) für Elternansprüche",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_kommentar_paragraph",
+        "build_grounding_context",
+        "hot_cluster_context",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 7963.76,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 1852,
+            "completion_tokens": 1239,
+            "total_tokens": 3091,
+            "cost": 0.0009674,
+            "cached_tokens": 150,
+            "reasoning_tokens": 924
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7507.89,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 37782,
+            "completion_tokens": 778,
+            "total_tokens": 38560,
+            "cost": 0.0079229,
+            "cached_tokens": 150,
+            "reasoning_tokens": 494
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 9355.64,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 41809,
+            "completion_tokens": 1033,
+            "total_tokens": 42842,
+            "cost": 0.00321085,
+            "cached_tokens": 37783,
+            "reasoning_tokens": 717
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 18484.36,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 44440,
+            "completion_tokens": 2164,
+            "total_tokens": 46604,
+            "cost": 0.0036994,
+            "cached_tokens": 41804,
+            "reasoning_tokens": 740
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_19226023",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1299 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 692.58,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1299 ABGB\", \"results\": [{\"rs_number\": \"RS0126691\", \"kernaussage\": \"Ein Contractor ist als Sachverständiger gemäß § 1299 ABGB anzusehen.\", \"schlagworte\": [\"Biomasse-Heizanlage\", \"Anlagen-Contracting\", \"Überdimensionierung\", \"Grundpreis\", \"Gewährleistung\", \"Preisminderung\"]}, {\"rs_number\": \"RS0127165\", \"kernaussage\": \"Hat es ein Werkunternehmer übernommen, in übermittelte Pläne Einzeichnungen vorzunehmen, so ist er insoweit als Fachmann und somit als Sachverständiger iSd § 1299 ABGB anzusehen.\", \"schlagworte\": [\"Hebebühnen\", \"CAD-Pläne\", \"Fehlpositionierung\", \"Schadenersatz\"]}, {\"rs_number\": \"RS0127166\", \"kernaussage\": \"Von im Bauwesen zusammenarbeitenden Unternehmern (Professionisten, Architekten, Baumeistern etc), die in aller Regel Sachverständige iSd § 1299 ABGB sind, ist zu verlangen, dass Kompatibilitätsprobleme, die sich aus der Verwendung von unterschiedlichen CAD-Programmen oder Dateiformatversionen in...\", \"schlagworte\": [\"Hebebühnen\", \"CAD-Pläne\", \"Fehlpositionierung\", \"Schadenersatz\"]}, {\"rs_number\": \"RS0026316\", \"kernaussage\": \"Ein Sachverständiger haftet für den durch sein Verschulden verursachten Schaden nach dem § 1299 ABGB dritten Personen gegenüber insbesondere dann, wenn er ein Gutachten in seiner Eigenschaft als Hilfsorgan einer öffentlichen Behörde abgegeben hat.\", \"schlagworte\": [\"Rechtsschutzversicherung\", \"Kostenrekurs\", \"addierte Kausalität\", \"Auflage\", \"Sachverständigengutachten\", \"Versicherungsfall\", \"Gutachtenhaftung\", \"Sachverständiger\", \"Akteneinsicht\", \"Pflichtteil\", \"falsches Gutachten\", \"außerordentliche Revision\", \"Vorprozess"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_48512712",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1313a ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 750.28,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0026751\", \"kernaussage\": \"Der geschädigte Bauherr muss sich - auch außerhalb von Schuldverhältnissen - das Verschulden seiner Gehilfen (Auftragnehmer) zurechnen lassen; für die Beurteilung, wer Gehilfe ist, ist auch außerhalb von Schuldverhältnissen § 1313a ABGB entsprechend heranzuziehen.\", \"schlagworte\": [\"Bauwesenversicherung\", \"Regreßverzicht\", \"Mitversicherung\", \"Bauleistungen\", \"Werkvertrag\", \"Mängelfolgeschaden\", \"Warnpflicht\", \"Mitverschulden\", \"Solidarhaftung\", \"Haftung des Herstellers\", \"Wartungspflicht des Eigentümers\", \"Regress des Haftpflichtversicherers\", \"Amtshaftung Lehrer\", \"Hangrutsch\", \"Baugrubensicherung\", \"Baumeisterhaftung\", \"Sanierungskosten\", \"Erfüllungsgehilfe\", \"Vorunternehmer\", \"Bauherrnhaftung\", \"Großkreditgrenzen\", \"Kreditwirtschaftsgesetz\", \"Bankwesengesetz\", \"Pfandrecht\", \"Nichtigkeit\", \"Schadenersatz\", \"Unterfangung\", \"Gebäudesicherung\", \"Nachbarschaden\", \"Folgeschaden\", \"Sanierungsschaden\", \"Trocknungsschaden\", \"Rettungsschaden\", \"Gehilfe\", \"Naturalersatz\", \"adäquater Kausalzusammenhang\", \"Ölaustritt\", \"Tankanlage\", \"Grenzwertgeber\", \"Verschuldensaufteilung\", \"Gehilfenverschulden\", \"Treuhand\", \"Unterschriftfälschung\", \"Schadensersatz\", \"Herstellungsgehilfe\", \"Schadensminderung\"]}, {\"rs_number\": \"RS0028495\", \"kernaussage\": \"Die ratio der Haftung des Unternehmers nach § 1313a ABGB ist, dass der Werkunternehmer durch die Einschaltung von Hilfspersonen (Erfüllungsgehilfen im Sinne des § 1313a ABGB) den Besteller in seiner Rechtsposition nicht schlechterstellen darf. Entscheidend für die "
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_57360483",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1298 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 583.43,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1298 ABGB\", \"results\": [{\"rs_number\": \"RS0023448\", \"kernaussage\": \"Keine Verbindlichkeit des Inhabers eines Kaffeehausbetriebes gegenüber von Gästen zur Anbringung von Halteholmen an einer von der Terrasse in den Garten führenden sechs stufigen Stiege. Daher auch keine Umkehrung der Beweislast nach § 1298 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0023462\", \"kernaussage\": \"Die Haftung für die Beschädigung durch die Benützung eines Aufzuges setzt Verschulden des aus dem Beherbergungsvertrag Verpflichteten voraus. Dieser hat das Fehlen eines Verschuldens nach § 1298 ABGB zu beweisen. (Gleicher Rechtssatz wie SZ 25/84 und 1 Ob 382/58). Das niveauungleiche Anhalten eines...\", \"schlagworte\": []}, {\"rs_number\": \"RS0026139\", \"kernaussage\": \"Die vom Gesetzgeber erkannte Schadensgeneigtheit der durch besondere Schutzgesetze geregelten Verhaltensweisen rechtfertigen es, den deliktischen Bereich aufzuteilen und die Schutzgesetzesverletzungen den \\\"gesetzlichen Verbindlichkeiten\\\" im Sinne des § 1298 ABGB zuzuordnen, während für sonstige...\", \"schlagworte\": [\"Besorgungsgehilfe\", \"Untüchtigkeit\", \"Baustellenabsicherung\", \"Schutzgesetzverletzung\", \"Stallbox\", \"Tierschutz\", \"Verwahrungsvertrag\", \"Schutzgesetze\"]}, {\"rs_number\": \"RS0026297\", \"kernaussage\": \"Auch bei Schlechterfüllung eines Vertrages im Falle der Feststellung des Ursachenzusammenhanges zwischen Schlechterfüllung und Schaden trifft die Beweislastumkehr des § 1298 ABGB ein (so schon SZ 49/66).\", \"schlagworte\": [\"Futtermittel\", \"Kaufmängelhaftung\", \"Sorgfaltsmaßstab\", \"Zearalenon\"]}, {\"rs_number\": \"RS0026321"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_91958840",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1325 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 353.41,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1325 ABGB\", \"results\": [{\"rs_number\": \"RS0030450\", \"kernaussage\": \"Ersatz von Krankentransportkosten einer sozialversicherten Verletzten mittels Hubschrauber sind Heilungskosten im Sinne des § 1325 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0031412\", \"kernaussage\": \"Das Schmerzengeld des EKHG unterscheidet sich - abgesehen von der Anspruchsvoraussetzung \\\"auf Verlangen\\\" in § 1325 ABGB - nicht vom Schmerzengeld des ABGB.\", \"schlagworte\": [\"Schmerzengeld\", \"EKHG\", \"Anspruchsvoraussetzung auf Verlangen\", \"Personenschaden\", \"Spezialgesetz und ABGB\", \"Harmonisierung der Bemessung\", \"Immaterieller Schaden\"]}, {\"rs_number\": \"RS0030808\", \"kernaussage\": \"\\\"Verletzung\\\" im Sinne des § 1325 ABGB ist jede Störung der körperlichen Unversehrtheit. Dazu gehört auch eine Störung des Ablaufes der Schwangerschaft (Abortus).\", \"schlagworte\": []}, {\"rs_number\": \"RS0031091\", \"kernaussage\": \"Ist der Verletzte nicht wegen einer Verunstaltung, sondern wegen der Verletzungsfolgen und der damit verbundenen Verminderung seiner Arbeitsfähigkeit gehindert, eine bessere Stellung zu erreichen, so besteht kein Anspruch nach § 1326 ABGB, wohl aber nach § 1325 ABGB wegen Verdienstentganges für die...\", \"schlagworte\": [\"Behinderung des besseren Fortkommens\", \"Revision\", \"Verunstaltungsentschädigung\", \"§ 1326 ABGB\"]}, {\"rs_number\": \"RS0019225\", \"kernaussage\": \"Keine Wertsicherung von Renten gemäß § 1325 ABGB nach dem Verbraucherpreisindex oder kollektivvertraglichen Löhnen, weil auch andere Faktoren für eine spätere Rentenerhöhung von Bedeutung sein können.\", \"schlagworte\": [\"Verdienstentg"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_02557167",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Arzthaftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1151.12,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Arzthaftung\", \"results\": [{\"rs_number\": \"RS0022582\", \"kernaussage\": \"Der natürliche Kausalzusammenhang ist zu bejahen, wenn aus einer Tatsache (dem Verhalten des Beklagten) die andere Tatsache (der eingetretene Schadenserfolg) zu erschließen ist. Ob dieser natürliche Kausalzusammenhang gegeben ist, ist eine Tatsachenfeststellung. Nur wenn der natürliche Kausalzusamme...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Baumaschinen\", \"Unfallkausalität\", \"Behandlungsvertrag\", \"Werkvertrag\", \"Vergleich\", \"Benützungsbewilligung\", \"Haftungsbeschränkung\", \"Wundinfektion\", \"Erwerbsunfähigkeitspension\", \"Oppositionsklage\", \"Aufklärungspflicht\", \"einvernehmliche Auflösung\", \"Dopaminagonisten\", \"Überschwemmungsschaden\", \"Behördenauskunft\", \"Abmeldung Sozialversicherung\", \"Mangelhaftigkeit\", \"Verunstaltungsentschädigung\", \"Impulskontrollstörung\", \"Ursächlichkeit\", \"Härtefall\", \"§ 20 Abs. 4 AngG\", \"Versicherungsmonate\", \"Amtshaftung\", \"vertragliche Regelung\", \"Arzthaftung\", \"Wirbelsäulenerkrankung\", \"Sachverständigenhaftung\", \"fristwidrige Kündigung\", \"Culpa in contrahendo\"]}, {\"rs_number\": \"RS0038062\", \"kernaussage\": \"Das Bestehen eines Rechtsschutzbedürfnisses ist Voraussetzung für die gerichtliche Geltendmachung jedes Anspruches (EvBl 1957/302); besteht es nicht, ist die Fällung eines dem Klagebegehren stattgebenden Urteiles zu verweigern (EvBl 1972/20).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Simultanpfandrecht\", \"Sicherstellungsauftrag\", \"Hypothekarklage\", \"Befriedigungsexekution\", \"Rechtsschutzinteresse\", \"Einverleibung Eigentumsrechtes\", \"Grundbuch\", \"einstweilige Verfügung"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_62898699",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Aufklärungsfehler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 72.21,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Aufklärungsfehler\", \"results\": [{\"rs_number\": \"RS0035034\", \"kernaussage\": \"Zum Begriff der gemeinschaftlichen Urkunde im Sinne dieser Bestimmungen. (Fakturen, Rechnungen, Banküberweisungsaufträge können gemeinschaftliche Urkunden sein).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aufklärungsfehler\", \"Kausalität\", \"Schadensersatz\", \"nachvertragliche Pflichten\", \"AGR-Kühler\", \"Kompartmentsyndrom\", \"Informationspflicht\", \"Behandlungsfehler\", \"Entlassungsrevers\", \"Rückholaktion\", \"Skiunfall\", \"Patientenverweigerung\", \"Fixateur externe\", \"Fahrzeugbrand\", \"Schienbeinkopfbruch\", \"BMW-Rückruf\", \"Autohändler\", \"Spaltgips\"]}, {\"rs_number\": \"RS0097380\", \"kernaussage\": \"Erachtet das Gericht den vernommenen Sachverständigen für befähigt, ein einwandfreies Gutachten über den Fall abzugeben, und treten keine Bedenken der in den §§ 125 f angeführten Art zutage, so liegt in der Abweisung eines Antrags auf Beiziehung eines zweiten Sachverständigen ein Akt freier...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Sachverständigenbeweis\", \"Aufklärungsfehler\", \"§ 362 ZPO\", \"Beweiswürdigung\", \"Plexusschaden\", \"Nichtigkeitsbeschwerde\", \"Verfahrensmangel\", \"Verbesserungsverfahren\", \"Behandlungsfehler\", \"Zweitgutachten\", \"Lagerungsschaden\", \"Arzthaftung\", \"Mängel des Gutachtens\", \"Sachverständigengutachten\", \"Freie Beweiswürdigung\", \"Verfahrensrüge\"]}, {\"rs_number\": \"RS0038176\", \"kernaussage\": \"Der mit dem Arzt oder dem Träger eines Krankenhauses abgeschlossene Behandlungsvertrag umfasst auch die Pflicht, den Patienten über die möglichen Gefahren und schädlichen Folgen der Behandlung zu unterrich"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_10445584",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "IVF Embryonen einsetzen Mehrlingsschwangerschaft Arzthaftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.41,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"IVF Embryonen einsetzen Mehrlingsschwangerschaft Arzthaftung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_82846104",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Fortpflanzungsmedizin",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1125.87,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Fortpflanzungsmedizin\", \"results\": [{\"rs_number\": \"RS0116924\", \"kernaussage\": \"Das Gesetz sieht also nicht vor, dass neben einem Elternteil ein Pflegeelternteil gemeinsam nach dem Modell der leiblichen Eltern (mit gleichen Rechten und Pflichten) mit der Obsorge betraut werden kann. Stiefelternteile können als Pflegeelternteil nur dann betraut werden, wenn dem leiblichen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Pflegeeltern\", \"Obsorgeübertragung\", \"Pflegeelterneigenschaft\", \"Kindeswohl\", \"gemeinsame Obsorge\", \"Lebensgemeinschaft\", \"gleichgeschlechtliche Partner\", \"Fortpflanzungsmedizin\", \"Pflegeelternteil\", \"Obsorge\", \"Stiefeltern\", \"Patchworkfamilie\"]}, {\"rs_number\": \"RS0008757\", \"kernaussage\": \"Liegt eine \\\"planwidrige Unvollständigkeit\\\" des Gesetzes nicht vor, sind die Voraussetzungen für eine Gesetzeslücke nicht gegeben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ehedauer\", \"Ideendiebstahl\", \"Betriebsmittel\", \"Konzernabschluss\", \"Rechtskraft\", \"Freiheitsbeschränkung\", \"Aufsichtsratsähnlichkeit\", \"Kostenersatz\", \"Jahresabschluss\", \"§ 21 PSG\", \"gleichgeschlechtliche Partner\", \"Betriebsvereinbarung\", \"Zulässigkeit\", \"ZPO §72\", \"ASVG § 5 Abs 1 Z 3 lit a\", \"§ 306 ASVG\", \"Stiftungsbeirat\", \"Karenzurlaub\", \"ASVG § 255\", \"Rekurs\", \"§ 244 UGB\", \"FBG §4 Z7\", \"Ausschlussklage\", \"Ausnahme Vollversicherung\", \"Verfahrenshelfer\", \"ASGG\", \"Kinderbetreuungsgeld\", \"AngG\", \"Fortpflanzungsmedizin\", \"Rekurslegitimation\"]}, {\"rs_number\": \"RS0038853\", \"kernaussage\": \"Gerade in Fällen, in denen ein Schaden eingetreten ist, der seiner Höhe nach noch nicht (abschließend) beurteilt w"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_22249528",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "IVF",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1069.41,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"IVF\", \"results\": [{\"rs_number\": \"JWR_2005150138_20070924X01\", \"kernaussage\": \"Künstliche Befruchtung als außergewöhnliche Belastung iSd EStG § 34\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Künstliche Befruchtung\", \"Außergewöhnliche Belastung\", \"Absetzbarkeit\", \"Medizinische Kosten\", \"EStG § 34\", \"Krankheitskosten\", \"IVF\", \"Unfruchtbarkeit\"]}, {\"rs_number\": \"JWR_2013110242_20150326X02\", \"kernaussage\": \"Grundsätzlich nicht erstattungsfähige Leistungen in Ambulatorien (§ 12a Abs. 4 Slbg KAG)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Ambulatorium\", \"nicht erstattungsfähige Leistungen\", \"Sozialversicherungsrecht\", \"Auslegung\", \"grundsätzlich\", \"KAKuG\", \"IVF\", \"plastische Schönheitschirurgie\", \"Bewilligung\"]}, {\"rs_number\": \"JFR_20251006_24G00052_01\", \"kernaussage\": \"Aufhebung Verbot nicht-indizierter Eizellentnahme\", \"rechtsgebiet\": \"Verfassungsrecht\", \"schlagworte\": [\"Eizellentnahme\", \"Eizellaufbewahrung\", \"FMedG\", \"Art 8 EMRK\", \"Privatleben\", \"Reproduktionsmedizin\", \"medizinische Indikation\", \"Verfassungswidrigkeit\", \"Aufhebung\", \"IVF\"]}, {\"rs_number\": \"JFR_10029390_96G00254_01\", \"kernaussage\": \"Fehlende Betroffenheit bei IVF ohne Partnerzustimmung\", \"rechtsgebiet\": \"Verfassungsrecht\", \"schlagworte\": [\"Individualantrag\", \"unmittelbare Betroffenheit\", \"Fortpflanzungsmedizingesetz\", \"IVF\", \"Ehezustimmung\", \"Prozessvoraussetzung\", \"Normenkontrolle\", \"VfSlg 10353/1985\"]}], \"count\": 4}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_28176717",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "IVF Embryoneneinsetzung Mehrlingsschwangerschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.93,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"IVF Embryoneneinsetzung Mehrlingsschwangerschaft\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_61713551",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Wrongful Birth Arzthaftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.99,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Wrongful Birth Arzthaftung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_60245670",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0121189"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.51,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0121189\", \"rechtssatz\": \"Die Geburt eines gesunden, wenn auch unerwünschten Kindes bedeutet keinen Schaden im Rechtssinn. Ein Schadenersatzanspruch gegen den Arzt wegen Verletzung des ärztlichen Behandlungsvertrags (Vasektomie) auf Ersatz des Unterhaltsschadens besteht nicht. Dagegen spricht auch nicht, dass eine generelle Verneinung der ärztlichen Haftung für unerwünschte Nachkommenschaft dazu führen würde, dass weite Bereiche der Fortpflanzungsmedizin und der pränatalen Diagnostik gegenüber Haftungsansprüchen isoliert würden. Abgesehen davon, dass die Haftungsverwirklichung kein Selbstzweck ist, sondern in den von der Gesamtrechtsordnung vorgegebenen Wertungsrahmen eingebettet sein muss, setzt eine Überwälzung eines Aufwands im Wege des Schadenersatzrechts das Vorliegen eines (ersatzfähigen) Schadens im Sinne des § 1293 ABGB voraus. Ein solcher ist in der Geburt eines Kindes im Regelfall aber nach der Wertung der Rechtsordnung gerade nicht zu erblicken.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vasektomie\", \"Aufklärungspflicht\", \"Unterhaltsschaden\", \"Geburtsschmerzen\", \"Arzthaftung\", \"ärztliche Aufklärungspflicht\", \"fehlgeschlagene Sterilisation\", \"Schadenersatz unerwünschtes gesundes Kind\", \"wrongful conception\", \"Schadenersatz bei Geburt gesunder Kinder\", \"Fortpflanzungsmedizin\", \"Sterilisation\", \"Ärztliche Aufklärungspflicht\", \"Schmerzengeld\", \"existenzielle Erschwerung\", \"Produkthaftung\", \"Medizinprodukt\", \"Spirale\", \"ungeliebte Schwangerschaft\", \"Schadenersatz\", \"Feststellung\", \"Pränataldiagnostik\", \"Wrongful birth\"], \"fachgebiete\": [\"Arz"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_06131206",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0038176"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.75,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0038176\", \"rechtssatz\": \"Der mit dem Arzt oder dem Träger eines Krankenhauses abgeschlossene Behandlungsvertrag umfasst auch die Pflicht, den Patienten über die möglichen Gefahren und schädlichen Folgen der Behandlung zu unterrichten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Zahnschaden\", \"Behandlungsvertrag\", \"Bandscheibenprothese\", \"Varizenoperation\", \"Aufklärungsfehler\", \"Nachsorgepflicht\", \"Aufklärungspflicht\", \"Entgeltlichkeit\", \"photodynamische Therapie\", \"Gastroskopie\", \"Zahnbehandlung\", \"ärztliche Aufklärungspflicht\", \"Behandlungsfehler\", \"typisches Operationsrisiko\", \"Zahnextraktion\", \"Dolmetscherpflicht\", \"Arzthaftung\", \"Entgeltpflicht\", \"Laparotomie\", \"Laparoskopie\", \"Nachblutung\", \"Kryolipolyse\", \"hypothetische Einwilligung\", \"Arztfehler\", \"Indikationsfehler\", \"Hüftgelenksendoprothese\", \"Einwilligung\", \"Nervenmonitoring\", \"seitlicher Zugang\"], \"fachgebiete\": [\"Haftungsrecht\", \"Arzthaftung\", \"Revision\", \"Vertragsauslegung\", \"Produkthaftung\"], \"datum\": \"2024-10-23\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_08134315",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0026226"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.95,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026226\", \"rechtssatz\": \"Jeder Arzt hat als \\\"Sachverständiger\\\" den Mangel der erforderlichen nicht gewöhnlichen Kenntnisse seines Berufes zu vertreten (§ 1299 ABGB). Von einem Facharzt ist hiebei noch ein höheres Maß an Fachwissen zu verlangen als von einem praktischen Arzt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Arzt als Sachverständiger\", \"Aufklärungspflicht\", \"Berufshaftpflicht\", \"Einwilligung\", \"Entlastungsbeweis\", \"Entscheidungsfähigkeit\", \"Intelligenzminderung\", \"Verschulden\", \"Weisheitszahnentfernung\"], \"fachgebiete\": [\"Arzthaftung\", \"Haftungsrecht\"], \"datum\": \"1996-10-25\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_52695025",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "schadenersatz",
+            "query": "IVF Behandlung Vereinbarung zwei Embryonen drei eingesetzt gesunde Drillinge Schadenersatzanspruch Eltern gegen Arzt Krankenhaus Wrongful Birth Arzthaftung Aufklärungsfehler Behandlungsfehler Kausalität",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.18,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_35763366",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0112111"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.64,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0112111\", \"rechtssatz\": \"a) Der Arzt, der die mögliche Aufklärung über den Zustand der Leibesfrucht unterlässt, verstößt gegen seine Vertragspflicht, die auch den Schutz vor Vermögensnachteilen infolge der unerwünschten, bei ordnungsgemäßer Aufklärung unterbliebenen Geburt eines schwerstbehinderten Kindes umfasst. Unterläuft dem Arzt bei derartigen Untersuchungen ein Fehler, der zur sonst unterbliebenen Geburt eines behinderten Kindes führt, so erstreckt sich seine Haftung auf die Freistellung des Vertragspartners von wirtschaftlichen Belastungen, die - unter anderem - durch den Behandlungsvertrag, der wesentliche Elemente des Beratungsvertrags umfasst, vermieden werden sollten. Auch insoweit kann die Übernahme der medizinischen Aufgaben durch den Arzt, die der Erreichung eines erlaubten Vertragszwecks dient, nicht ohne rechtliche Verantwortung für den Arzt bleiben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Arzthaftung\", \"Ultraschalluntersuchung\", \"Fehlbildungen\", \"Aufklärungspflicht\", \"pränatale Diagnostik\", \"genetische Beratung\", \"Behandlungsvertrag\", \"Morbus Niemann-Pick\", \"ärztliche Aufklärungspflicht\", \"Down-Syndrom\", \"Schadenersatz behindertes Kind\", \"Vasektomie\", \"Unterhaltsschaden\", \"Geburtsschmerzen\", \"fehlgeschlagene Sterilisation\", \"Schadenersatz unerwünschtes gesundes Kind\", \"wrongful conception\", \"Schadenersatz bei Geburt gesunder Kinder\", \"Fortpflanzungsmedizin\", \"Ärztliche Aufklärungspflicht\", \"Pränatale Diagnostik\", \"Trisomie 21\", \"Schwangerschaftsabbruch\"], \"fachgebiete\": [\"Arzthaftung\", \"Haftungsrecht\"], \"datum\": \"2012-02-27\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_68322668",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0121189",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.14,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0121189\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_76371710",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1295 ABGB",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 723.08,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1295 ABGB\", \"results\": [{\"rs_number\": \"RS0022798\", \"kernaussage\": \"Das Verschulden liegt in der Verletzung der Schutznorm, die zur Verhinderung von typischen Unfallsfolgen erlassen wurde (SZ 25/84). Bei atypischen Unfallsfolgen kann nur eine Haftung nach allgemeinen Rechtsgrundsätzen (§ 1295 ABGB, §§ 335, 431 StG) vorliegen, die aber zur Voraussetzung haben, daß...\", \"schlagworte\": []}, {\"rs_number\": \"RS0023128\", \"kernaussage\": \"§ 1295 ABGB ist nicht subsidiär neben § 1315 ABGB anwendbar; die Frage des Auswahlverschuldens ist abschließend im § 1315 ABGB geregelt.\", \"schlagworte\": [\"Unternehmerhaftung\", \"Erfüllungsgehilfe\", \"Untüchtigkeit\", \"Auswahlverschulden\"]}, {\"rs_number\": \"RS0023179\", \"kernaussage\": \"Gemäß § 1295 ABGB ist für die Verpflichtung zum Schadenersatz nicht notwendig, daß der Schaden in feindseliger Absicht zugefügt wurde, es genügt vielmehr Verschulden. Ein solches liegt aber schon bei fahrlässigem Handeln vor. Eine Fahrlässigkeit liegt hier mindestens vor, denn das Werfen eines...\", \"schlagworte\": []}, {\"rs_number\": \"RS0023481\", \"kernaussage\": \"Wenn jemand zu etwas vertraglich verpflichtet ist und diese Verpflichtung durch einen anderen erfüllen läßt, so haftet er für die Nichterfüllung nach § 1295 ABGB, wenn ihn selbst ein Verschulden trifft und nach § 1313 a ABGB, wenn den anderen ein Verschulden trifft.\", \"schlagworte\": []}, {\"rs_number\": \"RS0023562\", \"kernaussage\": \"Haftung der Krankenkasse für Unterlassung der Krankenbehandlung. § 1327 ABGB schließt nicht die Anwendung des § 1295 ABGB aus.\", \"schlagworte\": []}, {\"rs_number\": \"RS0018394"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_68842125",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Wrongful Birth",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1009.99,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Wrongful Birth\", \"results\": [{\"rs_number\": \"RS0129693\", \"kernaussage\": \"Der Zweck eines Behandlungsvertrags über die pränatale Diagnostik besteht vor allem in der Ermittlung von Entwicklungsstörungen und Fehlbildungen des ungeborenen Kindes und in der Schaffung der Grundlage für eine sachgerechte Entscheidung über die weitere Vorgangsweise der Eltern. Wird dieser...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wrongful Birth\", \"Pränataldiagnostik\", \"Behandlungsvertrag\", \"Organscreening\"]}, {\"rs_number\": \"RS0118893\", \"kernaussage\": \"Als Fachmann auf dem Gebiet des Versicherungswesens ist es Hauptaufgabe des Versicherungsmaklers, dem Klienten mit Hilfe seiner Kenntnisse und Erfahrung bestmöglichen, den jeweiligen Bedürfnissen und Notwendigkeiten entsprechenden Versicherungsschutz zu verschaffen. Er hat für seinen Kunden ein...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Betriebshaftpflichtversicherung\", \"Umweltschäden\", \"Versicherungsmakler\", \"vorläufige Deckung\", \"Aufklärungspflichten\", \"Betriebsunterbrechungsversicherung\", \"ABFT 1999\", \"Taxe\", \"Deckungsbeitrag\", \"Haftung\", \"Beratungspflicht\", \"Nachforschungspflicht\", \"Folgeprovision\", \"Kollektivvertrag\", \"Dienstverhältniskündigung\", \"UWG\", \"Irreführung\", \"RAO\", \"Unterversicherung\", \"Bauherren-Haftpflicht\", \"Bauproduktionswert\", \"Gesamtkosten des Bauvorhabens\", \"Allgemeine Geschäftsbedingungen\", \"Planungskosten\", \"Aufklärungspflicht\", \"Dauerinvalidität\", \"Unfallversicherung\", \"Berufshaftpflichtversicherung\", \"Wrongful Birth\", \"Mehrfachagent\", \"Haushaltsversicherung\", \"Sorgfaltspflicht\", \"Schadenersatz\", \"Krankenversiche"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_74046988",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Fortpflanzungsmedizin Embryonen Mehrlinge Haftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.7,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Fortpflanzungsmedizin Embryonen Mehrlinge Haftung\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0129693",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0129693",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.42,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0129693\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0127166",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0127166",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.15,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127166\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0127165",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0127165",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.4,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127165\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0126691",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126691",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.63,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126691\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0118893",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0118893",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.62,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0118893\", \"rechtssatz_text\": \"Als Fachmann auf dem Gebiet des Versicherungswesens ist es Hauptaufgabe des Versicherungsmaklers, dem Klienten mit Hilfe seiner Kenntnisse und Erfahrung bestmöglichen, den jeweiligen Bedürfnissen und Notwendigkeiten entsprechenden Versicherungsschutz zu verschaffen. Er hat für seinen Kunden ein...\", \"te_count\": 17, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3322, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob198/25f|OGH|2025-12-17\", \"gz\": \"7Ob198/25f\", \"datum\": \"2025-12-17\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH fasst einen Beschluss über die Revision der klagenden Partei gegen ein bestätigendes Berufungsurteil.\"}, {\"te_stable_key\": \"7Ob103/25k|OGH|2025-10-22\", \"gz\": \"7Ob103/25k\", \"datum\": \"2025-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision im Streit um Verletzung vorvertraglicher Aufklärungs- und Sorgfaltspflichten des Versicherers bei Festsetzung der Versicherungssumme in einem Feuerversicherungsvertrag.\"}, {\"te_stable_key\": \"7Ob103_25k|OGH|2025-10-22\", \"gz\": \"7Ob103_25k\", \"datum\": \"2025-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision im Streit um Verletzung vorvertraglicher Aufklärungs- und Sorgfaltspflichten des Versicherers bei Festsetzung der Versicherungssumme in einem Feuerversicherungsvertrag.\"}, {\"te_stable_key\": \"7Ob187_22h|OGH|2022-12-13\", \"gz\": \"7Ob187_22h\", \"datum\": \"2022-12-13\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision gegen die Abweisung eines Schadenersatzanspruchs aus angeblichem Beratungsfehler einer Versicherungsmaklerin.\"}, {\"te_stable_key\": \"7Ob74_22s|OGH|2022-06-29\", \"gz\": \"7Ob74_22s\", \"datum\": \"2022-06-29\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision in einem Schadenersatzstreit wegen angeblicher Fehlberatung eines Mehrfachagenten bei Abschluss einer Haushaltsversicherung mit Unterversicherung.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 25,
+      "tool_calls_ok": 25,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Rechtslage zu Schadenersatzansprüchen der Eltern (Brigitte und Hubert Buchner) gegen Dr. Kindermann und/oder das Krankenhaus\n\n#### 1. **Relevante Haftungsregime (Arzthaftung: vertraglich vs. deliktisch)**\n   - **Vertraglich (Behandlungsvertrag, §§ 1299, 1313a, 1298 ABGB)**: Der IVF-Behandlungsvertrag umfasst Diagnostik, Therapie **und** Aufklärungspflicht über Risiken/Gefahren (RS0038176). Arzt haftet als **Sachverständiger** (§ 1299 ABGB) für Mangel an beruflichen Kenntnissen; Facharzt höherer Standard (RS0026226). Bei **Behandlungsfehler** (hier: Vereinbarung \"nur 2 Embryonen\", tatsächl. 3 eingesetzt → Kunstfehler) greift **Beweislastumkehr** (§ 1298 ABGB): Arzt/Krankenhaus muss Verschulden ausschließen (RS0026478 implizit; vgl. RS0026290). Haftung für Erfüllungsgehilfen (§ 1313a ABGB, RS0026751).\n     - **Beweislast**: Eltern beweisen Vertragsbruch + Kausalität/Schaden; Arzt trägt **Entlastungsbeweis** für Sorgfalt (kein Kunstfehler).\n   - **Deliktisch (§§ 1295, 1325 ABGB)**: Alternativ möglich (Körperverletzung durch Eingriff ohne Einwilligung). Verschulden (Fahrlässigkeit reicht, RS0023179); Schadenersatz für Heilungskosten/Verdienstentgang/Schmerzengeld (§ 1325 ABGB). Keine spezifische Beweislastumkehr.\n     - **Beweislast**: Eltern voll (Verschulden + Kausalität + Schaden, RS0022798).\n\n   **Primär vertraglich** (Behandlungsvertrag vorhanden); deliktisch subsidiär/konkurrenzfähig.\n\n#### 2. **Verschulden: Behandlungsfehler (Kunstfehler) vs. Aufklärungsfehler**\n   - **Behandlungs-/Kunstfehler**: Einsetzen von 3 statt 2 Embryonen verstößt gegen **Sorgfaltsmaßstab** (§ 1299 ABGB, RS0026226). Wahrscheinlicher **Kunstfehler** (Abweichung von \"anerkannter ärztlicher Lehre\"). Krankenhaus haftet ggf. als Träger (§ 1313a ABGB).\n     - **Beweislast**: Umkehr zugunsten Eltern (§ 1298 ABGB für Erfolgsverbindlichkeiten).\n   - **Aufklärungsfehler**: Pflicht zu Risikoaufklärung (Mehrlingsschwangerschaft); hypothetische Einwilligung fehlt ggf. (RS0038176). Relevant, falls Eltern Mehrlinge abgelehnt hätten.\n     - **Beweislast**: Eltern beweisen fehlende Aufklärung + hypothetische Ablehnung (keine Umkehr).\n\n#### 3. **Kausalität und Schaden (Zentrales Hindernis: Kein ersatzfähiger Schaden bei gesunden Kindern)**\n   - **Natürlicher/adäquater Kausalzusammenhang** (RS0022582): Implantat von 3 Embryonen → Drillinge. Aber: **Geburt gesunder Kinder = kein Schaden** (§ 1293 ABGB). OGH: \"Die Geburt eines gesunden, wenn auch unerwünschten Kindes bedeutet **keinen Schaden im Rechtssinn**\" (RS0121189, Vasektomie-Fall; analog wrongful conception). Kein Ersatz Unterhalts-/Erziehungskosten (existenzielle Erschwerung kein Schaden).\n     - **Wrongful Birth**: Haftung nur bei **behinderte Kinder** durch Aufklärungsfehler (fehlende pränatale Diagnostik → verpasster Abbruch; RS0112111: Haftung für Vermögensnachteile bei Down-Syndrom/Trisomie). Hier **gesunde Drillinge** → keine Analogie (RS0121189 explizit Fortpflanzungsmedizin).\n     - **Kausalität**: Selbst bei Fehler: Hätten Eltern Drillings abgetrieben? (Hypothetische Einwilligungstest). Bei Gesunden unwahrscheinlich (kein typisches Abbruchskriptum).\n   - **Möglicher Schaden?** Nur Nebenaspekte: z.B. erh. Schwangerschaftsrisiken/Heilungskosten (§ 1325 ABGB), falls nachweisbar. Kein globaler \"Unterhaltsschaden\".\n     - **Beweislast**: Eltern (Schaden + Kausalität); kein Umkehrvorteil.\n\n#### 4. **Gesamteinschätzung & Beweislastübersicht**\n| **Element**          | **Rechtsgrundlage** | **Beweislastträger** | **Relevante RS** |\n|-----------------------|---------------------|-----------------------|------------------|\n| **Verschulden (Kunstfehler)** | § 1299 ABGB | Arzt (Umkehr § 1298) | RS0026226, RS0026478 |\n| **Aufklärungsfehler** | Behandlungsvertrag | Eltern | RS0038176 |\n| **Kausalität**       | §§ 1295/1313a ABGB | Eltern | RS0022582 |\n| **Schaden**          | § 1293 ABGB | Eltern (kein Schaden bei Gesunden) | **RS0121189 (entscheidend)** |\n| **Deliktisch**       | § 1325 ABGB | Eltern (voll) | RS0023179 |\n\n**Ergebnis**: **Keine Ansprüche**. Direkter Vertragsbruch (3 Embryonen), aber **Geburt gesunder Kinder kein Schaden** (RS0121189). Wrongful Birth beschränkt auf Behinderte (RS0112111). Keine OGH-RS zu IVF-Mehrlingen, aber Analogie lehnt Haftung ab. Eltern tragen Beweislast für Schaden/Kausalität; scheitert primär am Schadensmangel.\n\n**Empfehlung**: Feststellungsklage möglich (Verjährung hemmen, RS0038853), aber aussichtslos.",
+      "answer_chars": 4438,
+      "e2e_ms": 196963.53
+    },
+    {
+      "name": "Wrongful Birth – Rechtsgrundlagen & OGH-Rechtsprechung",
+      "goal": "Identify core legal basis and leading OGH rulings on wrongful birth claims in Austria",
+      "mode": "llm",
+      "tools": [
+        "get_rechtssatz",
+        "search_ogh_rechtssaetze",
+        "search_ogh_entscheidungen",
+        "search_by_schlagwort",
+        "search_by_paragraph",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 14663.41,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 1551,
+            "completion_tokens": 1453,
+            "total_tokens": 3004,
+            "cost": 0.0010142,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1230
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7743.31,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 17644,
+            "completion_tokens": 889,
+            "total_tokens": 18533,
+            "cost": 0.0039508,
+            "cached_tokens": 150,
+            "reasoning_tokens": 589
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 12152.44,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 36962,
+            "completion_tokens": 1555,
+            "total_tokens": 38517,
+            "cost": 0.0029515,
+            "cached_tokens": 43480,
+            "reasoning_tokens": 1230
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 19821.57,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 40347,
+            "completion_tokens": 1805,
+            "total_tokens": 42152,
+            "cost": 0.0047679,
+            "cached_tokens": 77308,
+            "reasoning_tokens": 1023
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_31874414",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Wrongful Birth",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.16,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Wrongful Birth\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_26364884",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Arzthaftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 71.39,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Arzthaftung\", \"results\": [{\"rs_number\": \"RS0120713\", \"kernaussage\": \"Für die Unzulässigkeit der im Revisionsrekurs erwogenen Präklusion nach § 179 ZPO spricht (neben den in 7 Ob 253/04p angeführten Argumenten) vor allem das mit der ZVN2002 wieder stärker betonte Mündlichkeitsprinzip. Bei aller Straffung des Verfahrens sehen die neu gefassten Bestimmungen (§§ 182a, ...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Diagnostik\", \"Aufklärungsfehler\", \"Röntgen\", \"Mahnklage\", \"Lege artis\", \"Präklusion\", \"Behandlungsfehler\", \"Prozessförderungspflicht\", \"Computertomographie\", \"vorbereitende Tagsatzung\", \"Zurückweisung von Vorbringen\", \"Rechtsanwaltshonorar\", \"§ 179 ZPO\", \"Arzthaftung\", \"Ultraschall\", \"Appendizitis\"]}, {\"rs_number\": \"RS0030922\", \"kernaussage\": \"Ist eine verheiratete Frau infolge einer Körperverletzung gezwungen, eine Haushaltshilfe aufzunehmen, so kann sie vom Beschädiger den Ersatz der hiefür erforderlichen Aufwendungen selbst begehren (vgl SZ 22/77).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Haftungsverteilung\", \"Erwerbsfähigkeitsminderung\", \"Haushaltsführungsschaden\", \"EKHG\", \"Haushaltshilfekosten\", \"§ 1325 ABGB\", \"Vorrangregelung\", \"fiktive Haushaltshilfe\", \"Vermieterhaftung\", \"Einbiegen\", \"Aufsichtspflicht\", \"Rechtskraft\", \"Erfüllungsgehilfe\", \"Ersatzanspruch\", \"professionelle Hilfe\", \"Bestreuungspflicht\", \"Arzthaftung\", \"Haftung\", \"Geruchssinn\", \"Verkehrsunfall\", \"Zwischenurteil\", \"Haftpflichtversicherung\", \"Wegehalterhaftung\", \"Fahrlinie\", \"Teillähmung\", \"Geschmackssinn\", \"Totalschaden\", \"Stundensatz Haushaltshilfe\", \"Hilflosenzuschuss"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_87856660",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1299 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 238.57,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1299 ABGB\", \"results\": [{\"rs_number\": \"RS0018501\", \"kernaussage\": \"Offenbar ist ein Mangel von Stoff und Anweisung (des Auftraggebers) nicht nur dann, wenn er in die Augen fällt und jedermann sogleich erkennbar ist, sondern auch dann, wenn der Mangel bei der auf Seite des Unternehmers voraussetzten Sachkenntnis (§ 1299 ABGB), bei ordnungsgemäßer Behandlung des...\", \"schlagworte\": [\"Mängelrüge\", \"Fachmann\", \"Verspätung\"]}, {\"rs_number\": \"RS0026035\", \"kernaussage\": \"Bei der Erfüllung ihrer vertraglichen Schutzpflichten und Sorgfaltspflichten als Betreiberin eines Campingplatzes trifft die beklagte Gemeinde jedenfalls gegenüber dem Kläger als ihrem Mieter die höhere Diligenzpflicht nach § 1299 ABGB.\", \"schlagworte\": [\"Verkehrssicherungspflicht\", \"fallender Ast\", \"Campingplatz\", \"Dauermieter\", \"Spielgerät\", \"Kindergartenbetreiber\", \"Sachverständigerhaftung\"]}, {\"rs_number\": \"RS0026094\", \"kernaussage\": \"Den Händler trifft die Pflicht zur Kontrolle der gehandelten Ware und zur notwendigen Aufklärung. Für den Sorgfaltsmaßstab des Händlers ist dabei § 1299 ABGB maßgebend. Es kommt also nicht auf den Sorgfaltsmaßstab des Durchschnittsmenschen, sondern auch die übliche Sorgfalt jener Personen an, die...\", \"schlagworte\": [\"Mitverschulden\", \"Zearalenon\", \"nachvertragliche Pflichten\", \"Gewährleistung\", \"Händlerhaftung\", \"Aufklärungsfehler\", \"Mängelbehebung\", \"Kaufmängelhaftung\", \"Werkunternehmerhaftung\", \"Qualitätsattest\", \"Gewährleistungsansprüche\", \"Aufklärungspflicht\", \"UV-Strahlung\", \"Futtermittel\", \"ABGB § 1299\", \"Sommerreifen\", \"Erfüllungsgehilfe\", \"ABGB § 1313a\","
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_17710660",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1313a ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 870.63,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0111193\", \"kernaussage\": \"Auch das Prekarium ist unbeschadet der mißverständlichen Diktion des § 974 ABGB ein zweiseitiges Rechtsgeschäft. Dies bedeutet aber nicht, daß der Prekariumsgeber dem Prekaristen gegenüber im Sinn des § 1313a ABGB zu einer Leistung verpflichtet ist. Dem entspricht, daß es schon bisher einhellige...\", \"schlagworte\": [\"Gehilfenhaftung\", \"Prekarium\", \"Gefälligkeit\"]}, {\"rs_number\": \"JWR_1989070100_19920504X02\", \"kernaussage\": \"Einforstungsberechtigter kein Erfüllungsgehilfen-Schuldner iSd § 1313a ABGB\", \"schlagworte\": [\"Einforstungsberechtigter\", \"Erfüllungsgehilfe\", \"§ 1313a ABGB\", \"§ 1304 ABGB\", \"Elementarholz\", \"Haftungsausschluss\", \"Slbg EinforstungsrechteG\", \"Forstschaden\"]}, {\"rs_number\": \"RS0028621\", \"kernaussage\": \"Auch Verpflichtungen, die auf einer öffentlichrechtlichen Ursache, wie der Einweisung in ein Erziehungsheim beruhen, fallen in das Anwendungsgebiet des § 1313a ABGB (Privatwirtschaftsverwaltung).\", \"schlagworte\": []}, {\"rs_number\": \"RS0020881\", \"kernaussage\": \"§ 1313a ABGB ist bei der Beurteilung eines behaupteten Auflösungsgrundes nach § 1118 ABGB nicht heranzuziehen. Für das Fehlverhalten eines vom Mieter zur Durchführung von Arbeiten herangezogenen Fachmannes wird der Mieter im Rahmen des § 1118 ABGB nur dann einzustehen haben, wenn er die Unfähigkeit...\", \"schlagworte\": [\"Mietvertrag\", \"Rücktritt\", \"Auflösung\", \"erheblich nachteiliger Gebrauch\", \"Baumängel\", \"Umbauarbeiten\", \"Räumungsklage\", \"Wasserschaden\", \"nicht genehmigte Umbauten\", \"Mieterpflichten\", \"Auflösung Miet"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_82469269",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "unerwünschte Mehrlingsschwangerschaft IVF",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.82,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"unerwünschte Mehrlingsschwangerschaft IVF\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_78253014",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Schadenersatz unerwünschte Schwangerschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.33,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Schadenersatz unerwünschte Schwangerschaft\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_15039044",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Wrongful Birth",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 662.84,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Wrongful Birth\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_45247713",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Aufklärungsfehler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 168.3,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Aufklärungsfehler\", \"results\": [{\"rs_number\": \"RS0005021\", \"kernaussage\": \"Der Eigentümer, der befürchtet, daß ein anderer eine Urkunde über einen Kaufvertrag mißbräuchlich benützen könnte, kann sich dagegen nicht in der Weise sichern, daß er im Grundbuch ein Veräußerungsverbot durch einstweilige Verfügung eintragen läßt. Der Eigentümer der Liegenschaft kann aber zur...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aufklärungsfehler\", \"Kausalität\", \"Schadensersatz\", \"nachvertragliche Pflichten\", \"AGR-Kühler\", \"Kompartmentsyndrom\", \"Informationspflicht\", \"Behandlungsfehler\", \"Entlassungsrevers\", \"Rückholaktion\", \"Skiunfall\", \"Patientenverweigerung\", \"Fixateur externe\", \"Fahrzeugbrand\", \"Schienbeinkopfbruch\", \"BMW-Rückruf\", \"Autohändler\", \"Spaltgips\"]}, {\"rs_number\": \"RS0009133\", \"kernaussage\": \"Die juristische Person haftet für die von ihrem gesetzlichen Repräsentanten bei Ausübung der Vertretungsbefugnisse begangenen deliktischen Handlungen (Haftung der Gemeinde für ihre Organe).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Compensation Plan\", \"Behandlungsvertrag\", \"Handelsgerichtszuständigkeit\", \"Thermofenster\", \"Haftung juristischer Personen\", \"Aufklärungsfehler\", \"unternehmensbezogenes Geschäft\", \"JN §51\", \"Direktklage Versicherer\", \"Geschäftsführung ohne Auftrag\", \"Irrtum\", \"Repräsentantenhaftung\", \"Dieselabgasskandal\", \"KAKuG §5c\", \"Software-Update\", \"Sittenwidrigkeit\", \"Amtshaftung\", \"Grundstückskauf\", \"Lizenzvertrag\", \"Bereicherungsanspruch\", \"Geschäftsführerhaftung\", \"Revisionsrekurs\", \"Täuschung\", \"Überschießende Feststellungen\", \"Mitgliedschaftsvertrag\", \"Provi"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_90924399",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Behandlungsfehler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 646.28,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Behandlungsfehler\", \"results\": [{\"rs_number\": \"RS0035976\", \"kernaussage\": \"Kostenvorbehalt (nicht: Zuspruch von Kosten der Rekursbeantwortung) bei Erfolglosigkeit eines Rekurses nach § 519 Abs 1 Z 2, Abs 2 ZPO.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Legalzession\", \"Verjährung\", \"Sozialversicherungsträger\", \"Witwenpension\", \"Verkehrsunfall\", \"Konkursgläubigerforderung\", \"Abtretung von Darlehensforderungen\", \"Aktivlegitimation des Zedenten\", \"Mietzinsabtretung\", \"Eigenkapitalersetzendes Gesellschafterdarlehen\", \"Treuhandkonstruktion\", \"Anscheinsbeweis\", \"Administrativpension\", \"Kollektivvertrag\", \"Pensionsreform 1961\", \"vorzeitiger Austritt\", \"Rekursbeantwortungen\", \"Kosten\", \"Zwischenstreit\", \"abstrakte Rente\", \"Schmerzengeld\", \"Vertrauensgrundsatz\", \"Überholmanöver\", \"Überholverbot\", \"StVO\", \"Schiunfall\", \"Motorschlitten\", \"Pistenfahrt\", \"Sorgfaltspflichten\", \"Verschuldensteilung\", \"Irregularservitut\", \"Ersitzung\", \"öffentlicher Weg\", \"Rekurszulässigkeit\", \"Wohnungseigentum\", \"nicht errichtetes Objekt\", \"Liegenschaftsaufwendungen\", \"Grundbuchsstand\", \"Verwalterpflichten\", \"Schikaneverbot\", \"entgangener Unterhalt\", \"Witwe\", \"Lebensplanung\", \"eigenes Einkommen\", \"Mietzinsanhebung\", \"Unternehmensverpachtung\", \"Geschäftsräumlichkeiten\", \"MRG\", \"Anspruchsverzicht\", \"Befristung\", \"Ehegattenunterhalt\", \"Unterhaltsbemessungsgrundlage\", \"freiwillige Zuwendungen\", \"Haushaltsversicherung\", \"ABH 2005\", \"Wellnessraum\", \"bewohnte Räume\", \"Wiederbeschaffungswert\", \"Klagebegehren\", \"Urkundenfeststellung\", \"Anleitungspflicht\", \"erhebliche Rechtsfrage\", \"Benützungsentgelt\", \""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_14684774",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1325 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 897.75,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1325 ABGB\", \"results\": [{\"rs_number\": \"RS0105270\", \"kernaussage\": \"Den Worten \\\"auf Verlangen \\\" im § 1325 ABGB kommt keine eigenständige Bedeutung mehr zu. Seit der EO-Nov. 1991 sind auch auf § 1325 ABGB gestützte Schmerzengeldansprüche unabhängig von ihrer Geltendmachung durch den Verletzten vererblich.\", \"schlagworte\": [\"Schmerzengeld\", \"Vererblichkeit\", \"§ 1325 ABGB\", \"Amtshaftung\", \"Mediengesetz\", \"Entschädigung wegen Kränkung\", \"Abtretbarkeit\", \"höchstpersönlicher Anspruch\", \"Privatanklage\", \"Verkehrsunfall\", \"Schadenersatz\", \"Schadenminderungspflicht\", \"Trauerschaden\"]}, {\"rs_number\": \"RS0108277\", \"kernaussage\": \"Ein sexueller Missbrauch, der physische oder schwere psychische Schäden verursachte, ist als Körperverletzung im Sinne des § 1325 ABGB anzunehmen, sodass in einem solchen Fall bereits vor der Novellierung des § 1328 ABGB durch das Bundesgesetz zum Schutz vor Gewalt in der Familie (GeSchG) Schmerzeng...\", \"schlagworte\": [\"Sexueller Missbrauch\", \"falsche Anschuldigung\", \"Sexuelle Belästigung\", \"Berufung\", \"§ 258 StPO\", \"Adhäsionserkenntnis\", \"Raufhandel\", \"Diskriminierungsschutz\", \"Arbeitsplatztrennung\", \"Beweiswürdigung\", \"sexuelle Belästigung\", \"Globalbemessung\", \"Immaterieller Schaden\", \"§ 91 StGB\", \"Kollegenkonflikt\", \"Compliance-Prüfung\", \"Bewährungshilfe\", \"Nichtigkeit\", \"Schmerzengeld\", \"§ 281 StPO\", \"Körperverletzung\", \"GlBG §7 §12\", \"private Avancen\", \"Anpassungsstörung\"]}, {\"rs_number\": \"RS0030755\", \"kernaussage\": \"Ansprüche nach § 1325 ABGB enden äußerstenfalls mit dem Tod des Geschädigten.\", \"schlagworte\": []}, {\"rs_number\": \"RS003"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_06847832",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0022659"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.84,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0022659\", \"rechtssatz\": \"Führt ein Verhalten des Arztes zu einer Erhöhung der Gesundheitsgefährdung des Patienten, liegt darin eine adäquate Schadensverursachung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Adäquanztheorie\", \"Arzthaftung\", \"Kunstfehler\", \"Schmerzengeld\", \"summierte Einwirkungen\"], \"fachgebiete\": [\"Arzthaftung\", \"Haftungsrecht\"], \"datum\": \"1982-03-17\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_91361315",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026226",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.03,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0026226\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_84722532",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Fehlsterilisation Schadenersatz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.33,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Fehlsterilisation Schadenersatz\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_89409088",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Aufklärungsfehler Schwangerschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.35,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Aufklärungsfehler Schwangerschaft\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_65099757",
+          "tool": "search_ogh_entscheidungen",
+          "args": {
+            "query": "Wrongful Birth IVF",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11948.65,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Wrongful Birth IVF\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_56720779",
+          "tool": "search_ogh_entscheidungen",
+          "args": {
+            "query": "unerwünschte Drillingsgeburt",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10877.9,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"unerwünschte Drillingsgeburt\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_99857041",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1295 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 699.5,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1295 ABGB\", \"results\": [{\"rs_number\": \"RS0022798\", \"kernaussage\": \"Das Verschulden liegt in der Verletzung der Schutznorm, die zur Verhinderung von typischen Unfallsfolgen erlassen wurde (SZ 25/84). Bei atypischen Unfallsfolgen kann nur eine Haftung nach allgemeinen Rechtsgrundsätzen (§ 1295 ABGB, §§ 335, 431 StG) vorliegen, die aber zur Voraussetzung haben, daß...\", \"schlagworte\": []}, {\"rs_number\": \"RS0023128\", \"kernaussage\": \"§ 1295 ABGB ist nicht subsidiär neben § 1315 ABGB anwendbar; die Frage des Auswahlverschuldens ist abschließend im § 1315 ABGB geregelt.\", \"schlagworte\": [\"Unternehmerhaftung\", \"Erfüllungsgehilfe\", \"Untüchtigkeit\", \"Auswahlverschulden\"]}, {\"rs_number\": \"RS0023179\", \"kernaussage\": \"Gemäß § 1295 ABGB ist für die Verpflichtung zum Schadenersatz nicht notwendig, daß der Schaden in feindseliger Absicht zugefügt wurde, es genügt vielmehr Verschulden. Ein solches liegt aber schon bei fahrlässigem Handeln vor. Eine Fahrlässigkeit liegt hier mindestens vor, denn das Werfen eines...\", \"schlagworte\": []}, {\"rs_number\": \"RS0024139\", \"kernaussage\": \"Es ist sittenwidrig, die Entlassung eines Mitarbeiters durch Arbeitsniederlegung deshalb zu erzwingen, weil er nicht einer Fachorganisation angehört. Schadenshaftung nach § 1295 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102894\", \"kernaussage\": \"Informationen zu § 1294 ABGB: Die Entscheidungen zur Frage der Verursachung (Kausalität) befinden sich bei § 1295 ABGB. Entscheidungen zum Verschulden nur bei § 1295 Ia4 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102897\", \"kernaussage\": \"Übersicht der E"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_22920298",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0026226"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.32,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026226\", \"rechtssatz\": \"Jeder Arzt hat als \\\"Sachverständiger\\\" den Mangel der erforderlichen nicht gewöhnlichen Kenntnisse seines Berufes zu vertreten (§ 1299 ABGB). Von einem Facharzt ist hiebei noch ein höheres Maß an Fachwissen zu verlangen als von einem praktischen Arzt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Arzt als Sachverständiger\", \"Aufklärungspflicht\", \"Berufshaftpflicht\", \"Einwilligung\", \"Entlastungsbeweis\", \"Entscheidungsfähigkeit\", \"Intelligenzminderung\", \"Verschulden\", \"Weisheitszahnentfernung\"], \"fachgebiete\": [\"Arzthaftung\", \"Haftungsrecht\"], \"datum\": \"1996-10-25\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_97066742",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0026772"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.28,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026772\", \"rechtssatz\": \"Die Pflicht des Arztes zur Aufklärung ist umso umfassender, je weniger der Eingriff dringlich erscheint. Ist der Eingriff zwar medizinisch empfohlen, aber nicht eilig, so ist grundsätzlich eine umfassende Aufklärung notwendig.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zahnschaden\", \"Behandlungsvertrag\", \"FRIDS\", \"Kraniozervikale Spondylodese\", \"Zahnschädigung\", \"Patienteneinwilligung\", \"Aufklärungsfehler\", \"Nachsorgepflicht\", \"Halswirbelsäule\", \"Sachverständigengutachten\", \"Aufklärungspflicht\", \"Gastroskopie\", \"Zahnbehandlung\", \"ärztliche Aufklärungspflicht\", \"Behandlungsfehler\", \"typisches Operationsrisiko\", \"Compartmentsyndrom\", \"Zahnextraktion\", \"Nervenschäden\", \"Nebenwirkungen\", \"Haftung\", \"Arzthaftung\", \"Nachblutung\", \"Prostataoperation\", \"Arterienriss\", \"Hüftgelenksendoprothese\", \"Einwilligung\", \"Risikoverwirklichung\", \"Schadenersatz\", \"Krankenhausträgerhaftung\"], \"fachgebiete\": [\"Haftungsrecht\", \"Arzthaftung\", \"Revision\"], \"datum\": \"2025-07-10\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_55797263",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0022618"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.59,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0022618\", \"rechtssatz\": \"Ein ärztlicher Kunstfehler bei der Behandlung einer Körperverletzung schließt die Adäquanz des Geschehensablaufs grundsätzlich nicht aus; mag eine ärztliche Fehlbehandlung auch nicht gerade wahrscheinlich sein, so liegt sie dennoch nicht außerhalb der menschlichen Erfahrung und fällt unter die Haftung dessen, der die Körperverletzung zu verantworten hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Berufung\", \"Babysitterkosten\", \"adäquater Kausalzusammenhang\", \"Aufklärungsfehler\", \"Patientenaufklärung\", \"Adäquater Kausalzusammenhang\", \"Hundehaftung\", \"ärztlicher Kunstfehler\", \"Gehirnschaden\", \"Beweiswürdigung\", \"Nebentäterschaft\", \"ärztliche Aufklärungspflicht\", \"Adäquanz Kausalzusammenhang\", \"Schmerzengeld\", \"Solidarhaftung\", \"ärztlicher Rat\", \"ZPO-Beweis\", \"Hebamme\", \"Frühgeburt\", \"Arzthaftung\", \"Regresshaftung\", \"Verkehrsunfall\", \"Fußoperation\", \"Arztfehler\"], \"fachgebiete\": [\"Haftungsrecht\", \"Arzthaftung\"], \"datum\": \"2024-10-23\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0120713",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0120713",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.29,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0120713\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111193",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111193",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.09,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111193\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0108277",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0108277",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.77,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0108277\", \"rechtssatz_text\": \"Ein sexueller Missbrauch, der physische oder schwere psychische Schäden verursachte, ist als Körperverletzung im Sinne des § 1325 ABGB anzunehmen, sodass in einem solchen Fall bereits vor der Novellierung des § 1328 ABGB durch das Bundesgesetz zum Schutz vor Gewalt in der Familie (GeSchG) Schmerzeng...\", \"te_count\": 11, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 5415, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8ObA6_21x|OGH|2021-12-17\", \"gz\": \"8ObA6_21x\", \"datum\": \"2021-12-17\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung einer Kündigung von Rechtsanwaltsanwärterin nach Vorwürfen von Flirtverhalten und Diskriminierung gemäß GlBG.\"}, {\"te_stable_key\": \"12Os120_21w|OGH|2021-11-18\", \"gz\": \"12Os120_21w\", \"datum\": \"2021-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH gibt der Nichtigkeitsbeschwerde teilweise statt, hebt den Strafausspruch wegen fehlerhafter Wertung einer diversionellen Erledigung auf und bemisst bei Nötigung und Vergewaltigung eine Geldstrafe kombiniert mit bedingter Freiheitsstrafe neu. Die privatrechtlichen Ansprüche auf Schmerzgeld we\"}, {\"te_stable_key\": \"7Ob198_15s|OGH|2015-11-19\", \"gz\": \"7Ob198_15s\", \"datum\": \"2015-11-19\", \"gericht\": \"OGH\", \"mini_story\": \"Ablehnung der Revision wegen fehlender erheblicher Rechtsfrage bei Bemessung des Schmerzengeldes nach sexuellem Missbrauch.\"}, {\"te_stable_key\": \"3Ob28_15m|OGH|2015-04-21\", \"gz\": \"3Ob28_15m\", \"datum\": \"2015-04-21\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision des Beklagten zurück, der gegen die Zuerkennung weiteres Schmerzengeld und ein Feststellungsbegehren wegen sexuellen Missbrauchs klagt.\"}, {\"te_stable_key\": \"12Os45_14f|OGH|2014-06-11\", \"gz\": \"12Os45_14f\", \"datum\": \"2014-06-11\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH verwirft die Nichtigkeitsbeschwerde gegen die Verurteilung wegen schweren sexuellen Missbrauchs eines Unmündigen und Missbrauchs eines Autoritätsverhältnisses sowie die Berufung gegen Straf- und Entschädigungsanspruch.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0105270",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0105270",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.05,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0105270\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102897",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102897",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.23,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102897\"}"
+        }
+      ],
+      "tool_calls_total": 25,
+      "tool_calls_ok": 25,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Core legal basis for wrongful birth claims in Austria (OGH-Rechtsprechung):**\n\nKeine spezifischen OGH-Rechtssätze (RS) zu \"Wrongful Birth\" im Kontext unerwünschter Mehrlingsschwangerschaften nach IVF (z.B. Implantat von 3 statt 2 Embryonen) gefunden (suche ergab 0 Treffer für \"Wrongful Birth\", \"unerwünschte Mehrlingsschwangerschaft IVF\", \"Fehlsterilisation Schadenersatz\", \"Schadenersatz unerwünschte Schwangerschaft\"). \n\n**Allgemeine Arzthaftung (beide Tracks getrennt prüfen):**\n\n1. **Behandlungsfehler/Kunstfehler (vertraglich § 1299 ABGB Sorgfaltsmaßstab; deliktisch § 1295, § 1325 ABGB):**\n   - Arzt haftet als \"Sachverständiger\" für Mangel an \"nicht gewöhnlichen Kenntnissen\" (§ 1299 ABGB); Facharzt höherer Maßstab (RS0026226).\n   - Erhöhung der Gesundheitsgefährdung durch Arztverhalten = adäquate Schadensverursachung (RS0022659).\n   - Kunstfehler bei Behandlung schließt nicht Adäquanz aus (RS0022618).\n   - **Beweislast:** Patient beweist typischen Fehler/Schaden; Arzt Beweislastumkehr (§ 1298 ABGB) für keine Sorgfaltsverletzung (lege artis).\n   - Im Fall: Implantat 3 Embryonen statt vereinbarter 2 = mutmaßl. Kunstfehler (Verstoß gegen Einwilligung/Sorgfalt); Krankenhaus haftet als Erfüllungsgehilfe (§ 1313a ABGB, RS0028435, RS0028517).\n\n2. **Aufklärungsfehler (hypothetische Einwilligung; deliktisch § 1295/§ 1325, vertraglich § 1299/§ 1313a):**\n   - Umfassende Aufklärung bei nicht-eiligen Eingriffen (z.B. IVF); Risiken (Mehrlinge) aufklären (RS0026772).\n   - **Beweislast:** Patient beweist fehlende Aufklärung + hätte abgelehnt (hypothet. Einwilligung); keine Umkehr.\n\n**Schaden bei gesunder Drillingsgeburt (Wrongful Birth):**\n- Kein RS zu Erziehungs-/Unterhaltskosten als Schaden (gesundes Kind kein \"Schaden\"); typisch abgelehnt (vgl. schlagwortbasierte Treffer mit \"wrongful birth\" in RS0035976, aber kein Kern-RS).\n- Mögliche Ansprüche: Mehraufwände Schwangerschaft/Geburt (z.B. § 1325 ABGB Schmerzengeld, Heilungskosten; RS0105270); Beweislast beim Geschädigten für Kausalität/Verschulden.\n- Ehemann: Eventuell § 1327 ABGB (Trauerschmerz), aber unwahrscheinlich bei gesunden Kindern.\n\n**Empfehlung:** Haftung gegen Arzt/Krankenhaus wahrscheinlich (Behandlungsfehler); Schadenshöhe beschränkt (keine Erziehungskosten). OGH priorisiert Sorgfaltsmaßstab (RS0026226) u. Kausalität (RS0022659). Beweislast primär Patient (Fehler + Schaden), sekundär Arzt (§ 1298).",
+      "answer_chars": 2391,
+      "e2e_ms": 86418.38
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 17337.11,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 5161,
+    "usage": {
+      "prompt_tokens": 19462,
+      "completion_tokens": 2715,
+      "total_tokens": 22177,
+      "cost": 0.0052274,
+      "cached_tokens": 150,
+      "reasoning_tokens": 1007
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0038202",
+          "RS0026226",
+          "RS0121189",
+          "RS0038176",
+          "RS0108033",
+          "RS0115779",
+          "RS0026297",
+          "RS0112111",
+          "RS0030922",
+          "RS0113727",
+          "RS0034908",
+          "RS0022659"
+        ],
+        "validation": {
+          "cited": 12,
+          "checked": 12,
+          "valid": 12,
+          "invalid": [],
+          "sample_valid": [
+            "RS0022659",
+            "RS0026226",
+            "RS0026297",
+            "RS0030922",
+            "RS0034908",
+            "RS0038176",
+            "RS0038202",
+            "RS0108033",
+            "RS0112111",
+            "RS0113727"
+          ]
+        },
+        "valid": [
+          "RS0038202",
+          "RS0026226",
+          "RS0121189",
+          "RS0038176",
+          "RS0108033",
+          "RS0115779",
+          "RS0026297",
+          "RS0112111",
+          "RS0030922",
+          "RS0113727",
+          "RS0034908",
+          "RS0022659"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1299 ABGB",
+          "§ 1293 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 1295 ABGB",
+          "§ 1298 ABGB",
+          "§ 1299, § 1313a ABGB",
+          "§ 1295, § 1325 ABGB",
+          "§ 1299/§ 1313a ABGB",
+          "§ 1295/§ 1325 ABGB"
+        ],
+        "ungrounded": [
+          "§ 1299, § 1313a ABGB",
+          "§ 1295, § 1325 ABGB",
+          "§ 1299/§ 1313a ABGB",
+          "§ 1295/§ 1325 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0005021",
+          "RS0008757",
+          "RS0009133",
+          "RS0018394",
+          "RS0018501",
+          "RS0019225",
+          "RS0020881",
+          "RS0022582",
+          "RS0022618",
+          "RS0022659",
+          "RS0022798",
+          "RS0023128",
+          "RS0023179",
+          "RS0023448",
+          "RS0023462",
+          "RS0023481",
+          "RS0023562",
+          "RS0024139",
+          "RS0026035",
+          "RS0026094",
+          "RS0026139",
+          "RS0026226",
+          "RS0026297",
+          "RS0026316",
+          "RS0026321",
+          "RS0026751",
+          "RS0026772",
+          "RS0028495",
+          "RS0028621",
+          "RS0030450",
+          "RS0030755",
+          "RS0030808",
+          "RS0030922",
+          "RS0031082",
+          "RS0031091",
+          "RS0031196",
+          "RS0031412",
+          "RS0034908",
+          "RS0035034",
+          "RS0035976",
+          "RS0038062",
+          "RS0038176",
+          "RS0038202",
+          "RS0038853",
+          "RS0041397",
+          "RS0041614",
+          "RS0042151",
+          "RS0081692",
+          "RS0090872",
+          "RS0097380",
+          "RS0102894",
+          "RS0102897",
+          "RS0102908",
+          "RS0105270",
+          "RS0108033",
+          "RS0108277",
+          "RS0111193",
+          "RS0112111",
+          "RS0113727",
+          "RS0115779",
+          "RS0116924",
+          "RS0118893",
+          "RS0120713",
+          "RS0121189",
+          "RS0123219",
+          "RS0123936",
+          "RS0126691",
+          "RS0127165",
+          "RS0127166",
+          "RS0129693",
+          "RS0131060"
+        ],
+        "te_ogh": [
+          "1Ob382/58",
+          "7Ob103/25k",
+          "7Ob198/25f",
+          "7Ob253/04p"
+        ],
+        "norms": [
+          "Art 8 EMRK",
+          "§ 1118 ABGB",
+          "§ 1293 ABGB",
+          "§ 1294 ABGB",
+          "§ 1295 ABGB",
+          "§ 1295 Ia4 ABGB",
+          "§ 1298 ABGB",
+          "§ 1299 ABGB",
+          "§ 1299\", \"Sommerreifen\", \"Erfüllungsgehilfe\", \"ABGB",
+          "§ 1302 ABGB",
+          "§ 1304 ABGB",
+          "§ 1313 a ABGB",
+          "§ 1313a ABGB",
+          "§ 1315 ABGB",
+          "§ 1325 ABGB",
+          "§ 1326 ABGB",
+          "§ 1327 ABGB",
+          "§ 1328 ABGB",
+          "§ 1489 ABGB",
+          "§ 179 ZPO",
+          "§ 190 ZPO",
+          "§ 21 PSG\", \"gleichgeschlechtliche Partner\", \"Betriebsvereinbarung\", \"Zulässigkeit\", \"ZPO",
+          "§ 255\", \"Rekurs\", \"§ 244 UGB",
+          "§ 289 ZPO",
+          "§ 362 ZPO",
+          "§ 366 ZPO",
+          "§ 5 Abs 1 Z 3 lit a\", \"§ 306 ASVG",
+          "§ 519 Abs 1 Z 2, Abs 2 ZPO",
+          "§ 91 StGB",
+          "§ 974 ABGB",
+          "§4 Z7\", \"Ausschlussklage\", \"Ausnahme Vollversicherung\", \"Verfahrenshelfer\", \"ASGG",
+          "§72\", \"ASVG"
+        ],
+        "stats": {
+          "rs_count": 71,
+          "te_ogh_count": 4,
+          "norm_count": 32
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0038202",
+          "RS0026226",
+          "RS0121189",
+          "RS0038176",
+          "RS0108033",
+          "RS0115779",
+          "RS0026297",
+          "RS0112111",
+          "RS0030922",
+          "RS0113727",
+          "RS0034908"
+        ],
+        "validation": {
+          "cited": 11,
+          "checked": 11,
+          "valid": 11,
+          "invalid": [],
+          "sample_valid": [
+            "RS0026226",
+            "RS0026297",
+            "RS0030922",
+            "RS0034908",
+            "RS0038176",
+            "RS0038202",
+            "RS0108033",
+            "RS0112111",
+            "RS0113727",
+            "RS0115779"
+          ]
+        },
+        "valid": [
+          "RS0038202",
+          "RS0026226",
+          "RS0121189",
+          "RS0038176",
+          "RS0108033",
+          "RS0115779",
+          "RS0026297",
+          "RS0112111",
+          "RS0030922",
+          "RS0113727",
+          "RS0034908"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1299 ABGB",
+          "§ 1293 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 1295 ABGB",
+          "§ 1298 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0005021",
+          "RS0008757",
+          "RS0009133",
+          "RS0018394",
+          "RS0018501",
+          "RS0019225",
+          "RS0020881",
+          "RS0022582",
+          "RS0022618",
+          "RS0022659",
+          "RS0022798",
+          "RS0023128",
+          "RS0023179",
+          "RS0023448",
+          "RS0023462",
+          "RS0023481",
+          "RS0023562",
+          "RS0024139",
+          "RS0026035",
+          "RS0026094",
+          "RS0026139",
+          "RS0026226",
+          "RS0026297",
+          "RS0026316",
+          "RS0026321",
+          "RS0026751",
+          "RS0026772",
+          "RS0028495",
+          "RS0028621",
+          "RS0030450",
+          "RS0030755",
+          "RS0030808",
+          "RS0030922",
+          "RS0031082",
+          "RS0031091",
+          "RS0031196",
+          "RS0031412",
+          "RS0034908",
+          "RS0035034",
+          "RS0035976",
+          "RS0038062",
+          "RS0038176",
+          "RS0038202",
+          "RS0038853",
+          "RS0041397",
+          "RS0041614",
+          "RS0042151",
+          "RS0081692",
+          "RS0090872",
+          "RS0097380",
+          "RS0102894",
+          "RS0102897",
+          "RS0102908",
+          "RS0105270",
+          "RS0108033",
+          "RS0108277",
+          "RS0111193",
+          "RS0112111",
+          "RS0113727",
+          "RS0115779",
+          "RS0116924",
+          "RS0118893",
+          "RS0120713",
+          "RS0121189",
+          "RS0123219",
+          "RS0123936",
+          "RS0126691",
+          "RS0127165",
+          "RS0127166",
+          "RS0129693",
+          "RS0131060"
+        ],
+        "te_ogh": [
+          "1Ob382/58",
+          "7Ob103/25k",
+          "7Ob198/25f",
+          "7Ob253/04p"
+        ],
+        "norms": [
+          "Art 8 EMRK",
+          "§ 1118 ABGB",
+          "§ 1293 ABGB",
+          "§ 1294 ABGB",
+          "§ 1295 ABGB",
+          "§ 1295 Ia4 ABGB",
+          "§ 1298 ABGB",
+          "§ 1299 ABGB",
+          "§ 1299\", \"Sommerreifen\", \"Erfüllungsgehilfe\", \"ABGB",
+          "§ 1302 ABGB",
+          "§ 1304 ABGB",
+          "§ 1313 a ABGB",
+          "§ 1313a ABGB",
+          "§ 1315 ABGB",
+          "§ 1325 ABGB",
+          "§ 1326 ABGB",
+          "§ 1327 ABGB",
+          "§ 1328 ABGB",
+          "§ 1489 ABGB",
+          "§ 179 ZPO",
+          "§ 190 ZPO",
+          "§ 21 PSG\", \"gleichgeschlechtliche Partner\", \"Betriebsvereinbarung\", \"Zulässigkeit\", \"ZPO",
+          "§ 255\", \"Rekurs\", \"§ 244 UGB",
+          "§ 289 ZPO",
+          "§ 362 ZPO",
+          "§ 366 ZPO",
+          "§ 5 Abs 1 Z 3 lit a\", \"§ 306 ASVG",
+          "§ 519 Abs 1 Z 2, Abs 2 ZPO",
+          "§ 91 StGB",
+          "§ 974 ABGB",
+          "§4 Z7\", \"Ausschlussklage\", \"Ausnahme Vollversicherung\", \"Verfahrenshelfer\", \"ASGG",
+          "§72\", \"ASVG"
+        ],
+        "stats": {
+          "rs_count": 71,
+          "te_ogh_count": 4,
+          "norm_count": 32
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 13619.71,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3763,
+        "completion_tokens": 2643,
+        "total_tokens": 6406,
+        "cost": 0.00205145,
+        "cached_tokens": 151,
+        "reasoning_tokens": 1031
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 4,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Liegt ein Verschulden des Arztes vor?** Ja, das Einschießen von drei statt vereinbarten zwei Embryonen verstößt potenziell gegen die Sorgfaltspflicht eines Sachverständigen nach § 1299 ABGB (RS0038202, RS0026226).\n- **Besteht Kausalität zur Drillingsgeburt und ersatzfähiger Schaden?** Die Kausalität ist gegeben, doch die Geburt gesunder Kinder begründet keinen Schaden im Sinne des § 1293 ABGB (RS0121189).\n- **Gibt es Aufklärungsfehler?** Fehlende Information über das tatsächliche Einschießen könnte gegen die Aufklärungspflicht verstoßen (RS0038176), führt aber bei gesunden Kindern nicht zu Haftung (RS0121189).\n\n### 2. RECHTSGRUNDLAGEN\n**Doppelgleisigkeit (Stufenbau: Primär vertraglich, subsidiär deliktisch):**\n- **Vertragliche Haftung (Hauptspur):** Behandlungsvertrag iVm § 1299 ABGB (Sorgfaltspflicht des Arztes als Sachverständigen; RS0038202, RS0026226); § 1313a ABGB (Haftung des Arztes/Krankenhauses für Erfüllungsgehilfen; RS0108033, RS0115779); Aufklärungsfehler als Vertragsverletzung (RS0038176). Schaden: § 1293 ABGB (Vermögens-/Immaterielle Schäden), § 1325 ABGB (Schmerzengeld).\n- **Deliktische Haftung (Eventualspur):** § 1295 ABGB (Verschulden), § 1325 ABGB (Schmerzengeld bei Verletzung); keine Beweislastumkehr nach § 1298 ABGB (RS0026297).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0121189:** Geburt eines gesunden, unerwünschten Kindes begründet keinen Schaden; kein Ersatz von Unterhaltsschäden – relevant, da analog keine Haftung bei gesunder Drillingsgeburt.\n- **RS0038202:** Ärzte haften nach § 1299 ABGB für Mangel an gewissenhafter Betreuung nach Stand der Wissenschaft – relevant für Behandlungsfehler beim Embryoneneinsetz.\n- **RS0026226:** Arzt haftet als Sachverständiger nach § 1299 ABGB mit höherem Maßstab bei Fachärzten – relevant für Verschulden des IVF-Arztes.\n- **RS0038176:** Behandlungsvertrag umfasst Aufklärungspflicht über Risiken – relevant für potenziellen Aufklärungsfehler.\n- **RS0112111:** Haftung bei Aufklärungsfehler in pränataler Diagnostik für behindertes Kind – relevant als Abgrenzung (kein Behinderungsfall hier).\n\n### 4. SUBSUMTION\n**Vertragliche Haftung:**\n- Verschulden: Vereinbarung nur zwei Embryonen; tatsächliches Einschießen von drei verstößt gegen Sachverständigenpflicht (RS0038202, RS0026226). Krankenhaus haftet für Arzt als Gehilfen (§ 1313a ABGB; RS0108033).\n- Aufklärungsfehler: Fehlende Mitteilung über tatsächliches Vorgehen verstößt gegen Aufklärungspflicht (RS0038176).\n- Kausalität/Schaden: Drillingsgeburt kausal, aber Geburt gesunder Kinder kein ersatzfähiger Schaden (§ 1293 ABGB; RS0121189); keine Erziehungskosten, kein Schmerzengeld.\n\n**Deliktische Haftung:**\n- Verschulden: Fahrlässiges Einschießen als Verletzung der Sorgfalt (RS0026226).\n- Kausalität/Schaden: Dieselbe Verneinung wie vertraglich; keine \"Verletzung\" iSd § 1325 ABGB bei gesunder Geburt (RS0121189; Abgrenzung zu RS0112111 bei Behinderung).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Kläger müssen beweisen:** Verschulden (3 Embryonen; medizinische Dokumentation), Kausalität zur Drillingsgeburt (Ultraschall/Geburtsakten), Schaden (zB Mehrkosten). Keine Umkehr nach § 1298 ABGB (RS0026297).\n- **Beklagte müssen widerlegen:** Sorgfalt (Sachverständigengutachten; RS0038202), keine Kausalität.\n\n### 6. PROZESSSTRATEGIE\n- **Hauptbegehren (hohe Erfolgsaussicht vertraglich):** Schadenersatz aus Behandlungsvertrag gegen Arzt und Krankenhaus solidarisch; pecuniary (Mehrbelastungskosten) + immateriell (§ 1325 ABGB); Stufenbau: Wandlung/Preisminderung unwesentlich.\n- **Eventualbegehren (deliktisch):** Subsidiärgegen beide; priorisiert niedriger wegen Doppelgleisigkeit.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (Kein Schaden bei gesunder Geburt; RS0121189):** Gericht verneint ersatzfähigen Schaden – Replik: Abgrenzung zu Behinderungsfall (RS0112111), hier Mehrbelastung als Vermögensschaden argumentieren (RS0030922).\n- **Risiko 2 (Fehlende Beweislastumkehr; RS0026297):** Kläger tragen volle Last, Gutachten fehlt – Replik: Anscheinsbeweis aus Vereinbarung (RS0113727).\n- **Risiko 3 (Keine Aufklärungspflichtverletzung; RS0038176):** Risiko Mehrlinge typisch, keine Pflicht – Replik: Spezifische Vereinbarung schafft höhere Pflicht als state of the art (RS0026226).\n- **Risiko 4 (Krankenhaus nicht haftbar; RS0108033):** Kein Gehilfenverhältnis – Replik: § 1313a ABGB deckt Klinikhaftung ab (RS0115779).\n- **Risiko 5 (Verjährung; RS0034908):** Fristbeginn bei Voraussehbarkeit – Replik: Laienkenntnis erst post partum (RS0113727).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Vertragliche Haftung:** Niedrig (Verschulden gegeben, aber Schadenverneinung RS0121189 dominiert; Abgrenzung zu RS0112111 schwierig).\n- **Deliktische Haftung:** Niedriger (Subsidiär, gleiche Schadensverneinung)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Liegt ein Verschulden des Arztes vor?** Ja, das Einschießen von drei statt vereinbarten zwei Embryonen verstößt potenziell gegen die Sorgfaltspflicht eines Sachverständigen nach § 1299 ABGB (RS0038202, RS0026226).\n- **Besteht Kausalität zur Drillingsgeburt und ersatzfähiger Schaden?** Die Kausalität ist gegeben, doch die Geburt gesunder Kinder begründet keinen Schaden im Sinne des § 1293 ABGB (RS0121189).\n- **Gibt es Aufklärungsfehler?** Fehlende Information über das tatsächliche Einschießen könnte gegen die Aufklärungspflicht verstoßen (RS0038176), führt aber bei gesunden Kindern nicht zu Haftung (RS0121189).\n\n### 2. RECHTSGRUNDLAGEN\n**Doppelgleisigkeit (Stufenbau: Primär vertraglich, subsidiär deliktisch):**\n- **Vertragliche Haftung (Hauptspur):** Behandlungsvertrag iVm § 1299 ABGB (Sorgfaltspflicht des Arztes als Sachverständigen; RS0038202, RS0026226); § 1313a ABGB (Haftung des Arztes/Krankenhauses für Erfüllungsgehilfen; RS0108033, RS0115779); Aufklärungsfehler als Vertragsverletzung (RS0038176). Schaden: § 1293 ABGB (Vermögens-/Immaterielle Schäden), § 1325 ABGB (Schmerzengeld).\n- **Deliktische Haftung (Eventualspur):** § 1295 ABGB (Verschulden), § 1325 ABGB (Schmerzengeld bei Verletzung); keine Beweislastumkehr nach § 1298 ABGB (RS0026297).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0121189:** Geburt eines gesunden, unerwünschten Kindes begründet keinen Schaden; kein Ersatz von Unterhaltsschäden – relevant, da analog keine Haftung bei gesunder Drillingsgeburt.\n- **RS0038202:** Ärzte haften nach § 1299 ABGB für Mangel an gewissenhafter Betreuung nach Stand der Wissenschaft – relevant für Behandlungsfehler beim Embryoneneinsetz.\n- **RS0026226:** Arzt haftet als Sachverständiger nach § 1299 ABGB mit höherem Maßstab bei Fachärzten – relevant für Verschulden des IVF-Arztes.\n- **RS0038176:** Behandlungsvertrag umfasst Aufklärungspflicht über Risiken – relevant für potenziellen Aufklärungsfehler.\n- **RS0112111:** Haftung bei Aufklärungsfehler in pränataler Diagnostik für behindertes Kind – relevant als Abgrenzung (kein Behinderungsfall hier).\n\n### 4. SUBSUMTION\n**Vertragliche Haftung:**\n- Verschulden: Vereinbarung nur zwei Embryonen; tatsächliches Einschießen von drei verstößt gegen Sachverständigenpflicht (RS0038202, RS0026226). Krankenhaus haftet für Arzt als Gehilfen (§ 1313a ABGB; RS0108033).\n- Aufklärungsfehler: Fehlende Mitteilung über tatsächliches Vorgehen verstößt gegen Aufklärungspflicht (RS0038176).\n- Kausalität/Schaden: Drillingsgeburt kausal, aber Geburt gesunder Kinder kein ersatzfähiger Schaden (§ 1293 ABGB; RS0121189); keine Erziehungskosten, kein Schmerzengeld.\n\n**Deliktische Haftung:**\n- Verschulden: Fahrlässiges Einschießen als Verletzung der Sorgfalt (RS0026226).\n- Kausalität/Schaden: Dieselbe Verneinung wie vertraglich; keine \"Verletzung\" iSd § 1325 ABGB bei gesunder Geburt (RS0121189; Abgrenzung zu RS0112111 bei Behinderung).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Kläger müssen beweisen:** Verschulden (3 Embryonen; medizinische Dokumentation), Kausalität zur Drillingsgeburt (Ultraschall/Geburtsakten), Schaden (zB Mehrkosten). Keine Umkehr nach § 1298 ABGB (RS0026297).\n- **Beklagte müssen widerlegen:** Sorgfalt (Sachverständigengutachten; RS0038202), keine Kausalität.\n\n### 6. PROZESSSTRATEGIE\n- **Hauptbegehren (hohe Erfolgsaussicht vertraglich):** Schadenersatz aus Behandlungsvertrag gegen Arzt und Krankenhaus solidarisch; pecuniary (Mehrbelastungskosten) + immateriell (§ 1325 ABGB); Stufenbau: Wandlung/Preisminderung unwesentlich.\n- **Eventualbegehren (deliktisch):** Subsidiärgegen beide; priorisiert niedriger wegen Doppelgleisigkeit.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (Kein Schaden bei gesunder Geburt; RS0121189):** Gericht verneint ersatzfähigen Schaden – Replik: Abgrenzung zu Behinderungsfall (RS0112111), hier Mehrbelastung als Vermögensschaden argumentieren (RS0030922).\n- **Risiko 2 (Fehlende Beweislastumkehr; RS0026297):** Kläger tragen volle Last, Gutachten fehlt – Replik: Anscheinsbeweis aus Vereinbarung (RS0113727).\n- **Risiko 3 (Keine Aufklärungspflichtverletzung; RS0038176):** Risiko Mehrlinge typisch, keine Pflicht – Replik: Spezifische Vereinbarung schafft höhere Pflicht als state of the art (RS0026226).\n- **Risiko 4 (Krankenhaus nicht haftbar; RS0108033):** Kein Gehilfenverhältnis – Replik: § 1313a ABGB deckt Klinikhaftung ab (RS0115779).\n- **Risiko 5 (Verjährung; RS0034908):** Fristbeginn bei Voraussehbarkeit – Replik: Laienkenntnis erst post partum (RS0113727).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Vertragliche Haftung:** Niedrig (Verschulden gegeben, aber Schadenverneinung RS0121189 dominiert; Abgrenzung zu RS0112111 schwierig).\n- **Deliktische Haftung:** Niedriger (Subsidiär, gleiche Schadensverneinung).",
+  "elapsed_ms": 239358.73
+}

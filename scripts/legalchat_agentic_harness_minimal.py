@@ -120,6 +120,12 @@ RECHTSGEBIET_PATTERNS: dict[str, list[str]] = {
         r"\bEigentum\b", r"\bBesitz\b", r"\bGrundbuch\b", r"\bPfandrecht\b",
         r"\bServitut\b", r"\bErsitzung\b",
     ],
+    "wohnungseigentum": [
+        r"\bWEG\b", r"\bWohnungseigentum", r"\bEigentümergemeinschaft\b",
+        r"\bHausverwaltung\b", r"\ballgemeine[rn]?\s+Teil", r"\bMiteigentum",
+        r"\bRücklage\b", r"\bBetriebskosten\b", r"\bNutzwert\b",
+        r"\b§\s*\d+\s*WEG\b", r"\bWohnungseigentumsanlage\b",
+    ],
     "insolvenzrecht": [
         r"\bInsolvenz\b", r"\bKonkurs\b", r"\bSanierung\b", r"\b§\s*\d+\s*IO\b",
         r"\bMasseforderung\b", r"\bAnfechtung\b.*\bIO\b",
@@ -147,6 +153,7 @@ DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
     "familienrecht": ["§ 90 ABGB", "§ 94 ABGB", "§ 49 EheG", "§ 55a EheG"],
     "sachenrecht": ["§ 367 ABGB", "§ 431 ABGB", "§ 480 ABGB", "§ 1500 ABGB"],
     "konsumentenschutz": ["§ 6 KSchG", "§ 9 KSchG", "§ 25c KSchG", "§ 25d KSchG"],
+    "wohnungseigentum": ["§ 2 WEG", "§ 3 WEG", "§ 16 WEG", "§ 20 WEG", "§ 28 WEG", "§ 30 WEG", "§ 32 WEG", "§ 52 WEG"],
 }
 
 SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
@@ -156,6 +163,8 @@ SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
                               ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB", "§ 35 EO", "§ 1346 ABGB"]),
     "immobilienkauf": ("vertragsrecht", [r"\bLiegenschaft", r"\bWohnung", r"\bKauf.*(?:Haus|Wohnung)", r"\bImmobilie"],
                       ["§ 922 ABGB", "§ 932 ABGB", "§ 871 ABGB", "§ 874 ABGB", "§ 934 ABGB"]),
+    "weg_erhaltung": ("wohnungseigentum", [r"\bErhaltung", r"\bHeiz", r"\bÖltank", r"\bÖlaustritt", r"\bMangel.*(?:allgemein|gemeinsam)", r"\bInstandhaltung", r"\bSanierung"],
+                      ["§ 28 WEG", "§ 30 WEG", "§ 20 WEG", "§ 1318 ABGB"]),
 }
 
 _PARAGRAPH_RX = re.compile(r"§\s*(\d+[a-z]?)\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöü]{1,15})")
@@ -931,6 +940,55 @@ except Exception as e:
         }
 
 
+def docker_exec_tool_call(
+    tool: str,
+    args: dict[str, Any],
+    container: str,
+    timeout: float = 45.0,
+) -> dict[str, Any]:
+    """Like remote_ssh_tool_call but runs docker exec directly (no SSH hop)."""
+    helper = f"""
+import json, time, urllib.request
+tool = {json.dumps(tool)}
+payload = json.loads({json.dumps(json.dumps(args))})
+url = "http://127.0.0.1:8070/tool/" + tool
+t0 = time.perf_counter()
+try:
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(url, data=data, method="POST", headers={{"Content-Type":"application/json"}})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        txt = r.read().decode("utf-8", errors="replace")
+        print(json.dumps({{"ok": True, "status": r.status, "latency_ms": round((time.perf_counter()-t0)*1000, 2), "body": json.loads(txt)}}, ensure_ascii=False))
+except Exception as e:
+    print(json.dumps({{"ok": False, "status": None, "latency_ms": round((time.perf_counter()-t0)*1000, 2), "error": str(e)}}, ensure_ascii=False))
+"""
+    t0 = time.perf_counter()
+    proc = subprocess.run(
+        ["docker", "exec", "-i", container, "python3", "-"],
+        input=helper,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    wrapper_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+    if proc.returncode != 0:
+        err = proc.stderr.strip() or proc.stdout.strip() or f"docker exec rc={proc.returncode}"
+        return {"ok": False, "status": None, "latency_ms": None, "body": None, "error": err, "wrapper_ms": wrapper_ms}
+    try:
+        result = json.loads(proc.stdout.strip())
+        result["wrapper_ms"] = wrapper_ms
+        return result
+    except (json.JSONDecodeError, ValueError) as e:
+        return {
+            "ok": False,
+            "status": None,
+            "latency_ms": None,
+            "body": None,
+            "error": f"docker_parse_error: {e}; stdout={proc.stdout[:500]}",
+            "wrapper_ms": wrapper_ms,
+        }
+
+
 def call_mcp_tool(
     tool: str,
     args: dict[str, Any],
@@ -953,6 +1011,13 @@ def call_mcp_tool(
                 args=args,
                 remote_ssh=remote_ssh,
                 remote_mcp_container=remote_mcp_container,
+                timeout=max(45.0, effective_timeout + 10.0),
+            )
+        if mcp_mode == "docker_exec":
+            return docker_exec_tool_call(
+                tool=tool,
+                args=args,
+                container=remote_mcp_container,
                 timeout=max(45.0, effective_timeout + 10.0),
             )
         if mcp_mode not in {"local_http", "remote_http"}:
@@ -3417,7 +3482,7 @@ def main() -> int:
     ap.add_argument("--organizer-backend", choices=["openrouter", "opencode_sidecar", "ab_test"], default="openrouter")
     ap.add_argument("--opencode-sidecar-cmd", default="", help="Command used for organizer sidecar (reads prompt from stdin, returns plan JSON on stdout)")
     ap.add_argument("--opencode-sidecar-timeout-sec", type=int, default=90)
-    ap.add_argument("--mcp-mode", choices=["local_http", "remote_http", "remote_ssh"], default="local_http")
+    ap.add_argument("--mcp-mode", choices=["local_http", "remote_http", "remote_ssh", "docker_exec"], default="local_http")
     ap.add_argument("--mcp-base", default=str(local_mode.get("base_url") or DEFAULT_MCP_BASE))
     ap.add_argument("--remote-ssh", default=str(remote_ssh_mode.get("ssh_host") or DEFAULT_REMOTE_SSH))
     ap.add_argument("--remote-mcp-container", default=str(remote_ssh_mode.get("container") or DEFAULT_REMOTE_MCP_CONTAINER))

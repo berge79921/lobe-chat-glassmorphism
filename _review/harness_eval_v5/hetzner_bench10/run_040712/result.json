@@ -1,0 +1,1869 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T04:07:12.004713+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Hannes Grubmair lässt nach einem Unfall seinen PKW günstig vom Freund reparieren und gibt ihn der Gebrauchtwagen-GmbH (Geschäftsführerin Paula Gabler) zum Weiterverkauf. Vereinbart: Bei Verkauf erhält Grubmair EUR 17.000. Die GmbH verkauft den PKW an Marius um EUR 22.000 mit Kreditkarte. Marius fährt auf eine Tankstelle und tankt um EUR 80, fährt ohne zu zahlen davon. Ein Jahr später stellt sich heraus, dass die Kreditkartenzahlung des Marius nicht gedeckt war. Die GmbH geht insolvent. Grubmair hat nie Geld erhalten. Welche Ansprüche hat Grubmair? Welche Ansprüche hat der Tankstellenbetreiber?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "",
+    "subdomain": "",
+    "confidence": 0.0,
+    "paragraphs": [],
+    "mandatory_paragraphs": [],
+    "keywords": [],
+    "all_scores": {},
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 106,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Ansprüche Grubmair gegen GmbH/Gabler",
+        "goal": "Ermitteln von Ansprüchen des Verkäufer-Grubmair gegen die GmbH/Geschäftsführerin auf Zahlung des vereinbarten Verkaufspreisanteils (EUR 17.000) und ggf. Schadensersatz",
+        "tools": [
+          "search_by_paragraph",
+          "search_kommentar_paragraph",
+          "get_rechtssatz",
+          "hot_rs_lookup",
+          "build_grounding_context",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Ansprüche Tankstellenbetreiber",
+        "goal": "Klären, ob und gegen wen (GmbH, Gabler, Marius, Grubmair?) Ansprüche auf Zahlung des Tankpreises (EUR 80) bestehen, insb. im Insolvenzfall",
+        "tools": [
+          "search_by_paragraph",
+          "search_kommentar_paragraph",
+          "search_ogh_entscheidungen",
+          "hot_cluster_context",
+          "detect_clusters",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Insolvenz- und Sicherheitenfragen",
+        "goal": "Prüfen, ob Grubmair oder Tankstelle Sicherheitsrechte (z.B. Eigentumsvorbehalt, Rechtsmitteln im Insolvenzverfahren) geltend machen können",
+        "tools": [
+          "search_by_schlagwort",
+          "search_kommentar_keyword",
+          "hot_index_stats",
+          "hot_rs_search",
+          "search_by_paragraph",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Zuordnung von Anspruchsgrundlagen (§§ 1306, 1311, 985, 987 BGB; § 1004 BGB iVm InsO; §§ 64, 65 GmbHG; § 823 BGB) unter Berücksichtigung von Insolvenz- und Kreditkartenzahlungsrechtsfragen, mit Fokus auf OGH-Rechtssätze und Kommentarpraxis (Palandt, Juslet)."
+  },
+  "organizer_meta": {
+    "latency_ms": 4155.42,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Ansprüche Grubmair gegen GmbH/Gabler\",\n      \"goal\": \"Ermitteln von Ansprüchen des Verkäufer-Grubmair gegen die GmbH/Geschäftsführerin auf Zahlung des vereinbarten Verkaufspreisanteils (EUR 17.000) und ggf. Schadensersatz\",\n      \"tools\": [\n        \"search_by_paragraph\",\n        \"search_kommentar_paragraph\",\n        \"get_rechtssatz\",\n        \"hot_rs_lookup\",\n        \"build_grounding_context\"\n      ]\n    },\n    {\n      \"name\": \"Ansprüche Tankstellenbetreiber\",\n      \"goal\": \"Klären, ob und gegen wen (GmbH, Gabler, Marius, Grubmair?) Ansprüche auf Zahlung des Tankpreises (EUR 80) bestehen, insb. im Insolvenzfall\",\n      \"tools\": [\n        \"search_by_paragraph\",\n        \"search_kommentar_paragraph\",\n        \"search_ogh_entscheidungen\",\n        \"hot_cluster_context\",\n        \"detect_clusters\"\n      ]\n    },\n    {\n      \"name\": \"Insolvenz- und Sicherheitenfragen\",\n      \"goal\": \"Prüfen, ob Grubmair oder Tankstelle Sicherheitsrechte (z.B. Eigentumsvorbehalt, Rechtsmitteln im Insolvenzverfahren) geltend machen können\",\n      \"tools\": [\n        \"search_by_schlagwort\",\n        \"search_kommentar_keyword\",\n        \"hot_index_stats\",\n        \"hot_rs_search\"\n      ]\n    },\n    {\n      \"name\": \"Zusammenfassung und Rechtssätze\",\n      \"goal\": \"Synthese der Ergebnisse in handhabbare Rechtssätze für beide Anspruchsgruppen\",\n      \"tools\": [\n        \"get_rechtssatz\",\n        \"hot_rs_lookup\",\n        \"build_grounding_context\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Zuordnung von Anspruchsgrundlagen (§§ 1306, 1311, 985, 987 BGB; § 1004 BGB iVm InsO; §§ 64, 65 GmbHG; § 823 BGB) unter Berücksichtigung von Insolvenz- und Kreditkartenzahlungsrechtsfragen, mit Fokus auf OGH-Rechtssätze und Kommentarpraxis (Palandt, Juslet).\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 382,
+      "completion_tokens": 569,
+      "total_tokens": 951,
+      "cost": 0.0009299,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "",
+      "subdomain": "",
+      "confidence": 0.0,
+      "paragraphs": [],
+      "mandatory_paragraphs": [],
+      "keywords": [],
+      "all_scores": {},
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Ansprüche Grubmair gegen GmbH/Gabler",
+      "goal": "Ermitteln von Ansprüchen des Verkäufer-Grubmair gegen die GmbH/Geschäftsführerin auf Zahlung des vereinbarten Verkaufspreisanteils (EUR 17.000) und ggf. Schadensersatz",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_kommentar_paragraph",
+        "get_rechtssatz",
+        "hot_rs_lookup",
+        "build_grounding_context",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 18026.51,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 1790,
+            "completion_tokens": 2228,
+            "total_tokens": 4018,
+            "cost": 0.0013472,
+            "cached_tokens": 832,
+            "reasoning_tokens": 1958
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 13629.3,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 6727,
+            "completion_tokens": 1513,
+            "total_tokens": 8240,
+            "cost": 0.0019843,
+            "cached_tokens": 784,
+            "reasoning_tokens": 1159
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 24315.85,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 9,
+          "usage": {
+            "prompt_tokens": 10508,
+            "completion_tokens": 3351,
+            "total_tokens": 13859,
+            "cost": 0.00276805,
+            "cached_tokens": 6727,
+            "reasoning_tokens": 2998
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 17328.73,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 9,
+          "usage": {
+            "prompt_tokens": 13668,
+            "completion_tokens": 2182,
+            "total_tokens": 15850,
+            "cost": 0.0022484,
+            "cached_tokens": 10508,
+            "reasoning_tokens": 1754
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 18614.83,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 15346,
+            "completion_tokens": 2335,
+            "total_tokens": 17681,
+            "cost": 0.00218725,
+            "cached_tokens": 13663,
+            "reasoning_tokens": 1061
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_17923462",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1464 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 716.58,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1464 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_78476175",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1465 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 843.89,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1465 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_70332659",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1466 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 729.48,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1466 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_71479437",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kommissionsvertrag",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 721.44,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kommissionsvertrag\", \"results\": [{\"rs_number\": \"JWR_2005080079_20060517X05\", \"kernaussage\": \"Äußeres Erscheinungsbild bei Betriebsführung auf fremde Rechnung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Betriebsführung\", \"fremde Rechnung\", \"eigenem Namen\", \"äußeres Erscheinungsbild\", \"Kommissionsvertrag\", \"Landwirtschaftsbetrieb\", \"Geschäftsabschluss\", \"Risikotragung\", \"Ermittlungsergebnisse\", \"SV-Pflicht\"]}, {\"rs_number\": \"JWR_1987160077_19880908X02\", \"kernaussage\": \"Essentialia negotii des Kommissionsgeschäfts vs. Eigenhandel\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Kommissionsvertrag\", \"essentialia negotii\", \"Eigenhandel\", \"Kommissionär\", \"Weisungsrecht\", \"Provision\", \"Benachrichtigungspflicht\", \"Ausländischer Lieferer\", \"Eingeführte Waren\"]}, {\"rs_number\": \"JWR_1991080082_19930316X02\", \"kernaussage\": \"Äußeres Erscheinungsbild bei Betriebsführung auf fremde Rechnung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Betriebsführung\", \"fremder Name\", \"eigenem Name\", \"äußeres Erscheinungsbild\", \"Kommissionsvertrag\", \"Betriebsrisiko\", \"Landwirtschaft\", \"BSVG\", \"Ermittlungsergebnisse\", \"Beweiswürdigung\"]}, {\"rs_number\": \"RS0062759\", \"kernaussage\": \"Für die Beurteilung der vom Kommissionär angewendeten Sorgfalt ist entscheidend, ob die von ihm gesetzten Maßnahmen verkehrsüblich sind bzw ob verkehrsübliche Maßnahmen unterlassen wurden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kommissionsvertrag\", \"kaufmännische Sorgfaltspflicht\", \"Verwahrung von Fahrzeugen\", \"Diebstahlsicherung\", \"Schlüsseltresor\"]}, {\"rs_number\": \"JWR_1974001466_19761"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_76141494",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Konsignationskauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 972.57,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Konsignationskauf\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_34273470",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Konsignationsverkauf Kommissionsverkauf Gebrauchtwagen",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.99,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Konsignationsverkauf Kommissionsverkauf Gebrauchtwagen\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_34977307",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1461 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 762.86,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1461 ABGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_56568504",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 373 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 692.83,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 373 HGB\", \"results\": [{\"rs_number\": \"RS0062573\", \"kernaussage\": \"Bei Annahmeverzug des Käufers stehen den Verkäufer nur die Rechte des § 373 HGB zu, nicht aber das Recht, Abnahme der Ware zu verlangen.\", \"schlagworte\": [\"Specieskauf\", \"Rücktritt vom Kaufvertrag\", \"Mängelrüge\", \"Annahmeverzug\", \"Kaufvertrag\", \"Fixgeschäft\", \"Selbsthilfeverkauf\", \"Leistungsverzug\", \"Rücktritt\", \"Selbsthilfe\"]}, {\"rs_number\": \"RS0062579\", \"kernaussage\": \"Da die Bestimmung des § 373 HGB nachgiebiges Recht ist, können Verkäufer und Käufer überdies - ausdrücklich oder schlüssig - von dieser gesetzlichen Regelung abweichende Vereinbarungen treffen.\", \"schlagworte\": [\"Kaufvertrag\", \"Fixgeschäft\", \"Annahmeverzug\", \"Selbsthilfeverkauf\"]}], \"count\": 2}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_70048000",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Verkaufsauftrag",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 776.05,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Verkaufsauftrag\", \"results\": [{\"rs_number\": \"JWR_1997160329_19970925X02\", \"kernaussage\": \"Unwiderruflichkeit des Alleinvermittlungsauftrags (GrEStG)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Alleinvermittlungsauftrag\", \"Maklervertrag\", \"Unwiderruflichkeit\", \"Abgabepflichtiger\", \"Verkaufsauftrag\", \"Grunderwerbsteuer\", \"GrEStG § 1\"]}, {\"rs_number\": \"JWR_1963000966_19640316X01\", \"kernaussage\": \"GrESt-Pflicht bei Verkaufsauftrag mit Verfügungsmacht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"GrEStG\", \"Steuerpflicht\", \"Verkaufsauftrag\", \"Beauftragter\", \"Verfügungsmacht\", \"eigene Rechnung\", \"Grundstücksverwertung\", \"fiktiver Erwerb\"]}, {\"rs_number\": \"JWR_1962000411_19631021X01\", \"kernaussage\": \"Beauftragter haftet voll für GrESt trotz Mindestabführung (1963)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Grunderwerbsteuer\", \"Beauftragter\", \"Verkaufsauftrag\", \"Mindestabführung\", \"freie Preisgestaltung\", \"Gegenleistung\", \"Bemessungsgrundlage\", \"Steuerumgehung\"]}, {\"rs_number\": \"JWR_1969001151_19700701X01\", \"kernaussage\": \"GrESt-Pflicht bei Verkaufsauftrag mit Verfügungsmacht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Grunderwerbsteuer\", \"Verkaufsauftrag\", \"Verfügungsmacht\", \"Steuerpflicht\", \"eigene Rechnung\", \"Grundstück\", \"Erwerb\", \"Makler\"]}, {\"rs_number\": \"RS0022118\", \"kernaussage\": \"Das Vorliegen einer wenigstens losen Gemeinschaftsorganisation und eines Einwirkungsrechtes jedes Partners ist ein wesentliches Tatbestandsmerkmal einer Gesellschaft nach § 1175 ff ABGB.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gesellschaft b"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_35053622",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Kommissionsvertrag Kommissionär Abrechnung Erlös Zahlung Kommittent",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.01,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Kommissionsvertrag Kommissionär Abrechnung Erlös Zahlung Kommittent\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_11849520",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "vertraege",
+            "query": "Ansprüche Kommittent gegen Kommissionär bei Verkauf Gebrauchtwagen Zahlungseingang rückgängig Insolvenz vereinbarter Erlösanteil",
+            "max_clusters": 2,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.24,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_14015640",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0010905",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 21.84,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0010905\", \"rechtssatz_text\": \"Kein gutgläubiger Erwerb, wo irgend ein Merkmal den Erwerbsakt als objektiv verdächtig erscheinen lässt.\", \"te_count\": 7, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7768, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob230_23a|OGH|2024-11-06\", \"gz\": \"6Ob230_23a\", \"datum\": \"2024-11-06\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft den Herausgabeanspruch des Klägers auf seine Stammzellen nach einem Insolvenzverkauf und stellt fest, dass kein vertraglicher Anspruch besteht und das Eigentum nach deutschem Recht zu beurteilen ist.\"}, {\"te_stable_key\": \"7Ob116_14f|OGH|2014-07-09\", \"gz\": \"7Ob116_14f\", \"datum\": \"2014-07-09\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision bezüglich des gutgläubigen Eigentumserwerbs der Beklagten an installierten Waren trotz Eigentumsvorbehalt der Klägerin.\"}, {\"te_stable_key\": \"3Ob243_13a|OGH|2014-03-19\", \"gz\": \"3Ob243_13a\", \"datum\": \"2014-03-19\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision betrifft die Zulässigkeit eines Zurückbehaltungsrechts eines Werkunternehmers an einem geleasten PKW gegenüber dem Eigentümer.\"}, {\"te_stable_key\": \"3Ob239_13p|OGH|2014-02-19\", \"gz\": \"3Ob239_13p\", \"datum\": \"2014-02-19\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision gegen die Abweisung einer Exszindizierungsklage wegen fehlender erheblicher Rechtsfrage im Zusammenhang mit dem gutgläubigen Erwerb eines Marktstands als Superädifikat.\"}, {\"te_stable_key\": \"2Ob227_06f|OGH|2007-04-26\", \"gz\": \"2Ob227_06f\", \"datum\": \"2007-04-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Aktivlegitimation eines Besitzers ohne Eigentumsnachweis zur Geltendmachung von Schadenersatz aus einem Verkehrsunfall zurück, da der Besitz nicht redlich ist.\"}, {\"te_stable_key\": \"9Ob72_01f|OGH|2001-04-25\", \"gz\": \"9Ob72_01f\", \"datum\": \"2001-04-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da die Auslegung eines Schreibens als Widerruf eines Kommissionsvertrages keine erhebliche Rechtsfrage darstellt und der Beklagte keinen gutgläubigen Erwerb i.S.d. § 366 HGB erwirbt.\"}, {\"te_stable_key\": \"7Ob95_99t|OGH|1999-04-28\", \"gz\": \"7Ob95_99t\", \"datum\": \"1999-04-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Sorgfaltsanforderungen beim Erwerb eines Leasin"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_20409866",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0062759",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.95,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0062759\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_29051193",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 375 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 688.01,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 375 HGB\", \"results\": [{\"rs_number\": \"RS0062594\", \"kernaussage\": \"Auch dann, wenn der Spezifikationskäufer vor der Spezifikation grundlos den Kauf \\\"storniert\\\" ist der Verkäufer verpflichtet, gemäß § 375 HGB vorzugehen. Die Übersendung eines Kaufgegenstandes per Nachnahme ist rechtlich nicht geeignet, dem Käufer von der Spezifikation durch den Verkäufer Kenntnis zu...\", \"schlagworte\": [\"Spezifikationskauf\", \"Kaufpreis\", \"Fristsetzung\", \"Verzug\"]}, {\"rs_number\": \"RS0062593\", \"kernaussage\": \"§ 375 HGB gibt dem Verkäufer bloß die Möglichkeit, wenn der Käufer mit der Spezifikation in Verzug ist, diese selbst vorzunehmen oder Schadenersatz wegen Nichterfüllung zu verlangen oder vom Vertrag zurückzutreten. Eine Frist für die Ausübung dieser Wahlrechte setzt aber das Gesetz dem Verkäufer...\", \"schlagworte\": []}, {\"rs_number\": \"RS0062595\", \"kernaussage\": \"Zum Wesen des Spezifikationskaufs im Sinne des § 375 HGB.\", \"schlagworte\": []}], \"count\": 3}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_70671970",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 376 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 808.01,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 376 HGB\", \"results\": [{\"rs_number\": \"RS0018426\", \"kernaussage\": \"Um von einem Fixkauf im Sinne des § 376 HGB sprechen zu können, müssen eindeutige Parteienerklärungen über eine klare Zeitbestimmung für die zu erbringende Leistung und darüber bestehen, daß die Vereinbarung einer bestimmten Leistungszeit ein so wesentlicher Vertragsbestandteil ist, daß mit ihrer...\", \"schlagworte\": []}, {\"rs_number\": \"RS0062614\", \"kernaussage\": \"Der Begriff des Fixgeschäftes im § 22 KO deckt sich mit jenem nach § 376 HGB.\", \"schlagworte\": [\"Fixgeschäft\", \"Konkurs\", \"§ 22 KO\", \"Masseverwalter\"]}, {\"rs_number\": \"RS0062628\", \"kernaussage\": \"Wurde vom Käufer im Prozeß ein konkreter Schaden wegen Nichtlieferung behauptet, so ist vom Gericht nicht zu prüfen, ob und welchen abstrakten Schaden im Sinne des § 376 HGB der Käufer erlitten hat.\", \"schlagworte\": []}], \"count\": 3}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_09678289",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 378 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 733.24,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 378 HGB\", \"results\": [{\"rs_number\": \"RS0062683\", \"kernaussage\": \"Die offene Mehrlieferung unterliegt nur insoweit der Anwendung der Vorschrift des § 378 HGB, als sie den durch die Allgemeinen Geschäftsbedingungen festgelegten Spielraum überschreitet; die Behauptungspflicht und Beweispflicht, die vertragliche Toleranzgrenze überschreitende, Mehrlieferungen seien...\", \"schlagworte\": []}, {\"rs_number\": \"RS0062694\", \"kernaussage\": \"Der zweite Halbsatz des § 378 HGB kommt nur zur Anwendung, wenn die gelieferte Ware mit der bestellten gar nichts gemein hat und offensichtlich für den Zweck des Käufers ohne Bedeutung ist. Die Verschiedenheit der bestellten von der gelieferten Ware muß nach ihrer Beschaffenheit so erheblich sein, ...\", \"schlagworte\": [\"Mängelrüge\", \"Aliud pro alio\", \"Gewährleistungsanspruch\", \"Grubenholz\", \"Brennholz\", \"Frost-Tausalz-Beständigkeit\", \"Betonfertigteile\", \"Aliudlieferung\", \"Werklieferungsvertrag\", \"kaufmännische Rügepflicht\", \"Handelskauf\", \"Teillieferung\", \"Genehmigungsfiktion\", \"§ 377 HGB\", \"Gewährleistung\", \"Irrtum\", \"Kaufvertrag\"]}], \"count\": 2}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_12516775",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 374 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 793.66,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 374 HGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_61168174",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0020259"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.62,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0020259\", \"rechtssatz\": \"Bei Vorliegen eines Verkaufsauftrages stellt der Verkauf der Sache auch bei Unterschreitung eines vereinbarten Mindestpreises an sich noch keine Zueignungshandlung dar. Eine solche kann erst in der rechtswidrigen Verwendung des tatsächlich zugeflossenen Erlöses erblickt werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verkaufsauftrag\", \"Unterschreitung Mindestpreis\", \"Zueignungshandlung\", \"rechtswidrige Verwendung des Erlöses\", \"Veruntreuung\"], \"fachgebiete\": [\"Vermögensdelikte\"], \"datum\": \"1974-02-19\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_36868622",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0020262"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.01,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0020262\", \"rechtssatz\": \"Die Anordnung des § 1088 Satz 1 ABGB, dass Verträge, denen ein Merkmal des echten Verkaufsauftrages fehlt, als Bevollmächtigungsvertrag anzusehen seien, ist nur eine Auslegungsregel, der nur dann zu folgen ist, wenn der Parteiwille nichts anderes ergibt und die dann nicht passt, wenn der Übernehmer auf eigene Rechnung handeln soll. In diesem Fall ist ein dem Verkaufsauftrag ähnlicher Vertrag eigener Art anzunehmen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verkaufsauftrag\", \"Kommissionsvertrag\", \"Mängelhaftung\", \"Gewährleistungsausschluss\", \"Maklervertrag\", \"Übererlösklausel\", \"Immobilienmakler\", \"IMV\", \"Trödelvertrag\", \"Vertragsauslegung\", \"ergänzende Vertragsauslegung\", \"Gesellschaft nach bürgerlichem Recht\", \"GesbR\", \"Bevollmächtigungsvertrag\"], \"fachgebiete\": [\"Vertragsauslegung\", \"Personengesellschaften\"], \"datum\": \"2020-11-26\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_31877993",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0062729"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.7,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0062729\", \"rechtssatz\": \"Der Kommissionär ist nicht berechtigt, das Ausführungsgeschäft ohne Zustimmung des Kommittenten zu stornieren. Den Rückersatz des Erlöses des Kommissionsgutes kann er daher vom Kommittenten nur fordern, wenn er beweist, daß eine Stornierung des Ausführungsgeschäftes nicht zu umgehen war.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kommissionsvertrag\", \"Kunstversteigerung\", \"Gewährleistungsausschluss\", \"Irrtumsanfechtung\", \"Kommission\", \"Rückabwicklung\", \"Gewährleistung\", \"Aufklärungspflicht\", \"Kommissionsgeschäft\", \"Fehlgutschrift\", \"Rückforderung\", \"außerordentliche Revision\"], \"fachgebiete\": [\"Gewährleistung\", \"Bereicherungsrecht\"], \"datum\": \"2015-03-03\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_12544207",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Kommissionär Erlös Kommittent Insolvenz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.33,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Kommissionär Erlös Kommittent Insolvenz\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_78024121",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kommissionsware",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1044.78,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kommissionsware\", \"results\": [{\"rs_number\": \"RS0088019\", \"kernaussage\": \"Der (ausländische) Vertragspartner, der einem selbständigen Handelsvertreter bei Beginn der Geschäftsbeziehungen Kommissionswaren überläßt, ist nicht gehalten, eine spezielle Aufsichtspflicht oder Kontrollpflicht dahin zu entfalten, ob der Handelsvertreter seine Zusage, diese Waren anläßlich der...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Finanzordnungswidrigkeit\", \"Kommissionsware\", \"Selbständiger Handelsvertreter\", \"Aufsichtspflicht\", \"Kontrollpflicht\", \"Grobe Fahrlässigkeit\", \"Auffallende Sorglosigkeit\"]}, {\"rs_number\": \"JWR_1958000439_19610303X01\", \"kernaussage\": \"Eintragung von Kommissionswaren ins Wareneingangsbuch\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Wareneingangsbuch\", \"Kommissionsware\", \"Eigentumserwerb\", \"Buchführungspflicht\", \"Umsatzsteuer\", \"BAO § 128\", \"Ordnungsgeld\", \"Vorsteuerabzug\"]}, {\"rs_number\": \"RS0114171\", \"kernaussage\": \"In der Festlegung des Versicherungsortes mit der jeweiligen Wohnung samt Nebenräumen in der Haushaltsversicherung liegt eine sekundäre Risikoabgrenzung vor. Durch die sogenannte \\\"Außenversicherung\\\" erfolgt eine Erweiterung dieses Versicherungsortes, allerdings mit einer besonderen Entschädigungsgren...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Haushaltsversicherung\", \"Außenversicherung\", \"Zweitwohnsitz\", \"ABH 1993\", \"vorübergehend verbracht\", \"Kommissionsware\", \"Einbruchsdiebstahl\", \"ständig bewohntes Gebäude\", \"ABH 2006 Premium\"]}, {\"rs_number\": \"RS0121923\", \"kernaussage\": \"Zum Zweck eines kommissionellen Verkaufes aus der Wohnung d"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_41932644",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1088 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 788.76,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1088 ABGB\", \"results\": [{\"rs_number\": \"RS0025103\", \"kernaussage\": \"Auf den unregelmäßigen Verkaufsauftrag nach § 1088 ABGB sind die Grundsätze des Bevollmächtigungsvertrages, daher auch über die Rechnungslegungspflicht nach § 1002 ABGB anzuwenden (Klang Kommentar 1. Auflage Bd II/2 zu § 1088 ABGB).\", \"schlagworte\": []}, {\"rs_number\": \"RS0109270\", \"kernaussage\": \"§ 1088 ABGB will dem gutgläubigen Käufer das Risiko der richtigen Beurteilung des Umfanges der Veräußerungsbefugnis des Trödlers abnehmen.\", \"schlagworte\": [\"gutgläubiger Erwerb\", \"Vertrauensmann\", \"Vollmachtsmißbrauch\", \"Fahrzeugverkauf\", \"Betrug\"]}, {\"rs_number\": \"RS0044387\", \"kernaussage\": \"Verkaufsauftrag; außerordentliche Revision nicht angenommen: Nach § 1088 ABGB liegt im Zweifel ein Bevollmächtigungsvertrag vor, der Verkauf erfolgt auf fremde Rechnung, ein Mehrerlös ist daher herauszugeben.\", \"schlagworte\": []}], \"count\": 3}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_54434966",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 384 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 723.73,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 384 HGB\", \"results\": [{\"rs_number\": \"JWR_2004160031_20071120X03\", \"kernaussage\": \"Gestattung eines Substituten durch Kommittent (§ 384 HGB)\", \"schlagworte\": [\"Kommittent\", \"Kommissionär\", \"Substitut\", \"Unterkommissionär\", \"Gestattung\", \"ausdrücklich\", \"konkludent\", \"Kommissionsvertrag\"]}], \"count\": 1}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_33729526",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 386 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 723.37,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 386 HGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_51534769",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 385 HGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 723.03,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 385 HGB\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_94271412",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Verkaufsauftrag Erlös Zahlungspflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.11,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Verkaufsauftrag Erlös Zahlungspflicht\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_60059374",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "schuldrecht_bt",
+            "query": "Ansprüche Kommittent gegen Kommissionär bei Insolvenz und nicht ausgezahltem Verkaufserlös aus Gebrauchtwagenverkauf",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.32,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_86462656",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Kommissionserlös Insolvenz Absonderungsrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.67,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Kommissionserlös Insolvenz Absonderungsrecht\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_25927576",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0020259",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.53,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0020259\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "call_53528546",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0025454"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.0,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0025454\", \"rechtssatz\": \"Wenn der Kommissionär zulässigerweise mit der Durchführung des Geschäftes einen Unterkommissionär beauftragt, haftet er nur für culpa in eligendo. Jedoch obliegt ihm eine den Umständen angemessene Überwachung, Vertretung der Interessen des Kommittenten und Benachrichtigung von allen Umständen, die für den Komittenten in Ansehung des Geschäftes von Bedeutung sind.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kommissionär\", \"Unterkommissionär\", \"culpa in eligendo\", \"Sorgfaltspflicht\", \"Verkaufsauftrag\", \"Wertpapiere\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"1951-12-05\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0121923",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0121923",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.72,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0121923\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114171",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114171",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.03,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114171\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109270",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109270",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.03,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109270\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0088019",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0088019",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.23,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0088019\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0062694",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0062694",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.98,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0062694\", \"rechtssatz_text\": \"Der zweite Halbsatz des § 378 HGB kommt nur zur Anwendung, wenn die gelieferte Ware mit der bestellten gar nichts gemein hat und offensichtlich für den Zweck des Käufers ohne Bedeutung ist. Die Verschiedenheit der bestellten von der gelieferten Ware muß nach ihrer Beschaffenheit so erheblich sein, ...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15938, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob78_15g|OGH|2015-10-21\", \"gz\": \"2Ob78_15g\", \"datum\": \"2015-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Revision gegen Ablehnung von Anfechtung und Wandlung eines Kaufvertrags über eine gebrauchte Heutrocknungsanlage wegen Irrtums über das Alter und Gewährleistungsmängel.\"}, {\"te_stable_key\": \"7Ob295_04i|OGH|2005-07-11\", \"gz\": \"7Ob295_04i\", \"datum\": \"2005-07-11\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Zulässigkeit und Berechtigung von Revisionen zu Mängelrügen bei Teillieferungen zwischen Handelsgesellschaften.\"}, {\"te_stable_key\": \"5Ob142_04z|OGH|2004-10-29\", \"gz\": \"5Ob142_04z\", \"datum\": \"2004-10-29\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung einer Aliud-Lieferung im Rahmen eines Werklieferungsvertrags unter Anwendung der kaufmännischen Rügepflichten des HGB.\"}], \"te_items_count\": 3}"
+        }
+      ],
+      "tool_calls_total": 36,
+      "tool_calls_ok": 36,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Grubmair's Ansprüche gegen GmbH/Geschäftsführerin Gabler (Zahlung EUR 17.000 + ggf. Schadensersatz):**\n\n### Vertragscharakterisierung (Verkaufsauftrag/Kommissionsvertrag)\n- Das Arrangement (\"PKW zum Weiterverkauf, bei Verkauf EUR 17.000\") qualifiziert sich als **Verkaufsauftrag (§ 1088 ABGB)** oder **Kommissionsvertrag** (analog §§ 373 ff HGB, da GmbH Kaufmann). Kein voller Kauf, da kein sofortiger Eigentumsübergang/Risikotransfer; stattdessen Auftrag zum Verkauf auf fremde Rechnung mit Abrechnungspflicht des Auftragnehmers (Kommissionär/GmbH).\n  - **RS0020262**: § 1088 ABGB Satz 1 ist bloße Auslegungsregel; bei fehlenden Merkmalen echten Verkaufsauftrags (z.B. kein fester Preis/Risikotransfer) gilt Bevollmächtigungsvertrag. Parteiwille hier: Verkauf durch GmbH, Abrechnung an Grubmair → **Kommissionär haftet für Erlösabführung**.\n  - **RS0025103**: Auf unregelmäßigen Verkaufsauftrag (§ 1088 ABGB) gelten Bevollmächtigungsgrundsätze, inkl. **Rechnungslegungspflicht (§ 1002 ABGB)**.\n  - **RS0020259**: Verkauf (auch unter Mindestpreis) keine Zueignung; erst **rechtswidrige Verwendung des Erlöses** begründet Haftung/Veruntreuung.\n\n- **Kein reiner Kauf**: Grubmair behält (vor Verkauf) Eigentum/Besitzrisiko; GmbH nur bevollmächtigt zum Verkauf/Abrechnung (vgl. RS0010905 zu Kommissionskontexten bei KFZ).\n\n### Primärer Anspruch: Zahlung des vereinbarten Erlösanteils (EUR 17.000)\n- **Vertraglicher Leistungsanspruch** aus Verkaufs-/Kommissionsvertrag: GmbH schuldet Abrechnung/Überlassung des Nettopreises (EUR 17.000 brutto? minus Provision, falls vereinbart).\n  - Verkauf an Marius (EUR 22.000) erfüllt \"Verkaufsbedingung\"; Zahlungsrisiko (Kreditkarte) geht auf GmbH über (Kommissionär trägt Ausführungsgeschäftsrisiko post-Verkauf).\n  - **RS0062729**: Kommissionär darf Ausführungsgeschäft nicht einseitig stornieren; Rückersatzpflicht nur bei Nachweis Unumgänglichkeit (hier: Zahlungseingang registriert → Zahlung fällig).\n- **Beweislast**: **GmbH (Kommissionär) trägt volle Beweislast** für ordnungsgemäße Abrechnung/Erlöseingang/Nichtzahlung (kaufmännische Sorgfalt, § 1299 ABGB analog; RS0025454: Überwachungspflicht). Grubmair muss nur Vertrag/Verkauf nachweisen.\n\n- **Insolvenz der GmbH**: Anspruch als **Massenforderung** (niedrige Quote). Kein Absonderungsrecht (keine Treuhand/Sondervermögen nachweisbar; keine RS zu Kommissionserlös als separiert). Keine Suchergebnisse zu \"Kommissionserlös Insolvenz Absonderungsrecht\".\n\n### Sekundärer Anspruch: Schadensersatz (§ 1299 ABGB)\n- Bei Sorgfaltspflichtverletzung (z.B. unzureichende Zahlungssicherheit bei Kreditkarte, keine Überwachung Marius): **Schadenersatz statt der Leistung** (EUR 17.000 + Zins/Verzug).\n  - **RS0062759/RS0042980/RS0062754/RS0062756** (Kommissionssorgfalt): Kaufmännische Sorgfalt (verkehrsüblich); Beweislast bei GmbH für Abwendungsmöglichkeit (große Wahrscheinlichkeit reicht).\n  - **RS0025454**: Haftung für culpa in eligendo/Überwachung (falls Subunternehmer).\n- **Beweislast**: **Grubmair trägt** für Sorgfaltspflichtverletzung; **GmbH** für Schadensminderung.\n\n### Ansprüche gegen GF Paula Gabler persönlich\n- **Keine Haftung ohne Persönlichkeitsverstoß**: Reine GmbH-Verbindlichkeit (§ 25c KSchG? Keine Treffer). Persönliche Haftung nur bei **Piercing the Corporate Veil** (z.B. Vermögensvermischung, § 25 Abs 3 GmbHG) oder **Delikt** (§ 1295 ABGB: Betrug/Missbrauch).\n  - Keine RS zu GF-Haftung in Kommissionskontext; **Beweislast bei Grubmair** für persönliche Verschulden (z.B. bewusste Irreführung über Zahlungseingang).\n- **§ 879 ABGB (Sittenwidrigkeit)**: Irrelevant (kein Interzessionskontext; separate Regime).\n\n**Empfehlung**: Klage auf Feststellung/Abrechnung (§ 1002 ABGB) + Zahlung/Schadenersatz gegen GmbH (Insolvenzmasse); parallele Deliktsklage ggf. gegen Gabler (schwach). Keine hochspezifischen RS zu exaktem Sachverhalt (Insolvenz + bounced Zahlung); Beweislastverteilung wie angegeben.",
+      "answer_chars": 3909,
+      "e2e_ms": 111571.47
+    },
+    {
+      "name": "Ansprüche Tankstellenbetreiber",
+      "goal": "Klären, ob und gegen wen (GmbH, Gabler, Marius, Grubmair?) Ansprüche auf Zahlung des Tankpreises (EUR 80) bestehen, insb. im Insolvenzfall",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_kommentar_paragraph",
+        "search_ogh_entscheidungen",
+        "hot_cluster_context",
+        "detect_clusters",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 25328.3,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 1832,
+            "completion_tokens": 2900,
+            "total_tokens": 4732,
+            "cost": 0.0017939,
+            "cached_tokens": 150,
+            "reasoning_tokens": 2599
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 30086.03,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 8360,
+            "completion_tokens": 2867,
+            "total_tokens": 11227,
+            "cost": 0.00298805,
+            "cached_tokens": 783,
+            "reasoning_tokens": 2479
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 19472.76,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 9,
+          "usage": {
+            "prompt_tokens": 16120,
+            "completion_tokens": 2387,
+            "total_tokens": 18507,
+            "cost": 0.00316425,
+            "cached_tokens": 8355,
+            "reasoning_tokens": 2011
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 16596.74,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 20926,
+            "completion_tokens": 1774,
+            "total_tokens": 22700,
+            "cost": 0.00265495,
+            "cached_tokens": 16115,
+            "reasoning_tokens": 972
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_65848689",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Tankdiebstahl",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1069.32,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Tankdiebstahl\", \"results\": [{\"rs_number\": \"RS0098537\", \"kernaussage\": \"Die Annahme einer vom Ankläger nicht herangezogenen (bloßen) Qualifikation berührt keinesfalls die Identität der Tat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anklageüberschreitung\", \"Tankdiebstahl\", \"Nichtigkeit\", \"schwerer Diebstahl\", \"Berufung\", \"reformatio in peius\", \"Subsumtionsrüge\", \"Identität der Tat\", \"§ 130 StGB\", \"gewerbsmäßiger Diebstahl\", \"Qualifikation\", \"§ 262 StPO\", \"Einbruch\", \"Anklageprinzip\"]}, {\"rs_number\": \"RS0102147\", \"kernaussage\": \"Gegenstand der Anklage, an den das erkennende Gericht gebunden ist, ist die konkret bestimmte Tat, also das gesamte Verhalten der Angeklagten, wie es sich aus der Anklagebegründung ergibt, nicht aber ihre vom Ankläger (oder vom Oberlandesgericht in seiner gemäß § 214 StPO ergangenen Einspruchsentsch...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anklageüberschreitung\", \"Anklagewille\", \"üble Nachrede\", \"Gegenstand der Anklage\", \"Nichtigkeitsberufung\", \"Berufung\", \"Pornographische Darstellungen Minderjähriger\", \"Medieninhaltsdelikt\", \"Subsumtionsrüge\", \"§ 130 StGB\", \"Bindung des Gerichts an die Anklage\", \"§ 262 StPO\", \"Kindesmissbrauchsmaterial\", \"gewerbsmäßiger Diebstahl\", \"Einbruch\", \"Medieninhaber\", \"§ 485 StPO\", \"Facebook-Posting\", \"Strafantrag\", \"Disziplinarverfahren Rechtsanwalt\", \"Tankdiebstahl\", \"schwerer Diebstahl\", \"Lebenssachverhalt\", \"Prozessgegenstand\", \"§ 40 MedienG\", \"Suchmaschine-Zugriff\", \"örtliche Zuständigkeit\", \"Nichterledigung der Anklage\", \"Hochladen Bilder\", \"§ 207a StGB\"]}, {\"rs_number\": \"RS0098617\", \"kernaussage\": \"§§ 262"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_74148284",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Halterhaftung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 54.69,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Halterhaftung\", \"results\": [{\"rs_number\": \"JWR_2022150037_20230927L03\", \"kernaussage\": \"Widerlegung Standortvermutung § 82 Abs. 8 KFG erfordert Feststellungen zu Ort und Verwendung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Standortvermutung\", \"Widerlegung\", \"Feststellungen\", \"Kraftfahrzeugverwendung\", \"Halterhaftung\", \"OWi-Verfahren\", \"Beweislast\"]}, {\"rs_number\": \"RS0065615\", \"kernaussage\": \"Unter \\\"gesetzlichen Haftpflichtbestimmungen\\\" im Sinn des § 59a Abs 1 KFG sind nicht nur jene des EKHG zu verstehen, sondern auch die Schadenersatznormen des ABGB.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Haftpflichtversicherung\", \"KFG\", \"geschädigter Dritter\", \"Mitversicherter\", \"fahrlässige Körperverletzung\", \"Mitverschulden\", \"Alkoholisierung\", \"Regress\", \"Mitversicherte\", \"Alkoholisiertes Fahren\", \"Fehlende Lenkerberechtigung\", \"Autosurfen\", \"KFZ-Haftpflichtversicherung\", \"EKHG\", \"Halterhaftung\", \"Beweislast\", \"Kraftfahrzeug-Haftpflichtversicherung\", \"Risikoausschluss\", \"Mitversicherte Personen\", \"AKHB 1995\", \"Anhänger\", \"Verkehrsmittel § 333 Abs 3 ASVG\", \"Verwendung § 2 Abs 1 KHVG\", \"Reparaturarbeiten\", \"Schwarzfahrt\", \"KHVG\", \"Verkehrsunfall\", \"Begräbniskosten\", \"Mithalter\", \"Betonpumpe\", \"Betriebsunfall\", \"Entladung\", \"ortsgebundene Kraftquelle\", \"Traktor\", \"Seilwinde\", \"Kfz-Haftpflichtversicherung\", \"Verwendung Kraftfahrzeug\", \"Feuerlöscher\"]}, {\"rs_number\": \"RS0065730\", \"kernaussage\": \"Der Lenker muß bis zur Grenze des unabwendbaren Zufalles alles tun, was zugemutet werden kann. Entscheidend sind die konkreten Verhältnisse des Einzelfalles. Der Lenk"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_33001731",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kommissionsverkauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1057.78,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kommissionsverkauf\", \"results\": [{\"rs_number\": \"RS0094645\", \"kernaussage\": \"Veruntreuung durch den Gemeinschuldner; hier: in Ansehung des Erlöses aus dem Weiterverkauf einer ihm unter Eigentumsvorbehalt zur (quasi-) kommissionsweisen Veräußerung anvertraut gewesenen Sache.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Veruntreuung\", \"Gemeinschuldner\", \"Eigentumsvorbehalt\", \"Kommissionsverkauf\", \"Treuepflichtverletzung\", \"Erlösherausgabepflicht\", \"Insolvenzbezogene Vermögensdelikte\"]}, {\"rs_number\": \"RS0012012\", \"kernaussage\": \"Zur Befugnis des Kommissionärs, das ihm zum Verkauf übergebene Kommissionsgut ( PKW ) zu verpfänden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schlechtgläubiger Erwerb\", \"Sicherungsübereignung\", \"Kommissionsverkauf\", \"Unredlicher Besitzer\", \"Schadenersatzpflicht\"]}], \"count\": 2}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_94703582",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Tankstelle Anspruch gegen Halter Eigentümer bei Tanken ohne",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.13,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Tankstelle Anspruch gegen Halter Eigentümer bei Tanken ohne\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_17368404",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 30 KFG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 679.55,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 30 KFG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_66095199",
+          "tool": "detect_clusters",
+          "args": {
+            "topic": "haftung",
+            "query": "Ansprüche Tankstellenbetreiber gegen Halter oder Eigentümer des PKW bei Tankdiebstahl oder Tanken ohne Bezahlung"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.31,
+          "error": null,
+          "payload_preview": "\"Unknown tool: detect_clusters\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_00232578",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Tankstelle Halterhaftung unbezahlter Kraftstoff Tanken ohne Zahlung Halter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.11,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Tankstelle Halterhaftung unbezahlter Kraftstoff Tanken ohne Zahlung Halter\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_60799100",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Tankbetrug Halter haftet Drive off Tankstelle Eigentümer",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.28,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Tankbetrug Halter haftet Drive off Tankstelle Eigentümer\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_49826077",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Tankstelle",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 92.8,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Tankstelle\", \"results\": [{\"rs_number\": \"RS0102269\", \"kernaussage\": \"Soweit dem Höchstgericht die Überprüfung bekämpfter Entscheidungen - nach den Verfahrensvorschriften - nur in eingeschränktem Ausmaß möglich ist, können Amtshaftungsansprüche aus einem nicht überprüfbaren Verhalten der Vorinstanzen geltend gemacht werden. Das muß auch für jene Fälle gelten, in...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Amtshaftung\", \"Rettungspflicht\", \"Ablöse\", \"MRG\", \"Beweisrüge\", \"konkludenter Hauptmietvertrag\", \"Räumung\", \"Berufungsverfahren\", \"außerordentliche Revision\", \"Vertretbarkeit der Rechtsauffassung\", \"entgangener Gewinn\", \"Verzugszinsen\", \"Mietrecht\", \"Befristung\", \"Räumungsvergleich\", \"Tankstelle\", \"Unterhaltsvergleich\", \"Anleitungspflicht\", \"Belehrungspflicht\", \"Verjährung\", \"Höchstgerichtsentscheidungen\", \"Revision\", \"Zurückweisungsbeschluss\", \"AHG\", \"Rekurs\", \"Verfahrensunterbrechung\", \"Zustellung\", \"Ablehnung von Richtern\", \"Rechtsmittelunterlassung\", \"Widerspruch\", \"Anwaltsverschulden\", \"Willkür\", \"Beweiswürdigung\"]}, {\"rs_number\": \"JWR_1976000227_19770310X08\", \"kernaussage\": \"Zufahrten zu Tankstellen als Straßen i.S.d. § 2 Abs 1 Z 1 StVO\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Tankstelle\", \"Zufahrt\", \"Straße\", \"Fahrzeugverkehr\", \"StVO § 2\", \"Natur der Sache\", \"Tanken\", \"Ölwechsel\", \"Verkehrsordnungswidrigkeit\"]}, {\"rs_number\": \"RS0107105\", \"kernaussage\": \"Das freie Gastgewerbe nach § 143 Z 7 GewO 1994 ist nicht an einen Befähigungsnachweis gebunden. Wesentlich für dieses Gewerbe ist die buffetmäßige Ausschanktätigkeit und Verabreichungstätig"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_32638104",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1 KHVG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 776.69,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1 KHVG\", \"results\": [{\"rs_number\": \"RS0065813\", \"kernaussage\": \"Im Falle des § 2 Abs 2 Z 1 KHVG 1987 handelt es sich lediglich um eine Ergänzung der Pflichtversicherung gemäß § 1 KHVG. Ebenso wie in § 2 Abs 1 KHVG (dort ebenfalls in örtlicher Hinsicht) und bei freiwilliger Höherversicherung gemäß § 2 Abs 2 Z 2 KHVG wird hier der Versicherungsschutz über die...\", \"schlagworte\": []}, {\"rs_number\": \"RS0134597\", \"kernaussage\": \"Wenn zwischen der Halterin des Kfz und der beklagten Versicherung kein Versicherungsvertrag iSd § 1 KHVG, sondern (lediglich) eine Betriebshaftpflichtversicherung besteht, kann sich der Kläger damit nicht auf das gegenüber dem Kraftfahrzeughaftpflichtversicherer bestehende Direktklagerecht nach § 26...\", \"schlagworte\": [\"Direktklage\", \"Betriebshaftpflichtversicherung\", \"KHVG\", \"Arbeitsunfall\"]}], \"count\": 2}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_74859113",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 101 KFG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 727.37,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 101 KFG\", \"results\": [{\"rs_number\": \"JWR_1985030112_19870408X01\", \"kernaussage\": \"§ 101 KFG als Ungehorsamsdelikt: Beweislastumkehr\", \"schlagworte\": [\"Ungehorsamsdelikt\", \"Beweislastumkehr\", \"Verwaltungsübertretung\", \"KFG § 101\", \"VStG § 5\", \"Schuldlosigkeit beweisen\", \"Entlastungspflicht\", \"Polizeianordnung\"]}, {\"rs_number\": \"JWR_1989150029_19901022X01\", \"kernaussage\": \"Höchste zul. Nutzlast unabhängig von Genehmigungsbehörde (§ 101 KFG)\", \"schlagworte\": [\"Nutzlast\", \"zulässige Nutzlast\", \"Zulassungsbehörde\", \"Landeshauptmann\", \"Fahrzeuggewicht\", \"Genehmigung\", \"§ 101 KFG\", \"Ladungsgewicht\"]}, {\"rs_number\": \"JWR_2020020212_20210319L01\", \"kernaussage\": \"Ladung iSd § 101 KFG umfasst Tiere mit Sicherungspflicht\", \"schlagworte\": [\"Ladungssicherung\", \"Tiere als Ladung\", \"Fahrzeugbeförderung\", \"Sicherungspflicht\", \"KFG\", \"Wortlautauslegung\", \"VerkehrsOWi\"]}, {\"rs_number\": \"JWR_2018020001_20180404L02\", \"kernaussage\": \"Vollbremsung als normaler Fahrbetrieb iSd § 101 KFG\", \"schlagworte\": [\"normaler Fahrbetrieb\", \"Vollbremsung\", \"Halterhaftung\", \"KFG\", \"Bremsmanöver\"]}, {\"rs_number\": \"JWR_1983030060_19841114X01\", \"kernaussage\": \"Entschuldbarer Irrtum bei § 101 KFG möglich\", \"schlagworte\": [\"entschuldbarer Irrtum\", \"Fristversäumnis\", \"Wiedereinsetzung\", \"§ 101 KFG\", \"Kommunalsteuern\", \"Steuererklärung\", \"Verwaltungsstrafe\"]}, {\"rs_number\": \"JWR_1988020149_19881116X01\", \"kernaussage\": \"§ 101 KFG als Ungehorsamsdelikt: Beweislast beim Täter\", \"schlagworte\": [\"Ungehorsamsdelikt\", \"Beweislastumkehr\", \"KFG § 101\", \"VStG § 5\", \"Schuldlosigkeitsbeweis\", \"Verwaltungsübertret"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_20109774",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0065615",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.81,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0065615\", \"rechtssatz_text\": \"Unter \\\"gesetzlichen Haftpflichtbestimmungen\\\" im Sinn des § 59a Abs 1 KFG sind nicht nur jene des EKHG zu verstehen, sondern auch die Schadenersatznormen des ABGB.\", \"te_count\": 9, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 6474, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob165_23p|OGH|2023-10-25\", \"gz\": \"2Ob165_23p\", \"datum\": \"2023-10-25\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Halters eines in Ungarn zugelassenen LKWs für Schäden an einem Tunnel durch fehlgeschlagenen Löschversuch nach Reifenbrand.\"}, {\"te_stable_key\": \"2Ob170_20v|OGH|2021-10-21\", \"gz\": \"2Ob170_20v\", \"datum\": \"2021-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zur groben Fahrlässigkeit bei Brand durch Heizlüfter im PKW-Motor und Deckung durch KFZ-Haftpflichtversicherung.\"}, {\"te_stable_key\": \"2Ob236_18x|OGH|2019-05-28\", \"gz\": \"2Ob236_18x\", \"datum\": \"2019-05-28\", \"gericht\": \"OGH\", \"mini_story\": \"Qualifikation der Verwendung eines Traktors mit Seilwinde und abgesenktem Forstschild als ortsgebundene Kraftquelle im Rahmen der Kfz-Haftpflichtversicherung.\"}, {\"te_stable_key\": \"2Ob175_17z|OGH|2018-11-29\", \"gz\": \"2Ob175_17z\", \"datum\": \"2018-11-29\", \"gericht\": \"OGH\", \"mini_story\": \"OGH klärt, ob der Unfall bei der Betonentladung mittels externer Pumpe als Betriebsunfall des Mischfahrzeugs i.S.d. EKHG anzusehen ist und ob Versicherungsschutz nach KHVG besteht.\"}, {\"te_stable_key\": \"2Ob228_17v|OGH|2018-09-24\", \"gz\": \"2Ob228_17v\", \"datum\": \"2018-09-24\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision betrifft die Frage, ob ein als Insasse seines Fahrzeugs zu Schaden gekommener Mithalter nur einen anteilig verminderten Anspruch auf Begräbniskosten gegen den Haftpflichtversicherer hat.\"}, {\"te_stable_key\": \"2Ob59_15p|OGH|2015-06-08\", \"gz\": \"2Ob59_15p\", \"datum\": \"2015-06-08\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Versicherers bei Schwarzfahrt des Fahrers nach § 6 Abs 2 EKHG.\"}, {\"te_stable_key\": \"2Ob178_11g|OGH|2012-01-19\", \"gz\": \"2Ob178_11g\", \"datum\": \"2012-01-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt, dass ein Anhänger ein Verkehrsmittel iSd § 333 Abs 3 ASVG ist und Reparaturarbeiten eine Verwendung iSd § 2 Abs 1 KHVG darstellen.\"}, {\"te_stable_key\": \"7Ob137_08k|OGH|2008-08-27\", \"gz\": \"7Ob137_08k\", \"datum\": \"2008-0"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_19588219",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0094645",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.87,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0094645\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_92684836",
+          "tool": "detect_clusters",
+          "args": {
+            "topic": "schadenersatz",
+            "query": "Tankstellenbetreiber Anspruch gegen Fahrzeughalter bei unbezahltem Tanken oder Tankdiebstahl"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.01,
+          "error": null,
+          "payload_preview": "\"Unknown tool: detect_clusters\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_87890098",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0065615"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.62,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0065615\", \"rechtssatz\": \"Unter \\\"gesetzlichen Haftpflichtbestimmungen\\\" im Sinn des § 59a Abs 1 KFG sind nicht nur jene des EKHG zu verstehen, sondern auch die Schadenersatznormen des ABGB.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Haftpflichtversicherung\", \"KFG\", \"geschädigter Dritter\", \"Mitversicherter\", \"fahrlässige Körperverletzung\", \"Mitverschulden\", \"Alkoholisierung\", \"Regress\", \"Mitversicherte\", \"Alkoholisiertes Fahren\", \"Fehlende Lenkerberechtigung\", \"Autosurfen\", \"KFZ-Haftpflichtversicherung\", \"EKHG\", \"Halterhaftung\", \"Beweislast\", \"Kraftfahrzeug-Haftpflichtversicherung\", \"Risikoausschluss\", \"Mitversicherte Personen\", \"AKHB 1995\", \"Anhänger\", \"Verkehrsmittel § 333 Abs 3 ASVG\", \"Verwendung § 2 Abs 1 KHVG\", \"Reparaturarbeiten\", \"Schwarzfahrt\", \"KHVG\", \"Verkehrsunfall\", \"Begräbniskosten\", \"Mithalter\", \"Betonpumpe\", \"Betriebsunfall\", \"Entladung\", \"ortsgebundene Kraftquelle\", \"Traktor\", \"Seilwinde\", \"Kfz-Haftpflichtversicherung\", \"Verwendung Kraftfahrzeug\", \"Feuerlöscher\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2023-10-25\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_98476792",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0065730"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.18,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0065730\", \"rechtssatz\": \"Der Lenker muß bis zur Grenze des unabwendbaren Zufalles alles tun, was zugemutet werden kann. Entscheidend sind die konkreten Verhältnisse des Einzelfalles. Der Lenker ermöglicht eine Schwarzfahrt daher immer schon dann, wenn er günstige Bedingungen hiefür schafft.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Legalzession\", \"Kaskoversicherung\", \"Verwahrungspflicht\", \"Gehilfe\", \"Schutznormenverletzung\", \"Schwarzfahrt\", \"ermöglichte Schwarzfahrt\", \"Halterhaftung\", \"Schlüsselverwahrung\", \"§ 102 Abs 6 KFG\", \"Fahrzeughalterhaftung\", \"Sorgfaltspflicht\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2017-07-27\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_78452306",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1004 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 765.44,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1004 ABGB\", \"results\": [{\"rs_number\": \"RS0055157\", \"kernaussage\": \"Nach ständiger Rechtsprechung ist eine für den Klienten wertlose Vertretung nicht zu honorieren (SZ 52/73; EvBl 1972/124 ua, zuletzt 1 Ob 632/90; Strasser in Rummel 2.Auflage RdZ 9 zu § 1004 ABGB); demnach jedenfalls dann nicht, wenn die Wiedereinsetzung gegen die Versäumung der Rechtsmittelausführu...\", \"schlagworte\": []}, {\"rs_number\": \"RS0013114\", \"kernaussage\": \"Der vom Erblasser bestimmte Testamentsvollstrecker hat gemäß § 816 ABGB als Machthaber für die Vollziehung der Anordnung des Erblassers zu sorgen. Er ist daher als Machthaber auf Grund rechtsgeschäftlicher Bestellung tätig und es steht ihm demgemäß nach § 1004 ABGB für seine Tätigkeit ein Entgeltans...\", \"schlagworte\": [\"Testamentsvollstrecker\", \"Entgeltanspruch\", \"Nachlaßverbindlichkeiten\", \"Substitutionsgut\", \"Veräußerung\", \"Notgeschäftsführer\", \"Notliquidator\", \"Entlohnungsanspruch\", \"Außerstreitverfahren\", \"Haftung\", \"Nachlassausfolgung\", \"Mündelvermögen\", \"Verlassenschaftskurator\", \"Zurückbehaltungsrecht\", \"RAO\", \"ABGB\", \"Beiziehung\", \"Verlassenschaftsverfahren\", \"Revisionsrekurs\"]}], \"count\": 2}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_55644168",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 425 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 717.85,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 425 ABGB\", \"results\": [{\"rs_number\": \"RS0011111\", \"kernaussage\": \"Das Gesetz hat die Ausnahme vom Eintragungsgrundsatz (§ 431 ABGB) normiert (§ 425 ABGB), weshalb außerhalb dieses Bereiches kein Platz für sogenanntes außerbücherliches Eigentum sein kann. Soweit der Eintragungsgrundsatz herrscht, bewirkt die bloße Übergabe der Liegenschaft nicht den Übergang des...\", \"schlagworte\": [\"Grundbuchseinverleibung\", \"Konkursrang\", \"Grundbuchsperre\", \"Intabulationsprinzip\", \"Eigentumserwerb Liegenschaften\", \"Grundbuch\", \"außerbücherliche Übergabe\", \"Schenkung\", \"Schadenersatz\", \"Naturalrestitution\", \"Vermögensübernahme\", \"Unternehmensübernahme\", \"§ 1409 ABGB\", \"Eigentumsübertragung\", \"Doppelveräußerung Liegenschaften\", \"Besitzschutz\", \"gutgläubiger Erwerb\", \"Doppelveräußerung\", \"Liegenschaft\", \"Miteigentum\", \"Teilungsklage\", \"Aktivlegitimation\", \"Eintragungsgrundsatz\", \"Konkursmasse\", \"Grundbuch Einverleibung\", \"Aussonderungsanspruch\", \"Eigentumsübertragung Liegenschaften\", \"Ehescheidungsvergleich\", \"außerbücherlicher Erwerb\", \"publizianische Klage\", \"Besitzentziehung\", \"Wegnutzung\", \"Überbau\", \"außerbücherliches Eigentum\", \"Urkundenhinterlegung\", \"Grundbuchberichtigung\", \"Gesellschaftsvermögen\", \"OHG-Ausscheiden\", \"Liegenschaftseinbringung\", \"Ersitzung\", \"Wegerecht\", \"Grunddienstbarkeit\", \"Besitz\", \"Eigentumsverschaffungspflicht\", \"außerbücherliche Veräußerung\", \"Verbücherung\", \"Eigentumserwerb durch Ersitzung\", \"Grenzverlauf Grundstücke\", \"Grundbuchsmappe\", \"Derivativer Eigentumserwerb\", \"außerbücherlicher Erwerber\", \"Rechnungslegung\", \"Nichtigkeitsberufung\", \"Rek"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_51432466",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 862 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 830.19,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 862 ABGB\", \"results\": [{\"rs_number\": \"RS0013955\", \"kernaussage\": \"Wird der Offerent während der Bindungsfrist seines Anbotes geschäftsunfähig, bleibt er zwar an dieses gebunden (§ 862 ABGB), doch muss dann die Annahmeerklärung des Oblaten als zugangsbedürftige Willenserklärung noch innerhalb der Bindungsfrist dem gesetzlichen Vertreter des Offerenten zugehen. Der...\", \"schlagworte\": [\"Geschäftsunfähigkeit\", \"Verkaufsangebot\", \"Offert\", \"Annahme\", \"Bindungsfrist\", \"Vollmacht\", \"Grundbuch Einverleibung\", \"Geschäftsfähigkeit\", \"Liegenschaftsveräußerung\", \"Optionsrecht\", \"Ausübung der Option\", \"Absendetheorie\", \"Verlassenschaft\", \"Gerichtskommissär\", \"Verlassenschaftskurator\"]}, {\"rs_number\": \"RS0014067\", \"kernaussage\": \"Die im Wege der Korrespondenz erklärte Annahme eines unbefristeten schriftlichen Vergleichsvorschlages erst mehr als 30 Tage nach seiner Erstellung ist zwischen Wiener Rechtsanwälten im Sinne des § 862 ABGB als verspätet anzusehen.\", \"schlagworte\": [\"außerordentliche Revision\", \"Gewährleistung\", \"Vollmacht\", \"Besitzgesellschaft\", \"Due Diligence\", \"Treuhand\", \"Vergleichsvorschlag\", \"Asset Deal\", \"verspätete Annahme\", \"Gesellschafterbeschluss\", \"Maklerprovision\", \"Share Deal\"]}, {\"rs_number\": \"RS0014070\", \"kernaussage\": \"§ 862 ABGB ist nicht zwingendes Recht.\", \"schlagworte\": [\"Räumungsexekution\", \"Verzicht auf Exekution\", \"Untermieter\", \"Offert\", \"Konkursverfahren\", \"Masseverwalter\", \"Absonderungsrecht\", \"Vergleichsangebot\", \"Annahmefrist\", \"Kaufvertrag\", \"Anbot\", \"Annahmeerklärung\", \"aufschiebende Bedingung\", \"Zugangstheorie\", \"Warenlager\"]}, {"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_63515295",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Halter haftet Tanken ohne Zahlung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.45,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Halter haftet Tanken ohne Zahlung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_53068777",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Drive off",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1019.87,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Drive off\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_93081700",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Pumpbetrug",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 989.54,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Pumpbetrug\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_00378558",
+          "tool": "detect_clusters",
+          "args": {
+            "topic": "bereicherungsrecht",
+            "query": "Tankstelle Anspruch bei Tanken ohne Bezahlung gegen Halter oder Käufer"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 732.57,
+          "error": null,
+          "payload_preview": "\"Unknown tool: detect_clusters\""
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0134597",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0134597",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.73,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0134597\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0107105",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0107105",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.14,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0107105\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102269",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102269",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.26,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0102269\", \"rechtssatz_text\": \"Soweit dem Höchstgericht die Überprüfung bekämpfter Entscheidungen - nach den Verfahrensvorschriften - nur in eingeschränktem Ausmaß möglich ist, können Amtshaftungsansprüche aus einem nicht überprüfbaren Verhalten der Vorinstanzen geltend gemacht werden. Das muß auch für jene Fälle gelten, in...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9794, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob100_22w|OGH|2022-06-22\", \"gz\": \"1Ob100_22w\", \"datum\": \"2022-06-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer außerordentlichen Revision gegen die Abweisung von Amtshaftungsansprüchen aus einem Baurechtsverfahren.\"}, {\"te_stable_key\": \"1Ob58_22v|OGH|2022-04-20\", \"gz\": \"1Ob58_22v\", \"datum\": \"2022-04-20\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung von Amtshaftungsansprüchen aus angeblichen Fehlern gerichtlicher Entscheidungen im Vorprozess.\"}, {\"te_stable_key\": \"5Ob184_17w|OGH|2017-12-21\", \"gz\": \"5Ob184_17w\", \"datum\": \"2017-12-21\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung von Amtshaftungsansprüchen aus Verschulden eines Anwalts und angeblicher Willkür von Richtern in einem Rückforderungsverfahren wegen Spielverlusten.\"}, {\"te_stable_key\": \"1Ob183_14i|OGH|2014-12-23\", \"gz\": \"1Ob183_14i\", \"datum\": \"2014-12-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit einer Revision und eines außerordentlichen Revisionsrekurses in einem Amtshaftungs- und Schadenersatzstreit.\"}, {\"te_stable_key\": \"1Ob242_14s|OGH|2014-12-23\", \"gz\": \"1Ob242_14s\", \"datum\": \"2014-12-23\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung von Amtshaftungsansprüchen gegen Gerichtsentscheidungen im Zusammenhang mit einer einstweiligen Verfügung zum Verlassen des ehelichen Wohnhauses aufgrund unterlassener Rechtsmittel.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102147",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102147",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.43,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0102147\", \"rechtssatz_text\": \"Gegenstand der Anklage, an den das erkennende Gericht gebunden ist, ist die konkret bestimmte Tat, also das gesamte Verhalten der Angeklagten, wie es sich aus der Anklagebegründung ergibt, nicht aber ihre vom Ankläger (oder vom Oberlandesgericht in seiner gemäß § 214 StPO ergangenen Einspruchsentsch...\", \"te_count\": 25, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2034, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"11Os23_24b(11Os24_24z,11Os25_24x)|OGH|2024-03-12\", \"gz\": \"11Os23_24b(11Os24_24z,11Os25_24x)\", \"datum\": \"2024-03-12\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässige nachträgliche Anwendung des § 35 SMG nach Freispruch\"}, {\"te_stable_key\": \"13Os90_21s|OGH|2022-01-12\", \"gz\": \"13Os90_21s\", \"datum\": \"2022-01-12\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt das Urteil gegen die Angeklagten B und D wegen fehlender gerichtlicher Zuständigkeit beim Schmuggelvorwurf und Anklageüberschreitung auf und spricht sie frei. Für K bleibt der Schuldspruch bestehen, der Verfall des Goldschmucks wird neu gefällt und die Geldstrafe herabgesetzt.\"}, {\"te_stable_key\": \"14Os82_21x|OGH|2021-11-16\", \"gz\": \"14Os82_21x\", \"datum\": \"2021-11-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Nichtigkeitsbeschwerde des Angeklagten gegen seine Verurteilung wegen schweren gewerbsmäßig durch Einbruch begangenen Diebstahls zurück und leitet die Berufung ans Oberlandesgericht Wien weiter.\"}, {\"te_stable_key\": \"13Os95_21a|OGH|2021-10-19\", \"gz\": \"13Os95_21a\", \"datum\": \"2021-10-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Nichtigkeitsbeschwerde des Angeklagten gegen ein Urteil wegen NS-Propaganda im Geschworenenverfahren zurück. Die Akten werden zur Entscheidung über die Berufung ans OLG Graz geleitet.\"}, {\"te_stable_key\": \"20Ds5_21x|OGH|2021-09-09\", \"gz\": \"20Ds5_21x\", \"datum\": \"2021-09-09\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt im Disziplinarverfahren gegen einen Rechtsanwalt zwei Schuldsprüche wegen angeblicher Berufspflichtverletzungen aufgrund prozessualer Nichtigkeiten auf und spricht in einem Punkt frei. Er klärt obiter die Zulässigkeit von Aufträgen durch Dritte.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0098617",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0098617",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.34,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0098617\"}"
+        }
+      ],
+      "tool_calls_total": 28,
+      "tool_calls_ok": 28,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**PHASE 3 - SUMMARY (Tankstellenbetreiber-Ansprüche auf €80 Tankpreis)**\n\nKeine OGH-Rechtssätze (RS) oder Entscheidungen (GZ/TE) zu zivilrechtlichen Ansprüchen der Tankstelle gegen Halter/Eigentümer bei \"Tanken ohne Zahlung\"/\"Drive-off\"/Tankbetrug/Pumpbetrug. Suchen nach Schlagwörtern (Tankdiebstahl, Halterhaftung, Tankstelle, Kommissionsverkauf) und Paragraphen (§30 KFG, §1 KHVG, §101 KFG, §1004/425/862 ABGB) ergeben **keine direkten Treffer** zu Haftung für unbezahlten Kraftstoff. Strafrechtliche RS (z.B. RS0098537 Tankdiebstahl) irrelevant für Zivilansprüche.\n\n### Primärer Anspruch: **Gegen Marius (Käufer/Lenker)** \n- **Vertraglicher Anspruch** auf Zahlung (€80 + Zinsen/Verzug): Aus Tankvertrag (§§ 862, 1164 ff. ABGB). Marius tankt, fährt ohne Zahlung davon → Zahlungsverzug. Beweislast **bei Tankstelle** (Rechnung, Video/Kennzeichen?).\n- **Alternativ deliktisch** (§1295 ABGB Betrug/Täuschung) oder **Bereicherung (§1041 ABGB)**, falls kein Vertrag. Beweislast **bei Tankstelle** (Ursächlichkeit, Kenntnis Marius).\n- **Insolvenz GmbH irrelevant**: Claim gegen Marius unabhängig; kein Durchgriff.\n\n### Keine Ansprüche gegen:\n1. **GmbH/Gabler**: Kein Tanken durch GmbH. Bounced Kreditkarte betrifft GmbH-Marius (Rückforderung gegen Marius), nicht Tankpreis. Kein Erfüllungsgehilfe (§1313a ABGB). Persönliche Haftung Gabler (GF) nur bei Pflichtverletzung (§25 GmbHG), hier fehlend. **Insolvenzmasse**: Tankstelle nicht Gläubiger (€80 kein Kommissionserlös). Beweislast **bei Tankstelle** (0 Ergebnisse).\n   \n2. **Grubmair (Kommittent/Eigentümer?)**: \n   - **Keine Halterhaftung** für unbezahlten Kraftstoff. RS zu Halterhaftung (RS0065615: ABGB-Schadenersatz unter KHVG/EKHG; RS0065730: Schwarzfahrt/Sorgfalt) gelten **ausschließlich verkehrsdeliktisch** (Unfälle, §1 KHVG, §59a KFG), nicht für Rechnungsansprüche. Kein \"Verwender\" (§102 KFG) für Tankpreis.\n   - **Kommissionsverkauf**: Grubmair behält typisch Eigentum bis Erlös (RS0012012: Kommissionär-Befugnis beschränkt). Verkauf an Marius wirksam (Übergabe, \"Zahlung\" via Karte), Eigentum bei Marius zum Tanken. Kein Zurückbehaltungsrecht Grubmair (§453 ABGB) für Tankstelle. Beweislast **bei Tankstelle** (kein RS zu Eigentümerhaftung Tankpreis).\n\n**Empfehlung**: Tankstelle klagt Marius (Feststellung/Zahlung, §228 ZPO). Gegen andere: Abweisung (kein Grund). Beweislastumkehr fehlt (kein §1298 ABGB). Parallelströme: Grubmair vs. GmbH (Kommissionserlös §932 ABGB, RS0094645 Veruntreuung).",
+      "answer_chars": 2458,
+      "e2e_ms": 105957.6
+    },
+    {
+      "name": "Insolvenz- und Sicherheitenfragen",
+      "goal": "Prüfen, ob Grubmair oder Tankstelle Sicherheitsrechte (z.B. Eigentumsvorbehalt, Rechtsmitteln im Insolvenzverfahren) geltend machen können",
+      "mode": "llm",
+      "tools": [
+        "search_by_schlagwort",
+        "search_kommentar_keyword",
+        "hot_rs_search",
+        "search_by_paragraph",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 10649.59,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 1633,
+            "completion_tokens": 1440,
+            "total_tokens": 3073,
+            "cost": 0.0010241,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1206
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 5195.62,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 15480,
+            "completion_tokens": 633,
+            "total_tokens": 16113,
+            "cost": 0.0032817,
+            "cached_tokens": 872,
+            "reasoning_tokens": 391
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 17442.88,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 17072,
+            "completion_tokens": 2173,
+            "total_tokens": 19245,
+            "cost": 0.0021789,
+            "cached_tokens": 15480,
+            "reasoning_tokens": 1196
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_77286434",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Eigentumsvorbehalt",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 53.06,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Eigentumsvorbehalt\", \"results\": [{\"rs_number\": \"RS0027509\", \"kernaussage\": \"Im Falle der Übertretung eines Schutzgesetzes haftet der Schädiger für jeden kongruenten Schaden, ohne daß es eines strengen Nachweises des Kausalzusammenhanges und einer Voraussehbarkeit der Folgen bedarf.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"EKHG\", \"Schutzgesetz\", \"Kausalität\", \"Steinschleudern\", \"Verkehrsunfall\", \"Eigentumsvorbehalt\", \"Verwahrerhaftung\", \"Fahrnisexekution\"]}, {\"rs_number\": \"RS0027921\", \"kernaussage\": \"Ein Rechtsanwalt hat dann, wenn er die Wahrnehmung der Interessen der Partei über die bloße anwaltliche Tätigkeit hinaus zugesagt hat, in diesem weiteren Rahmen zu haften.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rechtsanwaltshaftung\", \"Vertragserrichter\", \"Sorgfaltspflichten\", \"Culpa-Kompensation\", \"Eigentumsvorbehalt\"]}, {\"rs_number\": \"RS0030138\", \"kernaussage\": \"Bei subjektiver Schadensberechnung (= Interessenersatz) sind alle Auswirkungen im Vermögen des Geschädigten festzustellen, sodass auch die tatsächliche Entwicklung des gesamten Vermögens nach dem schädigenden Ereignis und die vermutliche Entwicklung ohne dieses in die Betrachtung einzubeziehen sind;...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schadenersatz\", \"Steuergutschrift\", \"Wiederbeschaffungswert\", \"Boykott\", \"Schutzzwecklehre\", \"Insolvenzverfahren\", \"nachwirkende Fürsorgepflicht\", \"Differenzmethode\", \"Delikts haftung\", \"Kapitalerhöhung\", \"Zwischenzinsen\", \"stille Gesellschaft\", \"Sachverständigengutachten\", \"Kommanditgesellschaft\", \"Beweiswürdigung\", \"Zurechnung\", \"Komplementär\", \"Kreditausfälle\", \"Asse"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_15060475",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kommissionsverkauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 995.25,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kommissionsverkauf\", \"results\": [{\"rs_number\": \"RS0094645\", \"kernaussage\": \"Veruntreuung durch den Gemeinschuldner; hier: in Ansehung des Erlöses aus dem Weiterverkauf einer ihm unter Eigentumsvorbehalt zur (quasi-) kommissionsweisen Veräußerung anvertraut gewesenen Sache.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Veruntreuung\", \"Gemeinschuldner\", \"Eigentumsvorbehalt\", \"Kommissionsverkauf\", \"Treuepflichtverletzung\", \"Erlösherausgabepflicht\", \"Insolvenzbezogene Vermögensdelikte\"]}, {\"rs_number\": \"RS0012012\", \"kernaussage\": \"Zur Befugnis des Kommissionärs, das ihm zum Verkauf übergebene Kommissionsgut ( PKW ) zu verpfänden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schlechtgläubiger Erwerb\", \"Sicherungsübereignung\", \"Kommissionsverkauf\", \"Unredlicher Besitzer\", \"Schadenersatzpflicht\"]}], \"count\": 2}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_82838465",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Aussonderung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 388.19,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Aussonderung\", \"results\": [{\"rs_number\": \"RS0033451\", \"kernaussage\": \"Bei einer Geschäftsverbindung gilt der Grundsatz, daß alle Posten insoferne ein Ganzes bilden, als die einzelnen Teilzahlungen nicht auf bestimmte Posten, sondern auf das Ganze geleistet werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Hypothekarkredit\", \"Absonderungsrecht\", \"Anrechnung § 1416 ABGB\", \"Allgemeine Geschäftsbedingungen Kreditinstitute\", \"Ausgleichsverfahren\", \"Werkvertrag\", \"Aussonderung\", \"Bereicherung\", \"Konkursmasse\", \"Gebäudeeinsturz\", \"Unterfangung\", \"DSV-Säulen\", \"Prüfingenieur\", \"Wr BauO\", \"Anwaltsentgelt\", \"Schlüssigkeit des Klagebegehrens\", \"GmbH-Gesellschafterbeschluss\"]}, {\"rs_number\": \"RS0033537\", \"kernaussage\": \"1. Die Erklärung des Schuldners, welche von mehreren Forderungen er als getilgt angesehen wissen will, muss schon bei der Leistung abgegeben werden. 2. Werden mehrere Forderungen bei einer Endabrechnung in eine in Raten abzustattende Schuldpost zusammengefasst, kann der ohne eine Erklärung eine...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Pachtzinsminderung\", \"Wertsicherungsklausel\", \"Aufrechnungsverbot\", \"Sperrstunde\", \"Solidarschuld\", \"Meistbotverteilung\", \"Zuweisung\", \"Anrechnung\", \"Werkvertrag\", \"Aussonderung\", \"Bereicherung\", \"Konkursmasse\", \"Mietzinsanrechnung\", \"Tilgungsfolge\", \"§ 1416 ABGB\", \"Wohnungsmiete\", \"Teilforderung\", \"Exekutionstitel\", \"Schuldposten\", \"Schlüssigkeit des Klagebegehrens\", \"ungewidmete Zahlung\", \"Werklohnforderung\"]}, {\"rs_number\": \"RS0051756\", \"kernaussage\": \"Anmeldung der Kaufpreisforderung im Ausgleichsverfahren - kein Verzicht"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_10744466",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Separierung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 813.08,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Separierung\", \"results\": [{\"rs_number\": \"JWR_2019130103_20200129L03\", \"kernaussage\": \"Gesonderte Fristprüfung bei nachvollziehbarer Abfall-Einbringung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Abfall\", \"Vermengung\", \"Nichtabfall\", \"Zwischenlagerung\", \"beitragsfrei\", \"Fristablauf\", \"Separierung\", \"Mengenbeurteilung\", \"Gemeng\"]}, {\"rs_number\": \"JWR_1988100154_19890626X02\", \"kernaussage\": \"Bäume im angrenzenden Wald nicht separiert beurteilen\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Waldschutz\", \"Bäume\", \"Separierung\", \"Abholzung\", \"angrenzender Wald\", \"Baugenehmigung\", \"Eingriffsprüfung\", \"Naturschutz\"]}, {\"rs_number\": \"RS0044328\", \"kernaussage\": \"Nach der für (Revisionsrekurse) Rekurse gegen Sachbeschlüsse oder nach § 527 Abs 2 ZPO anfechtbare Beschlüsse des Gerichtes zweiter Instanz, mit denen ein (erstgerichtlicher) Sachbeschluß aufgehoben worden ist, abschließenden Regelung des § 37 Abs 3 Z 18 MRG hängt die Anfechtbarkeit derartiger...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ausstattungskategorie\", \"Badegelegenheit\", \"Badenische\", \"Mietzinsherabsetzung\", \"Separierung\", \"Mietzinsermäßigung\", \"Antragslegitimation\", \"Beendigung Mietverhältnis\", \"§ 44 MRG\", \"Mietzinsvereinbarung\", \"Hauptmietzinsermäßigung\", \"Hauptmietzins\", \"Ausstattungskategorie D\", \"Revisionsrekurs\", \"MRG\", \"Mietzinsanhebung\", \"Geschäftsräumlichkeiten\", \"Unternehmensveräußerung\", \"Rechtsnachfolge\", \"MRG-Anwendbarkeit\", \"Standardanhebung\", \"MRG § 44\", \"MRG § 16 Abs 1 Z 5\", \"Zulässigkeit\", \"Mietrechtsgesetz\", \"Sachbeschluss\", \"MRG § 37\", \"Mietzins\", \"zeitgemäßer Stand"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_23903777",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Eigentumsvorbehalt Kommissionsgeschäft Gebrauchtwagen Insolvenz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.05,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Eigentumsvorbehalt Kommissionsgeschäft Gebrauchtwagen Insolvenz\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_64177807",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0094645"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 725.01,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0094645\", \"rechtssatz\": \"Veruntreuung durch den Gemeinschuldner; hier: in Ansehung des Erlöses aus dem Weiterverkauf einer ihm unter Eigentumsvorbehalt zur (quasi-) kommissionsweisen Veräußerung anvertraut gewesenen Sache.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Veruntreuung\", \"Gemeinschuldner\", \"Eigentumsvorbehalt\", \"Kommissionsverkauf\", \"Treuepflichtverletzung\", \"Erlösherausgabepflicht\", \"Insolvenzbezogene Vermögensdelikte\"], \"fachgebiete\": [\"Vermögensdelikte\", \"Wirtschaftsstrafrecht\"], \"datum\": \"1987-03-24\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_17905192",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0012012"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 655.57,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0012012\", \"rechtssatz\": \"Zur Befugnis des Kommissionärs, das ihm zum Verkauf übergebene Kommissionsgut ( PKW ) zu verpfänden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schlechtgläubiger Erwerb\", \"Sicherungsübereignung\", \"Kommissionsverkauf\", \"Unredlicher Besitzer\", \"Schadenersatzpflicht\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"1961-03-22\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_17330660",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0051756"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 714.24,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0051756\", \"rechtssatz\": \"Anmeldung der Kaufpreisforderung im Ausgleichsverfahren - kein Verzicht auf Eigentumsvorbehalt (Aussonderung).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Abtretung\", \"Aussonderungsrecht\", \"Ausgleichsverfahren\", \"unselbständiger Bestandteil\", \"Aussonderungsanspruch\", \"Aussonderung\", \"Zwangsausgleich\", \"Konkurs\", \"Aussonderungsklage\", \"Konkursforderung\", \"Rücktritt vom Vertrag\"], \"fachgebiete\": [\"Eigentumsvorbehalt\"], \"datum\": \"2010-02-18\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_56241174",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0064764"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 953.22,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0064764\", \"rechtssatz\": \"So wie der Aussonderungsanspruch beruht auch der Anspruch auf Ersatzaussonderung auf einem dinglichen Recht. Es kann nur der konkrete, in der Masse noch vorhandene und individualisierbare Leistungsgegenstand ausgesondert werden, nicht aber ein Geldbetrag schlechthin.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Aussonderung\", \"Ersatzaussonderung\", \"Masseforderung\", \"Konkursmasse\", \"pretium succedit in locum rei\", \"Aussonderungsanspruch\", \"Sondermasse\", \"Professionistenforderung\", \"konstitutives Anerkenntnis\", \"Wohnhauswiederaufbaufonds\", \"Konkurs\", \"Bereicherungsanspruch\", \"Konkursanfechtung\", \"Begünstigungsabsicht\", \"Sozialversicherungsbeiträge\", \"Dienstnehmeranteile\", \"Ausgleichsverfahren\", \"Konkursordnung\", \"Treuhand\", \"BUAG\", \"Vermengung\", \"Aussonderungsrecht\", \"Publikumskommanditgesellschaft\", \"Hausanteilschein\", \"Werkvertrag\", \"Bereicherung\", \"Schuldenregulierungsverfahren\", \"Benützungsentgelt\", \"Aufrechnung\", \"Eigenverwaltung\", \"Steuertopf\", \"Betriebsvereinbarung\", \"Insolvenz-Ausfallgeld\", \"Verrechnungskonto\", \"Buchgeld\", \"Irrtümliche Überweisung\", \"Vermögensverwaltung\", \"Falschberatung\", \"Umwandlung\", \"Kundenstock\", \"Bürgschaft\", \"Insolvenzmasse\"], \"fachgebiete\": [\"Eigentumsvorbehalt\", \"Baurecht\", \"Revision\", \"Bereicherungsrecht\", \"Personengesellschaften\", \"Mietrecht\", \"Haftungsrecht\"], \"datum\": \"2015-12-15\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_64510812",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0115153"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.45,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0115153\", \"rechtssatz\": \"Die Anmeldung einer Konkursforderung im Konkurs des Vorbehaltskäufers stellt keinen Verzicht auf die Aussonderung dar, und umgekehrt hindert ein Anspruch, der als Aussonderungsanspruch geltend gemacht wird, nicht gleichzeitig die Kaufpreisforderung eventuell als Konkursforderung anzumelden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentumsvorbehalt\", \"Aussonderung\", \"Zwangsausgleich\", \"Konkurs\"], \"fachgebiete\": [\"Eigentumsvorbehalt\"], \"datum\": \"2001-05-28\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_93515782",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 243 ABGB",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 647.22,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 243 ABGB\", \"results\": [{\"rs_number\": \"RS0102459\", \"kernaussage\": \"Informationen zu § 243 ABGB Aufgehoben durch Art I Z 43 KindG\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_22652965",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 424 InsO",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 879.79,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 424 InsO\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102459",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102459",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.18,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102459\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0044328",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0044328",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.74,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0044328\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0033537",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0033537",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.89,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0033537\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0033451",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0033451",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.98,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0033451\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0030138",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0030138",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.45,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0030138\", \"rechtssatz_text\": \"Bei subjektiver Schadensberechnung (= Interessenersatz) sind alle Auswirkungen im Vermögen des Geschädigten festzustellen, sodass auch die tatsächliche Entwicklung des gesamten Vermögens nach dem schädigenden Ereignis und die vermutliche Entwicklung ohne dieses in die Betrachtung einzubeziehen sind;...\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 12438, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob3_19y|OGH|2019-02-26\", \"gz\": \"4Ob3_19y\", \"datum\": \"2019-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit der Revision bezüglich des Schadenersatzanspruchs nach § 1111 ABGB bei nicht ordnungsgemäßer Rückstellung eines Pachtobjekts trotz späterem Verkauf.\"}, {\"te_stable_key\": \"2Ob145_14h|OGH|2015-02-18\", \"gz\": \"2Ob145_14h\", \"datum\": \"2015-02-18\", \"gericht\": \"OGH\", \"mini_story\": \"OGH-Entscheidung über Schadenersatzansprüche (Schmerzengeld, entgangener Unterhalt, Betreuungsleistung) eines Kindes nach Tod der Mutter bei Flugzeugabsturz.\"}, {\"te_stable_key\": \"6Ob108_13w|OGH|2014-08-28\", \"gz\": \"6Ob108_13w\", \"datum\": \"2014-08-28\", \"gericht\": \"OGH\", \"mini_story\": \"Eine Bank klagt auf Schadenersatz wegen angeblicher Verletzung von Eigenmittelvorschriften des BWG durch eine konzerninterne Kapitalerhöhung und Ausgabe von Vorzugsaktien, die zu Kreditausfällen geführt habe.\"}, {\"te_stable_key\": \"9ObA56_11t|OGH|2012-04-30\", \"gz\": \"9ObA56_11t\", \"datum\": \"2012-04-30\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Verletzung der nachwirkenden Fürsorgepflicht durch den ehemaligen Arbeitgeber gegenüber einer Ex-Mitarbeiterin.\"}], \"te_items_count\": 4}"
+        }
+      ],
+      "tool_calls_total": 17,
+      "tool_calls_ok": 17,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**PHASE 3 - SUMMARY (Sicherheitsrechte für Grubmair/Tankstelle im Insolvenzverfahren der GmbH):**\n\n### Grubmair (PKW-Eigentümer/Kommittent):\n- **Kein direktes Aussonderungsrecht am PKW möglich**: Das Fahrzeug wurde bereits vor Insolvenzeröffnung an Marius weiterverkauft (EUR 22.000). Ein Eigentumsvorbehalt (EV) würde nur greifen, wenn explizit vereinbart und dinglich wirksam (Übereignung unter Vorbehalt gem. § 243 ABGB iVm § 365 ABGB; keine RS zu § 243 ABGB relevant, da aufgehoben durch KindG). Im Kommissionskontext (RS0094645: quasi-kommissionsweiser Verkauf unter EV; RS0012012: Kommissionär darf Kommissionsgut/PKW nicht verpfänden/sicherungsübereignen) bleibt Grubmair Eigentümer/Berechtigter bis Erlösabrechnung, aber Verkauf erfordert Genehmigung; fehlende Übergabe des Eigentums an GmbH schließt EV aus, es sei denn vertraglich geregelt als Sicherungseigentum.\n  - **Beweislast**: Grubmair trägt Nachweis des EV/Treuepflichtverstoßes (RS0094645: Erlösherausgabepflicht bei Veruntreuung); Masseverwalter prüft Publizität/Dinglichkeit.\n- **Ersatzaussonderung/Aussonderungsanspruch unwahrscheinlich**: Pretium (Erlös) succedit nur, wenn individualisierbar und in Masse vorhanden (RS0064764: dingliches Recht; nur konkrete Sache, kein \"Geldbetrag schlechthin\"; Vermengung typisch bei Insolvenz). Verkaufserlös (mind. EUR 17.000 vereinbart) vermengt; keine Separierung/Trennung nachweisbar.\n  - **Beweislast**: Grubmair muss Vermögenszuordnung/Mengenvindikation nachweisen (RS0064764); Masseverwalter wehrt ab (keine Treuhandkonto-Identifikation).\n- **Kein Verzicht durch parallele Forderungsanmeldung**: Falls Grubmair Kaufpreisforderung (EUR 17.000) als Konkursforderung anmeldet, bleibt Aussonderungsrecht bestehen (RS0051756, RS0115153).\n  - **Beweislast**: Neutral; Anmeldung kein impliziter Verzicht.\n- **Fallback: Bereicherungs- oder Schadensersatzanspruch als Masseforderung**: Bei fehlender Aussonderung ggf. § 172 InsO (Aussonderungsklage; keine RS, da § 424 KO alt/0 Ergebnisse); sonst § 1045 ABGB als Konkursforderung (RS0064764: grundlose Bereicherung der Masse).\n  - **Beweislast**: Grubmair (Kommissionsvertrag, fehlender Erlös).\n\n**Gesamteinschätzung**: Geringe Erfolgschance für Sicherungsrechte (EV/Aussonderung); primär ungesicherte Konkursforderung. Keine OGH-RS zu Gebrauchtwagen-Kommission/Insolvenz-EV-Kombi (0 Ergebnisse \"Eigentumsvorbehalt Kommissionsgeschäft Gebrauchtwagen Insolvenz\").\n\n### Tankstellenbetreiber:\n- **Keine Sicherheitsrechte**: Tankbetrag (EUR 80) ist Deliktsforderung gegen Marius (Diebstahl, § 129 iVm § 132a StGB; keine Zahlungsforderung ggf. GmbH). Kreditkarten-Zahlung (Auto an Marius) irrelevant; kein EV/Pfandrecht/Absonderung am PKW/Erlös. Kein Rechtsmittel im Insolvenzverfahren (keine Forderung gegen GmbH).\n  - **Beweislast**: Tankstelle gegen Marius (Delikt); irrelevant für GmbH-Insolvenz.\n- **Keine RS-Treffer**: Keine Verknüpfung zu EV/Aussonderung/Separierung.\n\n**Empfehlung**: Grubmair: Insolvenzplan prüfen (§ 223 InsO), GF-Haftung parallel (anderer Stream). Tankstelle: Strafanzeige gegen Marius.",
+      "answer_chars": 3066,
+      "e2e_ms": 43372.95
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 28327.57,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 5769,
+    "usage": {
+      "prompt_tokens": 16552,
+      "completion_tokens": 3611,
+      "total_tokens": 20163,
+      "cost": 0.0050967,
+      "cached_tokens": 128,
+      "reasoning_tokens": 1772
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": true,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0094645",
+          "RS0051756",
+          "RS0064764",
+          "RS0062759",
+          "RS0020259",
+          "RS0098537",
+          "RS0020262",
+          "RS0062729",
+          "RS0065615",
+          "RS0065730"
+        ],
+        "validation": {
+          "cited": 10,
+          "checked": 10,
+          "valid": 10,
+          "invalid": [],
+          "sample_valid": [
+            "RS0020259",
+            "RS0020262",
+            "RS0051756",
+            "RS0062729",
+            "RS0062759",
+            "RS0064764",
+            "RS0065615",
+            "RS0065730",
+            "RS0094645",
+            "RS0098537"
+          ]
+        },
+        "valid": [
+          "RS0094645",
+          "RS0051756",
+          "RS0064764",
+          "RS0062759",
+          "RS0020259",
+          "RS0098537",
+          "RS0020262",
+          "RS0062729",
+          "RS0065615",
+          "RS0065730"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1088 Satz 1 ABGB",
+          "§ 1004 ABGB",
+          "§ 862 ABGB",
+          "§ 1002 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0010905",
+          "RS0011111",
+          "RS0012012",
+          "RS0013114",
+          "RS0013955",
+          "RS0014067",
+          "RS0014070",
+          "RS0018426",
+          "RS0020259",
+          "RS0020262",
+          "RS0022118",
+          "RS0025103",
+          "RS0025454",
+          "RS0027509",
+          "RS0027921",
+          "RS0030138",
+          "RS0033451",
+          "RS0033537",
+          "RS0044328",
+          "RS0044387",
+          "RS0051756",
+          "RS0055157",
+          "RS0062573",
+          "RS0062579",
+          "RS0062593",
+          "RS0062594",
+          "RS0062595",
+          "RS0062614",
+          "RS0062628",
+          "RS0062683",
+          "RS0062694",
+          "RS0062729",
+          "RS0062759",
+          "RS0064764",
+          "RS0065615",
+          "RS0065730",
+          "RS0065813",
+          "RS0088019",
+          "RS0094645",
+          "RS0098537",
+          "RS0098617",
+          "RS0102147",
+          "RS0102269",
+          "RS0102459",
+          "RS0107105",
+          "RS0109270",
+          "RS0114171",
+          "RS0115153",
+          "RS0121923",
+          "RS0134597"
+        ],
+        "te_ogh": [
+          "1Ob632/90"
+        ],
+        "norms": [
+          "§ 1002 ABGB",
+          "§ 1004 ABGB",
+          "§ 1088 ABGB",
+          "§ 1088 Satz 1 ABGB",
+          "§ 1111 ABGB",
+          "§ 1175 ff ABGB",
+          "§ 130 StGB",
+          "§ 1409 ABGB",
+          "§ 1416 ABGB",
+          "§ 1461 ABGB",
+          "§ 1464 ABGB",
+          "§ 1465 ABGB",
+          "§ 1466 ABGB",
+          "§ 2 Abs 1 Z 1 StVO",
+          "§ 207a StGB",
+          "§ 243 ABGB",
+          "§ 333 Abs 3 ASVG",
+          "§ 35 SMG",
+          "§ 425 ABGB",
+          "§ 431 ABGB",
+          "§ 527 Abs 2 ZPO",
+          "§ 816 ABGB",
+          "§ 862 ABGB"
+        ],
+        "stats": {
+          "rs_count": 50,
+          "te_ogh_count": 1,
+          "norm_count": 23
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": true,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0094645",
+          "RS0051756",
+          "RS0064764",
+          "RS0062759",
+          "RS0020259",
+          "RS0098537",
+          "RS0020262",
+          "RS0062729",
+          "RS0065615",
+          "RS0065730"
+        ],
+        "validation": {
+          "cited": 10,
+          "checked": 10,
+          "valid": 10,
+          "invalid": [],
+          "sample_valid": [
+            "RS0020259",
+            "RS0020262",
+            "RS0051756",
+            "RS0062729",
+            "RS0062759",
+            "RS0064764",
+            "RS0065615",
+            "RS0065730",
+            "RS0094645",
+            "RS0098537"
+          ]
+        },
+        "valid": [
+          "RS0094645",
+          "RS0051756",
+          "RS0064764",
+          "RS0062759",
+          "RS0020259",
+          "RS0098537",
+          "RS0020262",
+          "RS0062729",
+          "RS0065615",
+          "RS0065730"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1088 Satz 1 ABGB",
+          "§ 1004 ABGB",
+          "§ 862 ABGB",
+          "§ 1002 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0010905",
+          "RS0011111",
+          "RS0012012",
+          "RS0013114",
+          "RS0013955",
+          "RS0014067",
+          "RS0014070",
+          "RS0018426",
+          "RS0020259",
+          "RS0020262",
+          "RS0022118",
+          "RS0025103",
+          "RS0025454",
+          "RS0027509",
+          "RS0027921",
+          "RS0030138",
+          "RS0033451",
+          "RS0033537",
+          "RS0044328",
+          "RS0044387",
+          "RS0051756",
+          "RS0055157",
+          "RS0062573",
+          "RS0062579",
+          "RS0062593",
+          "RS0062594",
+          "RS0062595",
+          "RS0062614",
+          "RS0062628",
+          "RS0062683",
+          "RS0062694",
+          "RS0062729",
+          "RS0062759",
+          "RS0064764",
+          "RS0065615",
+          "RS0065730",
+          "RS0065813",
+          "RS0088019",
+          "RS0094645",
+          "RS0098537",
+          "RS0098617",
+          "RS0102147",
+          "RS0102269",
+          "RS0102459",
+          "RS0107105",
+          "RS0109270",
+          "RS0114171",
+          "RS0115153",
+          "RS0121923",
+          "RS0134597"
+        ],
+        "te_ogh": [
+          "1Ob632/90"
+        ],
+        "norms": [
+          "§ 1002 ABGB",
+          "§ 1004 ABGB",
+          "§ 1088 ABGB",
+          "§ 1088 Satz 1 ABGB",
+          "§ 1111 ABGB",
+          "§ 1175 ff ABGB",
+          "§ 130 StGB",
+          "§ 1409 ABGB",
+          "§ 1416 ABGB",
+          "§ 1461 ABGB",
+          "§ 1464 ABGB",
+          "§ 1465 ABGB",
+          "§ 1466 ABGB",
+          "§ 2 Abs 1 Z 1 StVO",
+          "§ 207a StGB",
+          "§ 243 ABGB",
+          "§ 333 Abs 3 ASVG",
+          "§ 35 SMG",
+          "§ 425 ABGB",
+          "§ 431 ABGB",
+          "§ 527 Abs 2 ZPO",
+          "§ 816 ABGB",
+          "§ 862 ABGB"
+        ],
+        "stats": {
+          "rs_count": 50,
+          "te_ogh_count": 1,
+          "norm_count": 23
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 17831.63,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3548,
+        "completion_tokens": 3213,
+        "total_tokens": 6761,
+        "cost": 0.0022936,
+        "cached_tokens": 150,
+        "reasoning_tokens": 1460
+      }
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Art des Geschäftsverhältnisses zwischen Grubmair und GmbH**: Liegt ein Kommissionsvertrag oder Verkaufsauftrag vor, der Grubmair einen Anspruch auf Auszahlung von EUR 17.000 i.H.v. des Verkaufserlöses begründet? Evidence deuten auf quasi-kommissionsweisen Verkauf hin (RS0094645), begründen aber keinen dinglichen Anspruch.\n- **Auswirkungen der Insolvenz der GmbH auf Grubmairs Anspruch**: Besteht ein separierter Anspruch (z.B. Aussonderung) oder nur eine Konkursforderung? Evidence zeigen keine Sicherungsrechte wie Eigentumsvorbehalt (RS0051756, RS0064764), PKW bereits veräußert.\n- **Ansprüche des Tankstellenbetreibers**: Gegen wen (Marius, GmbH als Halter, Grubmair)? Evidence liefern keine zivilrechtlichen Grundlagen für Halterhaftung bei Tankbetrug.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage (Grubmair ggü. GmbH – Kommissionsvertrag/Verkaufsauftrag):**  \n§ 1088 Satz 1 ABGB (Auslegungsregel für ähnliche Verträge als Bevollmächtigung), ergänzt durch Kommissionsregeln bei Kaufleuten (Sorgfaltspflicht RS0062759). Stufenbau: Primär vertraglicher Erlösherausgabepflicht aus Kommission/Verkaufsauftrag (RS0020259: Rechtswidrige Erlösverwendung als Zueignung); eventuell deliktisch (§ 1004 ABGB als Mandatsanalogie für Treuepflicht). Keine Doppelgleisigkeit, da kein Delikt vorliegt.  \n**Eventualanspruchsgrundlage (Grubmair ggü. Gabler):** Insufficient evidence.  \n**Tankstellenbetreiber:** Insufficient evidence; keine vertraglichen (§ 862 ABGB Offerte) oder deliktischen (§ 1004 ABGB) Grundlagen; strafrechtliche RS (RS0098537 Tankdiebstahl) irrelevant zivil.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0020259**: Verkauf unter Mindestpreis kein Zueignungshandlung; erst rechtswidrige Erlösverwendung begründet Veruntreuung – relevant, da Verkauf für 22.000 €, aber keine Auszahlung (Erlösanspruch Grubmair).\n- **RS0020262**: Fehlende Merkmale echten Verkaufsauftrags führen zu Bevollmächtigung; bei eigenem Handel Vertrag eigener Art – relevant zur Qualifikation als Kommission/Verkaufsauftrag.\n- **RS0062729**: Kommissionär darf Ausführungsgeschäft nicht ohne Zustimmung stornieren; Rückersatz nur bei Unumgänglichkeit – relevant für Zahlungspflicht aus Verkauf.\n- **RS0094645**: Veruntreuung bei Erlös aus kommissionsweisem Verkauf unter Eigentumsvorbehalt – relevant, analog für Treuepflichtverletzung.\n- **RS0051756**: Konkursforderungsanmeldung kein Verzicht auf Aussonderung – relevant zur Beweislast.\n\n### 4. SUBSUMTION\n**Kommissionsvertrag/Verkaufsauftrag ggü. GmbH (Hauptanspruch):**  \nGrubmair übergibt PKW \"zum Weiterverkauf\" mit vereinbartem Erlösanteil (17.000 €); passt zu Kommission (RS0062759 Sorgfalt) oder Verkaufsauftrag (RS0020259). Verkauf an Marius erfüllt Ausführungsgeschäft (RS0062729); GmbH schuldet Auszahlung (keine Stornierung). Insolvenz macht Forderung zur Quotenforderung; kein Aussonderungsrecht (PKW vermengt/veräußert, RS0064764).  \n**Eventual ggü. Gabler:** Insufficient evidence; keine persönliche Pflichtverletzung nachweisbar.  \n**Tankstellenbetreiber:** Insufficient evidence; kein Vertrag mit Marius/GmbH (Drive-off kein Angebot, § 862 ABGB); keine Halterhaftung für Betrug (RS0065615, RS0065730).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Vertragsart (Kommission/Verkaufsauftrag):** Grubmair beweist Vereinbarung (schriftlich/mündlich; § 1002 ABGB); fehlt (keine evidence).  \n- **Verkaufserlös (22.000 €) und Vereinbarung (17.000 €):** Grubmair beweist (Rechnung/Kreditkarte); vorhanden (Fallbeschreibung), aber Ungültigkeit Kreditkarte ein Jahr später – GmbH/InsO widerlegt (keine evidence).  \n- **Keine Auszahlung/rechtswidrige Verwendung:** Grubmair beweist (Kontoauszüge); fehlt.  \n- **Eigentumsvorbehalt/Aussonderung:** Grubmair beweist (RS0051756); fehlt vollständig.  \n- **Tankstelle-Ansprüche:** Tankbetreiber beweist Vertrag/Bereicherung (§ 1004 ABGB); fehlt (kein Angebot Marius). Halterhaftung (GmbH): Tankbetreiber widerlegt Fahrzeugnutzung; fehlt.\n\n### 6. PROZESSSTRATEGIE\n**Grubmair (Hauptbegehren):** Feststellung/Befriedigung der Forderung von 17.000 € ggü. Insolvenzmasse (Konkursforderung aus Kommission/Verkaufsauftrag; hohe Erfolgsaussicht bei Nachweis).  \n**Eventualbegehren:** Schadensersatz ggü. Gabler (persönlich; niedrige Aussicht, insufficient evidence).  \n**Tankstellenbetreiber:** Haupt: Zahlung ggü. Marius (Bereicherung; unwahrscheinlich). Eventual ggü. GmbH-Masse (Halteranspruch; insufficient). Priorisiert: Grubmair > Tankstelle (bessere Evidence).\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (Kein Kommissionsvertrag, sondern Eigenverkauf):** GmbH argumentiert Verkauf auf eigene Rechnung (RS0020262); Replik: Vereinbarter Erlösanteil (17.000 €) begründet Ausführungspflicht (RS0020259 keine Zueignung vor Verwendung).  \n- **Risiko 2 (Aussonderung ausgeschlossen):** PKW veräußert, kein Vorbehalt (RS0064764 Ersatzaussonderung nur individualisierbar); Replik: Erlösanspruch als vertraglich separiert (RS0051756 Anmeldung kein Verzicht).  \n- **Risiko 3 (Verzug/Stornierung durch Insolvenz):** Kreditkarte ungültig als \"Stornierung\" (RS0062729); Replik: Kommissionär muss Unumgänglichkeit beweisen; Verkauf bereits erledigt.  \n- **Risiko 4 (Tankstelle: Keine Halterhaftung):** Kein \"normaler Fahrbetrieb\" (RS0065730); Replik: Tanken vor Drive-off als Verwendung, aber insufficient evidence – Klage abweisen.\n\n### 8. ERFOLGSAUSSICHTEN\n- **Kommissions-/Verkaufsauftrag ggü. GmbH-Masse:** 60% (RS gestützt, aber Beweisfehlen).  \n- **Gegen Gabler:** 10% (keine evidence).  \n- **Tankstelle ggü. allen:** 0% (insufficient evidence)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Art des Geschäftsverhältnisses zwischen Grubmair und GmbH**: Liegt ein Kommissionsvertrag oder Verkaufsauftrag vor, der Grubmair einen Anspruch auf Auszahlung von EUR 17.000 i.H.v. des Verkaufserlöses begründet? Evidence deuten auf quasi-kommissionsweisen Verkauf hin (RS0094645), begründen aber keinen dinglichen Anspruch.\n- **Auswirkungen der Insolvenz der GmbH auf Grubmairs Anspruch**: Besteht ein separierter Anspruch (z.B. Aussonderung) oder nur eine Konkursforderung? Evidence zeigen keine Sicherungsrechte wie Eigentumsvorbehalt (RS0051756, RS0064764), PKW bereits veräußert.\n- **Ansprüche des Tankstellenbetreibers**: Gegen wen (Marius, GmbH als Halter, Grubmair)? Evidence liefern keine zivilrechtlichen Grundlagen für Halterhaftung bei Tankbetrug.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage (Grubmair ggü. GmbH – Kommissionsvertrag/Verkaufsauftrag):**  \n§ 1088 Satz 1 ABGB (Auslegungsregel für ähnliche Verträge als Bevollmächtigung), ergänzt durch Kommissionsregeln bei Kaufleuten (Sorgfaltspflicht RS0062759). Stufenbau: Primär vertraglicher Erlösherausgabepflicht aus Kommission/Verkaufsauftrag (RS0020259: Rechtswidrige Erlösverwendung als Zueignung); eventuell deliktisch (§ 1004 ABGB als Mandatsanalogie für Treuepflicht). Keine Doppelgleisigkeit, da kein Delikt vorliegt.  \n**Eventualanspruchsgrundlage (Grubmair ggü. Gabler):** Insufficient evidence.  \n**Tankstellenbetreiber:** Insufficient evidence; keine vertraglichen (§ 862 ABGB Offerte) oder deliktischen (§ 1004 ABGB) Grundlagen; strafrechtliche RS (RS0098537 Tankdiebstahl) irrelevant zivil.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0020259**: Verkauf unter Mindestpreis kein Zueignungshandlung; erst rechtswidrige Erlösverwendung begründet Veruntreuung – relevant, da Verkauf für 22.000 €, aber keine Auszahlung (Erlösanspruch Grubmair).\n- **RS0020262**: Fehlende Merkmale echten Verkaufsauftrags führen zu Bevollmächtigung; bei eigenem Handel Vertrag eigener Art – relevant zur Qualifikation als Kommission/Verkaufsauftrag.\n- **RS0062729**: Kommissionär darf Ausführungsgeschäft nicht ohne Zustimmung stornieren; Rückersatz nur bei Unumgänglichkeit – relevant für Zahlungspflicht aus Verkauf.\n- **RS0094645**: Veruntreuung bei Erlös aus kommissionsweisem Verkauf unter Eigentumsvorbehalt – relevant, analog für Treuepflichtverletzung.\n- **RS0051756**: Konkursforderungsanmeldung kein Verzicht auf Aussonderung – relevant zur Beweislast.\n\n### 4. SUBSUMTION\n**Kommissionsvertrag/Verkaufsauftrag ggü. GmbH (Hauptanspruch):**  \nGrubmair übergibt PKW \"zum Weiterverkauf\" mit vereinbartem Erlösanteil (17.000 €); passt zu Kommission (RS0062759 Sorgfalt) oder Verkaufsauftrag (RS0020259). Verkauf an Marius erfüllt Ausführungsgeschäft (RS0062729); GmbH schuldet Auszahlung (keine Stornierung). Insolvenz macht Forderung zur Quotenforderung; kein Aussonderungsrecht (PKW vermengt/veräußert, RS0064764).  \n**Eventual ggü. Gabler:** Insufficient evidence; keine persönliche Pflichtverletzung nachweisbar.  \n**Tankstellenbetreiber:** Insufficient evidence; kein Vertrag mit Marius/GmbH (Drive-off kein Angebot, § 862 ABGB); keine Halterhaftung für Betrug (RS0065615, RS0065730).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Vertragsart (Kommission/Verkaufsauftrag):** Grubmair beweist Vereinbarung (schriftlich/mündlich; § 1002 ABGB); fehlt (keine evidence).  \n- **Verkaufserlös (22.000 €) und Vereinbarung (17.000 €):** Grubmair beweist (Rechnung/Kreditkarte); vorhanden (Fallbeschreibung), aber Ungültigkeit Kreditkarte ein Jahr später – GmbH/InsO widerlegt (keine evidence).  \n- **Keine Auszahlung/rechtswidrige Verwendung:** Grubmair beweist (Kontoauszüge); fehlt.  \n- **Eigentumsvorbehalt/Aussonderung:** Grubmair beweist (RS0051756); fehlt vollständig.  \n- **Tankstelle-Ansprüche:** Tankbetreiber beweist Vertrag/Bereicherung (§ 1004 ABGB); fehlt (kein Angebot Marius). Halterhaftung (GmbH): Tankbetreiber widerlegt Fahrzeugnutzung; fehlt.\n\n### 6. PROZESSSTRATEGIE\n**Grubmair (Hauptbegehren):** Feststellung/Befriedigung der Forderung von 17.000 € ggü. Insolvenzmasse (Konkursforderung aus Kommission/Verkaufsauftrag; hohe Erfolgsaussicht bei Nachweis).  \n**Eventualbegehren:** Schadensersatz ggü. Gabler (persönlich; niedrige Aussicht, insufficient evidence).  \n**Tankstellenbetreiber:** Haupt: Zahlung ggü. Marius (Bereicherung; unwahrscheinlich). Eventual ggü. GmbH-Masse (Halteranspruch; insufficient). Priorisiert: Grubmair > Tankstelle (bessere Evidence).\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (Kein Kommissionsvertrag, sondern Eigenverkauf):** GmbH argumentiert Verkauf auf eigene Rechnung (RS0020262); Replik: Vereinbarter Erlösanteil (17.000 €) begründet Ausführungspflicht (RS0020259 keine Zueignung vor Verwendung).  \n- **Risiko 2 (Aussonderung ausgeschlossen):** PKW veräußert, kein Vorbehalt (RS0064764 Ersatzaussonderung nur individualisierbar); Replik: Erlösanspruch als vertraglich separiert (RS0051756 Anmeldung kein Verzicht).  \n- **Risiko 3 (Verzug/Stornierung durch Insolvenz):** Kreditkarte ungültig als \"Stornierung\" (RS0062729); Replik: Kommissionär muss Unumgänglichkeit beweisen; Verkauf bereits erledigt.  \n- **Risiko 4 (Tankstelle: Keine Halterhaftung):** Kein \"normaler Fahrbetrieb\" (RS0065730); Replik: Tanken vor Drive-off als Verwendung, aber insufficient evidence – Klage abweisen.\n\n### 8. ERFOLGSAUSSICHTEN\n- **Kommissions-/Verkaufsauftrag ggü. GmbH-Masse:** 60% (RS gestützt, aber Beweisfehlen).  \n- **Gegen Gabler:** 10% (keine evidence).  \n- **Tankstelle ggü. allen:** 0% (insufficient evidence).",
+  "elapsed_ms": 165860.93
+}
