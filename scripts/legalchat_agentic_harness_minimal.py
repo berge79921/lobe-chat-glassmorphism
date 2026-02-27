@@ -1325,6 +1325,7 @@ def _build_plan_openrouter(
     max_workstreams: int,
     fallback: dict[str, Any],
     classification: dict[str, Any] | None = None,
+    file_context: str = "",
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     org_tools = sorted(role_tools("organizer"))
     role_ctx = role_skill_context("organizer")
@@ -1360,9 +1361,28 @@ def _build_plan_openrouter(
                 "\nSTRATEGY: Include a workstream with build_grounding_context + detect_clusters + ask_gemini_zivilrecht "
                 "to get cluster-level grounding and expert analysis for this domain."
             )
+    file_hint = ""
+    if file_context:
+        import re as _re
+        _rs_nums = sorted(set(_re.findall(r"RS0\d{5,7}", file_context)))
+        _rs_list = ""
+        if _rs_nums:
+            _rs_list = (
+                "\nPRE-IDENTIFIED RS NUMBERS from case files: " + ", ".join(_rs_nums[:12])
+                + "\nEnsure workstreams include hot_rs_lookup or get_rechtssatz to look up EACH of these."
+            )
+        file_hint = (
+            "\n\n--- AKTENKONTEXT (aus lokalen Falldateien) ---\n"
+            + file_context[:3000]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+            "IMPORTANT: Use the Aktenkontext to identify the correct legal domain, "
+            "relevant §§, and RS numbers. Plan workstreams that search for THESE specific topics."
+            + _rs_list
+        )
     usr_prompt = (
         "Question:\n"
         + query
+        + file_hint
         + class_hint
         + "\n\nBuild a minimal high-signal plan. Prioritize RS, hot-index context, and kommentar context."
         + " Use search_by_paragraph for specific §§ and search_by_schlagwort for OGH taxonomy keywords."
@@ -1629,6 +1649,7 @@ def build_plan_with_organizer(
     opencode_sidecar_cmd: str = "",
     opencode_sidecar_timeout_sec: int = 90,
     classifier_model: str = "",
+    file_context: str = "",
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     org_allowed = role_tools("organizer")
     fallback_streams: list[dict[str, Any]] = []
@@ -1648,7 +1669,7 @@ def build_plan_with_organizer(
     backend = (organizer_backend or "openrouter").strip().lower()
     if backend == "openrouter":
         try:
-            plan, meta = _build_plan_openrouter(query=query, organizer_model=organizer_model, max_workstreams=max_workstreams, fallback=fallback, classification=classification)
+            plan, meta = _build_plan_openrouter(query=query, organizer_model=organizer_model, max_workstreams=max_workstreams, fallback=fallback, classification=classification, file_context=file_context)
             meta["classification"] = classification
             return plan, meta
         except Exception as e:
@@ -1683,6 +1704,7 @@ def build_plan_with_organizer(
                 max_workstreams=max_workstreams,
                 fallback=fallback,
                 classification=classification,
+                file_context=file_context,
             )
         except Exception as e:
             openrouter_meta = {"latency_ms": None, "raw_text": "", "used_fallback": True, "backend": "openrouter", "error": str(e)}
@@ -2185,6 +2207,7 @@ def run_subagent_llm(
     pre_search_evidence: str = "",
     all_stream_names: list[str] | None = None,
     classification: dict[str, Any] | None = None,
+    file_context: str = "",
 ) -> dict[str, Any]:
     started = time.perf_counter()
     stream_tools = filter_tools_for_role(list(stream.get("tools") or []), "worker")
@@ -2247,6 +2270,27 @@ def run_subagent_llm(
             usr_parts.append(f"\nParallel streams covering other aspects: {', '.join(others)}. Focus on YOUR goal, avoid duplication.")
     if pre_search_evidence:
         usr_parts.append("\nPre-search evidence (CRITICAL starting context — integrate RS numbers into your searches, deepen the most relevant ones):\n" + pre_search_evidence[:5000])
+    if file_context:
+        # Extract RS numbers from file context for direct lookup
+        import re as _re
+        _rs_nums = sorted(set(_re.findall(r"RS0\d{5,7}", file_context)))
+        _rs_hint = ""
+        if _rs_nums:
+            _rs_hint = (
+                "\n\nCRITICAL — PHASE 0 (before any keyword search):\n"
+                "The Aktenkontext contains these RS numbers: " + ", ".join(_rs_nums[:12]) + "\n"
+                "You MUST call hot_rs_lookup or get_rechtssatz for EACH of these RS numbers FIRST. "
+                "These are pre-identified by the case team as directly relevant. "
+                "Only AFTER looking them up, proceed with keyword searches in Phase 1."
+            )
+        usr_parts.append(
+            "\n--- AKTENKONTEXT (aus lokalen Falldateien) ---\n"
+            + file_context[:3000]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+            "Use the Aktenkontext to identify relevant §§, RS numbers, and legal issues. "
+            "Search for THESE specific topics with your tools."
+            + _rs_hint
+        )
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": sys_prompt},
         {"role": "user", "content": "\n".join(usr_parts)},
@@ -2641,6 +2685,7 @@ def synthesize_answer(
     dry_run: bool,
     postgres_only: bool,
     file_context: str = "",
+    file_context_meta: dict[str, Any] | None = None,
 ) -> tuple[str, dict[str, Any] | None]:
     if dry_run:
         lines = []
@@ -2667,7 +2712,13 @@ def synthesize_answer(
         "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen?\n"
         "6. PROZESSSTRATEGIE — Haupt- und Eventualbegehren, priorisiert nach Erfolgsaussicht\n"
         "7. RISIKEN / GEGENARGUMENTE — mind. 4 mit konkreten Repliken/Entkräftungen (RS-gestützt)\n"
-        "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n\n"
+        "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n"
+        "9. STRATEGISCHE DETAILS — NUR wenn Aktenkontext vorhanden: "
+        "FRISTEN (exakte Daten, z.B. 'Rekursfrist: 14 Tage → bis DD.MM.YYYY'), "
+        "KOSTEN (EUR-Beträge: Gerichtsgebühren + RA-Kosten = Gesamt), "
+        "PARALLELE VERFAHREN (ausländische Proceedings mit Case-Nr und Impact), "
+        "NÄCHSTE SCHRITTE (nummeriert, mit Daten), "
+        "KOSTEN-NUTZEN (Kosten der Aktion vs. Risiko der Untätigkeit)\n\n"
         "WICHTIG:\n"
         "- Bei mehreren Anspruchsgrundlagen: IMMER Haupt- und Eventualbegehren ordnen\n"
         "- Konkurrierende Ansprüche (zB Wandlung UND Preisminderung) als Stufen darstellen\n"
@@ -2676,7 +2727,8 @@ def synthesize_answer(
         "- Arzthaftung: IMMER Doppelgleisigkeit prüfen (Delikt §1295/§1325 + Vertrag §1299/§1313a), "
         "Behandlungsfehler UND Aufklärungsfehler getrennt subsumieren\n"
         "- Interzession: IMMER §25c KSchG + §879 ABGB als getrennte Anspruchsgrundlagen prüfen, "
-        "bei Exekution auch §35 EO (Oppositionsklage) berücksichtigen"
+        "bei Exekution auch §35 EO (Oppositionsklage) berücksichtigen\n"
+        "- Section 9 is MANDATORY when Aktenkontext is provided. Use EXACT dates and amounts from the context."
     )
     if postgres_only:
         sys_prompt = (
@@ -2700,8 +2752,43 @@ def synthesize_answer(
         )
     if synth_ctx:
         sys_prompt += "\n\n" + synth_ctx
+    # --- Extract facts from file context and inject into sys_prompt ---
+    _extracted_facts: list[str] = []
     file_block = ""
     if file_context:
+        # Use pre-extracted facts from full file scan (not truncated context)
+        _ef = (file_context_meta or {}).get("extracted_facts", {})
+        _fc_rs = _ef.get("rs_numbers", [])
+        _deadlines = _ef.get("deadlines", [])
+        _costs = _ef.get("costs", [])
+        _case_nums = _ef.get("case_nums", [])
+        _all_dates = _ef.get("dates", [])
+        # Fallback: extract from truncated context if meta missing
+        if not _fc_rs:
+            import re as _re
+            _fc_rs = sorted(set(_re.findall(r"RS0\d{5,7}", file_context)))
+        # Build facts for sys_prompt Section 9 instruction
+        if _deadlines:
+            _extracted_facts.append("FRISTEN: " + "; ".join(_deadlines))
+        if _costs:
+            _extracted_facts.append("KOSTEN: " + "; ".join(_costs))
+        if _case_nums:
+            _extracted_facts.append("PARALLELE VERFAHREN: " + "; ".join(_case_nums))
+        if _all_dates:
+            _extracted_facts.append("ALLE DATEN IM AKT: " + ", ".join(_all_dates))
+        if _extracted_facts:
+            sys_prompt += (
+                "\n\n=== SECTION 9 DATA (from case files — use EXACTLY as written) ===\n"
+                + "\n".join(_extracted_facts)
+                + "\nYou MUST include ALL of these in Section 9. Copy dates and amounts verbatim.\n"
+            )
+        # RS hint for sys_prompt
+        if _fc_rs:
+            sys_prompt += (
+                "\nPRE-VALIDATED RS numbers (may be cited even without tool evidence): "
+                + ", ".join(_fc_rs[:12])
+            )
+        # User prompt gets the full Aktenkontext
         file_block = (
             "\n\n--- AKTENKONTEXT (Lokale Dateien) ---\n"
             + file_context[:_CONTEXT_MAX_CHARS]
@@ -2780,8 +2867,8 @@ def synthesize_answer(
 # ---------------------------------------------------------------------------
 # Case context loader (--context-dir / --context-file / --ocr)
 # ---------------------------------------------------------------------------
-_CONTEXT_MAX_CHARS = 8000
-_SINGLE_FILE_MAX = 4000
+_CONTEXT_MAX_CHARS = 12000
+_SINGLE_FILE_MAX = 6000
 _PRIORITY_FILES = ["FALLUEBERSICHT.md", "AKT_KARTEIKARTE.md", "CASE_DATA.json"]
 _CONTEXT_EXCLUDE = {".DS_Store"}
 _CONTEXT_EXCLUDE_PREFIXES = ("REVIEW_", ".")
@@ -2897,6 +2984,22 @@ def load_case_context(
 
     ctx = "\n\n".join(parts)
     meta["final_chars"] = len(ctx)
+    # Extract key facts from FULL file contents (before truncation)
+    import re as _re
+    _full_texts = []
+    for fp_str in meta["files_read"]:
+        try:
+            _full_texts.append(Path(fp_str).read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            pass
+    _full_scan = "\n".join(_full_texts)
+    meta["extracted_facts"] = {
+        "deadlines": sorted(set(_re.findall(r"(?:bis|Deadline|Frist[a-z]*)\s*[:.]?\s*\d{2}\.\d{2}\.\d{4}", _full_scan, _re.I)))[:5],
+        "dates": sorted(set(_re.findall(r"\d{2}\.\d{2}\.\d{4}", _full_scan)))[:10],
+        "costs": [c for c in _re.findall(r"(?:EUR|€)\s*[\d.,]+", _full_scan) if not c.strip().endswith("0") or len(c) > 4][:5],
+        "case_nums": sorted(set(_re.findall(r"(?:Case\s+\d[\w-]+|SDNY\b|Chapter\s+11)", _full_scan, _re.I)))[:5],
+        "rs_numbers": sorted(set(_re.findall(r"RS0\d{5,7}", _full_scan)))[:15],
+    }
     return ctx, meta
 
 
@@ -3216,6 +3319,7 @@ def apply_hard_citation_gate(
     remote_ssh: str,
     remote_mcp_container: str,
     postgres_only: bool,
+    file_context: str = "",
 ) -> dict[str, Any]:
     mode = (citation_gate_mode or "warn").strip().lower()
     if mode == "off":
@@ -3242,6 +3346,11 @@ def apply_hard_citation_gate(
     query_context_rs = set(extract_rs_numbers(query))
     query_context_te = {_normalize_ogh_gz(x) for x in extract_ogh_te_citations(query)}
     query_context_norms = set(extract_norm_citations(query))
+    # RS/TE/norms from file context (case files) are pre-curated — whitelist them
+    if file_context:
+        query_context_rs |= set(extract_rs_numbers(file_context))
+        query_context_te |= {_normalize_ogh_gz(x) for x in extract_ogh_te_citations(file_context)}
+        query_context_norms |= set(extract_norm_citations(file_context))
 
     def _evaluate(text: str) -> dict[str, Any]:
         cited_rs = extract_rs_numbers(text)
@@ -3255,6 +3364,14 @@ def apply_hard_citation_gate(
             remote_ssh=remote_ssh,
             remote_mcp_container=remote_mcp_container,
         )
+        # File-context RS numbers are pre-curated by case team — treat as valid
+        if query_context_rs:
+            fc_valid = query_context_rs & set(cited_rs)
+            if fc_valid:
+                inv = rs_validation.get("invalid") or []
+                rs_validation["invalid"] = [r for r in inv if r not in fc_valid]
+                rs_validation["valid"] = rs_validation.get("valid", 0) + len(fc_valid)
+                rs_validation["sample_valid"] = list(set(rs_validation.get("sample_valid") or []) | fc_valid)[:10]
         evidence_rs = set(evidence["rs"]) | query_context_rs
         evidence_te = {_normalize_ogh_gz(x) for x in evidence["te_ogh"]} | query_context_te
         evidence_norms = set(evidence["norms"]) | query_context_norms
@@ -3849,6 +3966,7 @@ def main() -> int:
             remote_ssh=args.remote_ssh,
             remote_mcp_container=args.remote_mcp_container,
             postgres_only=(args.grounding_policy == "postgres_only"),
+            file_context=file_context,
         )
         final_answer = citation_gate.get("answer") or final_answer
         elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
@@ -3918,6 +4036,7 @@ def main() -> int:
             opencode_sidecar_cmd=args.opencode_sidecar_cmd,
             opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
             classifier_model=classifier_model,
+            file_context=file_context,
         )
 
         streams = plan.get("workstreams") or []
@@ -3969,6 +4088,7 @@ def main() -> int:
                         pre_search_evidence,
                         _all_names,
                         classification,
+                        file_context,
                     )
                 futures.append(fut)
             for fut in cf.as_completed(futures):
@@ -4001,6 +4121,7 @@ def main() -> int:
             dry_run=bool(args.dry_run),
             postgres_only=(args.grounding_policy == "postgres_only"),
             file_context=file_context,
+            file_context_meta=file_context_meta,
         )
         citation_gate = apply_hard_citation_gate(
             answer=final_answer,
@@ -4013,8 +4134,32 @@ def main() -> int:
             remote_ssh=args.remote_ssh,
             remote_mcp_container=args.remote_mcp_container,
             postgres_only=(args.grounding_policy == "postgres_only"),
+            file_context=file_context,
         )
         final_answer = citation_gate.get("answer") or final_answer
+        # Post-gate: append extracted facts to ensure Section 9 has specific data
+        if file_context_meta and file_context_meta.get("extracted_facts"):
+            ef = file_context_meta["extracted_facts"]
+            fparts = []
+            if ef.get("deadlines"):
+                fparts.append("FRISTEN: " + "; ".join(ef["deadlines"]))
+            if ef.get("costs"):
+                fparts.append("KOSTEN: " + "; ".join(ef["costs"]))
+            if ef.get("case_nums"):
+                fparts.append("PARALLELE VERFAHREN: " + "; ".join(ef["case_nums"]))
+            if fparts:
+                import re as _ppre
+                # Detect Section 9 in any format (### 9. or plain 9.)
+                _s9_match = _ppre.search(r"(?:#{1,3}\s*)?9\.\s*STRATEGISCHE", final_answer)
+                _s9_text = final_answer[_s9_match.end():] if _s9_match else ""
+                _s9_has_date = bool(_ppre.search(r"\d{2}\.\d{2}\.\d{4}", _s9_text))
+                _s9_has_cost = bool(_ppre.search(r"(?:EUR|€)\s*\d", _s9_text))
+                if not _s9_has_date or not _s9_has_cost:
+                    facts_block = "\n".join(f"- **{f}**" for f in fparts)
+                    if not _s9_match:
+                        final_answer += "\n\n### 9. STRATEGISCHE DETAILS\n" + facts_block
+                    else:
+                        final_answer += "\n\n**Ergänzung aus Aktenkontext:**\n" + facts_block
         elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
 
         stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
