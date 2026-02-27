@@ -1,0 +1,956 @@
+[
+  {
+    "name": "Bürgschaftsrechtliche Verteidigungsszenarien",
+    "goal": "Identifikation von Verteidigungsmöglichkeiten gegen die Durchsetzung der Bürgschaft (z.B. sittenwidrige Konditionen nach § 879 ABGB iVm KSchG, Versäumungsurteil anfechtbar?, Exekutionserlass widersprechen)",
+    "mode": "llm",
+    "tools": [
+      "search_ogh_entscheidungen",
+      "hot_cluster_context",
+      "detect_clusters",
+      "search_by_paragraph",
+      "search_by_schlagwort",
+      "search_ogh_rechtssaetze",
+      "get_rechtssatz",
+      "hot_rs_lookup"
+    ],
+    "llm_model": "x-ai/grok-4.1-fast",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 10655.74,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 7,
+        "usage": {
+          "prompt_tokens": 3161,
+          "completion_tokens": 1619,
+          "total_tokens": 4780,
+          "cost": 0.0014192,
+          "cached_tokens": 150,
+          "reasoning_tokens": 1293
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 13826.52,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 7,
+        "usage": {
+          "prompt_tokens": 23234,
+          "completion_tokens": 1330,
+          "total_tokens": 24564,
+          "cost": 0.0052893,
+          "cached_tokens": 150,
+          "reasoning_tokens": 1033
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 18487.29,
+        "finish_reason": "length",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 46306,
+          "completion_tokens": 2179,
+          "total_tokens": 48485,
+          "cost": 0.00686635,
+          "cached_tokens": 23229,
+          "reasoning_tokens": 579
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "call_12362566",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Interzession",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 949.21,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Interzession\", \"results\": [{\"rs_number\": \"RS0065900\", \"kernaussage\": \"Das Vergehen nach § 48 KWG ist kein eigenhändiges Delikt, das nur der Kreditwerber begehen kann. Auch falsche Erklärungen einer vom Kreditwerber verschiedenen Person können tatbildlich im Sinne des § 48 KWG sein, dann etwa, wenn die wirtschaftlichen Verhältnisse dieses Dritten zB wegen dessen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kreditbetrug\", \"Falsche Angaben im Kreditverfahren\", \"Dritterklärung\", \"Garantenfunktion\", \"Interzession\", \"Tatbestand des § 48 KWG\", \"Nicht eigenhändiges Delikt\"]}, {\"rs_number\": \"RS0016182\", \"kernaussage\": \"Die Bank trifft bei Abschluss von Verträgen auf Grund von ihr verfasster Formulare jedenfalls insofern die Pflicht zur Aufklärung geschäftlich unerfahrener Kunden, dass diese sich nicht über den Umfang der sie persönlich treffenden Leistungsverpflichtungen in einem wesentlichen Irrtum befinden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bankkredit\", \"Hotelanteile\", \"Pfandrecht\", \"Bürgschaft\", \"Treuhand\", \"Aufklärungspflicht\", \"Sittenwidrigkeit\", \"Irrtum\", \"Kreditinstitut\", \"Interzession\", \"Wertpapierdepot\", \"Verwaltungsvollmacht\", \"WAG\", \"AGB Kreditunternehmen\", \"Derivate\", \"Aufklärungspflicht Bank\", \"Scheckeinlösung\", \"Rekurszulassung\", \"Kreditkartenakzeptanz\", \"Zahlungsgarantie\", \"Rückbelastung\", \"Abwicklungsrichtlinien\", \"Sorgfaltspflicht\", \"Fremdwährungskredit\", \"Neuerungsverbot\", \"Stop-Loss-Vereinbarung\"]}, {\"rs_number\": \"RS0108494\", \"kernaussage\": \"Ob bei den hier festgestellten Umständen auch eine andere Lösung der Frage, ob der Beklagte im eigenen ode"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_04455796",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Bürgschaft",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 60.74,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Bürgschaft\", \"results\": [{\"rs_number\": \"RS0045550\", \"kernaussage\": \"Ansprüche des Hauseigentümers gegen die Gemeinde aus der in § 17 Abs 2 WohnungsanforderungsG statuierten Haftung für das Benützungsentgelt, sind im ordentlichen Rechtswege geltend zu machen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungsanforderungsgesetz\", \"Bürgschaft\", \"Benützungsentgelt\", \"Rechtsweg\"]}, {\"rs_number\": \"RS0045850\", \"kernaussage\": \"Die Schlechterfüllung eines Vertrages kann für sich allein genommen die Haftung auch für die Prozesskosten nicht begründen, weil Gewährleistungsprozesse keine typische Folge von Gewährleistungsansprüchen sind. Nur wenn der Regresspflichtige über die Schlechterfüllung der Hauptleistung hinaus weitere...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rückgriffsanspruch\", \"Unterfrachtführer\", \"CMR\", \"Erfüllungsgehilfe\", \"Prozeßkosten\", \"Verjährung\", \"Revision\", \"Zulässigkeit\", \"Frachtführer\", \"Rückersatzanspruch\", \"Prozeßkostenersatz\", \"Schlechterfüllung\", \"Solidarhaftung\", \"Ausgleichsverfahren\", \"Notarhaftung\", \"Blindheit\", \"Notariatszwang\", \"Sorgfaltspflicht\", \"Bürgschaft\", \"Leseprobe\", \"Regreß Solidarschuldner\", \"Verzugszinsen\", \"Nachbarrecht\", \"Geschäftsführung ohne Auftrag\", \"Schadenersatz\", \"Prozesskosten\", \"Skontofrist\", \"Aufklärungspflicht\", \"Vorprozess\", \"Schadenersatz aus Werkvertrag\", \"Prozesskostenersatz\", \"Subunternehmerhaftung\", \"Kausalität und Adäquanz\", \"Rechtswidrigkeitszusammenhang\", \"Werkvertrag\", \"Baumängel\", \"Kellerdämmung\", \"Warnpflicht\", \"Gewährleistungsfrist\", \"Schutzzweck\", \"Nebenpflichten\", \"Regress Prozesskosten\", \"Mängelhaftung S"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_81946823",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Sittenwidrigkeit",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 62.66,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Sittenwidrigkeit\", \"results\": [{\"rs_number\": \"RS0126822\", \"kernaussage\": \"Bei der Anwendung von § 19 Abs 1 Z 18 Satz 2 AVRAG ist eine - im Gesetzeswortlaut nicht verankerte - Differenzierung danach, ob eine Alt-Kollektivnorm den Ausbildungskostenrückersatz unmittelbar normativ regelt oder bloß den zulässigen Inhalt einer erst individuell abzuschließenden Vereinbarung...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ausbildungskostenrückersatz\", \"AVRAG\", \"Kollektivvertrag\", \"Aliquotierung\", \"Sittenwidrigkeit\", \"Ausbildungskostenrückerstattung\", \"Rückersatzvereinbarung\", \"§ 2d AVRAG\", \"Aufrechnung\"]}, {\"rs_number\": \"RS0126829\", \"kernaussage\": \"Das im Rahmen einer Pflichtteilsklage gegen den testamentarischen Alleinerben gerichtete Begehren eines Pflichtteilsberechtigten auf Anrechnung der Schenkung einer Liegenschaftshälfte durch den Erblasser an einen Pflichtteilsberechtigten ist nicht per se sittenwidrig, wenn diesem vom die Schenkungsa...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Pflichtteil\", \"Schenkungsanrechnung\", \"§ 785 ABGB\", \"Sittenwidrigkeit\", \"Pflegekosten\", \"Verjährung\"]}, {\"rs_number\": \"RS0127663\", \"kernaussage\": \"Ein in der Satzung einer GmbH den Gesellschaftern eingeräumtes Aufgriffsrecht zu vorbestimmten Bedingungen (hier: Geltendmachung in bestimmter Frist; Verfahren zur Ermittlung des Aufgriffspreises) ist nicht einem Zustimmungsrecht zur Veräußerung des Geschäftsanteils gleich zu halten, sodass bei...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"GmbH-Geschäftsanteil\", \"vinkulierter Anteil\", \"Aufgriffsrecht\", \"Exekutionsverwertung\", \"GmbH\", \"Gesellschaftsver"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_89172670",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 879 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 815.46,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 879 ABGB\", \"results\": [{\"rs_number\": \"JWR_2012040021_20130911X05\", \"kernaussage\": \"Gesetzliches Verbot § 879 ABGB nur bei genereller materieller Norm\", \"schlagworte\": [\"gesetzliches Verbot\", \"generelle Norm\", \"Nichtigkeit\", \"Rechtsgeschäft\", \"Verbotswidrigkeit\", \"materielles Gesetz\", \"OGH-Rechtsprechung\", \"Zweck der Norm\"]}, {\"rs_number\": \"JWR_1992080047_19921020X11\", \"kernaussage\": \"Sittenwidrige Karenzierungsvereinbarungen (§ 879 ABGB)\", \"schlagworte\": [\"Karenzierungsvereinbarung\", \"Sittenwidrigkeit\", \"§ 879 ABGB\", \"Nichtigkeit\", \"Arbeitsvertrag\", \"Karenzurlaub\", \"Arbeitskraftverwertung\", \"Lebensunterhalt\"]}, {\"rs_number\": \"RS0032037\", \"kernaussage\": \"Zur Auslegung des § 1336 ABGB. Verhältnis dieser Bestimmung zu § 879 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0037089\", \"kernaussage\": \"Die Inhaltskontrolle gemäß § 879 ABGB geht der Geltungskontrolle nach § 864a ABGB nach.\", \"schlagworte\": [\"Veröffentlichung\", \"Allgemeine Unfallversicherungsbedingungen\", \"Nutzwertberechnung\", \"Mobilfunkvertrag\", \"Wertanpassungsklausel\", \"Intransparenz\", \"Überrumpelungseffekt\", \"Verjährungsverkürzung\", \"Invaliditätsleistung\", \"Verbandsklage\", \"Mietverträge\", \"Sparkonto\", \"Zahlungsdienstegesetz\", \"Bindungswirkung Strafurteil\", \"Reiseversicherung\", \"Gefahrenerhöhung\", \"Risikoausschluss\", \"Beweislastumkehr\", \"Überraschungsklausel\", \"MRG\", \"Dissens\", \"§879 ABGB\", \"KSchG §28/29\", \"FAGG\", \"Sich-berufen\", \"kundenfeindliche Auslegung\", \"Ausschlussklauseln\", \"Obliegenheit Sicherheitsgurt\", \"§ 879 Abs 3 ABGB\", \"Unterlassungsklage\"]}, {\"rs_number\": \"RS0016447\", \"kernaussage\": \"Die "
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_34590087",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113883",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.28,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113883\", \"rechtssatz_text\": \"§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbarkeit.\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 18081, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_14305009",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113936",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.01,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0113936\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_46229703",
+        "tool": "detect_clusters",
+        "args": {
+          "topic": "konsumentenschutz",
+          "query": "einkommenslose Ehefrau Bürgschaft Geschäftskredit Mann §25c KSchG Verletzung Informationspflicht Versäumungsurteil Exekution"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 6.71,
+        "error": null,
+        "payload_preview": "\"Unknown tool: detect_clusters\""
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_61517078",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113880",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 388.81,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113880\", \"rechtssatz_text\": \"Den Gläubiger, der bis zum Zeitpunkt der Interzession erkennt oder erkennen muss, dass der Hauptschuldner seine Verbindlichkeit voraussichtlich nicht (vollständig) erfüllen wird, trifft eine Informationspflicht. Er hat den interzedierenden Verbraucher auch dann auf die wirtschaftliche Lage des...\", \"te_count\": 11, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 5441, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob200_24d|OGH|2025-03-25\", \"gz\": \"1Ob200_24d\", \"datum\": \"2025-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit einer außerordentlichen Revision gegen die Abweisung einer Schadenersatzklage wegen angeblicher Verletzung der Aufklärungspflicht einer Bank gegenüber einem Interzedenten gemäß § 25c KSchG und verneint diese.\"}, {\"te_stable_key\": \"6Ob19_14h|OGH|2014-02-20\", \"gz\": \"6Ob19_14h\", \"datum\": \"2014-02-20\", \"gericht\": \"OGH\", \"mini_story\": \"Anwendung des KSchG auf eine Bürgschaftserklärung eines Unternehmers bei Kreditverlängerung und Prüfpflicht des Gläubigers nach § 25c KSchG.\"}, {\"te_stable_key\": \"8Ob85_13b|OGH|2013-08-29\", \"gz\": \"8Ob85_13b\", \"datum\": \"2013-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da die Vorinstanzen die Wechselbürgschaft und die materiellen Einwendungen gegen die Bürgschaft korrekt geprüft haben.\"}, {\"te_stable_key\": \"7Ob219_10x|OGH|2011-01-19\", \"gz\": \"7Ob219_10x\", \"datum\": \"2011-01-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft das rechtliche Interesse an einer negativen Feststellungsklage bezüglich der Zahlungspflicht aus Bürgschaftsverträgen im Kontext von Interzessionen nach KSchG und weist die Revision ab.\"}, {\"te_stable_key\": \"3Ob111_08g|OGH|2008-09-03\", \"gz\": \"3Ob111_08g\", \"datum\": \"2008-09-03\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH befasst sich mit der Wirksamkeit eines Kreditsvertrags und einer Girokontoeröffnung, bei denen die Beklagte als Interzedentin für ihren Ehemann agierte, ohne ausreichende Aufklärung durch die Bank.\"}, {\"te_stable_key\": \"3Ob209_06s|OGH|2006-10-19\", \"gz\": \"3Ob209_06s\", \"datum\": \"2006-10-19\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit von Revisionen in Streit um Haftung aus Leasingvertrag und Aufklärungspflicht nach § 25c KSchG.\"}, {\"te_stable_key\": "
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_02045832",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113937",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 862.02,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113937\", \"rechtssatz_text\": \"Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen, ermöglicht daher ein richterliches Mäßigungsrecht unter den dort genannten Voraussetzungen auch für Verbindlichkeiten gegenüber anderen Rechtsträgern, somit auch...\", \"te_count\": 2, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 17816, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob195_10w|OGH|2011-01-18\", \"gz\": \"4Ob195_10w\", \"datum\": \"2011-01-18\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Tochter für Spitalpflegegebühren ihres bulgarischen Vaters aufgrund einer Verpflichtungserklärung gemäß WrKAG und KSchG.\"}, {\"te_stable_key\": \"2Ob222_04t|OGH|2006-02-02\", \"gz\": \"2Ob222_04t\", \"datum\": \"2006-02-02\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit privatrechtlicher Bürgschaft für Sozialversicherungsbeiträge durch Geschäftsführer einer GmbH & Co KG trotz öffentlich-rechtlicher Haftungsregelungen im ASVG.\"}], \"te_items_count\": 2}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_36102776",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0048300",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.3,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0048300\", \"rechtssatz_text\": \"Bei der Prüfung der Sittenwidrigkeit rechtsgeschäftlicher Haftungserklärungen volljähriger Familienangehöriger ohne jedes oder jedenfalls ohne zulängliches Einkommen und Vermögen kann das grobe Missverhältnis zwischen dem Verpflichtungsumfang und den gegenwärtigen und künftig zu erwartenden...\", \"te_count\": 40, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 1052, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob56_04k|OGH|2004-03-25\", \"gz\": \"6Ob56_04k\", \"datum\": \"2004-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Nichtigkeit einer formularmäßigen Abbedingung des Schutzes nach § 1360 ABGB und zur Inhaltskontrolle von Interzessionsgeschäften.\"}, {\"te_stable_key\": \"8Ob100_03v|OGH|2003-11-25\", \"gz\": \"8Ob100_03v\", \"datum\": \"2003-11-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zivilrechtliche Haftung von Wechselbürgen für Kredite einer GmbH, deren Geschäftsführer die Bilanz manipuliert hatte.\"}, {\"te_stable_key\": \"8Ob73_03y|OGH|2003-08-07\", \"gz\": \"8Ob73_03y\", \"datum\": \"2003-08-07\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der Revision gegen die Aufrechterhaltung von Interzessionshaftungen mangels Sittenwidrigkeit und bei angemessener Mäßigung nach § 25d KSchG.\"}, {\"te_stable_key\": \"7Ob228_02h|OGH|2002-12-11\", \"gz\": \"7Ob228_02h\", \"datum\": \"2002-12-11\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Sittenwidrigkeit eines Bürgschaftsvertrags, den die Beklagte für ihren Lebensgefährten übernommen hat, und die Zulässigkeit der Revision.\"}, {\"te_stable_key\": \"9Ob172_02p|OGH|2002-09-04\", \"gz\": \"9Ob172_02p\", \"datum\": \"2002-09-04\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da die Anwendung der Rechtsprechung zur Sittenwidrigkeit einer Interzession vermögensschwacher Familienangehöriger keine erhebliche Rechtsfrage darstellt.\"}, {\"te_stable_key\": \"8Ob58_02s|OGH|2002-08-08\", \"gz\": \"8Ob58_02s\", \"datum\": \"2002-08-08\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist unzulässig, da keine Rechtsfrage nach § 502 Abs 1 ZPO vorliegt, weil die Zuzählung der Kreditsumme an die Beklagte nicht nachgewiesen wurde.\"}, {\"te_stable_key\": \"6Ob38_02k|OGH|2002-04-18\", \"gz\": \"6Ob38_02k\", \"datum\": \"2002-04-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die B"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_50234127",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0115983",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.69,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0115983\", \"rechtssatz_text\": \"Die Haftungsbefreiung des Interzedenten tritt bei Unterbleiben der Information nicht schon jedenfalls, sondern nur dann ein, wenn der Kreditgeber bei Abschluss des Interzessionsvertrags erkannte oder erkennen musste, dass der Kredit wahrscheinlich notleidend werden wird. Nur dann ist ein Verstoß...\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11581, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob200_24d|OGH|2025-03-25\", \"gz\": \"1Ob200_24d\", \"datum\": \"2025-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit einer außerordentlichen Revision gegen die Abweisung einer Schadenersatzklage wegen angeblicher Verletzung der Aufklärungspflicht einer Bank gegenüber einem Interzedenten gemäß § 25c KSchG und verneint diese.\"}, {\"te_stable_key\": \"4Ob225_17t|OGH|2018-03-22\", \"gz\": \"4Ob225_17t\", \"datum\": \"2018-03-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revisionen gegen die Feststellung der Wirksamkeit einer Stop-Loss-Vereinbarung in einem Fremdwährungskreditvertrag als unzulässig zurück.\"}, {\"te_stable_key\": \"8Ob3_15x|OGH|2015-02-26\", \"gz\": \"8Ob3_15x\", \"datum\": \"2015-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der Revision gegen Feststellung von Benützungsentgelt und Haftung aus Interzessionserklärung in einem Miet- und Bestandverhältnis.\"}, {\"te_stable_key\": \"7Ob219_10x|OGH|2011-01-19\", \"gz\": \"7Ob219_10x\", \"datum\": \"2011-01-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft das rechtliche Interesse an einer negativen Feststellungsklage bezüglich der Zahlungspflicht aus Bürgschaftsverträgen im Kontext von Interzessionen nach KSchG und weist die Revision ab.\"}, {\"te_stable_key\": \"3Ob58_05h|OGH|2005-11-24\", \"gz\": \"3Ob58_05h\", \"datum\": \"2005-11-24\", \"gericht\": \"OGH\", \"mini_story\": \"Inanspruchnahme des Zweitbeklagten als Ausfallsbürgen für Kredite der Hauptschuldnerin gemäß § 1356 ABGB.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_35985488",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0048309",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.44,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0048309\", \"rechtssatz_text\": \"Bei der Prüfung der Sittenwidrigkeit rechtsgeschäftlicher Haftungserklärungen volljähriger Familienangehöriger ohne jedes oder jedenfalls ohne zulängliches Einkommen und Vermögen hat das Gericht eine auf den Zeitpunkt des Vertragsabschlusses bezogene Gesamtwürdigung aller objektiven und subjektiven...\", \"te_count\": 28, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 1706, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob31_05z|OGH|2005-05-04\", \"gz\": \"8Ob31_05z\", \"datum\": \"2005-05-04\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt das Urteil des Erstgerichts wieder her und bestätigt die Gültigkeit einer zeitlich unbeschränkten Bürgschaft für einen Bankkredit inklusive Verlängerungen und Wechselbürgschaft.\"}, {\"te_stable_key\": \"9Ob78_04t|OGH|2005-04-06\", \"gz\": \"9Ob78_04t\", \"datum\": \"2005-04-06\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Bestätigung eines Urteils zur Durchsetzung eines Verbraucherkredits ist unzulässig, da der Einwand der Nichtigkeit des Vertrags eine qualifizierte Mahnung gemäß § 13 KSchG überflüssig macht.\"}, {\"te_stable_key\": \"7Ob65_04s|OGH|2004-05-26\", \"gz\": \"7Ob65_04s\", \"datum\": \"2004-05-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Anwendbarkeit von § 25c KSchG auf die Bürgschaftserklärung einer Ehefrau für Kredite ihres Ehemanns und hebt die Vorinstanzentscheidung aufgrund fehlender Feststellungen zur Frage eines eigenen Interesses der Beklagten an der Kreditaufnahme auf.\"}, {\"te_stable_key\": \"9Ob18_04v|OGH|2004-05-26\", \"gz\": \"9Ob18_04v\", \"datum\": \"2004-05-26\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung der inhaltlichen Erfordernisse einer Garantieerklärung und der Sittenwidrigkeit einer Interzession für Kreditforderungen einer GmbH.\"}, {\"te_stable_key\": \"8Ob15_03v|OGH|2003-04-24\", \"gz\": \"8Ob15_03v\", \"datum\": \"2003-04-24\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision bezüglich Warnpflicht des Kreditgebers bei Bürgschaft und Sittenwidrigkeit der Bürgschaft.\"}, {\"te_stable_key\": \"7Ob228_02h|OGH|2002-12-11\", \"gz\": \"7Ob228_02h\", \"datum\": \"2002-12-11\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Sittenwidrigkeit eines Bürgschaftsvertrags, den die Beklagte für ihren Lebensgefährten übernommen hat, und die Zulä"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_38309874",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Angehörigenbürgschaft",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1145.34,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Angehörigenbürgschaft\", \"results\": [{\"rs_number\": \"RS0113880\", \"kernaussage\": \"Den Gläubiger, der bis zum Zeitpunkt der Interzession erkennt oder erkennen muss, dass der Hauptschuldner seine Verbindlichkeit voraussichtlich nicht (vollständig) erfüllen wird, trifft eine Informationspflicht. Er hat den interzedierenden Verbraucher auch dann auf die wirtschaftliche Lage des...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"Sittenwidrigkeit\", \"Informationspflicht\", \"Warnpflicht\", \"Hypothekarklage\", \"Interzessionsvertrag\", \"Aufklärungspflichten\", \"KSchG\", \"Kreditvertrag\", \"Angehörigenbürgschaft\", \"AGBKr\", \"Aufklärungspflicht\", \"Interzedentin\", \"Solidarhaftung\", \"Konsumentenkredit\", \"Wechselbürgschaft\", \"Interzedent\", \"Auskunftspflicht\", \"Konsumentenschutzgesetz\", \"Ausfallsbürgschaft\", \"Schuldübernahme\", \"Konkurs\", \"Leasingvertrag\", \"Fahrzeugmängel\", \"Schadenersatz\", \"Kontoübertragung\", \"Feststellungsklage\", \"Rechtliches Interesse\", \"Verbraucher\", \"Unternehmer\", \"Aufrechnungsverbot\", \"GmbH-Geschäftsführer\", \"Mäßigung\", \"ungarisches Insolvenzrecht\", \"Verbrauchergeschäft\", \"Prüfpflicht\", \"Bankgarantie\"]}, {\"rs_number\": \"RS0115983\", \"kernaussage\": \"Die Haftungsbefreiung des Interzedenten tritt bei Unterbleiben der Information nicht schon jedenfalls, sondern nur dann ein, wenn der Kreditgeber bei Abschluss des Interzessionsvertrags erkannte oder erkennen musste, dass der Kredit wahrscheinlich notleidend werden wird. Nur dann ist ein Verstoß...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"KSchG\", \"Kreditvertrag\", \"Sittenwid"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_26701346",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Versäumungsurteil",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 153.37,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Versäumungsurteil\", \"results\": [{\"rs_number\": \"JFR_10119074_88B00146_01\", \"kernaussage\": \"Bindung an Versäumungsurteil bei Zweifelsfreiheit\", \"rechtsgebiet\": \"Verfassungsrecht\", \"schlagworte\": [\"Grundverkehrsbehörde\", \"Versäumungsurteil\", \"Zweifelsfreiheit\", \"§ 2 Abs. 2 GVG\", \"Bindung an Urteil\", \"LG Innsbruck\", \"Vertragsgültigkeit\", \"Grundverkehrskommission\"]}, {\"rs_number\": \"JWR_1997050026_19970527X04\", \"kernaussage\": \"Säumniswirkung Versäumungsurteils bei Ersitzung im Baurecht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Versäumungsurteil\", \"Säumniswirkung\", \"Präklusion\", \"Ersitzung\", \"Tatsachengrundlage\", \"Baubewilligung\", \"Eigentumserwerb\", \"Einverleibung\", \"Grundbuch\"]}, {\"rs_number\": \"JWR_1971001649_19720915X01\", \"kernaussage\": \"§ 6 Abs 1 Z 3 GJGebG unabhängig von Verlauf erster Tagsatzung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Tagsatzung\", \"Versäumungsurteil\", \"Klagebegehren\", \"Gebührenanwendung\", \"erster Tagsatzung\", \"Streitteil Ausbleiben\", \"GJGebG\"]}, {\"rs_number\": \"RS0001178\", \"kernaussage\": \"Der Streitwert bei einer Exszindierungsklage richtet sich gemäß § 57 JN sowohl nach der Höhe der Forderung als auch nach dem Wert der gepfändeten Sachen, jedoch mit der Einschränkung, daß, wenn einer der beiden Beträge niedriger ist, es auf diesen ankommt (JB 242 = GIUNF 7662).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exszindierung\", \"Verstrickungsbruch\", \"Streitwert\", \"Pfandrecht\", \"Widerspruch gegen Exekution\", \"Exszindierungsklage\", \"Wert des Entscheidungsgegenstandes\", \"Zwangsversteigerung\", \"Grundstücksteil\", \"Zusammenrechnung vo"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0127663",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0127663",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.7,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127663\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0126829",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0126829",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.75,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126829\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0126822",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0126822",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.09,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126822\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0108494",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0108494",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.22,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0108494\", \"rechtssatz_text\": \"Ob bei den hier festgestellten Umständen auch eine andere Lösung der Frage, ob der Beklagte im eigenen oder fremden Namen gehandelt hat, vertretbar wäre, bildet keine erhebliche Rechtsfrage im Sinne des § 502 Abs 1 ZPO.\", \"te_count\": 15, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3800, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"9Ob118/25f|OGH|2025-12-18\", \"gz\": \"9Ob118/25f\", \"datum\": \"2025-12-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hat über die außerordentliche Revision der klagenden Partei in einer Zivilrechtssache entschieden.\"}, {\"te_stable_key\": \"1Ob139/25k|OGH|2025-11-11\", \"gz\": \"1Ob139/25k\", \"datum\": \"2025-11-11\", \"gericht\": \"OGH\", \"mini_story\": \"Die außerordentliche Revision gegen die Bestätigung eines Provisionsanspruchs aus Maklervertrag wird mangels Darlegung einer erheblichen Rechtsfrage (§ 502 Abs 1 ZPO) zurückgewiesen; Beurteilung des Handelns im eigenen/fremden Namen sowie eines wirtschaftlich gleichwertigen Geschäfts (§ 6 Abs 3 Makl\"}, {\"te_stable_key\": \"8Ob85/25w|OGH|2025-10-21\", \"gz\": \"8Ob85/25w\", \"datum\": \"2025-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist unzulässig, da die Hilfsbegründung des Berufungsgerichts nicht bekämpft wurde und keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"8Ob85_25w|OGH|2025-10-21\", \"gz\": \"8Ob85_25w\", \"datum\": \"2025-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist unzulässig, da die Hilfsbegründung des Berufungsgerichts nicht bekämpft wurde und keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"8Ob36_25i|OGH|2025-03-28\", \"gz\": \"8Ob36_25i\", \"datum\": \"2025-03-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision gegen die Kündigung einer Mietwohnung wegen erheblich nachteiligen Gebrauchs durch wiederholte Wasserschäden zurück.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0065900",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0065900",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.8,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0065900\"}"
+      }
+    ],
+    "tool_calls_total": 19,
+    "tool_calls_ok": 19,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "### Verteidigungsmoeglichkeiten gegen Durchsetzung der Höchstbetragsbürgschaft\n\n**1. Nichtigkeit/Sittenwidrigkeit der Bürgschaft iSd § 879 ABGB (Inhaltskontrolle gem. KSchG-Kontext):**\n   - **Rechtsgrundlage:** Bei einkommens- und vermögensloser Ehefrau als Interzedentin für Geschäftskredit des Mannes liegt ein **großes Missverhältnis zwischen Haftungsumfang (EUR 150.000 Höchstbetrag) und Leistungsfähigkeit** vor. Gericht prüft Gesamtwürdigung (objektive/subjektive Umstände zum Vertragszeitpunkt: Einkommenlosigkeit, familiäre Nähe, fehlende Aufklärung). Sittenwidrigkeit führt zur **Nichtigkeit** (§ 879 Abs. 1 ABGB).\n     - RS0048300: \"Bei der Prüfung der Sittenwidrigkeit rechtsgeschäftlicher Haftungserklärungen volljähriger Familienangehöriger ohne jedes oder jedenfalls ohne zulängliches Einkommen und Vermögen kann das grobe Missverhältnis zwischen dem Verpflichtungsumfang und den gegenwärtigen und künftig zu erwartenden...\".\n     - RS0048309: Ergänzende Gesamtwürdigung aller Umstände (TE: 6Ob56_04k, 8Ob100_03v, 7Ob65_04s u.a.; OLG-ähnliche Fälle mit einkommenslosen Ehefrauen).\n   - **Verbindung zu KSchG:** Verstärkt durch §§ 25c/25d KSchG (s.u.); AGB-Kontrolle möglich, wenn Formularbürgschaft.\n   - **Beweislast:** Bürgin trägt **Anfangsbeweislast** für Missverhältnis/Leistungsfähigkeit (ihr Einkommen/Vermögen); Bank muss dann Gegenbeweis (z.B. eigene Interessenlage der Bürgin) führen (RS0048300 TE: 8Ob73_03y).\n   - **Verfahrensweg:** Einrede in Exekution (Widerspruch § 289 EO) oder Feststellungsklage auf Nichtigkeit.\n\n**2. Haftungsbefreiung durch Verletzung der Informations-/Warnpflicht (§ 25c KSchG):**\n   - **Rechtsgrundlage:** Bank muss Interzedentin (Ehefrau) über wirtschaftliche Lage des Hauptschuldners (Mann) aufklären/warnen, **wenn sie bis Vertragsabschluss erkennt/erkennen muss, dass Verbindlichkeit voraussichtlich nicht erfüllt wird** (notleidender Kredit bestätigt dies rückwirkend). Verletzung → **Haftungsbefreiung** (nicht automatisch, sondern bei kausalem Verstoß).\n     - RS0113883: \"§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbarkeit.\" (Cluster: BUERGSCHAFT).\n     - RS0113880: Informationspflicht bei erkennbarem Ausfallrisiko; TE: 1Ob200_24d (2025; Aufklärungspflichtprüfung), 6Ob19_14h (2014; Verbrauchergeschäft), 3Ob111_08g (2008; fehlende Aufklärung).\n     - RS0115983: Haftungsbefreiung nur bei Nachweis, dass Bank Ausfall erkennen musste (TE: 1Ob200_24d, 4Ob225_17t).\n   - **Beweislast:** **Bank trägt volle Beweislast** für Erfüllung der Pflicht (kaufmännische Sorgfalt, Bonitätsprüfung des Mannes); Bürgin nur Indizien (z.B. notleidender Kredit) (RS0113880 TE: 3Ob284_03s).\n   - **Verfahrensweg:** Einrede in Haupt- oder Exekutionsverfahren; Feststellungsklage auf Befreiung.\n\n**3. Mäßigungsrecht (§ 25d KSchG):**\n   - **Rechtsgrundlage:** Richterliches Mäßigungsrecht bei Interzession, wenn Haftung **unzumutbar** (hier: einkommenslos, familiäre Bindung, Ausfallrisiko). Gilt auch jenseits Bankkrediten (erweiterter Anwendungsbereich).\n     - RS0113937: \"Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen...\" (TE: 4Ob195_10w, 2Ob222_04t).\n   - **Beweislast:** **Bürgin trägt Beweislast** für Unzumutbarkeit (Leistungsfähigkeit); Gericht wägt einzelfallbezogen.\n   - **Verfahrensweg:** Antrag im laufenden Verfahren; oft kombiniert mit § 879 ABGB.\n\n**4. Anfechtbarkeit des Versäumungsurteils (Wiedereinsetzung iVdS, § 459 ff ZPO):**\n   - **Rechtsgrundlage:** Versäumung durch keinen Einspruch möglich entschuldbar (z.B. Unkenntnis der Klage, Organisationsmängel), wenn **kein grobes Verschulden** (RS0116536: Organisationsmängel = grobes Verschulden ausschließend). Rechtsirrtum/Unkenntnis von Fristen grundsätzlich wiedereinsetzbar, wenn keine grobe Fahrlässigkeit (RS0101980).\n   - **Beweislast:** **Bürgin trägt Beweislast** für entschuldbare Versäumnis (z.B. fehlende Zustellung, Irrtum).\n   - **Verfahrensweg:** Antrag auf Wiedereinsetzung (Frist: 1 Woche nach Kenntnisnahme, § 469 ZPO); bindet nicht an Exekution.\n\n**5. Widerspruch gegen Exekutionserlass/Fahrnisexekution (§ 289, 144 EO):**\n   - **Rechtsgrundlage:** Zulässig bei **unwirksamem Titel** (Nichtigkeit/Sittenwidrigkeit) oder **materiellen Einwendungen** (z.B. KSchG-Verletzung, Beweislastumkehr). Keine Exekution, solange Widerspruch anhängig (RS0120351: Ausfallsbürgschaft erfordert vorherige Exekution gegen Hauptschuldner, § 1356 ABGB).\n   - **Beweislast:** Wie oben; vorläufiger Rechtsschutz möglich.\n   - **Verfahrensweg:** Schriftlicher Widerspruch (Sofortwirkung); Oppositionsverfahren.\n\n**Gesamteinschätzung & Empfehlung:** Primär: **Sittenwidrigkeit (§ 879 ABGB) + § 25c KSchG-Verletzung** (hohe Erfolgschance bei einkommensloser Ehefrau; RS004830",
+    "answer_chars": 4867,
+    "e2e_ms": 64507.27
+  },
+  {
+    "name": "Exekutionsrechtliche Hebel prüfen",
+    "goal": "Prüfen, ob die bereits beantragte Fahrnisexekution rechtswidrig ist (z.B. aufgrund unwirksamer Vollstreckungstitel oder Verletzung von KSchG-Vorgaben) und ob Widerspruch nach § 15 ZPO oder Antrag auf Aufhebung des Exekutionserlasses möglich ist",
+    "mode": "llm",
+    "tools": [
+      "search_ogh_rechtssaetze",
+      "build_grounding_context",
+      "search_by_paragraph",
+      "search_by_schlagwort",
+      "get_rechtssatz",
+      "hot_rs_lookup"
+    ],
+    "llm_model": "x-ai/grok-4.1-fast",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 9408.46,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 3128,
+          "completion_tokens": 1253,
+          "total_tokens": 4381,
+          "cost": 0.0012296,
+          "cached_tokens": 150,
+          "reasoning_tokens": 1068
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 8807.12,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 9,
+        "usage": {
+          "prompt_tokens": 14338,
+          "completion_tokens": 708,
+          "total_tokens": 15046,
+          "cost": 0.0031253,
+          "cached_tokens": 642,
+          "reasoning_tokens": 353
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 30102.39,
+        "finish_reason": "length",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 23761,
+          "completion_tokens": 2607,
+          "total_tokens": 26368,
+          "cost": 0.0031469,
+          "cached_tokens": 36868,
+          "reasoning_tokens": 1007
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "call_74862300",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 15 ZPO",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 969.24,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 15 ZPO\", \"results\": [], \"count\": 0}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_55889251",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Versäumnisurteil",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 406.98,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Versäumnisurteil\", \"results\": [{\"rs_number\": \"JWR_2022080137_20230223L01\", \"kernaussage\": \"Nachträglicher Nachweis von Hindernissen bei Ladung § 19 Abs. 3 AVG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Ladung\", \"Verhandlungstermin\", \"begründetes Hindernis\", \"Nachweis\", \"nachträglich\", \"Verpflichtung zum Erscheinen\", \"VwG\", \"Versäumnisurteil\"]}, {\"rs_number\": \"RS0080371\", \"kernaussage\": \"Grobe Fahrlässigkeit ist im Bereich des Versicherungsvertragsrechts dann gegeben, wenn schon einfachste, naheliegende Überlegungen nicht angestellt und Maßnahmen nicht ergriffen werden, die jedermann einleuchten müssen, wenn jedenfalls völlige Gleichgültigkeit gegen das vorliegt, was offenbar unter...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"§ 61 VersVG\", \"Mietwagen\", \"Halogenscheinwerfer\", \"Schadensanzeige\", \"bewusstes Zuwiderhandeln\", \"Reinigungspflicht\", \"Brandverursachung\", \"Versicherungsleistungsfreiheit\", \"Brandschaden\", \"§ 1307 ABGB\", \"Aufklärungspflicht\", \"Versicherungsrecht\", \"Regress\", \"Heizungsanlage\", \"Rauschzustand\", \"Beaufsichtigung\", \"Feiertag\", \"Risikoausschlüsse\", \"Risikoausschluss\", \"Haftpflichtversicherung\", \"Verschleierungsvorsatz\", \"Abfallentsorgung\", \"Versäumnisurteil\", \"Feuerversicherung\", \"Gewährleistungsausschluss\", \"grobe Fahrlässigkeit\", \"Unfallversicherung\", \"§ 23 StVO\", \"Substitutionsmittel\", \"Rettungspflicht\"]}, {\"rs_number\": \"RS0080387\", \"kernaussage\": \"Bei der Beurteilung, ob grobe Fahrlässigkeit vorliegt, müssen die Umstände des einzelnen Falles und die persönlichen Verhältnisse berücksichtigt werden. Bei der Zumutbarkeit von Maßnahm"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_23705759",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Interzession",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 220.64,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Interzession\", \"results\": [{\"rs_number\": \"RS0059432\", \"kernaussage\": \"Nach dem Entstehen der Gesellschaft mit beschränkter Haftung haftet jeder Geschäftsführer nur der Gesellschaft gegenüber, eine Haftung des Geschäftsführers dem einzelnen Gesellschafter gegenüber wird im Gesetz nicht statuiert.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"GmbH\", \"Geschäftsführer\", \"Abberufung\", \"Vertretungsbefugnis\", \"Unterlassung\", \"einstweilige Verfügung\", \"Gesellschafterbeschluß\", \"Legitimation\", \"Stammkapital\", \"GmbH-Gründung\", \"Bankbestätigung\", \"Haftung\", \"GesmbH\", \"Aufrechnung\", \"Generalklausel\", \"Unzuständigkeitseinrede\", \"Durchgriffshaftung\", \"Geschäftsführerhaftung\", \"Direktanspruch Gesellschafter\", \"Schadensverlagerung\", \"Abfertigungsanspruch\", \"Dienstverhältnisbeendigung\", \"Revision ASGG\", \"Gegenforderung Schadenersatz\", \"Geschäftsführer Sorgfalt\", \"Amtshaftung\", \"Verjährung\", \"Interzession\", \"Gesellschafter\", \"Schadenersatz\", \"mittelbarer Schaden\", \"Zession\", \"Stammeinlage\", \"Firmenbuchanmeldung\", \"mittelbar Geschädigter\", \"Konkurs\", \"Revision\", \"Nichtigkeitsrüge\", \"Beweiswürdigung\", \"Reflexschaden\", \"Gesellschaftertreuepflicht\", \"Existenzvernichtungshaftung\", \"Syndikatsvertrag\", \"Ablehnung von Richtern\", \"außerordentliche Revision\", \"Nichtigkeitsgrund\", \"Haftung Geschäftsführer GmbH & Co KG\", \"Steuererklärungen Personengesellschaft\", \"actio pro socio\", \"Patronatserklärung\", \"Letter of Comfort\", \"Vorstandshaftung\", \"Aufsichtsratszustimmung\", \"Konzernhaftung\", \"Zulassung\", \"Datenschutz\", \"DSGVO\", \"Schutzbereich\", \"Treuepflicht Rechtsanwalt\", \"Interessenkollision\", \"Mi"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_64371660",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Fahrnisexekution KSchG Bürgschaft unwirksamer Titel",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.57,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Fahrnisexekution KSchG Bürgschaft unwirksamer Titel\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_33826984",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0113883"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.96,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0113883\", \"rechtssatz\": \"§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbarkeit.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"Sittenwidrigkeit\", \"Informationspflicht\", \"Warnpflicht\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2000-07-25\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_79527757",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0121054"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.91,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0121054\", \"rechtssatz\": \"Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung bedarf es nicht, sodass die Feststellung des Nichtbestehens der Haftung naheliegendes Ziel einer auf die Verletzung der Obliegenheiten nach § 25c KSchG gestützten Klage ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Interzession\", \"Kreditvertrag\", \"Konsumentenkredit\", \"AufklärungsPflicht\"], \"fachgebiete\": [\"Vertragsauslegung\"], \"datum\": \"2006-06-13\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_90338085",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0113882"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.8,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0113882\", \"rechtssatz\": \"Wird der Kreditgeber selbst aktiv, um die Einbeziehung der Interzedentin in das Schuldverhältnis zu erreichen, so weist dies prima facie darauf hin, dass er die Einbringung der Forderung beim Hauptschuldner als nicht gesichert ansah.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"Sittenwidrigkeit\", \"Informationspflicht\", \"Warnpflicht\", \"KSchG\", \"Kreditvertrag\", \"Angehörigenbürgschaft\", \"AGBKr\", \"Interzessionsvertrag\", \"Aufklärungspflicht\", \"Interzedentin\", \"Solidarhaftung\", \"Konsumentenkredit\", \"Wechselbürgschaft\", \"Blankowechsel\", \"GmbH\", \"Kreditbürgschaft\", \"Bilanzmanipulation\", \"Scheinkreditvertrag\", \"Pfandbestellung\", \"Großveranlagung\", \"Kautionsschutzgesetz\", \"Kreditvertragsgesetz\", \"Ausfallsbürgschaft\", \"Schuldübernahme\", \"Konkurs\", \"Verbraucher\", \"Minderheitsgesellschafter\", \"Interzedent\", \"wirtschaftliche Notlage\", \"kaufmännische Sorgfalt\", \"Eigeninteresse\", \"Ein-Mann-GmbH\", \"Mäßigung der Verbindlichkeit\", \"Revision\", \"Kontoübertragung\", \"Bonitätsprüfung\", \"Mäßigung\", \"Bankgarantie\"], \"fachgebiete\": [\"Haftungsrecht\", \"Revision\", \"GmbH-Recht\", \"Pfandrecht\", \"Vertragsauslegung\", \"Vertragsrecht\"], \"datum\": \"2025-03-25\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_83155885",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0113884"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.43,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0113884\", \"rechtssatz\": \"Dem Gläubiger muss es offen stehen, zu behaupten und zu beweisen, dass der Interzedent bei entsprechender Information beziehungsweise Warnung nur eine geringere Verpflichtung auf sich genommen hätte. Die Verbindlichkeit des Interzedenten bleibt dann bis zur Höhe dieser \\\"geringeren Verpflichtung\\\" wirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"Sittenwidrigkeit\", \"Informationspflicht\", \"Warnpflicht\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2000-07-25\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_38056129",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 25c KSchG",
+          "limit": 50
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 817.1,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 25c KSchG\", \"results\": [{\"rs_number\": \"RS0113883\", \"kernaussage\": \"§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbarkeit.\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"Sittenwidrigkeit\", \"Informationspflicht\", \"Warnpflicht\"]}, {\"rs_number\": \"RS0120460\", \"kernaussage\": \"Die bloß formularmäßige Erklärung, dass der Bürge anlässlich des Abschlusses des Bürgschaftsvertrages über die wirtschaftliche Situation des Kreditnehmers aufgeklärt wurde, wird der Warnfunktion der im § 25c KSchG angesprochenen Aufklärungsobliegenheit nicht gerecht. Um dieser Aufklärungsobliegenhei...\", \"schlagworte\": []}, {\"rs_number\": \"RS0121054\", \"kernaussage\": \"Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung bedarf es nicht, sodass die Feststellung des Nichtbestehens der Haftung naheliegendes Ziel einer auf die Verletzung der Obliegenhe...\", \"schlagworte\": [\"Interzession\", \"Kreditvertrag\", \"Konsumentenkredit\", \"AufklärungsPflicht\"]}, {\"rs_number\": \"RS0126112\", \"kernaussage\": \"Die gesetzliche Gleichstellung von Schuldbeitritt, Garantie und Bürgschaft zwingt zur analogen Anwendung des Schriftformerfordernisses auf alle Fälle der Interzession iSv § 25c KSchG, und zwar ohne Beschränkung auf Verbrauchergeschäfte.\", \"schlagworte\": [\"Schriftform\", \"Zahlungsplan\", \"Pflegegebühren\", \"Interzedentenhaftung\", \"Interzession\", \"persönliche Haftung\", \"Schuldübernahme\", \"Bürgschaft"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_08900761",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Fahrnisexekution",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 326.76,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Fahrnisexekution\", \"results\": [{\"rs_number\": \"RS0040816\", \"kernaussage\": \"Ohne Antrag darf ein Anerkenntnisurteil nicht ergehen. Die klagende Partei ist berechtigt, jedoch mangels jeglicher gesetzlicher Grundlage nicht verpflichtet, einen solchen Antrag zu stellen. Die Unterlassung eines derartigen Antrages führt nicht unbedingt zu einem Ruhen des Verfahrens. Ein solcher...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anerkenntnisurteil\", \"Teilanerkenntnis\", \"Patentverletzung\", \"Unterlassung\", \"Widerspruch gegen Exekution\", \"Anerkenntnisurteil ohne Antrag\", \"Rechtsschutzbedürfnis\", \"Fahrnisexekution\", \"Pflichtteilsübereinkommen\", \"Unmöglichkeit der Leistung\", \"Umwidmung Bauland\", \"Pflichtteil\", \"prozessuales Anerkenntnis\", \"Feststellungsbegehren\", \"Verkehrsunfall\", \"konstitutives Anerkenntnis\"]}, {\"rs_number\": \"RS0106533\", \"kernaussage\": \"In Detailfragen der Unterhaltsbemessung hat grundsätzlich der Unterhaltsschuldner die für seinen Rechtsstandpunkt günstigen Tatsachen ausreichend zu behaupten und zu beweisen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kindesunterhalt\", \"Unterhaltsbemessung\", \"Internationales Unterhaltsrecht\", \"Unterhalt\", \"Pflegegeld\", \"Behinderung\", \"Kraftfahrzeug\", \"Abzugsposten\", \"Unterhaltsbemessungsgrundlage\", \"Diäten\", \"Fahrtkostenersatz\", \"Selbsterhaltungsfähigkeit\", \"Unterhaltserhöhung\", \"Behauptungs- und Beweislast\", \"Wiederaufleben der Unterhaltspflicht\", \"PKW-Kosten\", \"Fahrtkosten zum Arbeitsplatz\", \"Kinderunterhalt\", \"fiktiver Unterhaltsanspruch\", \"Anscheinsbeweis\", \"Ehegattenunterhalt\", \"Außerstreitverfahren\", \"Unterhaltsneubemessung\", "
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_02942867",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Exekutionstitel",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 69.67,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Exekutionstitel\", \"results\": [{\"rs_number\": \"RS0059359\", \"kernaussage\": \"Das Institut der Verjährung ist von Amts wegen anzuwenden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wertersatzstrafe\", \"Zahlungsauftrag\", \"Haftungsbeteiligter\", \"Justizverwaltung\", \"Rechtsweg\", \"Exekutionstitel\", \"Verjährung\"]}, {\"rs_number\": \"RS0083757\", \"kernaussage\": \"Die Sozialversicherungsträger sind Selbstverwaltungskörper. Für diese ist wesentlich, daß ihnen ein eigener Wirkungsbereich zukommt, in dem sie - wohl der Aufsicht von Bund oder Ländern unterliegend - im Einzelfall weisungsfrei tätig werdend die Gesetze vollziehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Sozialversicherungsträger\", \"Exekutionstitel\", \"Bescheid\", \"Witwenpension\", \"ASVG\"]}, {\"rs_number\": \"RS0079310\", \"kernaussage\": \"Zwar soll mit dem Verbot von Gewinnspielen verhindert werden, daß in den Warenvertrieb ein unwirtschaftliches und unsolides Element hineingetragen wird, indem das Bestreben, durch Zufall zu gewinnen, zum Antrieb für die Deckung des Bedarfes gemacht wird. Der daraus gezogenen Schlußfolgerung, das...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"unentgeltliche Zugaben\", \"Gewinnspiele\", \"Exekutionstitel\", \"Auslegung\"]}, {\"rs_number\": \"RS0112274\", \"kernaussage\": \"Beschlüsse, mit denen vom Abhandlungsgericht, Vormundschaftsgericht oder Pflegschaftsgericht die - gemäß § 32 Abs 3 BWG mögliche - Überweisung einer Spareinlage angeordnet wird, stellen keinen Exekutionstitel nach § 1 EO dar.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekutionstitel\", \"Pflegschaftsverfahren\", \"Sparbuchkonten\", \"Außerstreitsachen\", \"Vo"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_99049585",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Versäumnisurteil Aufhebung Exekution KSchG",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 16.26,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Versäumnisurteil Aufhebung Exekution KSchG\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_24532904",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 49 EO",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 896.2,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 49 EO\", \"results\": [{\"rs_number\": \"RS0001718\", \"kernaussage\": \"Eine Ergänzung des Offenbarungseides hat zur Voraussetzung, daß das Vermögensverzeichnis unvollständig ist, bzw - hier in Analogie zu § 49 EO - bescheinigt wird, daß hinsichtlich einzelner Vermögensbestandteile eine Änderung eingetreten ist.\", \"schlagworte\": []}, {\"rs_number\": \"RS0001874\", \"kernaussage\": \"Die Aufhebung des Konkurses nach § 157 KO bewirkt für sich noch nicht die Fortsetzung der Gesellschaft; diese bedarf eines besonderen Beschlusses der Gesellschafter. Es ist also nicht offenkundig und muß deshalb nach § 49 EO glaubhaft gemacht werden, daß die Gesellschafter die Fortsetzung der...\", \"schlagworte\": [\"Kommanditgesellschaft\", \"Konkursauflösung\", \"Handelsregisterlöschung\", \"Liquidation\", \"Fortsetzung der Gesellschaft\"]}], \"count\": 2}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0126112",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0126112",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.38,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0126112\", \"rechtssatz_text\": \"Die gesetzliche Gleichstellung von Schuldbeitritt, Garantie und Bürgschaft zwingt zur analogen Anwendung des Schriftformerfordernisses auf alle Fälle der Interzession iSv § 25c KSchG, und zwar ohne Beschränkung auf Verbrauchergeschäfte.\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11756, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob71_24w|OGH|2025-03-26\", \"gz\": \"6Ob71_24w\", \"datum\": \"2025-03-26\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit einer außerordentlichen Revision gegen die Feststellung der Passivlegitimation durch Schuldübernahme im Kontext eines GmbH-Anteilskaufs mit internationalen Elementen.\"}, {\"te_stable_key\": \"3Ob119_22d|OGH|2022-07-20\", \"gz\": \"3Ob119_22d\", \"datum\": \"2022-07-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision der Bauherren gegen die Zuerkennung eines Teils des Werklohns an die Werkunternehmerin gemäß § 1168 Abs. 1 ABGB zurück, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"3Ob116_20k|OGH|2020-11-30\", \"gz\": \"3Ob116_20k\", \"datum\": \"2020-11-30\", \"gericht\": \"OGH\", \"mini_story\": \"Anwendbarkeit von Art 11 Rom I-VO auf die Formerfordernisse eines Schuldbeitrittsvertrags zwischen einer polnischen und einer österreichischen Partei.\"}, {\"te_stable_key\": \"2Ob26_19s|OGH|2019-06-24\", \"gz\": \"2Ob26_19s\", \"datum\": \"2019-06-24\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung, ob eine Außerstreitstellung der Passivlegitimation durch einen Haftpflichtversicherer als konkludenter Schuldbeitritt eines Direktklagerechts i.S.d. § 26 KHVG gewertet werden kann.\"}, {\"te_stable_key\": \"4Ob195_10w|OGH|2011-01-18\", \"gz\": \"4Ob195_10w\", \"datum\": \"2011-01-18\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Tochter für Spitalpflegegebühren ihres bulgarischen Vaters aufgrund einer Verpflichtungserklärung gemäß WrKAG und KSchG.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0120460",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0120460",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.25,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0120460\", \"rechtssatz_text\": \"Die bloß formularmäßige Erklärung, dass der Bürge anlässlich des Abschlusses des Bürgschaftsvertrages über die wirtschaftliche Situation des Kreditnehmers aufgeklärt wurde, wird der Warnfunktion der im § 25c KSchG angesprochenen Aufklärungsobliegenheit nicht gerecht. Um dieser Aufklärungsobliegenhei...\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 18048, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0112274",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0112274",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.9,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0112274\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0106533",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0106533",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.18,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0106533\", \"rechtssatz_text\": \"In Detailfragen der Unterhaltsbemessung hat grundsätzlich der Unterhaltsschuldner die für seinen Rechtsstandpunkt günstigen Tatsachen ausreichend zu behaupten und zu beweisen.\", \"te_count\": 16, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3542, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob21/25m|OGH|2025-10-30\", \"gz\": \"5Ob21/25m\", \"datum\": \"2025-10-30\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung der Unterhaltsregelung für Minderjährige durch den OGH im Rahmen eines Revisionsrekurses.\"}, {\"te_stable_key\": \"4Ob146_24k|OGH|2024-10-22\", \"gz\": \"4Ob146_24k\", \"datum\": \"2024-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung eines Revisionsrekurses gegen die Erhöhung des Kindesunterhalts wegen fehlender Behauptung und Beweis der Abzugsfähigkeit steuerfreier Bezüge.\"}, {\"te_stable_key\": \"9Ob71_22i|OGH|2022-11-17\", \"gz\": \"9Ob71_22i\", \"datum\": \"2022-11-17\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Vorinstanzentscheidungen auf, da das Ergebnis des landwirtschaftlichen Nebenerwerbs inklusive EU-Förderungen in die Unterhaltsbemessungsgrundlage einzubeziehen ist und dies nicht ermittelt wurde.\"}, {\"te_stable_key\": \"7Ob182_21x|OGH|2021-11-24\", \"gz\": \"7Ob182_21x\", \"datum\": \"2021-11-24\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit des Revisionsrekurses in einem Außerstreitverfahren über Kindesunterhaltspflichten der Mutter.\"}, {\"te_stable_key\": \"8Ob160_18i|OGH|2018-12-19\", \"gz\": \"8Ob160_18i\", \"datum\": \"2018-12-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft das Wiederaufleben der Unterhaltspflicht eines Vaters gegenüber seinem Sohn nach erfolgreichem HTL-Abschluss und während eines anschließenden Bachelorstudiums im Fach Wirtschaftsrecht.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0083757",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0083757",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.41,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0083757\"}"
+      }
+    ],
+    "tool_calls_total": 18,
+    "tool_calls_ok": 18,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "### PHASE 3 - SUMMARIZE\n\n#### Sachverhalt & Prüfgegenstand (integrierte Pre-Search Evidence)\nEinkommenslose Ehefrau (Interzedentin/Verbraucherin) übernimmt Höchstbetragsbürgschaft (EUR 150.000) für Geschäftskredit des Mannes (Hauptschuldner). Explizite Verletzung § 25c KSchG: Bank klärt **nicht** über wirtschaftliche Lage des Mannes auf. Kredit notleidend → Fahrnisexekution beantragt. **Versäumnisurteil** (kein Einspruch der Ehefrau) als Vollstreckungstitel.  \n**Goal-Fokus**: Rechtswidrigkeit der Fahrnisexekution (unwirksamer Titel wg. KSchG?); Möglichkeiten Widerspruch (§ 15 ZPO? – keine RS, siehe unten) / Aufhebung Exekutionserlass.\n\n#### Kern-Regelwerk (minimaler RS-basiertes Ruleset zu KSchG-Interzession & Exekution)\n**1. KSchG-Regime Interzession/Bürgschaft (§§ 25c, 25d KSchG – MANDATORY)**:  \n- **§ 25c KSchG – Aufklärungs-/Warnpflicht Bank**: Absolute Pflicht des Gläubigers (Bank), Interzedent (Ehefrau) **unabhängig von Zumutbarkeit** über wirtschaftliche Lage Hauptschuldners (Mann) zu informieren/warnen (RS0113883; RS0113882: Bank-Aktivität bei Einbeziehung → prima-facie Hinweis auf bekannte Notlage). Formularbestätigung reicht **nicht** (RS0120460). Keine Pflicht, wenn Interzedent eigenständig verhandelt/informiert (RS0120255 – hier unwahrscheinlich).  \n  - **Rechtsfolge Verletzung**: **Entfall der Haftung** des Interzedenten **vollständig** (RS0121054: Keine Anfechtung nötig; Feststellungsklage auf Nichtbestehen Haftung möglich). Alternativ: Mäßigung auf \"geringere Verpflichtung\", wenn Bank beweist, dass Interzedent diese trotzdem übernommen hätte (RS0113884).  \n  - **Beweislast**: Interzedentin behauptet/beweist Vorliegen der Pflicht + Verletzung (§ 25c erster Satz); **danach volle Umkehr auf Bank** (Nachweis vollständige Aufklärung; RS0120256). Ehefrau (einkommenslos) trägt initiale Last – starkes Indiz für Missverhältnis Haftung/Leistungsfähigkeit (RS0113490).  \n- **§ 25d KSchG – Mäßigungsrecht**: Ergänzend, auch ohne volle Sittenwidrigkeit: Richterliche Reduktion bei \"unbilligem Missverhältnis\" (RS0113937, RS0115165).  \n- **§§ 6, 9 KSchG**: Keine direkten Treffer zu Bürgschaft/Exekution (RS0121187 zu AGB; RS0065562/ RS0134869 zu Gewährleistung – irrelevant hier).  \n\n**2. Vollstreckungstitel (Versäumnisurteil) & Fahrnisexekution**:  \n- Versäumnisurteil = Exekutionstitel (§ 1 EO). **Keine RS zu § 15 ZPO** (0 Results) → Vermutlich gemeint: **§ 423 ZPO (Aufhebung Versäumnisurteil)** oder **§ 35 EO (Opposition)**.  \n- **Opposition § 35 EO**: Kern-Verteidigung vs. Exekution (Fahrnisexekution). Möglich bei **Oppositionsgründen**, z.B.:  \n  - Anspruch **nicht existent/unwirksam** (wg. § 25c-Verletzung → Haftung entfällt; RS0121054).  \n  - Titel mangelhaft (RS0040816: Anerkenntnis ohne Antrag; analog). Keine direkten RS zu KSchG + Exekution, aber **materielle Unwirksamkeit** greift durch (RS0123940: Schiedsvereinbarung irrelevant für Oppositionsfeststellung).  \n  - **Beweislast Opposition**: Schuldnerin (Ehefrau) behauptet/beweist Oppositionsgrund (z.B. KSchG-Verletzung); Gläubiger (Bank) konterbeweist.  \n- **Widerspruch Exekution**: § 37 EO (allg.); speziell Fahrnis: § 256 ff. EO (keine RS, aber RS0040816 zu Widerspruch). Zwangszahlung unter Exekutionsdruck = unwirksam (RS0001071).  \n- **Aufhebung Exekutionserlass**: Möglich bei Rechtswidrigkeit (z.B. unwirksamer Titel); via Rekurs/Opposition (RS0002458 analog). § 49 EO irrelevant (RS0001718/1874: Offenbarungseid).  \n\n#### Verteidigungsmoeglichkeiten ( konkret, RS-verankert)\n1. **Primär: Opposition klagen (§ 35 EO) gegen Fahrnisexekution**:  \n   - Grund: **Haftung entfällt wg. § 25c-Verletzung** (RS0121054). Titel unwirksam → Exekution rechtswidrig. Soforthemmend (Exekution ruht). Beweislast initial bei Ehefrau (KSchG-Verletzung nachweisen).  \n2. **Feststellungsklage: Nichtbestehen Haftung** (RS0121054): Parallel/ergänzend; bindend für Exekution.  \n3. **Aufhebung Versäumnisurteil (§ 423 ZPO?)**: Bei nachweisbarer Versäumnisursache (z.B. fehlende Zustellung – keine RS). Niedrige Erfolgschance post-Einspruchsversäumnis.  \n4. **§ 25d-Mäßigung**: Als Fallback (RS0115165).  \n**Beweislast-Übersicht**:  \n| Issue | Beweislast-Träger | RS-Beleg |  \n|-------|-------------------|----------|  \n| § 25c-Pflicht + Verletzung | Interzedentin (initial) | RS0120256 |  \n| Bank-Nachweis Aufklärung | Bank (Umkehr) | RS0120256 |  \n| Oppositionsgrund (Nicht-Haftung) | Schuldnerin | § 35 EO (allg.) |  \n| Geringere Verpflichtung | Bank | RS0113884 |  \n\n**Risiken**: Versäumnisurteil rechtskräftig → hohe Hürde; schnelles Handeln essenziell (Fristen EO/ZPO). **Keine Garantie 100% Erfolg** (Bank könnte Gegenbeweis führen). Empfehlung: Sofort Opposition + Feststellungsklage.\n\n**Quellen**: RS0113883, RS0121054, RS0113882/84, RS0120256/460 (direkt geholt); Pre-Search (RS0119014 etc.).",
+    "answer_chars": 4797,
+    "e2e_ms": 68875.29
+  },
+  {
+    "name": "KSchG-Vorgaben prüfen (§§ 6, 9, 25c, 25d)",
+    "goal": "Klären, ob die Bank durch Verletzung von § 25c KSchG (Informationspflicht bei Krediten an Verbraucher) die Wirksamkeit der Bürgschaft beeinträchtigt hat – insb. ob die Bürgschaft nach § 6 KSchG oder § 9 KSchG anfechtbar/nichtig ist",
+    "mode": "llm",
+    "tools": [
+      "get_rechtssatz",
+      "hot_rs_lookup",
+      "search_by_paragraph",
+      "search_by_schlagwort",
+      "search_ogh_rechtssaetze"
+    ],
+    "llm_model": "x-ai/grok-4.1-fast",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 9866.33,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 2914,
+          "completion_tokens": 1325,
+          "total_tokens": 4239,
+          "cost": 0.0012228,
+          "cached_tokens": 150,
+          "reasoning_tokens": 1076
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 12287.21,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 13847,
+          "completion_tokens": 1450,
+          "total_tokens": 15297,
+          "cost": 0.00339825,
+          "cached_tokens": 641,
+          "reasoning_tokens": 1192
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 19482.72,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 17776,
+          "completion_tokens": 2229,
+          "total_tokens": 20005,
+          "cost": 0.00269535,
+          "cached_tokens": 31617,
+          "reasoning_tokens": 780
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "call_24494122",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113883",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1303.23,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113883\", \"rechtssatz_text\": \"§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbarkeit.\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 18081, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_15850517",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0119014",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 21.98,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0119014\", \"rechtssatz_text\": \"Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftung für Rechnung eines anderen und im fremden Interesse) beitreten. Personen, die gemeinsam und im gemeinsamen Interesse eine Verbindlichkeit als...\", \"te_count\": 19, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 2712, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob119_22d|OGH|2022-07-20\", \"gz\": \"3Ob119_22d\", \"datum\": \"2022-07-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision der Bauherren gegen die Zuerkennung eines Teils des Werklohns an die Werkunternehmerin gemäß § 1168 Abs. 1 ABGB zurück, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"6Ob80_21i|OGH|2021-06-23\", \"gz\": \"6Ob80_21i\", \"datum\": \"2021-06-23\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision betrifft die Prüfung der Kreditwürdigkeit von Solidarschuldnern gemäß § 7 VKrG bei Abschluss eines gemeinsamen Verbraucherkredits.\"}, {\"te_stable_key\": \"8Ob6_20w|OGH|2020-04-14\", \"gz\": \"8Ob6_20w\", \"datum\": \"2020-04-14\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der Revision bezüglich der Haftung einer Mutter als Interzedentin für Schulgebühren ihrer nicht selbsterhaltungsfähigen volljährigen Tochter gemäß § 25c KSchG.\"}, {\"te_stable_key\": \"8Ob90_18w|OGH|2019-02-26\", \"gz\": \"8Ob90_18w\", \"datum\": \"2019-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer Revision mangels Rechtsfrage von erheblicher Bedeutung oder grober Fehlbeurteilung im Zusammenhang mit Kreditverträgen und Interzession gemäß KSchG.\"}, {\"te_stable_key\": \"3Ob76_18z|OGH|2018-04-25\", \"gz\": \"3Ob76_18z\", \"datum\": \"2018-04-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit einer Revision bezüglich der Wirksamkeit von Garantieerklärungen für Leasingverträge über Segelyachten und den Status des Beklagten als Konsument.\"}, {\"te_stable_key\": \"8Ob126_17p|OGH|2017-12-20\", \"gz\": \"8Ob126_17p\", \"datum\": \"2017-12-20\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH hebt die Entscheidung des Berufungsgerichts auf, das eine teilweise Nichtigkeit von Kreditverträgen wegen Sittenwidrigkeit und Verkürzung über die Hälfte angenommen hatte.\"}, {\"te_stable_key\": \"9Ob50_17v|"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_47216722",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113936",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 30.27,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0113936\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_65609420",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113937",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 16.64,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113937\", \"rechtssatz_text\": \"Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen, ermöglicht daher ein richterliches Mäßigungsrecht unter den dort genannten Voraussetzungen auch für Verbindlichkeiten gegenüber anderen Rechtsträgern, somit auch...\", \"te_count\": 2, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 17816, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob195_10w|OGH|2011-01-18\", \"gz\": \"4Ob195_10w\", \"datum\": \"2011-01-18\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Tochter für Spitalpflegegebühren ihres bulgarischen Vaters aufgrund einer Verpflichtungserklärung gemäß WrKAG und KSchG.\"}, {\"te_stable_key\": \"2Ob222_04t|OGH|2006-02-02\", \"gz\": \"2Ob222_04t\", \"datum\": \"2006-02-02\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit privatrechtlicher Bürgschaft für Sozialversicherungsbeiträge durch Geschäftsführer einer GmbH & Co KG trotz öffentlich-rechtlicher Haftungsregelungen im ASVG.\"}], \"te_items_count\": 2}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_38001082",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Interzession",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 102.21,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Interzession\", \"results\": [{\"rs_number\": \"RS0102904\", \"kernaussage\": \"Bei einer wegen Nichteinhaltung der Schiftform ungültigen Bürgschaftserklärung handelt es sich um eine nur aus mangelnder Förmlichkeit ungültige Naturalobligation. Wird diese Forderung vom Bürgen erfüllt, so ist damit der Formmangel geheilt und der Bürge kann diese Zahlung gemäß § 1432 ABGB nicht...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Rückersatz\", \"Pfandrecht\", \"Zwangsversteigerung\", \"Interzession\", \"Bankgarantie\", \"Formheilung\", \"KSchG\"]}, {\"rs_number\": \"RS0108086\", \"kernaussage\": \"Ein Vergleich kann novierende Wirkung entfalten (Ablehnung von Harrer/Heidinger in Schwimann, ABGB² Rz 9 zu § 1376 und Rz 19 f zu § 1380).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Revision zulässig\", \"Bewertungsausspruch\", \"Wert des Entscheidungsgegenstands\", \"Umsatzsteuer\", \"Leistungsort\", \"Rechtsanwaltsleistungen\", \"Polnische Gesellschaft\", \"Mieterbeteiligung\", \"Betriebskosten\", \"Parteiengehör\", \"Revisionsrekurs\", \"Oppositionsklage\", \"Werkvertrag\", \"Rücktritt\", \"gerichtlicher Vergleich\", \"Eigentumsvorbehalt\", \"Exekution\", \"Urheberrechtsverletzung\", \"Zuständigkeit Handelsgerichte\", \"Vergleich\", \"Novation\", \"Prämienvergleich\", \"Ausfallsbürgschaft\", \"Interzession\", \"Mäßigungsrecht\", \"Revisionzulässigkeit\", \"Vorkaufsrecht\", \"Wohnungseigentum\", \"Kaufvertrag\", \"Zahlungsverzug\", \"Neuerungsvertrag\", \"Vertragsauslegung\", \"Lizenzvertrag\", \"Markenrecht\", \"Dienstbarkeit\", \"Servitutsweg\", \"Exekutionstitel\", \"Feststellungsinteresse\", \"Bereinigungswirkung\", \"Anwaltsvertrag\", \"Berichtigung Ausfertigungen\", \"§ "
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_14394041",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Bürgschaft",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 111.81,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Bürgschaft\", \"results\": [{\"rs_number\": \"RS0126111\", \"kernaussage\": \"Die Rechtsprechung zur Formfreiheit eines zum Zweck der Gutstehung erklärten Schuldbeitritts kann nicht aufrecht erhalten werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schuldbeitritt\", \"Bürgschaft\", \"Schriftform\", \"Formfreiheit\"]}, {\"rs_number\": \"RS0126112\", \"kernaussage\": \"Die gesetzliche Gleichstellung von Schuldbeitritt, Garantie und Bürgschaft zwingt zur analogen Anwendung des Schriftformerfordernisses auf alle Fälle der Interzession iSv § 25c KSchG, und zwar ohne Beschränkung auf Verbrauchergeschäfte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schriftform\", \"Zahlungsplan\", \"Pflegegebühren\", \"Interzedentenhaftung\", \"Interzession\", \"persönliche Haftung\", \"Schuldübernahme\", \"Bürgschaft\", \"Schuldbeitritt\", \"Vordruck-Unterschrift\", \"Bürgschaftserklärung\", \"Rechtswahl\", \"Unabweisbarkeit\", \"Verpflichtungserklärung\", \"Geschäftsführerhaftung\", \"Passivlegitimation\", \"KSchG\", \"ABGB Bürgschaft\", \"IPR Slowenien\", \"gescannte Unterschrift\", \"WrKAG\", \"Formfreiheit\", \"Auslegung von Willenserklärungen\"]}, {\"rs_number\": \"RS0126113\", \"kernaussage\": \"Für den Beitritt zu einer materiell fremden Schuld besteht die Formpflicht analog zu § 1346 Abs 2 ABGB auch dann, wenn für den Interzedenten erkennbar ist, dass ein allfälliger Regressanspruch faktisch nicht durchsetzbar wäre.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schuldbeitritt\", \"Bürgschaft\", \"Schriftform\", \"Formfreiheit\", \"Schuldübernahme\", \"Interzession\", \"Rechtswahl\", \"Passivlegitimation\", \"Auslegung von Willenserklärungen\"]}, {\"rs_number\": \"RS0127416\", \"ker"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_01635302",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0121054",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.48,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0121054\", \"rechtssatz_text\": \"Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung bedarf es nicht, sodass die Feststellung des Nichtbestehens der Haftung naheliegendes Ziel einer auf die Verletzung der Obliegenhe...\", \"te_count\": 0, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"BUERGSCHAFT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 17973, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [], \"te_items_count\": 0}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_65563012",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113884",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.19,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0113884\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_25331621",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113490",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.02,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113490\", \"rechtssatz_text\": \"1) Bei der Sittenwidrigkeitskontrolle von Bürgschaften naher Angehöriger ist das Vorliegen eines krassen Missverhältnisses des Haftungsumfangs und der wirtschaftlichen Leistungsfähigkeit des Interzedenten auslösendes Moment der Inhaltskontrolle und wird daher von der Intensität der nach einem...\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 13796, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob194_13w|OGH|2013-10-29\", \"gz\": \"3Ob194_13w\", \"datum\": \"2013-10-29\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Sittenwidrigkeit einer Bürgschaft naher Angehöriger und des Vorliegens eines unbilligen Missverhältnisses zwischen Haftungsumfang und wirtschaftlicher Leistungsfähigkeit gemäß § 879 Abs 1 ABGB und § 25d KSchG.\"}, {\"te_stable_key\": \"3Ob34_13s|OGH|2013-06-19\", \"gz\": \"3Ob34_13s\", \"datum\": \"2013-06-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Anwendbarkeit der §§ 25c, 25d KSchG auf einen 40%-Gesellschafter und Geschäftsführer einer GmbH bei Übernahme einer Bürgschaft für einen Abstattungskredit.\"}, {\"te_stable_key\": \"8Ob31_05z|OGH|2005-05-04\", \"gz\": \"8Ob31_05z\", \"datum\": \"2005-05-04\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt das Urteil des Erstgerichts wieder her und bestätigt die Gültigkeit einer zeitlich unbeschränkten Bürgschaft für einen Bankkredit inklusive Verlängerungen und Wechselbürgschaft.\"}, {\"te_stable_key\": \"8Ob30_04a|OGH|2004-04-15\", \"gz\": \"8Ob30_04a\", \"datum\": \"2004-04-15\", \"gericht\": \"OGH\", \"mini_story\": \"Die Formunwirksamkeit einer Bürgschaftserklärung wegen Verletzung des Schriftformgebots nach § 1346 Abs 2 ABGB ist nicht von Amts wegen wahrzunehmen und muss eingebracht werden; hier erfolgte dies verspätet.\"}], \"te_items_count\": 4}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_25960389",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0113882",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 897.27,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113882\", \"rechtssatz_text\": \"Wird der Kreditgeber selbst aktiv, um die Einbeziehung der Interzedentin in das Schuldverhältnis zu erreichen, so weist dies prima facie darauf hin, dass er die Einbringung der Forderung beim Hauptschuldner als nicht gesichert ansah.\", \"te_count\": 15, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"INTERZESSION\"], \"topic_ids\": [\"mehrpersonal\"], \"hot_rank\": 3592, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob200_24d|OGH|2025-03-25\", \"gz\": \"1Ob200_24d\", \"datum\": \"2025-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit einer außerordentlichen Revision gegen die Abweisung einer Schadenersatzklage wegen angeblicher Verletzung der Aufklärungspflicht einer Bank gegenüber einem Interzedenten gemäß § 25c KSchG und verneint diese.\"}, {\"te_stable_key\": \"5Ob97_19d|OGH|2019-07-31\", \"gz\": \"5Ob97_19d\", \"datum\": \"2019-07-31\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision in einem Bürgschaftsfall wegen fehlender Aufklärungspflicht nach § 25c KSchG.\"}, {\"te_stable_key\": \"3Ob214_18v|OGH|2018-11-21\", \"gz\": \"3Ob214_18v\", \"datum\": \"2018-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Informationspflichten des Gläubigers gegenüber Interzedenten gemäß § 25c KSchG und Voraussetzungen der Mäßigung nach § 25d KSchG.\"}, {\"te_stable_key\": \"3Ob111_08g|OGH|2008-09-03\", \"gz\": \"3Ob111_08g\", \"datum\": \"2008-09-03\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH befasst sich mit der Wirksamkeit eines Kreditsvertrags und einer Girokontoeröffnung, bei denen die Beklagte als Interzedentin für ihren Ehemann agierte, ohne ausreichende Aufklärung durch die Bank.\"}, {\"te_stable_key\": \"6Ob137_07a|OGH|2008-01-24\", \"gz\": \"6Ob137_07a\", \"datum\": \"2008-01-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage nach § 502 Abs 1 ZPO hinsichtlich der Informationspflichten des Gläubigers bei Interzession gemäß § 25c KSchG vorliegt.\"}, {\"te_stable_key\": \"6Ob227_06k|OGH|2006-11-09\", \"gz\": \"6Ob227_06k\", \"datum\": \"2006-11-09\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück und verneint die Interzedenteneigenschaft gemäß § 25c KSchG, da der Beklagte unternehmerisch tätig war und ein Eigeninteresse an der Kreditgewährung hatte.\"}, {\"te_stable_key\":"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_79989310",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 6 KSchG",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 904.91,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 6 KSchG\", \"results\": [{\"rs_number\": \"RS0037804\", \"kernaussage\": \"Ein Zuwiderhandeln gegen § 8 Abs 3 ImmMV, § 6 KSchG, § 879 Abs 3 E ABGB begründet keine von Amts wegen wahrzunehmende Nichtigkeit einer diesbezüglichen Vereinbarung.\", \"schlagworte\": [\"Immobilienmakler\", \"Provision\", \"ImmMV\", \"Kundenschutz\", \"Aufteilungsvereinbarung\"]}, {\"rs_number\": \"RS0042918\", \"kernaussage\": \"Rechtsfragen im Zusammenhang mit Klauseln in Verbraucherverträgen zugrundeliegenden Allgemeinen Geschäftsbedingungen, die - wäre auf sie bereits das KSchG anzuwenden - gegen eine Bestimmung des Klauselkataloges des § 6 KSchG verstießen und deshalb dem Verbraucher gegenüber schlechthin unwirksam...\", \"schlagworte\": []}, {\"rs_number\": \"RS0110990\", \"kernaussage\": \"Die §§ 28, 29 KSchG begründen einen materiellrechtlichen Anspruch auf Unterlassung der Verwendung von gesetzwidrigen oder sittenwidrigen Bestimmungen (§ 879 ABGB, § 6 KSchG) in Allgemeinen Geschäftsbedingungen oder Formblättern.\", \"schlagworte\": [\"Veröffentlichung\", \"Kündigungsfristen\", \"Pflegeheimvertrag\", \"Allgemeine Geschäftsbedingungen\", \"Verbandsklage\", \"Mietverträge\", \"Nachrangdarlehen\", \"Verzugszinsen\", \"Akzessorietät\", \"Fitnessstudio-Verträge\", \"Kündigungsgebühr\", \"Reiseversicherung\", \"Datenschutz\", \"Mahn- und Inkassospesen\", \"Verbrauchervertrag\", \"Konsumentenschutz\", \"Transparenzgebot\", \"DSGVO\", \"pauschalierte Ersatzleistung\", \"§879 ABGB\", \"Bestandteile\", \"KSchG §28/29\", \"Sich-berufen\", \"Kündigungsfrist\", \"kundenfeindliche Auslegung\", \"Rechtswahlklausel\", \"Arbeitsrecht\", \"Inventar\", \"AGB-Unterlassung\", \"Unterlassung\"]},"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_45577335",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "KSchG Bürgschaft Interzession",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.23,
+        "error": null,
+        "payload_preview": "{\"results\": [{\"rs_number\": \"RS0126112\", \"rechtssatz\": \"Die gesetzliche Gleichstellung von Schuldbeitritt, Garantie und Bürgschaft zwingt zur analogen Anwendung des Schriftformerfordernisses auf alle Fälle der Interzession iSv § 25c KSchG, und zwar ohne Beschränkung auf Verbrauchergeschäfte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schriftform\", \"Zahlungsplan\", \"Pflegegebühren\", \"Interzedentenhaftung\", \"Interzession\", \"persönliche Haftung\", \"Schuldübernahme\", \"Bürgschaft\", \"Schuldbeitritt\", \"Vordruck-Unterschrift\", \"Bürgschaftserklärung\", \"Rechtswahl\", \"Unabweisbarkeit\", \"Verpflichtungserklärung\", \"Geschäftsführerhaftung\", \"Passivlegitimation\", \"KSchG\", \"ABGB Bürgschaft\", \"IPR Slowenien\", \"gescannte Unterschrift\", \"WrKAG\", \"Formfreiheit\", \"Auslegung von Willenserklärungen\"], \"relevance\": 0.134}], \"count\": 1, \"query\": \"KSchG Bürgschaft Interzession\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0127416",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0127416",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.76,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127416\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0126113",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0126113",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.56,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126113\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0126112",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0126112",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.94,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0126112\", \"rechtssatz_text\": \"Die gesetzliche Gleichstellung von Schuldbeitritt, Garantie und Bürgschaft zwingt zur analogen Anwendung des Schriftformerfordernisses auf alle Fälle der Interzession iSv § 25c KSchG, und zwar ohne Beschränkung auf Verbrauchergeschäfte.\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11756, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob71_24w|OGH|2025-03-26\", \"gz\": \"6Ob71_24w\", \"datum\": \"2025-03-26\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit einer außerordentlichen Revision gegen die Feststellung der Passivlegitimation durch Schuldübernahme im Kontext eines GmbH-Anteilskaufs mit internationalen Elementen.\"}, {\"te_stable_key\": \"3Ob119_22d|OGH|2022-07-20\", \"gz\": \"3Ob119_22d\", \"datum\": \"2022-07-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision der Bauherren gegen die Zuerkennung eines Teils des Werklohns an die Werkunternehmerin gemäß § 1168 Abs. 1 ABGB zurück, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"3Ob116_20k|OGH|2020-11-30\", \"gz\": \"3Ob116_20k\", \"datum\": \"2020-11-30\", \"gericht\": \"OGH\", \"mini_story\": \"Anwendbarkeit von Art 11 Rom I-VO auf die Formerfordernisse eines Schuldbeitrittsvertrags zwischen einer polnischen und einer österreichischen Partei.\"}, {\"te_stable_key\": \"2Ob26_19s|OGH|2019-06-24\", \"gz\": \"2Ob26_19s\", \"datum\": \"2019-06-24\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung, ob eine Außerstreitstellung der Passivlegitimation durch einen Haftpflichtversicherer als konkludenter Schuldbeitritt eines Direktklagerechts i.S.d. § 26 KHVG gewertet werden kann.\"}, {\"te_stable_key\": \"4Ob195_10w|OGH|2011-01-18\", \"gz\": \"4Ob195_10w\", \"datum\": \"2011-01-18\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Tochter für Spitalpflegegebühren ihres bulgarischen Vaters aufgrund einer Verpflichtungserklärung gemäß WrKAG und KSchG.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0126111",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0126111",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.92,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126111\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0110990",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0110990",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 14.48,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0110990\", \"rechtssatz_text\": \"Die §§ 28, 29 KSchG begründen einen materiellrechtlichen Anspruch auf Unterlassung der Verwendung von gesetzwidrigen oder sittenwidrigen Bestimmungen (§ 879 ABGB, § 6 KSchG) in Allgemeinen Geschäftsbedingungen oder Formblättern.\", \"te_count\": 17, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3303, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob191_24k|OGH|2025-06-25\", \"gz\": \"5Ob191_24k\", \"datum\": \"2025-06-25\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung von AGB-Klauseln und Geschäftspraktiken eines Kreditkartenanbieters im Verbandsverfahren nach KSchG und ZaDiG.\"}, {\"te_stable_key\": \"9Ob4_23p|OGH|2024-01-24\", \"gz\": \"9Ob4_23p\", \"datum\": \"2024-01-24\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung der Zulässigkeit von Klauseln in Allgemeinen Geschäftsbedingungen für Wohnungsmietverträge im Teilanwendungsbereich des MRG durch eine Verbraucherschutzkammer gegen eine Immobilien-AG.\"}, {\"te_stable_key\": \"7Ob153_22h|OGH|2022-12-13\", \"gz\": \"7Ob153_22h\", \"datum\": \"2022-12-13\", \"gericht\": \"OGH\", \"mini_story\": \"Kontrolle von AGB-Klauseln in Lebensversicherungsverträgen mit Rentenoption hinsichtlich Transparenz und gröblicher Benachteiligung im Verbandsprozess.\"}, {\"te_stable_key\": \"7Ob160_22p|OGH|2022-12-13\", \"gz\": \"7Ob160_22p\", \"datum\": \"2022-12-13\", \"gericht\": \"OGH\", \"mini_story\": \"Kontrolle von AGB-Klauseln einer Rechtsschutzversicherung im Verbandsprozess gemäß KSchG hinsichtlich Geltung, Inhalt und Transparenz.\"}, {\"te_stable_key\": \"7Ob112_22d|OGH|2022-11-23\", \"gz\": \"7Ob112_22d\", \"datum\": \"2022-11-23\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit einer Verbandsklage gegen Klauseln in einem Datenschutzhinweis eines Versicherungsunternehmens wegen Verstoßes gegen die DSGVO.\"}], \"te_items_count\": 5}"
+      }
+    ],
+    "tool_calls_total": 17,
+    "tool_calls_ok": 17,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "### Zusammenfassung der relevanten OGH-Rechtssätze zu § 25c KSchG und Auswirkungen auf Bürgschaftswirksamkeit\n\n#### 1. **Anwendungsbereich § 25c KSchG auf die Höchstbetragsbürgschaft einer einkommenslosen Ehefrau für Geschäftskredit des Mannes**\n   - **RS0119014** (OGH, Cluster BÜRGSCHAFT): § 25c KSchG gilt ausschließlich für **materiell fremde Verbindlichkeiten** (Interzession: Haftung für Rechnung eines anderen im fremden Interesse). Keine Anwendung bei gemeinsamer Schuld im eigenen Interesse (z. B. echte Mitschuld). \n     - Relevante GZ-Beispiele: 6Ob80/21i (Solidarschuldner bei Verbraucherkredit); 8Ob6/20w (Mutter als Interzedentin für Tochter); 5Ob103/13b (Ehefrau keine Interzedentin bei gemeinsamer Schuld).\n     - **Beweislast**: Interzedent (Ehefrau) muss **beweisen**, dass es sich um reine Interzession handelt (fremdes Interesse des Mannes, kein Eigeninteresse). Bank kann Eigeninteresse dartun.\n   - **RS0113882** (OGH, Cluster INTERZESSION): Aktive Einbeziehung der Interzedentin durch Bank ist **prima-facie-Indiz** für bekannte mangelnde Kreditwürdigkeit des Hauptschuldners (Mann).\n     - Relevante GZ: 1Ob200/24d (Aufklärungspflicht-Verletzung); 5Ob97/19d (Bürgschaftsfall); 3Ob214/18v (§ 25c/25d KSchG).\n     - **Beweislast**: Interzedent behauptet/Beweis der aktiven Einbeziehung; Bank widerlegt ggf.\n\n#### 2. **Informations-/Warnpflicht der Bank nach § 25c KSchG**\n   - **RS0113883** (OGH, Cluster BÜRGSCHAFT): Absolute **Pflicht des Gläubigers (Bank) zur Information/Warnung des Interzedenten** über wirtschaftliche Lage des Hauptschuldners – unabhängig von Zumutbarkeit.\n     - **Beweislast**: Interzedent trägt **Beweislast der Verletzung** (keine Aufklärung über Mannes Lage). Bank kann punktuell nachweisen (z. B. Dokumentation).\n   - **RS0115984** (aus Schlagwortsuche Interzession): Bank muss **Bonitätsprüfung** des Hauptschuldners vornehmen und Interzedentin warnen.\n\n#### 3. **Rechtsfolgen einer Verletzung von § 25c KSchG**\n   - **RS0121054** (OGH, Cluster BÜRGSCHAFT): **Entfall der gesamten Haftung des Interzedenten** bei Verletzung der Informationspflicht. Keine Anfechtung/Rechtsgestaltung nötig; Feststellungsklage auf **Nichtbestehen der Haftung** möglich.\n     - **Beweislast**: Interzedent beweist Verletzung → Haftung entfällt automatisch.\n   - **RS0113490** (OGH): Bei naher Angehörigen (Ehefrau): **Krasses Missverhältnis** Haftung (€ 150.000) vs. Leistungsfähigkeit (einkommenslos) löst Sittenwidrigkeitsprüfung (§ 879 ABGB) aus.\n     - GZ: 3Ob194/13w (§ 25d KSchG-Mäßigungsrecht); 3Ob34/13s (40% Gesellschafter).\n   - **RS0113937** (OGH, Cluster BÜRGSCHAFT): § 25d KSchG erlaubt **richterliche Mäßigung** der Haftung auch ohne volle Sittenwidrigkeit, bei unbilligem Missverhältnis.\n     - GZ: 4Ob195/10w (Pflegegebühren); 2Ob222/04t (Sozialversicherung).\n\n#### 4. **Keine Relevanz von § 6 KSchG oder § 9 KSchG für Anfechtbarkeit/Nichtigkeit**\n   - **§ 6 KSchG** (AGB-Klauselkatalog): Kein RS zu Bürgschaften/Interzession. Höchstbetragsbürgschaft typischerweise **individuell vereinbart**, nicht AGB → keine Nichtigkeit (RS0121187 zu eigenständigen Klauseln irrelevant).\n     - **Beweislast**: N/A (kein Treffer).\n   - **§ 9 KSchG** (Gewährleistungsverzicht): RS zu Gebrauchtwagen (RS0134869, RS0065562); **kein Bezug zu Bürgschaften**. Suche \"§ 9 KSchG Bürgschaft Interzession\" ergab 0 relevante RS.\n     - **Beweislast**: N/A.\n\n#### 5. **Verteidigungsoptionen trotz Versäumungsurteil (Fahrnisexekution)**\n   - **Nichtbestehen der Haftung (§ 25c-Verletzung)** als **materielle Nichtigkeit** des Titels: **Oppositionsklage** (§§ 470 ff EO) oder **Drittwiderspruch** (§ 449 EO) gegen Exekution. OGH erkennt RS0121054: Haftung entfällt ohne Anfechtung.\n   - **Mäßigung (§ 25d KSchG / § 879 ABGB)**: Bei Missverhältnis (einkommenslos vs. € 150.000).\n   - **Beweislast-Überblick**:\n     | Issue                  | Beweislastträger     |\n     |------------------------|----------------------|\n     | Interzession vorliegt | Ehefrau (RS0119014) |\n     | Aufklärungsverletzung | Ehefrau (RS0113883)|\n     | Bonitätskenntnis Bank | Ehefrau (RS0113882)|\n     | Missverhältnis        | Ehefrau (RS0113490)|\n     | Geringere Haftung     | Bank (analog RS0113884, nicht vertieft)|\n\n**Empfehlung**: Priorisiere RS0121054 + RS0113883 für Feststellung Nichtbestehens der Haftung in Oppositionsverfahren. Keine § 6/9-Anfechtung.",
+    "answer_chars": 4365,
+    "e2e_ms": 60993.59
+  }
+]
