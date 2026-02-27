@@ -33,6 +33,23 @@ DEFAULT_AGENT_PROFILES_PATH = DEFAULT_CONFIG_DIR / "agent_profiles.yaml"
 DEFAULT_MCP_REGISTRY_PATH = DEFAULT_CONFIG_DIR / "mcp_registry.yaml"
 DEFAULT_SKILLS_BINDINGS_PATH = DEFAULT_CONFIG_DIR / "skills_bindings.yaml"
 
+# ---------------------------------------------------------------------------
+# Verbose trace logging (--verbose)
+# ---------------------------------------------------------------------------
+_VERBOSE_FH = None  # file handle, set in main if --verbose
+_VERBOSE_PATH: Path | None = None
+
+
+def vlog(*args: Any) -> None:
+    """Append timestamped line to verbose trace file."""
+    if _VERBOSE_FH is None:
+        return
+    line = " ".join(str(a) for a in args)
+    ts = dt.datetime.now().strftime("%H:%M:%S.%f")[:-3]
+    _VERBOSE_FH.write(f"[{ts}] {line}\n")
+    _VERBOSE_FH.flush()
+
+
 BUILTIN_MODEL_PROFILES: dict[str, dict[str, str]] = {
     "cheap_default": {
         "organizer": "qwen/qwen3-coder-next",
@@ -1070,12 +1087,15 @@ def call_mcp_tool(
         except Exception as e:
             return {"ok": False, "status": None, "latency_ms": None, "body": None, "error": str(e)}
 
+    vlog(f"    MCP >>> {tool}({json.dumps(args, ensure_ascii=False)[:200]})")
     attempts = retry_count + 1
     last: dict[str, Any] | None = None
     for idx in range(attempts):
         rec = _single_call()
         if rec.get("ok"):
             rec["attempt"] = idx + 1
+            _prev = str(rec.get("body") or "")[:300]
+            vlog(f"    MCP <<< {tool} ok={True} {rec.get('latency_ms', '?')}ms preview={_prev!r}")
             return rec
         last = rec
         status = rec.get("status")
@@ -1085,6 +1105,7 @@ def call_mcp_tool(
         time.sleep(max(0.2, retry_backoff) * (idx + 1))
     out = dict(last or {})
     out["attempt"] = attempts
+    vlog(f"    MCP <<< {tool} FAILED ok=False err={out.get('error', '?')[:200]}")
     return out
 
 
@@ -1260,11 +1281,21 @@ def openrouter_chat(
                 "X-Title": safe_title,
             },
         )
+        n_msgs = len(messages)
+        n_tools = len(tools) if tools else 0
+        vlog(f">>> API {model} msgs={n_msgs} tools={n_tools} max_tok={max_tokens} title={safe_title}")
         t0 = time.perf_counter()
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 txt = resp.read().decode("utf-8", errors="replace")
-                return json.loads(txt), (time.perf_counter() - t0) * 1000.0
+                elapsed = (time.perf_counter() - t0) * 1000.0
+                parsed = json.loads(txt)
+                _ch = ((parsed.get("choices") or [{}])[0] or {})
+                _msg = _ch.get("message") or {}
+                _tc = _msg.get("tool_calls") or []
+                _txt = message_text(_msg)[:300]
+                vlog(f"<<< API {model} {elapsed:.0f}ms finish={_ch.get('finish_reason')} tool_calls={len(_tc)} text={_txt!r}")
+                return parsed, elapsed
         except Exception as e:
             last_err = str(e)
             sleep_s = 1.5 * (attempt + 1)
@@ -1389,6 +1420,8 @@ def _build_plan_openrouter(
         + " Use search_by_paragraph for specific §§ and search_by_schlagwort for OGH taxonomy keywords."
     )
     messages = [{"role": "system", "content": sys_prompt}, {"role": "user", "content": usr_prompt}]
+    vlog(f"\n{'='*60}\nORGANIZER: model={organizer_model} query={query[:120]!r}")
+    vlog(f"  sys_prompt chars={len(sys_prompt)} usr_prompt chars={len(usr_prompt)}")
     raw_resp, latency_ms = openrouter_chat(
         model=organizer_model,
         messages=messages,
@@ -2302,7 +2335,9 @@ def run_subagent_llm(
     llm_error: str | None = None
     _zero_result_sigs: set[str] = set()  # track tool+args combos that returned 0 results
 
+    vlog(f"\n{'='*60}\nWORKER START: {stream['name']} tools={stream_tools}")
     for step in range(1, max_steps + 1):
+        vlog(f"  WORKER {stream['name']} step={step}/{max_steps}")
         _step_ok = False
         for _retry in range(3):
             try:
@@ -2487,6 +2522,7 @@ def run_subagent_llm(
                     _zero_result_sigs.add(_zero_sig)
             continue
         final_answer = text.strip()
+        vlog(f"  WORKER {stream['name']} DONE steps={step} answer={final_answer[:200]!r}")
         break
 
     # Phase 3d: Forced deep-dive — RS numbers found in traces but never looked up
@@ -2814,6 +2850,7 @@ def synthesize_answer(
         )
     )
     messages = [{"role": "system", "content": sys_prompt}, {"role": "user", "content": usr_prompt}]
+    vlog(f"\n{'='*60}\nSYNTHESIS: model={synth_model} sys_chars={len(sys_prompt)} usr_chars={len(usr_prompt)} evidence_chunks={len(evidence_chunks)}")
     try:
         raw_resp, latency_ms = openrouter_chat(
             model=synth_model,
@@ -2829,6 +2866,7 @@ def synthesize_answer(
         )
         msg = ((raw_resp.get("choices") or [{}])[0] or {}).get("message") or {}
         answer = message_text(msg).strip()
+        vlog(f"  SYNTHESIS DONE {latency_ms:.0f}ms answer_chars={len(answer)}")
         return answer, {
             "latency_ms": round(latency_ms, 2),
             "model": synth_model,
@@ -3009,6 +3047,7 @@ def load_case_context(
         "case_nums": sorted(set(_re.findall(r"(?:Case\s+\d[\w-]+|SDNY\b|Chapter\s+11)", _full_scan, _re.I)))[:5],
         "rs_numbers": sorted(set(_re.findall(r"RS0\d{5,7}", _full_scan)))[:15],
     }
+    vlog(f"CONTEXT loaded {len(meta['files_read'])} files, {meta['final_chars']} chars, {meta['ocr_count']} OCR, {len(meta.get('extracted_facts',{}).get('rs_numbers',[]))} RS")
     return ctx, meta
 
 
@@ -3331,6 +3370,7 @@ def apply_hard_citation_gate(
     file_context: str = "",
 ) -> dict[str, Any]:
     mode = (citation_gate_mode or "warn").strip().lower()
+    vlog(f"\n{'='*60}\nCITATION GATE: mode={mode} answer_chars={len(answer)}")
     if mode == "off":
         return {
             "mode": "off",
@@ -3724,6 +3764,7 @@ def apply_hard_citation_gate(
                     indent=2,
                 )
             )
+    vlog(f"  CITATION GATE result: applied={report.get('applied')} answer_chars={len(report.get('answer',''))}")
     return report
 
 
@@ -3904,6 +3945,7 @@ def main() -> int:
     ap.add_argument("--context-file", default=[], action="append", help="Single file as context (repeatable)")
     ap.add_argument("--context-exclude", default=[], action="append", help="Exclude file by name/glob (repeatable, e.g. FALLUEBERSICHT.md)")
     ap.add_argument("--ocr", action="store_true", help="OCR PDFs via pdftotext fast mode")
+    ap.add_argument("--verbose", action="store_true", help="Log every API/MCP call to verbose_trace.txt")
     args = ap.parse_args(raw_argv)
 
     parsed_cfg = Path(args.config_dir).expanduser()
@@ -3935,6 +3977,17 @@ def main() -> int:
         ocr_pdfs=bool(args.ocr),
         exclude_patterns=args.context_exclude or None,
     )
+
+    # --- verbose trace setup ---
+    global _VERBOSE_FH, _VERBOSE_PATH
+    if args.verbose:
+        _VERBOSE_PATH = REPORT_ROOT / f"verbose_trace_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}.txt"
+        _VERBOSE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _VERBOSE_FH = open(_VERBOSE_PATH, "w", encoding="utf-8")
+        vlog(f"=== VERBOSE TRACE START === mode={args.mode} query={args.query[:120]!r}")
+        vlog(f"  mcp_mode={args.mcp_mode} model_profile={args.model_profile}")
+        if file_context_meta and file_context_meta.get("files_read"):
+            vlog(f"  context_files={file_context_meta['files_read']}")
 
     started_at = time.perf_counter()
 
@@ -4247,6 +4300,14 @@ def main() -> int:
             runner._terminate_pid_or_group(int(started_pid))
         except Exception:
             pass
+
+    # --- verbose trace: copy to out_dir and close ---
+    if _VERBOSE_FH is not None:
+        vlog(f"=== VERBOSE TRACE END === elapsed_ms={elapsed_ms}")
+        _VERBOSE_FH.close()
+        if _VERBOSE_PATH and _VERBOSE_PATH.exists():
+            import shutil
+            shutil.copy2(str(_VERBOSE_PATH), str(out_dir / "verbose_trace.txt"))
 
     print(
         json.dumps(
