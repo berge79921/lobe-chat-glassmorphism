@@ -1,0 +1,1804 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T13:21:47.873924+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "In einer Wohnungseigentumsanlage entdeckt ein Eigentümer (Top 16, Anteil 174/2742) einen aktiven Ölaustritt an der gemeinsamen Öltankanlage im Heizraum. Er ergreift Sofortmaßnahmen (Dokumentation, Öl auffangen), meldet den Schaden schriftlich an die Hausverwaltung mit Fotodokumentation und setzt eine Nachfrist. Die Hausverwaltung reagiert nicht substantiell. Die Öltankanlage ist allgemeiner Teil der Liegenschaft (§ 2 Abs 4 WEG). Welche Ansprüche hat der Eigentümer gegen die Hausverwaltung und die Eigentümergemeinschaft? Muss die HV sofort handeln (§ 20 Abs 2 WEG)?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "wohnungseigentum",
+    "subdomain": "weg_erhaltung",
+    "confidence": 0.545,
+    "paragraphs": [
+      "§ 28 WEG",
+      "§ 30 WEG",
+      "§ 20 WEG",
+      "§ 1318 ABGB",
+      "§ 2 WEG",
+      "§ 3 WEG",
+      "§ 16 WEG",
+      "§ 32 WEG",
+      "§ 52 WEG",
+      "§ 2 Abs",
+      "§ 20 Abs"
+    ],
+    "mandatory_paragraphs": [
+      "§ 28 WEG",
+      "§ 30 WEG",
+      "§ 20 WEG",
+      "§ 1318 ABGB",
+      "§ 2 WEG",
+      "§ 3 WEG",
+      "§ 16 WEG",
+      "§ 32 WEG",
+      "§ 52 WEG"
+    ],
+    "keywords": [
+      "Wohnungseigentum"
+    ],
+    "all_scores": {
+      "wohnungseigentum": 0.545
+    },
+    "source": "deterministic"
+  },
+  "pre_search_evidence_chars": 3998,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Legal Framework & Hot Index Context",
+        "goal": "Establish binding legal framework and identify relevant OGH rulings and commentary clusters on maintenance obligations in Wohnungseigentum, especially regarding common facilities and delayed response by management.",
+        "tools": [
+          "hot_index_stats",
+          "hot_rs_search",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Claim Analysis & Grounding Context",
+        "goal": "Determine actionable claims (Schadensersatz, Erfüllung, Unterlassung) against HV and Eigentümergemeinschaft based on factual scenario and statutory duties, using expert synthesis.",
+        "tools": [
+          "build_grounding_context",
+          "detect_clusters",
+          "ask_gemini_zivilrecht",
+          "get_rechtssatz",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Immediate Obligation Check (§ 20 Abs 2 WEG)",
+        "goal": "Clarify whether § 20 Abs 2 WEG imposes *immediate* duty on Hausverwaltung to act upon discovery of damage to common property, especially environmental hazard.",
+        "tools": [
+          "hot_rs_lookup",
+          "hot_cluster_context",
+          "search_ogh_entscheidungen",
+          "search_ogh_rechtssaetze",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "get_rechtssatz"
+        ]
+      }
+    ],
+    "synthesis_focus": "Whether delayed response by Hausverwaltung to an oil leak in a common facility (allgemeiner Teil) constitutes breach of § 20 Abs 2 WEG, and what civil-law remedies (§ 1318 ABGB, § 28 WEG, § 30 WEG) are available to the affected owner."
+  },
+  "organizer_meta": {
+    "latency_ms": 12870.58,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Legal Framework & Hot Index Context\",\n      \"goal\": \"Establish binding legal framework and identify relevant OGH rulings and commentary clusters on maintenance obligations in Wohnungseigentum, especially regarding common facilities and delayed response by management.\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 2 WEG\\\")\",\n        \"search_by_paragraph(\\\"§ 20 WEG\\\")\",\n        \"search_by_paragraph(\\\"§ 28 WEG\\\")\",\n        \"search_by_paragraph(\\\"§ 30 WEG\\\")\",\n        \"hot_index_stats\",\n        \"hot_rs_search\",\n        \"search_kommentar_paragraph(\\\"§ 20 WEG\\\")\",\n        \"search_kommentar_paragraph(\\\"§ 28 WEG\\\")\"\n      ]\n    },\n    {\n      \"name\": \"Claim Analysis & Grounding Context\",\n      \"goal\": \"Determine actionable claims (Schadensersatz, Erfüllung, Unterlassung) against HV and Eigentümergemeinschaft based on factual scenario and statutory duties, using expert synthesis.\",\n      \"tools\": [\n        \"build_grounding_context\",\n        \"detect_clusters\",\n        \"ask_gemini_zivilrecht\",\n        \"search_by_paragraph(\\\"§ 1318 ABGB\\\")\",\n        \"search_by_schlagwort(\\\"Wohnungseigentum\\\")\",\n        \"get_rechtssatz\"\n      ]\n    },\n    {\n      \"name\": \"Immediate Obligation Check (§ 20 Abs 2 WEG)\",\n      \"goal\": \"Clarify whether § 20 Abs 2 WEG imposes *immediate* duty on Hausverwaltung to act upon discovery of damage to common property, especially environmental hazard.\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 20 WEG\\\")\",\n        \"hot_rs_lookup\",\n        \"hot_cluster_context\",\n        \"search_ogh_entscheidungen\",\n        \"search_ogh_rechtssaetze\"\n      ]\n    },\n    {\n      \"name\": \"Eigentümergemeinschaft Liability & Procedural Steps\",\n      \"goal\": \"Assess liability of the Eigentümergemeinschaft (collective) and individual co-owners for failure to maintain common facilities, including potential Vorlagepflicht to Eigentümerversammlung.\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 3 WEG\\\")\",\n        \"search_kommentar_keyword(\\\"Eigentümergemeinschaft\\\")\",\n        \"detect_clusters\",\n        \"hot_cluster_context\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Whether delayed response by Hausverwaltung to an oil leak in a common facility (allgemeiner Teil) constitutes breach of § 20 Abs 2 WEG, and what civil-law remedies (§ 1318 ABGB, § 28 WEG, § 30 WEG) are available to the affected owner.\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 520,
+      "completion_tokens": 626,
+      "total_tokens": 1146,
+      "cost": 0.0005788,
+      "cached_tokens": 3,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "wohnungseigentum",
+      "subdomain": "weg_erhaltung",
+      "confidence": 0.545,
+      "paragraphs": [
+        "§ 28 WEG",
+        "§ 30 WEG",
+        "§ 20 WEG",
+        "§ 1318 ABGB",
+        "§ 2 WEG",
+        "§ 3 WEG",
+        "§ 16 WEG",
+        "§ 32 WEG",
+        "§ 52 WEG",
+        "§ 2 Abs",
+        "§ 20 Abs"
+      ],
+      "mandatory_paragraphs": [
+        "§ 28 WEG",
+        "§ 30 WEG",
+        "§ 20 WEG",
+        "§ 1318 ABGB",
+        "§ 2 WEG",
+        "§ 3 WEG",
+        "§ 16 WEG",
+        "§ 32 WEG",
+        "§ 52 WEG"
+      ],
+      "keywords": [
+        "Wohnungseigentum"
+      ],
+      "all_scores": {
+        "wohnungseigentum": 0.545
+      },
+      "source": "deterministic"
+    }
+  },
+  "streams": [
+    {
+      "name": "Claim Analysis & Grounding Context",
+      "goal": "Determine actionable claims (Schadensersatz, Erfüllung, Unterlassung) against HV and Eigentümergemeinschaft based on factual scenario and statutory duties, using expert synthesis.",
+      "mode": "llm",
+      "tools": [
+        "build_grounding_context",
+        "detect_clusters",
+        "ask_gemini_zivilrecht",
+        "get_rechtssatz",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 9861.38,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3220,
+            "completion_tokens": 1147,
+            "total_tokens": 4367,
+            "cost": 0.00074195,
+            "cached_tokens": 3369,
+            "reasoning_tokens": 918
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7050.08,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 13644,
+            "completion_tokens": 691,
+            "total_tokens": 14335,
+            "cost": 0.0030518,
+            "cached_tokens": 150,
+            "reasoning_tokens": 346
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 14939.02,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 14977,
+            "completion_tokens": 1910,
+            "total_tokens": 16887,
+            "cost": 0.0024033,
+            "cached_tokens": 28966,
+            "reasoning_tokens": 1605
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 20817.06,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 29878,
+            "completion_tokens": 2280,
+            "total_tokens": 32158,
+            "cost": 0.00302875,
+            "cached_tokens": 37775,
+            "reasoning_tokens": 816
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_60251226",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 3 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1613.22,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 3 WEG\", \"results\": [{\"rs_number\": \"RS0109579\", \"kernaussage\": \"Die Auslegung eines Kaufvertrages, womit dem Käufer ein Miteigentumsanteil in der Höhe des voraussichtlichen Mindestanteils nach § 3 WEG übertragen und gleichzeitig bis zur Schaffung von Wohnungseigentum die ausschließliche Nutzung an einer Wohnung eingeräumt wird, dem Verkäufer aber die ausschließl...\", \"schlagworte\": [\"Planabweichungen\", \"Zustimmung Wohnungseigentümer\", \"außerordentliche Revision\", \"streitiger Rechtsweg\"]}, {\"rs_number\": \"RS0082805\", \"kernaussage\": \"Der Verweis auf alle Wohnungen im § 3 WEG 1975 läßt erkennen, daß es sich immer um eine Gesamtparifizierung der Liegenschaft (Grundbuchskörper) handeln muß, gleichgültig ob sämtliche Räume auch in Wohnungseigentum übergeführt werden. Die Parifizierung erfaßt aber nur Objekte gemäß § 1 Abs 1 und 2...\", \"schlagworte\": [\"Nutzwertfestsetzung\", \"Wohnungseigentum\", \"Kfz-Abstellplätze\", \"selbständige Räumlichkeiten\", \"Parifizierung\"]}, {\"rs_number\": \"RS0111617\", \"kernaussage\": \"Die Frage der Widmung eines Raumes oder einer Fläche als Zubehör gemäß § 1 Abs 2 WEG ist nicht nur eine Vorfrage für die Nutzwertfestsetzung, sondern aufgrund der gesetzlichen Anordnung des § 5 WEG iVm § 3 WEG ein das Ergebnis der Nutzwertfestsetzung unmittelbar beeinflussendes Moment. Fließt in die...\", \"schlagworte\": [\"Wohnungseigentum\", \"Zubehör\", \"Nutzwertfestsetzung\", \"Bindungswirkung\"]}], \"count\": 3}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_65705926",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 30 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1140.53,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 30 WEG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_32681965",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Hausverwaltung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 142.54,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Hausverwaltung\", \"results\": [{\"rs_number\": \"RS0070461\", \"kernaussage\": \"Im Verfahren über Rekurse gegen die im außerstreitigen Verfahren nach dem Mietrechtsgesetz ergangener Beschlüsse gilt kraft der grundsätzlichen Gültigkeit der Bestimmungen des dritten Abschnittes des vierten Teiles der Zivilprozessordnung - ebenso wie im Rekursverfahren gegen die im streitigen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mietzinsfestsetzung\", \"Ausstattungskategorie\", \"angemessener Hauptmietzins\", \"Badeinbau\", \"Wohnungseigentumsgesetz\", \"Anfechtung von Beschlüssen\", \"Sachlegitimation\", \"Wohnungseigentum\", \"Kostenverteilung\", \"Widmung\", \"Revisionsrekurs\", \"Außerstreitverfahren\", \"Umlaufbeschluss\", \"Hausverwalter\", \"Angebote einholen\", \"Erhaltungsarbeiten\", \"Beschlussanfechtung\", \"Betriebskostenabrechnung\", \"Hausbetreuung\", \"Hausverwaltung\", \"Überwälzbarkeit\", \"Verbundfenster\", \"Erhaltungsmaßnahme\", \"Minderheitsrecht\", \"Dringlichkeit\", \"Erhaltungspflicht Vermieter\", \"Fensterinstandsetzung\", \"Außenflügel\", \"Innenflügel\", \"Kastenfenster\", \"Außenhaut\", \"Hauptmietzinsreserve\", \"Aufteilungsschlüssel\", \"Nutzfläche\", \"dauernde Unbrauchbarkeit\", \"Geldstrafe\", \"Mietzinsanhebung\", \"Dachdämmung\", \"Energiesparmaßnahmen\", \"Deckungsfehlbetrag\", \"Förderungsmittel\"]}, {\"rs_number\": \"RS0082922\", \"kernaussage\": \"Es kann dahingestellt bleiben, ob man der in MietSlg 29512 angedeuteten Auslegung folgt oder ob man auch für den Fall der Kündigung des Verwalters durch die Mehrheit einen nach den allgemeinen Grundsätzen gefassten Mehrheitsbeschluss verlangt, also einen solchen, der erst gefasst wurde,"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_61730431",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Erhaltungspflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 87.08,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Erhaltungspflicht\", \"results\": [{\"rs_number\": \"JWR_1989090005_19930519X14\", \"kernaussage\": \"Zerstörung Denkmals nur bei Ausschluss Substanz-Erhaltung (§ 5 Abs. 1 DMSG)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Denkmalzerstörung\", \"Substanzschutz\", \"Ermessensentscheidung\", \"technische Gründe\", \"wirtschaftliche Gründe\", \"Erhaltungspflicht\", \"DMSG\", \"Abbruchgenehmigung\", \"Kulturgutschutz\"]}, {\"rs_number\": \"JWR_1955002221_19580114X02\", \"kernaussage\": \"§ 129 Abs. 2 BauO Wien: Erhaltung/Wiederherstellung, keine Neuherstellung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Erhaltungspflicht\", \"Wiederherstellung\", \"Neuherstellung\", \"Bauordnung Wien\", \"Bauaufsicht\", \"Verwaltungsanordnung\", \"Zustandspflicht\", \"Abnutzung\"]}, {\"rs_number\": \"JWR_1963001103_19630930X01\", \"kernaussage\": \"Mängel am Gehsteig: Erhaltungs-, nicht Herstellungspflicht (§ 54 BauO)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Gehsteig\", \"Herstellungspflicht\", \"Erhaltungspflicht\", \"Mängel\", \"Eigentümerpflicht\", \"BauO § 54\", \"Verwaltungsstrafe\"]}, {\"rs_number\": \"JWR_1991070018_19910507X02\", \"kernaussage\": \"Teilung Stammsitz bei Aufgabe landw. Nutzung zulässig\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Stammsitzliegenschaft\", \"Teilung\", \"bäuerlicher Betrieb\", \"Landwirtschaft\", \"Agrarbehörde\", \"Flurbereinigung\", \"Waldrechte\", \"Erhaltungspflicht\", \"Nutzung\"]}, {\"rs_number\": \"JWR_2010090241_20110311X04\", \"kernaussage\": \"Erhaltungspflicht im DMSG beschränkt auf geringe Kosten\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Erhaltungspflicht\", \"Denkmalschu"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_56486933",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Erhaltungspflicht Hausverwaltung Schaden gemeinsame Teile",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 781.62,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Erhaltungspflicht Hausverwaltung Schaden gemeinsame Teile\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_72864446",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "wohnungseigentum",
+            "query": "Eigentümer Wohnungseigentumsanlage entdeckt Ölaustritt gemeinsame Öltankanlage Heizraum, meldet Hausverwaltung, keine Reaktion. Ansprüche gegen HV und Eigentümergemeinschaft, Erhaltungspflicht § 20 Abs 2 WEG",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 526.53,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_73540764",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "WEG Erhaltungspflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1379.35,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"WEG Erhaltungspflicht\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_07504902",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Wohnungseigentum Erhaltung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 957.7,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Wohnungseigentum Erhaltung\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_76475929",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Hausverwaltung Schaden Erhaltung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.37,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Hausverwaltung Schaden Erhaltung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_92177847",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 20 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 904.0,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 20 WEG\", \"results\": [{\"rs_number\": \"RS0083041\", \"kernaussage\": \"§ 20 WEG schließt die Geltendmachung der Gegenforderung als Widerklage nicht aus, § 29 Abs 2 Z 1 WEG regelt nur einen materiell-privatrechtlichen Einwand, der im Rahmen der Prüfung des Vorliegens eines Prozeßhindernisses keine Beachtung finden darf.\", \"schlagworte\": []}, {\"rs_number\": \"RS0013824\", \"kernaussage\": \"Durch die Bestimmungen des § 20 WEG 1975 wird eine Anpassung der die Erträgnisse der gemeinschaftlichen Sache betreffenden Regelung des § 839 ABGB an die Besonderheiten des WEG vorgenommen. Die Benützung der gemeinschaftlichen Teile der Liegenschaft wird davon nicht betroffen.\", \"schlagworte\": [\"Wohnungseigentum\", \"Nutzungsvorbehalt\", \"Parkplätze\", \"WEG 1975\"]}, {\"rs_number\": \"RS0005846\", \"kernaussage\": \"Keine Verweisung in das besondere außerstreitige Verfahren hat bei Streitigkeiten über die Wirksamkeit abweichender Vereinbarungen (§ 20 WEG) zu erfolgen. § 26 Abs 1 Z 5 WEG sieht daher nur in den Angelegenheiten der Zulässigkeit eines vereinbarten oder der Festsetzung eines abweichenden Verteilungs...\", \"schlagworte\": [\"Aufteilungsschlüssel\", \"Außerstreitverfahren\", \"Nutzflächen\", \"Rücklage\", \"Verwalterpflichten\", \"Wohnungseigentum\"]}, {\"rs_number\": \"RS0083245\", \"kernaussage\": \"§ 20 WEG regelt nur die Erträgnisse, nicht aber die Verwaltung.\", \"schlagworte\": []}], \"count\": 4}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_64825724",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 28 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 695.51,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 28 WEG\", \"results\": [{\"rs_number\": \"JWR_2006050293_20071012X05\", \"kernaussage\": \"Irrelevanz § 28 WEG im Vollstreckungsverfahren (RS 2006/05/0293)\", \"schlagworte\": [\"Vollstreckungsverfahren\", \"Kostenvorauszahlungsauftrag\", \"Baupolizeilicher Auftrag\", \"WEG § 28\", \"Miteigentümergemeinschaft\", \"Verwalter\", \"Adressaten\", \"ernste Schäden\"]}], \"count\": 1}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_40320957",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0083280"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.76,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0083280\", \"rechtssatz\": \"Voraussetzungen für die Annahme einer groben Vernachlässigung der Verwalterpflichten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Hausverwalter\", \"Ersetzung\", \"Heizkostenabrechnung\", \"Verteilungsschlüssel\", \"Betriebskosten\", \"Wohnungseigentümergemeinschaft\", \"Hausverwaltung\", \"Verwalterenthebung\", \"grobe Pflichtvernachlässigung\", \"Treuepflicht\", \"Informationspflicht\", \"Wohnungseigentumsverwalter\", \"Abberufung\", \"grobe Pflichtverletzung\", \"Beurteilungsspielraum\", \"Verwalterabberufung\", \"Minderheitseigentümer\", \"Pflichtverletzungen\", \"WEG\"], \"fachgebiete\": [\"Revision\", \"Baurecht\", \"Rekurs\"], \"datum\": \"2010-02-11\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_80606480",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0101594"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.49,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0101594\", \"rechtssatz\": \"Pflichtverletzungen eines Verwalters: Versäumung eines Termines zur Auslegung von Rattenködern und damit verbundene Kostenfolgen; Ausschluß eines Miteigentümers von einer angebrachten Gegensprechanlage, weil gemäß der Kundmachung des Magistrats der Stadt Wien vom 7.1.1992 Haustore in der Zeit von 7 Uhr bis 21 Uhr offenzuhalten sind (§ 1), sofern nicht seitens der Bundespolizeidirektion Wien eine Ausnahmegenehmigung erteilt wurde (§ 2 Abs 1) oder Gegensprechanlagen oder Toröffnungsanlagen (§ 3 lit b) vorhanden sind, die sich selbstverständlich auf alle Wohnungen des Hauses beziehen müssen; Ausschluß vom Zugang zum Dachboden, wodurch der Anschluß des Telefons des Antragstellers an das Digitalnetz erst mit zehntägiger Verspätung unter Verbrauchung eines weiteren Urlaubstages möglich wurde; die sofortige Einklagung von aufgelaufenen Kosten, ohne den Miteigentümer vorher zur Zahlung aufzufordern.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentümergemeinschaft\", \"Hausverwaltung\", \"Verwalterenthebung\", \"grobe Pflichtvernachlässigung\", \"Treuepflicht\", \"Informationspflicht\"], \"fachgebiete\": [\"Baurecht\"], \"datum\": \"1996-04-30\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_60171469",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0070461"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.05,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0070461\", \"rechtssatz\": \"Im Verfahren über Rekurse gegen die im außerstreitigen Verfahren nach dem Mietrechtsgesetz ergangener Beschlüsse gilt kraft der grundsätzlichen Gültigkeit der Bestimmungen des dritten Abschnittes des vierten Teiles der Zivilprozessordnung - ebenso wie im Rekursverfahren gegen die im streitigen Verfahren ergangenen Beschlüsse - das Neuerungsverbot. Behauptete die Antragstellerin im Verfahren erster Instanz (wie auch schon vor der Schlichtungsstelle), dass die Wohnung der Ausstattungskategorie C zuzuordnen sei, so ist dies nichts anderes als die Kurzfassung der Behauptung, dass die Wohnung nur jene Ausstattungsmerkmale aufweise, die für eine Wohnung der Ausstattungskategorie C erforderlich sind, also (im Gegensatz zu den Erfordernissen einer Wohnung der Ausstattungskategorie A und B) keine Küche aufweise: Von einer Verletzung des Neuerungsverbot durch die erstmalige ausdrückliche Geltendmachung des Fehlens einer Küche in der der Antragstellern vermieteten Wohnung im Rekurs gegen den erstgerichtlichen Sachbeschluss kann daher keine Rede sein.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mietzinsfestsetzung\", \"Ausstattungskategorie\", \"angemessener Hauptmietzins\", \"Badeinbau\", \"Wohnungseigentumsgesetz\", \"Anfechtung von Beschlüssen\", \"Sachlegitimation\", \"Wohnungseigentum\", \"Kostenverteilung\", \"Widmung\", \"Revisionsrekurs\", \"Außerstreitverfahren\", \"Umlaufbeschluss\", \"Hausverwalter\", \"Angebote einholen\", \"Erhaltungsarbeiten\", \"Beschlussanfechtung\", \"Betriebskostenabrechnung\", \"Hausbetreuung\", \"Hausverwaltung\", \"Überwälzbarkeit\", \"Ve"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_80361041",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0106051"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.65,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0106051\", \"rechtssatz\": \"Gemäß § 14 Abs 1 Z 5 WEG gehört die Bestellung oder die Abberufung eines gemeinsamen Verwalters zu den Angelegenheiten, in denen die Mehrheit entscheidet, handelt es sich doch dabei um eine Maßnahme der ordentlichen Verwaltung der Liegenschaft. Die diese (durch Mehrheitsentscheidung auszuübende) Befugnis der Miteigentümer näher regelnden Bestimmungen des § 18 Abs 1 Z 1 und 2 WEG räumen das Recht, die Verwaltung zu kündigen, der Mehrheit der Miteigentümer ein.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Hausverwalter\", \"Kündigung\", \"Mehrheitsbeschluss\", \"Umlaufverfahren\", \"Rückzug der Zustimmung\", \"Hausverwaltung\", \"Umlaufbeschluß\", \"Hausversammlung\", \"Wohnungseigentumsverwalter\", \"Mehrheit der Miteigentümer\", \"Nachbarliegenschaft\", \"Verwaltungseinheit\", \"Verwalterwechsel\", \"Beschlussfassung\", \"Unterschriftenliste\", \"Anfechtung\", \"Aktivlegitimation\", \"Wohnungseigentümerbeschluss\", \"Verwalterkündigung\", \"Außerstreitverfahren\", \"Willensbildung\", \"Feststellung Unwirksamkeit\", \"Verwaltungsvertrag\", \"Beschlussanfechtung\", \"Vollziehbarkeit\", \"Wohnungseigentümergemeinschaft\", \"außerordentliche Kündigung\", \"wichtiger Grund\", \"Umlaufbeschluss\", \"Eigentümergemeinschaft\", \"WEG 2002\", \"Revisionsrekurs\", \"AußStrG\", \"WEG\", \"Verwalterbestellung\", \"Wohnbeiträge\", \"schuldbefreiende Zahlung\", \"§ 20 Abs 6 WEG\", \"Unternehmenseinbringung\", \"§ 38 UGB\", \"Verwaltungsvertrag Kündigung\", \"Eigentümergemeinschaft Beschluss\", \"Anfechtungsfrist\", \"Rechtsschein\"], \"fachgebiete\": [\"Feststellung\", \"Grundbuch\", \"Nachbarrecht\", \"Mietrecht"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_65724095",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 16 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 825.87,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 16 WEG\", \"results\": [{\"rs_number\": \"RS0013767\", \"kernaussage\": \"Die Pflicht zur Rechnungslegung und Herausgabe der Rücklage für eine Verwaltungstätigkeit vor und nach dem Wirksamwerden des WEG 1975 richtet sich bis dahin nach den §§ 837, 1009, 1012 ABGB ( StreitVerf ) und ab 1.9.1975 nach § 17 Abs 2 Z 1 und § 16 WEG 1975 iVm § 26 Abs 1 Z 4 lit a und lit c WEG...\", \"schlagworte\": [\"Hausverwalter\", \"Abberufung\", \"Rechnungslegung\", \"Rücklage\", \"WEG\", \"Wohnungseigentum\", \"Verwalter\", \"Miteigentum\", \"Außerstreitverfahren\", \"Verwalterabrechnung\", \"Herausgabeüberschuss\", \"Bindungswirkung\"]}, {\"rs_number\": \"RS0019436\", \"kernaussage\": \"Gemeinschaftsgelder (hier: Rücklage nach § 16 WEG) stehen nicht einmal treuhändig im Eigentum des Verwalters.\", \"schlagworte\": [\"Wohnungseigentum\", \"Rücklage\", \"Verwalter\", \"Bereicherung\", \"passive Klagslegitimation\"]}, {\"rs_number\": \"RS0083331\", \"kernaussage\": \"Da die Rücklage nach § 16 WEG 1975 ausschließlich für künftige Erhaltungsarbeiten und Verbesserungsarbeiten bestimmt ist, zu denen laufende Aufwendungen wie für Betriebskosten nicht gehören, kommt die Haftung dieses Sondervermögens für Servicearbeiten und laufende Instandhaltungsarbeiten an einer...\", \"schlagworte\": [\"Wohnungseigentum\", \"Hausverwalter\", \"Haftung Miteigentümer\", \"Betriebskosten\", \"Solidarhaftung\"]}, {\"rs_number\": \"RS0083267\", \"kernaussage\": \"In einem Verfahren über einen Antrag nach § 15 Abs 1 Z 2 WEG über die Bildung, Erhöhung oder Verminderung (wie hier) der Rücklage nach § 16 WEG hat der Verwalter der Liegenschaft keine Parteistellung; der Antrag ist vielmeh"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_17909322",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 17 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 629.26,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 17 WEG\", \"results\": [{\"rs_number\": \"RS0054997\", \"kernaussage\": \"Doppelvertretung durch Vertretung einer Wohnungseigentumsgenossenschaft gegen die Wohnungseigentümer, obwohl die Miteigentümer, vertreten durch eben diese Genossenschaft - als Hausverwalter gemäß § 17 WEG - vom Kanzleipartner in einer damit zusammenhängenden Sache rechtsfreundlich vertreten wurden.\", \"schlagworte\": []}, {\"rs_number\": \"RS0083447\", \"kernaussage\": \"Es unterliegt keinem Zweifel, dass auch im Anwendungsbereich des § 17 WEG 1975 der Verwalter im Innenverhältnis nur - wie sonst ganz allgemein - zu Maßnahmen der ordentlichen Verwaltung berechtigt ist.\", \"schlagworte\": [\"Miteigentum\", \"Wohnungseigentum\", \"Heizungsanlage\", \"Verwalter\", \"Negatorische Klage\", \"Hausverwalter\", \"Verwaltungvollmacht\", \"Nutzwerte\", \"Parifizierungsverfahren\", \"Reparaturrücklage\", \"Verwalterbefugnis\", \"Eigentümergemeinschaft\", \"Zahlungspflicht\", \"WEG\", \"Umlaufbeschluss\", \"Angebote einholen\", \"Erhaltungsarbeiten\", \"Beschlussanfechtung\", \"Verwalterabrechnung\", \"ordentliche Verwaltung\", \"außerordentliche Verwaltung\", \"energiesparende Maßnahmen\", \"actio negatoria\", \"mittelbarer Störer\", \"Nachbarstörung\", \"Immissionen\", \"Sachverständigengutachten\", \"Aufzugseinbau\", \"Eigentümerversammlung\", \"Eigenmächtiger Eingriff\"]}, {\"rs_number\": \"RS0111727\", \"kernaussage\": \"Mit der Verweisung auf § 17 WEG in der Kompetenznorm des § 26 Abs 1 Z 5 WEG (früher § 26 Abs 1 Z 4 lit a WEG) wurde keine Einschränkung der außerstreitigen Zuständigkeit auf die Durchsetzung der in § 17 WEG namentlich angeführten Verwalterpflichten vorgenommen."
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_54462386",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Verwalterpflichten",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 194.82,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Verwalterpflichten\", \"results\": [{\"rs_number\": \"RS0013661\", \"kernaussage\": \"Zur Frage, welche Streitigkeiten zwischen Miteigentümern im Außerstreitverfahren und welche im streitigen Verfahren auszutragen sind.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aufteilungsschlüssel\", \"Außerstreitverfahren\", \"Gartenfläche\", \"Grenzfestsetzung\", \"Nutzflächen\", \"Rücklage\", \"Verwalterpflichten\", \"Wohnungseigentum\", \"Zubehörswohnungseigentum\", \"außerstreitiges Verfahren\"]}, {\"rs_number\": \"RS0013748\", \"kernaussage\": \"Für den Aufwandersatzanspruch des Verwalters nach §§ 837, 1014 ABGB ist dessen Rechnungslegungspflicht insofern von Bedeutung, als eine dem Gesetz entsprechende Abrechnung spätestens in dem Prozess vorliegen muss, in dem der Verwalter diesen Anspruch geltend macht, mag diese Abrechnung nun vom...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Hausverwalter\", \"Verwaltungsabrechnung\", \"passive Klagelegitimation\", \"Grundbuch\", \"Rechnungslegung\", \"Instandhaltungskosten\", \"Fälligkeit\", \"WEG-Abrechnung\", \"Verwalterpflichten\", \"Aufwandersatz\", \"Verjährung\", \"Miteigentum\", \"Benützungsentgelt\", \"Verwalter\", \"Liegenschaft\", \"Rechnungslegungspflicht Verwalter\", \"Schadenersatz Machthaber\", \"gemeinsames Eigentum\", \"Aufhebungsbeschluss\", \"Vergleich\", \"Beweiswürdigung\", \"Verwalterentgelt\", \"Revisionzulässigkeit\", \"Streitgegenstandseinheit\", \"Aufwandsersatz\", \"Wohnungseigentümergemeinschaft\", \"§ 1014 ABGB\"]}, {\"rs_number\": \"JWR_2006050137_20070731X06\", \"kernaussage\": \"Instandhaltungspflicht Hausverwalter unabhängig von Bauauftrag\", \"rechtsgebiet\": \"Verwaltungsrecht\", \""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_08050667",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Pflichtverletzung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.22,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0083488\", \"rechtssatz\": \"Werden Anschaffungen vom Hauskomitee getätigt, vom Verwalter nachträglich sanktioniert und aus Gemeinschaftsmitteln bezahlt, so schließt diese Vorgangsweise eine Pflichtverletzung des Verwalters aus. In welcher Form der Verwalter - selbstverständlich unter seiner Verantwortung - Verwaltungsmaßnahmen setzt, ist nicht entscheidungswesentlich. Es kommt insbesondere nicht darauf an, ob der Verwalter selbst, durch seine Dienstnehmer oder durch von der Eigentümergemeinschaft bestellte Vertrauenspersonen seine Agenden durchführt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verwalterpflichten\", \"grobe Pflichtverletzung\", \"Hauskomitee\", \"Spesenersatz\", \"Wohnungseigentumsvertrag\"], \"relevance\": 0.175}, {\"rs_number\": \"RS0061314\", \"rechtssatz\": \"In der Bestellung von Personen zu Verwaltern, die keine gewerbebehördliche Genehmigung zur Immobilienverwaltung haben, liegt keine grobe Pflichtverletzung der Organe des Vereins zur Verwaltung des Miteigentums, da auch Privatpersonen bestellt werden dürfen, sofern sie nicht im Sinne des § 1 Abs 2 GewO 1973 in Gewinnabsicht tätig sind. Grobe Pflichtvernachlässigung liegt nur bei wesentlicher Beeinträchtigung der Interessen der Miteigentümer vor; verwaltungsbehördliche Maßnahmen wegen unbefugter Ausübung der Verwaltertätigkeit treffen jedoch nur den Verwalter.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Liegenschaftsverwaltung\", \"Verwalterbestellung\", \"Selbstverwaltung\", \"Verein\", \"Gewerbekonzession\"], \"relevance\": 0.112}, {\"rs_number\": \"RS0101594\", \"rechtssatz\": \"Pflichtverletzunge"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111727",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111727",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.27,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111727\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111617",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111617",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.68,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111617\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109579",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109579",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.61,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109579\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0083488",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0083488",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.37,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0083488\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0083447",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0083447",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.6,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0083447\", \"rechtssatz_text\": \"Es unterliegt keinem Zweifel, dass auch im Anwendungsbereich des § 17 WEG 1975 der Verwalter im Innenverhältnis nur - wie sonst ganz allgemein - zu Maßnahmen der ordentlichen Verwaltung berechtigt ist.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9627, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob97_20f|OGH|2020-10-22\", \"gz\": \"5Ob97_20f\", \"datum\": \"2020-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung, ob ein Hausverwalter im Rahmen der ordentlichen Verwaltung einen eigenmächtigen Eingriff eines Miteigentümers an allgemeinen Teilen nachträglich genehmigen kann, wenn dieser für behördlich angeordnete Sanierungsmaßnahmen erforderlich ist.\"}, {\"te_stable_key\": \"5Ob107_16w|OGH|2016-10-25\", \"gz\": \"5Ob107_16w\", \"datum\": \"2016-10-25\", \"gericht\": \"OGH\", \"mini_story\": \"Revisionsrekurs gegen die Ablehnung der Neufestsetzung eines abweichenden Aufteilungsschlüssels für Liftkosten in einer Wohnungseigentümergemeinschaft aufgrund angeblicher fehlender Nutzungsmöglichkeiten.\"}, {\"te_stable_key\": \"5Ob204_12d|OGH|2013-03-21\", \"gz\": \"5Ob204_12d\", \"datum\": \"2013-03-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die Kosten eines Sachverständigengutachtens zur Prüfung der technischen und baurechtlichen Machbarkeit eines Aufzugseinbaus sind als ordentliche Verwaltungskosten zu behandeln, wenn ein dokumentiertes Interesse eines beachtlichen Anteils der Wohnungseigentümer besteht, die Maßnahme zeitgemäß ist und\"}, {\"te_stable_key\": \"5Ob133_09h|OGH|2010-01-19\", \"gz\": \"5Ob133_09h\", \"datum\": \"2010-01-19\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Passivlegitimation eines Mehrheitswohnungseigentümers bei Störungen durch Dritte von einer öffentlich zugänglichen Hochterrasse eines Einkaufszentrums.\"}, {\"te_stable_key\": \"5Ob127_09a|OGH|2009-07-07\", \"gz\": \"5Ob127_09a\", \"datum\": \"2009-07-07\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs in einem Außerstreitsachenverfahren zurück, da keine relevierte grundsätzliche Rechtsfrage zur Verrechnung von Kosten eigenmächtiger Verwaltermaßnahmen vorliegt.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 24,
+      "tool_calls_ok": 24,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Zusammenfassung der Ansprüche (PHASE 3)\n\n#### 1. **Rechtlicher Rahmen (Erhaltungspflicht in WEG-Anlagen)**\n- **Gemeinsame Öltankanlage als allgemeiner Teil**: Bestätigt durch § 2 Abs. 4 WEG (RS0061008: Parifizierung umfasst gesamte Liegenschaft; RS0082805: § 3 WEG erfordert Gesamtparifizierung). Erhaltungspflicht der **Eigentümergemeinschaft** (§ 16 WEG: Rücklagenbildung für Erhaltungsarbeiten; RS0013767, RS0083331: Rücklage ausschließlich für Erhaltung/Verbesserung, kein Treuhand-Eigentum des Verwalters).\n- **Pflichten der Hausverwaltung (Verwalter)**: § 17 WEG verpflichtet zur ordentlichen Verwaltung, inkl. Erhaltung gemeinsamer Teile (RS0083447: Verwalter nur zu ordentlicher Verwaltung befugt; RS0111727: Durchsetzung aller Verwalterpflichten im AußStrVerf.). Keine \"sofortige\" Handlungspflicht aus § 20 Abs. 2 WEG (RS0083245: § 20 WEG regelt nur Erträgnisse/Verteilung, **nicht Verwaltung**; RS0013824: Keine Betroffenheit der Benützung gemeinsamer Teile).\n- **Keine deliktische Haftung nach § 1318 ABGB**: Kein RS zu Öllecks/gefährdenden Anlagen in WEG; allg. RS0030894/RS0022522 beziehen sich auf Dritthaftung (z.B. Wasserschaden), nicht auf eigene Gemeinschaftspflichten. Primär **vertraglich/miteigentümisch** (§ 1299 ABGB Sorgfalt).\n\n**Beweislast**: Eigentümer (Kläger) trägt Beweis der Pflichtverletzung (Dokumentation des Lecks/Sofortmaßnahmen hilft); keine Umkehr (kein § 1298 ABGB-Anwendungsfall). Bei Verwalter: Nachweis grober Vernachlässigung für Abberufung (RS0083280).\n\n#### 2. **Actionable Ansprüche gegen Hausverwaltung (Verwalter)**\n- **Primär: Erfüllungsanspruch (Reparatur der Öltankanlage)**: Verwalter muss Maßnahmen einleiten (§ 17 WEG; RS0083488: Verwalter haftet für Unterlassung, auch bei Delegation). Nach schriftlicher Meldung/Nachfrist: Klage auf **Durchsetzung der Verwaltung** (§ 26 Abs. 1 Z 5 WEG AußStrVerf.; RS0111727).\n  - **Beweislast**: Kläger: Nachweis Unterlassung (Fotos, Meldung); Verwalter: Sorgfalt (keine grobe Pflichtverletzung).\n- **Sekundär: Schadenersatz** (§ 1299 ABGB): Bei entstandenem/fortlaufendem Schaden durch Unterlassung (RS0101594: Beispiele Pflichtverletzungen wie Versäumnisse mit Kostenfolgen). Sofortmaßnahmen des Eigentümers begründen Regress gegen Verwalter.\n  - **Beweislast**: Kläger: Kausalität Schaden ← Unterlassung (freie Beweiswürdigung).\n- **Abberufung/Ersetzung**: Bei **grober Pflichtvernachlässigung** (§ 18 Abs. 1 Z 3 WEG; RS0083280/RS0101594/RS0042763: Häufung kleinerer Verletzungen kann grob sein; RS0111894: Gesamtschau, auch ältere Vorfälle). Hier: Ignorieren des Schadensmeldung = grob (vgl. RS0070461: Erhaltungsmaßnahmen/Dringlichkeit).\n  - **Beweislast**: Kläger (Minderheit): Grobe Vernachlässigung (Beurteilungsspielraum, RS0042763); Mehrheitsbeschluss möglich (RS0106051).\n\n#### 3. **Actionable Ansprüche gegen Eigentümergemeinschaft**\n- **Primär: Erfüllungsanspruch (Erhaltung gemeinsamer Teile)**: Gemeinschaft haftet solidarisch (§ 16 WEG Rücklage; § 3 WEG Anteilsmäßige Pflicht). Einzelner Eigentümer (Top 16, 174/2742-Anteil) kann klagen (RS0083267: Parteistellung aller Miteigentümer).\n  - Verfahren: § 26 Abs. 1 Z 5 WEG (AußStrVerf. für Verwalterpflichten).\n  - **Beweislast**: Kläger: Gefährdung gemeinsamer Teile.\n- **Sekundär: Beseitigungsklage + Schadenersatz** (§ 1313a ABGB Nachbarrecht oder § 1299 ABGB): Bei drohendem/fortgesetztem Schaden (Ölgefahr); Nachfrist erfüllt.\n  - **Beweislast**: Kläger: Schaden/Kausalität; Gemeinschaft: Erhaltung (keine Umkehr).\n- **Unterlassung**: Gegen weitere Vernachlässigung (§ 1299 ABGB).\n\n#### 4. **Praktische Hinweise**\n- **Kein § 28 WEG**: Nur für Vollstreckung irrelevanz (RS JWR_2006050293_20071012X05); § 30 WEG: 0 RS (keine Relevanz).\n- **Keine sofortige Pflicht (§ 20 Abs. 2 WEG)**: Falsche Norm; § 20 zu Erträgen (RS0005846).\n- **Empfehlung**: Sofort AußStrVerf. (§ 26 WEG) für Reparaturbefehl; bei grober Unterlassung Abberufung + SE. Beweislastumkehr unwahrscheinlich (kein Kunstfehler/Delikt-Track).\n- **0-Results-Handhabung**: Breiter gesucht (Schlagwörter \"Hausverwaltung\", \"Verwalterpflichten\"); priorisiert RS zu Pflichtverletzungen (RS0083280 etc.).\n\n**Quellen**: RS aus Phasen 1-2 (z.B. RS0083280 [Verwalterenthebung], RS0101594 [Pflichtbeispiele], RS017727 [§17-Durchsetzung]); keine Erfindung.",
+      "answer_chars": 4268,
+      "e2e_ms": 67378.97
+    },
+    {
+      "name": "Immediate Obligation Check (§ 20 Abs 2 WEG)",
+      "goal": "Clarify whether § 20 Abs 2 WEG imposes *immediate* duty on Hausverwaltung to act upon discovery of damage to common property, especially environmental hazard.",
+      "mode": "llm",
+      "tools": [
+        "hot_rs_lookup",
+        "hot_cluster_context",
+        "search_ogh_entscheidungen",
+        "search_ogh_rechtssaetze",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "get_rechtssatz"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 9916.48,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 2981,
+            "completion_tokens": 1210,
+            "total_tokens": 4191,
+            "cost": 0.0011787,
+            "cached_tokens": 150,
+            "reasoning_tokens": 911
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 20753.97,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 13524,
+            "completion_tokens": 1408,
+            "total_tokens": 14932,
+            "cost": 0.0033896,
+            "cached_tokens": 128,
+            "reasoning_tokens": 1096
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 10430.44,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 39577,
+            "completion_tokens": 1041,
+            "total_tokens": 40618,
+            "cost": 0.0026901,
+            "cached_tokens": 43392,
+            "reasoning_tokens": 759
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 18977.92,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 46304,
+            "completion_tokens": 1712,
+            "total_tokens": 48016,
+            "cost": 0.0051472,
+            "cached_tokens": 85824,
+            "reasoning_tokens": 704
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_49603162",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 3 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2899.76,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 3 WEG\", \"results\": [{\"rs_number\": \"RS0111617\", \"kernaussage\": \"Die Frage der Widmung eines Raumes oder einer Fläche als Zubehör gemäß § 1 Abs 2 WEG ist nicht nur eine Vorfrage für die Nutzwertfestsetzung, sondern aufgrund der gesetzlichen Anordnung des § 5 WEG iVm § 3 WEG ein das Ergebnis der Nutzwertfestsetzung unmittelbar beeinflussendes Moment. Fließt in die...\", \"schlagworte\": [\"Wohnungseigentum\", \"Zubehör\", \"Nutzwertfestsetzung\", \"Bindungswirkung\"]}, {\"rs_number\": \"RS0109579\", \"kernaussage\": \"Die Auslegung eines Kaufvertrages, womit dem Käufer ein Miteigentumsanteil in der Höhe des voraussichtlichen Mindestanteils nach § 3 WEG übertragen und gleichzeitig bis zur Schaffung von Wohnungseigentum die ausschließliche Nutzung an einer Wohnung eingeräumt wird, dem Verkäufer aber die ausschließl...\", \"schlagworte\": [\"Planabweichungen\", \"Zustimmung Wohnungseigentümer\", \"außerordentliche Revision\", \"streitiger Rechtsweg\"]}, {\"rs_number\": \"RS0082805\", \"kernaussage\": \"Der Verweis auf alle Wohnungen im § 3 WEG 1975 läßt erkennen, daß es sich immer um eine Gesamtparifizierung der Liegenschaft (Grundbuchskörper) handeln muß, gleichgültig ob sämtliche Räume auch in Wohnungseigentum übergeführt werden. Die Parifizierung erfaßt aber nur Objekte gemäß § 1 Abs 1 und 2...\", \"schlagworte\": [\"Nutzwertfestsetzung\", \"Wohnungseigentum\", \"Kfz-Abstellplätze\", \"selbständige Räumlichkeiten\", \"Parifizierung\"]}], \"count\": 3}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_20741877",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Verwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 297.41,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Verwalter\", \"results\": [{\"rs_number\": \"RS0125756\", \"kernaussage\": \"Nach Eintritt der Wirksamkeit der Kündigung des Verwaltungsverhältnisses besteht eine Fortsetzungspflicht hinsichtlich der Tätigkeit des früheren Verwalters zufolge § 1025 ABGB jedenfalls nur bis zur Bestellung eines neuen Verwalters. Ab der Bestellung eines neuen Hausverwalters hat sich der frühere...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verwalterpflicht\", \"Vermögensverwaltungsvertrag\", \"Außerstreitverfahren\", \"Blockchain-Nachweis\", \"Verwalter\", \"§ 20 Abs 6 WEG\", \"Verwaltungsbelege\", \"Herausgabe Originalunterlagen\", \"Verwalterkündigung\", \"Wohnungseigentumsverwalter\", \"Derivatehandel\", \"Vollziehbarkeit\", \"Wohnbeiträge\", \"Freundschaftsbeziehung\", \"Pflichtverletzung\", \"Aufrechnung\", \"WEG 2002\", \"Verwalterbestellung\", \"schuldbefreiende Zahlung\", \"Rechnungslegung\", \"FTX-Insolvenz\", \"Überschuss\", \"Rücklage\", \"Beschlussanfechtung\", \"Verwaltungsvertrag\", \"Kündigung\", \"Hebelprodukte\", \"Wohnungseigentum\", \"Vorausschau\", \"Kryptowährungen\"]}, {\"rs_number\": \"RS0125903\", \"kernaussage\": \"Der Begriff der Streitanhängigkeit ist dem Außerstreitverfahren fremd. Nach § 12 Abs 2 AußStrG entscheidet bei mehreren Anträgen das Zuvorkommen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Präklusionsfrist\", \"§ 18 Abs 3 WGG\", \"Kalenderjahr\", \"Baukostenabrechnung\", \"Wohnungseigentum\", \"Rechtskraft\", \"materielle Rechtskraft\", \"ne bis in idem\", \"Außerstreitverfahren\", \"Verfahrensverbindung\", \"AußStrG § 12 Abs 2\", \"Verfahrensgegenstand\", \"WEG-Beschluss\", \"Verbindung von Verfahren\", \"Heizkostenabrechnung\", \"Schlichtungsstelle\", \""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_98478275",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Wohnungseigentum Verwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 896.51,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Wohnungseigentum Verwalter\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_22480506",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Abs WEG Hausverwaltung Pflicht Schaden Gemeinschaftsteil Ölleck",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.69,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Abs WEG Hausverwaltung Pflicht Schaden Gemeinschaftsteil Ölleck\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_51135046",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Erhaltungspflicht Sofortmaßnahme",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.07,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Verwalter Erhaltungspflicht Sofortmaßnahme\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_93894389",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Erhaltungspflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 62.69,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Erhaltungspflicht\", \"results\": [{\"rs_number\": \"JWR_1992030078_19940418X02\", \"kernaussage\": \"Pflicht des Straßenerhalters zur Anbringung von Verkehrszeichen\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Straßenerhalter\", \"Verkehrsschilder\", \"Anbringungspflicht\", \"Erhaltungspflicht\", \"Behördenbescheid\", \"Rechtswidrigkeit\", \"Vollzugsmittel\", \"StVO\"]}, {\"rs_number\": \"JWR_1999070145_19991125X01\", \"kernaussage\": \"Notwendige Vorkehrungen bei Auflassung Wasseranlagen § 29 WRG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"notwendige Vorkehrungen\", \"aufgelassene Anlagen\", \"Wasserrecht\", \"WRG § 29\", \"Notwendigkeit\", \"Erhaltungspflicht\", \"öffentliche Rücksichten\", \"Wasserberechtigte\", \"Anrainer\"]}, {\"rs_number\": \"JWR_1970001487_19711122X02\", \"kernaussage\": \"Instandhaltungspflicht nur für Eigentümer von Baulichkeiten\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Instandhaltungspflicht\", \"Eigentümerpflicht\", \"Baulichkeit\", \"Miteigentümer\", \"Anlage\", \"Erhaltungspflicht\", \"Bauaufsicht\"]}, {\"rs_number\": \"JWR_1974000797_19760524X04\", \"kernaussage\": \"Abbruchsbewilligung keine Vorfrage für Instandsetzungsauftrag\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Abbruchsbewilligung\", \"Instandsetzungsauftrag\", \"Vorfrage\", \"Baukonsens\", \"Baubeginnsfrist\", \"Erhaltungspflicht\", \"Bewilligungsverfahren\", \"Auftragsverfahren\"]}, {\"rs_number\": \"JWR_1989050169_19920616X04\", \"kernaussage\": \"Keine Zumutbarkeitsprüfung bei Instandsetzung außerhalb Schutzzone\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Instandsetzungsauftrag\", \"wirtschaftliche Zumutb"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_96018000",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0083245"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.48,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0083245\", \"rechtssatz\": \"§ 20 WEG regelt nur die Erträgnisse, nicht aber die Verwaltung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1989-04-04\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_67355115",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0013824"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.03,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0013824\", \"rechtssatz\": \"Durch die Bestimmungen des § 20 WEG 1975 wird eine Anpassung der die Erträgnisse der gemeinschaftlichen Sache betreffenden Regelung des § 839 ABGB an die Besonderheiten des WEG vorgenommen. Die Benützung der gemeinschaftlichen Teile der Liegenschaft wird davon nicht betroffen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Nutzungsvorbehalt\", \"Parkplätze\", \"WEG 1975\"], \"fachgebiete\": [\"Feststellung\"], \"datum\": \"1987-06-30\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_81417612",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0005846"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.74,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0005846\", \"rechtssatz\": \"Keine Verweisung in das besondere außerstreitige Verfahren hat bei Streitigkeiten über die Wirksamkeit abweichender Vereinbarungen (§ 20 WEG) zu erfolgen. § 26 Abs 1 Z 5 WEG sieht daher nur in den Angelegenheiten der Zulässigkeit eines vereinbarten oder der Festsetzung eines abweichenden Verteilungsschlüssels für Aufwendungen unter Hinweis auf § 19 Abs 2 WEG das Außerstreitverfahren vor, nicht aber zur Prüfung der Rechtswirksamkeit eines § 20 WEG widersprechenden Vertrages. Es bleibt dann bei dem Grundsatz des § 1 AußStrG, wonach das außerstreitige Verfahren nur dort Platz greift, wo es ausdrücklich oder doch unzweifelhaft schlüssig durch gesetzliche Anordnung anzuwenden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aufteilungsschlüssel\", \"Außerstreitverfahren\", \"Nutzflächen\", \"Rücklage\", \"Verwalterpflichten\", \"Wohnungseigentum\"], \"fachgebiete\": [\"Feststellung\", \"Unterlassung\", \"Vertragsauslegung\"], \"datum\": \"1992-10-27\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_52341409",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0125756",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.37,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0125756\", \"rechtssatz_text\": \"Nach Eintritt der Wirksamkeit der Kündigung des Verwaltungsverhältnisses besteht eine Fortsetzungspflicht hinsichtlich der Tätigkeit des früheren Verwalters zufolge § 1025 ABGB jedenfalls nur bis zur Bestellung eines neuen Verwalters. Ab der Bestellung eines neuen Hausverwalters hat sich der frühere...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17543, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob204_17m|OGH|2018-03-13\", \"gz\": \"5Ob204_17m\", \"datum\": \"2018-03-13\", \"gericht\": \"OGH\", \"mini_story\": \"Bestellung eines vorläufigen Verwalters gemäß § 23 WEG ist während eines laufenden Beschlussanfechtungsverfahrens über die Verwalterbestellung nicht möglich, da das endgültige Fehlen eines Verwalters nicht vorliegt.\"}, {\"te_stable_key\": \"5Ob193_17v|OGH|2017-11-20\", \"gz\": \"5Ob193_17v\", \"datum\": \"2017-11-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs zurück, da der abberufenen Wohnungseigentumsverwalterin trotz späterer Beseitigung des Wiederbestellungsbeschlusses ein Honorar für die schwebend wirksame Tätigkeit zusteht.\"}, {\"te_stable_key\": \"5Ob194_16i|OGH|2017-03-01\", \"gz\": \"5Ob194_16i\", \"datum\": \"2017-03-01\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH befasst sich mit der schuldbefreienden Wirkung von Wohnbeitragszahlungen bei streitigem Verwalterwechsel in einer Wohnungseigentümergemeinschaft.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_72009229",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Wohnungseigentum",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 57.84,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Wohnungseigentum\", \"results\": [{\"rs_number\": \"RS0007030\", \"kernaussage\": \"Dem Obersten Gerichtshof ist es verwehrt, nach Aufhebung des Zurückweisungsbeschlusses eine Sachentscheidung über den Rekurs gegen den erstgerichtlichen Beschluss zu setzen, weil dies gerade im Hinblick auf § 126 Abs 1 GBG gegen die zwingenden Vorschriften über die funktionelle Zuständigkeit...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vorkaufsrecht\", \"Einschreitungsbefugnis\", \"Vollmacht\", \"Grundbuch\", \"ne bis in idem\", \"Grundbuchseintragung\", \"Aufgriffsrecht\", \"Besitznachfolgerecht\", \"Wohnungseigentum\", \"Rechtsmittellegitimation\", \"Eintragungshindernis\", \"Grundbuchsberichtigung\", \"Adressersichtlichmachung\", \"Rechtsmittelrecht\", \"zweisprachige Adresse\", \"Rangordnungsanmerkung\", \"Rangordnungsbeschluss\", \"Revisionsrekurs\", \"Rangordnung\", \"Grundbuchanmerkung\", \"Rechtsschutzinteresse\", \"Rekurslegitimation\", \"Erbin\", \"Verlassenschaft\", \"Vormerkung\", \"Schenkung auf Todesfall\", \"Verbesserung Formgebrechen\", \"Grundbuchab- und Zuschreibung\", \"Reallast\", \"Simultanpfandrecht\", \"Rang\", \"Beschwer\"]}, {\"rs_number\": \"RS0007046\", \"kernaussage\": \"Wird in einem Schriftsatz in erster Linie auf den Rekurs gegen die Zurückweisung wegen Verspätung Wert gelegt und außerdem ein Antrag auf Wiedereinsetzung gestellt, so ist zunächst über den Rekurs zu entscheiden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wiedereinsetzung in den vorigen Stand\", \"Rekurs\", \"Klagefrist\", \"Sonderunterstützung\", \"Erhaltungsarbeiten\", \"ernste Schäden des Hauses\", \"Rekurslegitimation\", \"Verbesserungsverfahren\", \"Wohnungseigentum\", \"Parteifä"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_33184773",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Pflicht Schaden",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.88,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Verwalter Pflicht Schaden\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_80718300",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Erhaltung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 37.35,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0114109\", \"rechtssatz\": \"Durch die Verweisung auf § 3 Abs 1 MRG ist klargestellt, dass die Erhaltung \\\"im jeweils ortsüblichen Standard\\\" für die Abgrenzung der Erhaltung von der Verbesserung von Bedeutung ist, sodass zweckmäßige und wirtschaftlich gebotene Erneuerungsarbeiten zur Erhaltung bestehender Anlagen noch zur Erhaltung gehören, auch wenn es sich um die erstmalige Herstellung eines mängelfreien Zustands handelt oder es dabei zu einer vollständigen Erneuerung kommt und dabei sogar Veränderungen vorgenommen werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"WEG\", \"Umlaufbeschluss\", \"Anfechtungsfrist\", \"Instandhaltungskonzept\", \"Erhaltungsmaßnahmen\", \"Wohnungseigentum\", \"Hausgemeinschaft\", \"Erhaltungsmaßnahme\", \"Kabel-TV-Anschluss\", \"Erhaltungsarbeiten\", \"dynamischer Erhaltungsbegriff\", \"Fernwärmeanschluss\", \"MRG\", \"MRG § 3\", \"privilegierte Arbeiten\", \"Kamin\", \"Gewährleistung\", \"Servitut\", \"Versorgungsleitungen\", \"Sanierung Außenwand\", \"Feuchtigkeitsschäden\", \"wirtschaftliche Zumutbarkeit\", \"ordentliche Verwaltung\", \"Wohnungseigentumsgesetz\", \"Außerstreitverfahren\", \"Aufzüge\", \"Sanierung\", \"Instandhaltungsfonds\", \"Wiener Aufzugsgesetz\", \"Aufzugsanlage\", \"Erhaltungsarbeit\", \"Verbesserungsarbeit\", \"Trittschall\", \"Nachbarrecht\", \"Verwalterabrechnung\", \"außerordentliche Verwaltung\", \"energiesparende Maßnahmen\", \"ortsüblicher Standard\", \"allgemeiner Teil des Hauses\", \"Erhaltungsbegriff\", \"Fensteraustausch\", \"Dringlichkeit\", \"Wirtschaftlichkeit\", \"Unterlassungsklage\", \"KSchG\", \"Allgemeine Geschäftsbedingungen\", \"Verbandsklage\", \"Mietverträge\", \"Ger"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_98566128",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Hausverwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 56.24,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Hausverwalter\", \"results\": [{\"rs_number\": \"RS0008726\", \"kernaussage\": \"Die materiellrechtlichen Bestimmungen der §§ 13 bis 15 WEG 1975 sind gemäß § 29 auch dann anzuwenden, wenn das Wohnungseigentum vor dem Inkrafttreten dieses Gesetzes am 1.9.1975 begründet worden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"gemeinsame Teile\", \"Dachterrasse\", \"Wasserablauf\", \"ordnungsgemäße Erhaltung\", \"Geruchsverschluß\", \"Außerstreitverfahren\", \"Hausverwalter\", \"Abberufung\", \"Rechnungslegung\", \"Rücklage\", \"WEG\", \"Dachausbau\", \"Miteigentümerzustimmung\", \"Änderungserlaubnis\"]}, {\"rs_number\": \"RS0008736\", \"kernaussage\": \"Die Verfahrensbestimmungen des WEG 1975 sind gem § 29 auch in Rechtssachen anzuwenden, die schon vor dem Inkrafttreten des WEG 1975 eingeräumtes Wohnungseigentum betreffen; das gilt auch dann, wenn das erstinstanzliche Verfahren noch vor dem Inkrafttreten des WEG 1975 abgeschlossen worden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Parifizierung\", \"Jahresmietwert\", \"Wohnungseigentum\", \"Rechtsmittellegitimation\", \"Rechtskraft\", \"Wohnungseigentumsgesetz\", \"Rechnungslegung\", \"Verwalter\", \"Parteibeteiligung\", \"Miteigentümer\", \"Nichtigkeit\", \"gemeinsame Teile\", \"Dachterrasse\", \"Wasserablauf\", \"ordnungsgemäße Erhaltung\", \"Geruchsverschluß\", \"Außerstreitverfahren\", \"Hausverwalter\", \"Abberufung\", \"Rücklage\", \"WEG\", \"Dachausbau\", \"Miteigentümerzustimmung\", \"Änderungserlaubnis\"]}, {\"rs_number\": \"RS0008738\", \"kernaussage\": \"Wenn auch Streitigkeiten mit dem Verwalter über die Abrechung der Rüklage oder Herausgabe des Überschusses (§ 16 Abs 3 WEG 1975) "
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_76442059",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0114109"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.63,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0114109\", \"rechtssatz\": \"Durch die Verweisung auf § 3 Abs 1 MRG ist klargestellt, dass die Erhaltung \\\"im jeweils ortsüblichen Standard\\\" für die Abgrenzung der Erhaltung von der Verbesserung von Bedeutung ist, sodass zweckmäßige und wirtschaftlich gebotene Erneuerungsarbeiten zur Erhaltung bestehender Anlagen noch zur Erhaltung gehören, auch wenn es sich um die erstmalige Herstellung eines mängelfreien Zustands handelt oder es dabei zu einer vollständigen Erneuerung kommt und dabei sogar Veränderungen vorgenommen werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"WEG\", \"Umlaufbeschluss\", \"Anfechtungsfrist\", \"Instandhaltungskonzept\", \"Erhaltungsmaßnahmen\", \"Wohnungseigentum\", \"Hausgemeinschaft\", \"Erhaltungsmaßnahme\", \"Kabel-TV-Anschluss\", \"Erhaltungsarbeiten\", \"dynamischer Erhaltungsbegriff\", \"Fernwärmeanschluss\", \"MRG\", \"MRG § 3\", \"privilegierte Arbeiten\", \"Kamin\", \"Gewährleistung\", \"Servitut\", \"Versorgungsleitungen\", \"Sanierung Außenwand\", \"Feuchtigkeitsschäden\", \"wirtschaftliche Zumutbarkeit\", \"ordentliche Verwaltung\", \"Wohnungseigentumsgesetz\", \"Außerstreitverfahren\", \"Aufzüge\", \"Sanierung\", \"Instandhaltungsfonds\", \"Wiener Aufzugsgesetz\", \"Aufzugsanlage\", \"Erhaltungsarbeit\", \"Verbesserungsarbeit\", \"Trittschall\", \"Nachbarrecht\", \"Verwalterabrechnung\", \"außerordentliche Verwaltung\", \"energiesparende Maßnahmen\", \"ortsüblicher Standard\", \"allgemeiner Teil des Hauses\", \"Erhaltungsbegriff\", \"Fensteraustausch\", \"Dringlichkeit\", \"Wirtschaftlichkeit\", \"Unterlassungsklage\", \"KSchG\", \"Allgemeine Geschäftsbedingungen\", \"Verbandsklage\", \"Mietverträge\", \"G"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_08724928",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0008726"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.13,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0008726\", \"rechtssatz\": \"Die materiellrechtlichen Bestimmungen der §§ 13 bis 15 WEG 1975 sind gemäß § 29 auch dann anzuwenden, wenn das Wohnungseigentum vor dem Inkrafttreten dieses Gesetzes am 1.9.1975 begründet worden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"gemeinsame Teile\", \"Dachterrasse\", \"Wasserablauf\", \"ordnungsgemäße Erhaltung\", \"Geruchsverschluß\", \"Außerstreitverfahren\", \"Hausverwalter\", \"Abberufung\", \"Rechnungslegung\", \"Rücklage\", \"WEG\", \"Dachausbau\", \"Miteigentümerzustimmung\", \"Änderungserlaubnis\"], \"fachgebiete\": [\"Nachbarrecht\", \"Revision\", \"Baurecht\"], \"datum\": \"1983-05-03\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_65815670",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0008736"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.39,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0008736\", \"rechtssatz\": \"Die Verfahrensbestimmungen des WEG 1975 sind gem § 29 auch in Rechtssachen anzuwenden, die schon vor dem Inkrafttreten des WEG 1975 eingeräumtes Wohnungseigentum betreffen; das gilt auch dann, wenn das erstinstanzliche Verfahren noch vor dem Inkrafttreten des WEG 1975 abgeschlossen worden ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Parifizierung\", \"Jahresmietwert\", \"Wohnungseigentum\", \"Rechtsmittellegitimation\", \"Rechtskraft\", \"Wohnungseigentumsgesetz\", \"Rechnungslegung\", \"Verwalter\", \"Parteibeteiligung\", \"Miteigentümer\", \"Nichtigkeit\", \"gemeinsame Teile\", \"Dachterrasse\", \"Wasserablauf\", \"ordnungsgemäße Erhaltung\", \"Geruchsverschluß\", \"Außerstreitverfahren\", \"Hausverwalter\", \"Abberufung\", \"Rücklage\", \"WEG\", \"Dachausbau\", \"Miteigentümerzustimmung\", \"Änderungserlaubnis\"], \"fachgebiete\": [\"Grundbuch\", \"Rekurs\", \"Nachbarrecht\", \"Revision\", \"Baurecht\"], \"datum\": \"1983-05-03\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_74473099",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 30 WEG",
+            "limit": 50
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 801.52,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 30 WEG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_02326678",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Erhaltungspflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.82,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0117371\", \"rechtssatz\": \"Die Verschiebung von Erhaltungspflichten an allgemeinen Teilen des Hauses auf die einzelnen Miteigentümer stellt keine Maßnahme der außerordentlichen Verwaltung dar, die durch Mehrheitsbeschluss verwirklicht werden könnte und den einzelnen Mit- und Wohnungseigentümer auf seine Minderheitenrechte nach §§ 13b oder 14 Abs 3 WEG 1975 verweist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Eigentümergemeinschaft\", \"Jahresabrechnung\", \"Umsatzsteuer\", \"Verwalter\", \"WEG 2002\"], \"relevance\": 0.008}], \"count\": 1, \"query\": \"WEG Verwalter Erhaltungspflicht\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_01364572",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "WEG Erhaltung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1031.85,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"WEG Erhaltung\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_65112011",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Pflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 27.21,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0083586\", \"rechtssatz\": \"Die Vorausschau ist von ihrem Inhalt und ihrer Form her in Anlehnung an die Rechnungslegung nach § 17 Abs 2 Z 1 WEG für die ganze Liegenschaft zu erstellen. § 17 Abs 2 Z 2 WEG verdeutlicht die Pflicht des Verwalters zur Information der Wohnungseigentümer über den Ablauf der Verwaltung und verfolgt den Zweck, den Miteigentümern aufzuzeigen, mit welchen Aufwendungen (und Erträgnissen) sie zu rechnen haben, und ihnen damit eine Entscheidungshilfe bei der Beschlußfassung und ihren finanziellen Dispositionen zu bieten; sie bildet in der Regel eine bindende Grundlage für die im nächsten Jahr einzuhebenden Beträge.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.125}, {\"rs_number\": \"RS0061300\", \"rechtssatz\": \"Die Verpflichtung zur ordnungsmäßigen Buchführung ist eine öffentlich - rechtliche. Eine privatrechtliche Pflicht zur Buchführung besteht grundsätzlich nicht. Sie kann sich nur aus der Pflicht zur Verwaltung fremden Vermögens und Rechnungslegung hierüber, aus Leistungspflichten, deren Erfüllung Buchführung voraussetzt, zB einer Gewinnbeteiligungspflicht oder Umsatzbeteiligungspflicht, aber auch aus durch Vertrag ausdrücklich begründeten Verpflichtungen ergeben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.109}, {\"rs_number\": \"RS0132062\", \"rechtssatz\": \"Der Verweis auf § 20 Abs 7 WEG in § 30 Abs 1 Z 5 WEG ist abweichend von seinem Wortlaut einschränkend auszulegen. Die allgemeinen Pflichten des Verwalters nach dem 22. Hauptstücks des 2. Teils des ABGB können nicht als Minderheitsrecht von jedem einzelnen"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0132062",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0132062",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.61,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0132062\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0125903",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0125903",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.31,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0125903\", \"rechtssatz_text\": \"Der Begriff der Streitanhängigkeit ist dem Außerstreitverfahren fremd. Nach § 12 Abs 2 AußStrG entscheidet bei mehreren Anträgen das Zuvorkommen.\", \"te_count\": 10, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 6084, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob2_25i|OGH|2025-08-12\", \"gz\": \"8Ob2_25i\", \"datum\": \"2025-08-12\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit eines Unterhaltsantrags während eines anhängigen Abstammungsverfahrens und das Entscheidungsverbot gemäß § 101 Abs 3 AußStrG.\"}, {\"te_stable_key\": \"3Ob66_25i|OGH|2025-05-28\", \"gz\": \"3Ob66_25i\", \"datum\": \"2025-05-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über einen Revisionsrekurs gegen die Ablehnung eines Antrags auf rückwirkende Herabsetzung des Kindesunterhalts und Einwendungen nach § 35 Abs 2 EO nach Wegfall von Unterstützungsleistungen Dritter.\"}, {\"te_stable_key\": \"5Ob152_22x|OGH|2022-11-02\", \"gz\": \"5Ob152_22x\", \"datum\": \"2022-11-02\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Duldungspflicht einer Mieterin für umfassende thermische Sanierungsmaßnahmen wie Fassadendämmung, Fenstertausch und Loggienarbeiten gemäß WGG und MRG.\"}, {\"te_stable_key\": \"5Ob153_22v|OGH|2022-11-02\", \"gz\": \"5Ob153_22v\", \"datum\": \"2022-11-02\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung der Duldungspflicht eines Hauptmieters für thermische Fassadensanierung inklusive Fenstertausch und Loggienarbeiten an einem gemeinnützigen Wohnobjekt.\"}, {\"te_stable_key\": \"5Ob154_22s|OGH|2022-11-02\", \"gz\": \"5Ob154_22s\", \"datum\": \"2022-11-02\", \"gericht\": \"OGH\", \"mini_story\": \"Duldungspflicht von Mietern für thermische Sanierung der Fassade mit Wärmedämmung und Fenstertausch als Erhaltungs- oder Verbesserungsmaßnahme gemäß MRG und WGG.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0117371",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0117371",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.69,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0117371\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111617",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111617",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.72,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111617\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109579",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109579",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.13,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0109579\"}"
+        }
+      ],
+      "tool_calls_total": 26,
+      "tool_calls_ok": 26,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**PHASE 3 SUMMARY (Legal Framework: §20 Abs 2 WEG & HV Duties on Common Property Damage)**\n\nNo OGH-Rechtssatz explicitly imposes an *immediate* (\"sofort\") duty to act under **§ 20 Abs 2 WEG** on the Hausverwaltung (HV) upon notification of damage to common property (§ 2 Abs 4 WEG, e.g., Öltankanlage as general part). § 20 WEG regulates primarily **Erträgnisse** (revenues) from common parts, adapting § 839 ABGB, *not* core Verwaltungspflichten (RS0083245; RS0013824). Disputes on § 20 agreements fall under ordinary proceedings, not special außerstreitig (§ 26 Abs 1 Z 5 WEG; RS0005846).\n\n**HV Duties Derivation (no \"sofort\" from § 20 Abs 2):**\n- HV acts as **Machthaber** (§ 837 ABGB aF; RS0013751), with **Sorgfaltspflichten** (§§ 1002 ff ABGB) for ordnungsgemäße Erhaltung common parts (§ 28 WEG). Dynamic Erhaltungsbegriff includes urgent renewals/Erneuerungen to ortsüblicher Standard, even full replacement for defect-free state (RS0114109; dynamischer Begriff p. § 3 Abs 1 MRG analog).\n- Individual Eigentümer can enforce specific HV-Pflichten (§ 20 Abs 2-7 WEG) außerstreitig (§ 30 Abs 1 Z 5 WEG), but *not* general ABGB-Pflichten or Weisungserteilung without Mehrheitsbeschluss (RS0132062; RS0123164). No RS mandates \"sofort handeln\" for hazards; tied to **grober Vernachlässigung** for Abberufung (§ 18 Abs 1 Z 3 WEG; RS0042763 – Beurteilungsspielraum).\n- Environmental hazard (Ölleck) triggers **allgemeine Gefährdungspflicht** (§ 1318 ABGB; RS0030894/22522 – extended to neighbors/auxiliaries), but no WEG-specific immediacy. HV must mitigate via ordentliche Verwaltung (RS0008726/8736 – §§ 13-15 WEG retroactive).\n\n**Ansprüche Eigentümer (vs HV & Gemeinschaft):**\n1. **Unterlassung/Erhaltung/Beseitigung (§ 28 WEG; § 20 Abs 1 WEG aF)**: Sofortmaßnahmen durch Eigentümer (Doku, Auffangen) rechtmäßig; HV haftet bei Pflichtverletzung (Beweislast: Eigentümer – grobe Vernachlässigung; RS0042763). Gemeinschaft via Mehrheit weisungsbefugt (RS0117371 – no Verschiebung Erhaltungspflichten).\n2. **Schadenersatz (§ 1295/1318 ABGB)**: Deliktisch (HV/Machthaber-Versäumnis); vertraglich (§ 1299 ABGB). Beweislast: Eigentümer – Kausalität/Schaden durch Untätigkeit post-Nachfrist (keine Umkehr; RS0022522).\n3. **Abberufung HV** (§ 18/26 WEG): Bei grober Vernachlässigung (RS0013770/8291).\n4. **Rechnungslegung/Abrechnung** (§ 17/30 WEG): Einsicht/Weisung (RS0083586 – Vorausschau bindend).\n\n**Beweislast-Übersicht:**\n| Anspruch | Träger | RS/GZ-Beleg |\n|----------|--------|-------------|\n| HV Untätigkeit = grobe Vernachlässigung | Eigentümer | RS0042763 (Beurteilungsspielraum) |\n| Schaden/Kausalität (§1318 ABGB) | Eigentümer | RS0030894/22522 (keine Umkehr) |\n| Erhaltungspflichtverletzung (§28 WEG) | Eigentümer (prima; HV entlastend) | RS0114109 (dynamisch) |\n| Sofortpflicht (§20 Abs2) | Kein RS; allg. Sorgfalt (§837 ABGB) | RS0013751 (Machthaber) |\n\n**No 0-results fallback exhausted; deepest RS confirm no \"immediate\" §20 duty – general Erhaltung/Sorgfalt applies. HV reaction post-Nachfrist expected, not \"sofort\".**",
+      "answer_chars": 3033,
+      "e2e_ms": 71562.12
+    },
+    {
+      "name": "Legal Framework & Hot Index Context",
+      "goal": "Establish binding legal framework and identify relevant OGH rulings and commentary clusters on maintenance obligations in Wohnungseigentum, especially regarding common facilities and delayed response by management.",
+      "mode": "llm",
+      "tools": [
+        "hot_rs_search",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 11032.76,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 2883,
+            "completion_tokens": 1203,
+            "total_tokens": 4086,
+            "cost": 0.0010629,
+            "cached_tokens": 768,
+            "reasoning_tokens": 974
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 5096.81,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 15241,
+            "completion_tokens": 824,
+            "total_tokens": 16065,
+            "cost": 0.003345,
+            "cached_tokens": 768,
+            "reasoning_tokens": 472
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 10289.79,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 35247,
+            "completion_tokens": 1342,
+            "total_tokens": 36589,
+            "cost": 0.0030134,
+            "cached_tokens": 46848,
+            "reasoning_tokens": 1043
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 14827.36,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 43550,
+            "completion_tokens": 1930,
+            "total_tokens": 45480,
+            "cost": 0.0096558,
+            "cached_tokens": 128,
+            "reasoning_tokens": 486
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_34169306",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 3 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1801.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 3 WEG\", \"results\": [{\"rs_number\": \"RS0082805\", \"kernaussage\": \"Der Verweis auf alle Wohnungen im § 3 WEG 1975 läßt erkennen, daß es sich immer um eine Gesamtparifizierung der Liegenschaft (Grundbuchskörper) handeln muß, gleichgültig ob sämtliche Räume auch in Wohnungseigentum übergeführt werden. Die Parifizierung erfaßt aber nur Objekte gemäß § 1 Abs 1 und 2...\", \"schlagworte\": [\"Nutzwertfestsetzung\", \"Wohnungseigentum\", \"Kfz-Abstellplätze\", \"selbständige Räumlichkeiten\", \"Parifizierung\"]}, {\"rs_number\": \"RS0109579\", \"kernaussage\": \"Die Auslegung eines Kaufvertrages, womit dem Käufer ein Miteigentumsanteil in der Höhe des voraussichtlichen Mindestanteils nach § 3 WEG übertragen und gleichzeitig bis zur Schaffung von Wohnungseigentum die ausschließliche Nutzung an einer Wohnung eingeräumt wird, dem Verkäufer aber die ausschließl...\", \"schlagworte\": [\"Planabweichungen\", \"Zustimmung Wohnungseigentümer\", \"außerordentliche Revision\", \"streitiger Rechtsweg\"]}, {\"rs_number\": \"RS0111617\", \"kernaussage\": \"Die Frage der Widmung eines Raumes oder einer Fläche als Zubehör gemäß § 1 Abs 2 WEG ist nicht nur eine Vorfrage für die Nutzwertfestsetzung, sondern aufgrund der gesetzlichen Anordnung des § 5 WEG iVm § 3 WEG ein das Ergebnis der Nutzwertfestsetzung unmittelbar beeinflussendes Moment. Fließt in die...\", \"schlagworte\": [\"Wohnungseigentum\", \"Zubehör\", \"Nutzwertfestsetzung\", \"Bindungswirkung\"]}], \"count\": 3}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_57662950",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Verwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 178.8,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Verwalter\", \"results\": [{\"rs_number\": \"RS0033840\", \"kernaussage\": \"Die Entgegennahme von Rücklagebeiträgen zur Auffüllung des Rücklagenkontos bereichert nicht den Verwalter, weil sie für die Miteigentümer erfolgte. Ihnen gehören die \\\"Gemeinschaftsgelder\\\"; sie stehen nicht einmal treuhändig im Eigentum des Verwalters.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Rücklage\", \"Verwalter\", \"Bereicherung\", \"passive Klagslegitimation\"]}, {\"rs_number\": \"RS0035833\", \"kernaussage\": \"Der erleichterte Vollmachtsnachweis des § 30 Abs 2 ZPO befreit das Gericht zwar nicht von der Prüfung, ob tatsächlich Prozessvollmacht erteilt wurde, wenn sich aus der Aktenlage oder aus Gerichtsnotorietät Zweifel gegen eine solche Vollmachtserteilung ergeben. Es muss sich hier jedoch um konkrete...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Prozeßvollmacht\", \"Vollmachtsnachweis\", \"Verbesserungsauftrag\", \"Rechtsanwalt\", \"konkrete Zweifel\", \"Prozessvollmacht\", \"Zustellung\", \"Nichtigkeitsberufung\", \"Scheinvertretung\", \"Wechselklage\", \"Parteienbezeichnung\", \"Verlassenschaft\", \"Erben\", \"Einantwortung\", \"Enteignungsentschädigung\", \"BStG\", \"EisbEG\", \"Revision\", \"Ersitzung\", \"Gehrecht\", \"dingliche Felddienstbarkeit\", \"Anerkenntnis\", \"Erbschaftsausschlagung\", \"Vollmacht\", \"Verlassenschaftsverfahren\", \"§ 1008 ABGB\", \"Kaufvertrag Auflösung\", \"Rückzahlung Raten\", \"Vertragsauslegung\", \"Kompensation\", \"Rechtsmittelverzicht\", \"Masseverwalter\", \"Vollmachtsauslegung\", \"Urheberrecht\", \"Lichtbildwerk\", \"Parodie\", \"freie Werknutzung\", \"Meinungsfreiheit\", \"Eigentümergemeinschaft\", \"Aktivlegitimati"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_76288629",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Erhaltungspflicht Gemeinschaftsteile Verwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 136.69,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Erhaltungspflicht Gemeinschaftsteile Verwalter\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_37311984",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Erhaltungspflicht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 843.97,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Erhaltungspflicht\", \"results\": [{\"rs_number\": \"JWR_1991090019_19910425X02\", \"kernaussage\": \"Wissensstand Sachverständiger bei Erhaltungsinteresse (§ 6 Abs. 2 DSchG)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"öffentliches Erhaltungsinteresse\", \"wissenschaftliche Erkenntnisse\", \"Wissensstand sachverständiger Kreise\", \"Denkmalschutz\", \"DSchG\", \"Sachverständigengutachten\", \"Erhaltungspflicht\", \"Stand der Wissenschaft\"]}, {\"rs_number\": \"JWR_1988060110_19891207X04\", \"kernaussage\": \"Haftung Dritter für Verstöße gegen Slbg AltstadterhaltungsG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Altstadterhaltung\", \"Erhaltungspflicht\", \"Liegenschaftseigentümer\", \"Dritter\", \"Verwaltungsstrafe\", \"Verstoß\", \"Schutzgebiet\", \"Änderungen\", \"Verursacherhaftung\"]}, {\"rs_number\": \"JWR_1987060078_19891109X04\", \"kernaussage\": \"Wirtschaftliche Zumutbarkeit bei Versagung der Abbruchbewilligung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Abbruchbewilligung\", \"wirtschaftliche Zumutbarkeit\", \"Ortsbildschutz\", \"Erhaltungspflicht\", \"Vermögensbelastung\", \"Verhältnismäßigkeit\", \"Eigentumsschutz\"]}, {\"rs_number\": \"JWR_1993090035_19940915X02\", \"kernaussage\": \"Ermessensrahmen § 5 Abs 1 DMSG: Primär Erhaltung des Denkmals\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Denkmalschutz\", \"Ermessen\", \"Bundesdenkmalamt\", \"Erhaltungspflicht\", \"Beweislastumkehr\", \"Zerstörungszustimmung\", \"Zweckbindung\", \"Denkmalwert\"]}, {\"rs_number\": \"JWR_1988060221_19920312X01\", \"kernaussage\": \"Unhaltbarer Einwand bei nutzbarer Umwandlung von Privatstraßen\", \"rechtsgebiet\": \"Verwal"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_51531743",
+          "tool": "hot_rs_search",
+          "args": {
+            "query": "WEG Öltankanlage Leck Verwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.39,
+          "error": null,
+          "payload_preview": "{\"query\": \"WEG Öltankanlage Leck Verwalter\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_15321265",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 13 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 787.33,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 13 WEG\", \"results\": [{\"rs_number\": \"RS0109843\", \"kernaussage\": \"Außenmauern, Scheidewände (auch Decken) zwischen einzelnen Wohnungseigentumsobjekten, Bauteile mit allgemeinen Versorgungsleitungen und tragende Innenwände unterliegen (mit den Modifikationen des § 13 WEG) den Regeln der gemeinschaftlichen Nutzung (§§ 854, 855 ABGB). Die Nutzung nichttragender...\", \"schlagworte\": [\"Wohnungseigentum\", \"Trennwand\", \"Nutzungsrecht\", \"Scheidewand\", \"Zubehör-Wohnungseigentum\", \"Gartenfläche\", \"Gartenmauer\", \"Änderungsgenehmigung\", \"allgemeine Teile\", \"Revisionsrekurs\", \"Änderung der Liegenschaft\", \"wichtiges Interesse\", \"Saunazubau\", \"allgemeine Liegenschaftsteile\", \"Benützungsregelung\", \"Gartengestaltung\", \"Änderungsrecht\", \"Negatorienklage\", \"Erhaltungspflicht\", \"Bodenplatte\", \"Grundwasser\", \"Sanierung\", \"Zulässigkeit der Revision\", \"Beweisaufnahme\", \"tragende Zwischenwand\", \"Unterlassungsbegehren\", \"Eingriffshaftung\", \"Verdienstausfall\", \"Verjährung\", \"fortgesetzte Schädigung\", \"MRG § 8 Abs 3\", \"Benützungsvereinbarung\", \"WEG 2002\", \"Genehmigungsbedürftigkeit\", \"Änderungsbegriff\"]}, {\"rs_number\": \"RS0107160\", \"kernaussage\": \"Die Individualrechte des § 13 WEG stehen dem Wohnungseigentümer zu. Das Wohnungseigentum wird gemäß § 12 Abs 1 WEG durch die Einverleibung in das Grundbuch erworben. Die Individualrechte des § 13 WEG sind daher vom jeweiligen bücherlichen Wohnungseigentümer wahrzunehmen; eine analoge Anwendung des §...\", \"schlagworte\": [\"Abtretung\", \"Außerstreitverfahren\", \"Einschreiter\", \"Parteistellung\", \"Verwalterkündigung\", \"Wohnungseigentum\", \"Änderungsan"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_55217801",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 18 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 601.37,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 18 WEG\", \"results\": [{\"rs_number\": \"RS0082913\", \"kernaussage\": \"Im Hinblick auf das vorauszusetzende Wohnungseigentum liegen mit dem § 18 WEG über die Kündigung der Verwaltung und die Abberufung des Verwalters Ergänzungen der teilweise nachgiebigen Bestimmungen der §§ 1020 und 1021 ABGB durch zwingendes Recht vor, die auf den Schutz der als abstrakt schwächer...\", \"schlagworte\": []}, {\"rs_number\": \"RS0117352\", \"kernaussage\": \"Die Durchsetzung petitorischer Rechtsschutzansprüche ist keine Angelegenheit der Verwaltung im Sinn des § 13c WEG 1975, nunmehr § 18 WEG 2002.\", \"schlagworte\": [\"Wohnungseigentümergemeinschaft\", \"Aktivlegitimation\", \"Unterlassungsklage\", \"Parkplatz\", \"§ 13c WEG\", \"Verwaltungsrechte\", \"Schanigarten\", \"Gemeinteile\", \"Eigentümergemeinschaft\", \"allgemeine Teile\", \"Heizraum\", \"Räumung\", \"Unterlassung\", \"Schlüsselherausgabe\", \"Passivlegitimation\", \"Dienstbarkeitsweg\", \"Verwaltung\", \"WEG\", \"Feststellungsklage\", \"Wasserbenutzungsrecht\", \"Dienstbarkeit\", \"Eigentum Wasserversorgungsanlage\", \"Wasserrecht\", \"Abtretung\", \"Servitut\", \"Wohnungseigentum\", \"Verwaltungskosten\", \"Dachbodenausbau\", \"Bereicherungsanspruch\", \"aktive Klagslegitimation\", \"Liegenschaftsverwaltung\", \"actio negatoria\", \"allgemeine Liegenschaftsteile\", \"Änderung allgemeiner Teile\", \"Einstimmigkeit\", \"Negatorische Klage\", \"Steinschlichtung\", \"Mehrheitsbeschluss\", \"Kompetenzüberschreitung\", \"Schadenersatzansprüche\", \"Dachgeschossausbau\", \"Rückbauanspruch\", \"Herausgabeanspruch\", \"Kompetenz\"]}, {\"rs_number\": \"JWR_2018050188_20190528L03\", \"kernaussage\": \"Abgrenzung Verwaltung vs. Verf"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_91179797",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 16 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 598.84,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 16 WEG\", \"results\": [{\"rs_number\": \"RS0019436\", \"kernaussage\": \"Gemeinschaftsgelder (hier: Rücklage nach § 16 WEG) stehen nicht einmal treuhändig im Eigentum des Verwalters.\", \"schlagworte\": [\"Wohnungseigentum\", \"Rücklage\", \"Verwalter\", \"Bereicherung\", \"passive Klagslegitimation\"]}, {\"rs_number\": \"RS0083267\", \"kernaussage\": \"In einem Verfahren über einen Antrag nach § 15 Abs 1 Z 2 WEG über die Bildung, Erhöhung oder Verminderung (wie hier) der Rücklage nach § 16 WEG hat der Verwalter der Liegenschaft keine Parteistellung; der Antrag ist vielmehr unter Beiziehung aller Miteigentümer als Antragsgegner zu behandeln.\", \"schlagworte\": [\"Fruchtgenußberechtigter\", \"Rücklage\", \"Wohnungseigentum\", \"Parteistellung\", \"Antragslegitimation\", \"Minderheitenrecht\"]}, {\"rs_number\": \"RS0083315\", \"kernaussage\": \"§ 16 WEG bestimmt die Bildung von Rücklagen ausschließlich für künftige Erhaltungsarbeiten und Verbesserungsarbeiten. Nur in diesem Umfang stellt die Rücklage ein gebundenes Vermögen der jeweiligen Miteigentümer dar, das gesondert zu verwahren ist (MietSlg 40648/37).\", \"schlagworte\": [\"Aussonderungsanspruch\", \"Bereicherungsanspruch\", \"Rücklagebildung\", \"WEG\", \"Konkursmasse\", \"Treuhandverhältnis\", \"Mengenvindikation\"]}, {\"rs_number\": \"RS0083331\", \"kernaussage\": \"Da die Rücklage nach § 16 WEG 1975 ausschließlich für künftige Erhaltungsarbeiten und Verbesserungsarbeiten bestimmt ist, zu denen laufende Aufwendungen wie für Betriebskosten nicht gehören, kommt die Haftung dieses Sondervermögens für Servicearbeiten und laufende Instandhaltungsarbeiten an einer...\", \"schlagwo"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_43358994",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Wohnungseigentumsverwalter",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1399.55,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Wohnungseigentumsverwalter\", \"results\": [{\"rs_number\": \"RS0114886\", \"kernaussage\": \"Ohne besondere Vertragsbeziehung haftet die Wohnungseigentümergemeinschaft ihren Mitgliedern und deren Mietern nur deliktisch für die Verletzung der ihr im Rahmen der Verwaltung obliegenden Wegsicherungspflichten. Die Miteigentümer und Wohnungseigentümer einer Liegenschaft stehen auf Grund des...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wegehalterhaftung\", \"Wohnungseigentümergemeinschaft\", \"Delikts haftung\", \"Deliktshaftung\", \"Gebäudhaftung\", \"Verwalterhaftung\", \"grobe Fahrlässigkeit\", \"Vertragsschutz Dritter\", \"Besucherhaftung\", \"Hausbesorgerin\", \"Winterdienst\", \"Streupflicht\", \"§ 93 StVO\", \"Eigentümergemeinschaft\", \"Anrainerpflicht\", \"Hausverwalter\", \"Räum- und Streupflicht\", \"Überwachungspflicht\", \"Haftung\", \"Parkplatz\", \"Schnee\", \"Glätte\", \"Wohnungseigentum\", \"Verkehrssicherungspflicht\", \"Wegsicherungspflichten\", \"Revision unzulässig\", \"rechtliche Sonderbeziehung\", \"§ 1313a ABGB\", \"Schimmel\", \"Erhaltungspflicht\", \"deliktische Haftung\", \"Wohnungseigentumsverwalter\", \"Sorgfaltsmaßstab\", \"Kausalität\", \"WEG\", \"Vermögensschaden\", \"Schutzwirkung des Vertrags\"]}, {\"rs_number\": \"RS0083095\", \"kernaussage\": \"Der Gesetzeswortlaut des § 26 Abs 1 Z 4 lit c WEG lässt keinen Zweifel daran (Argument: Gebrauch des Wortes \\\"oder\\\" zur Verknüpfung der in dieser Gesetzesstelle geregelten Zuständigkeitstatbestände), dass der Anspruch auf Herausgabe des Überschusses der Rücklage an den neuen Verwalter im Verfahren...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"WEG Rücklage\", \"Außerstreitsachen\", \"Nic"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_13314788",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Erhaltungsarbeiten",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 938.61,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Erhaltungsarbeiten\", \"results\": [{\"rs_number\": \"RS0125905\", \"kernaussage\": \"Die Duldungsverpflichtung nach § 16 Abs 3 zweiter Satz WEG ist nicht durch die Leistung einer angemessenen Entschädigung bedingt. Die Entschädigung ist vielmehr die Folge der Duldung. Dem duldungspflichtigen Wohnungseigentümer steht es nach Durchführung der Arbeiten frei, so er nicht ohnedies...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Eigentümergemeinschaft\", \"Duldungspflicht\", \"Erhaltungsarbeiten\", \"Aktivlegitimation\", \"Außerstreitverfahren\"]}, {\"rs_number\": \"RS0118793\", \"kernaussage\": \"Die Verweisung auf das neue Anfechtungsrecht in § 56 Abs 9 WEG 2002 – durch die Zitierung des § 24 Abs 6 WEG 2002 – umfasst gleicher Maßen die Rüge formeller und materieller Mängel der Beschlussfassung; beide Anfechtungsgründe sind an altem Recht zu messen, wenn der Beschluss vor dem 1. 7. 2002...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentümergemeinschaft\", \"Mehrheitsbeschluss\", \"Fassadensanierung\", \"Thewosan-Förderung\", \"Fenstertausch\", \"Erhaltungsarbeiten\"]}, {\"rs_number\": \"RS0130151\", \"kernaussage\": \"Die Zwangsverwaltung gemäß § 6 Abs 2 MRG ist Fortsetzung des Titelverfahrens. Über die Bewilligung ist daher im Titelverfahren (im Titelakt) zu entscheiden. Ein unrichtig in einem anderen Verfahrensakt gestellter Antrag gemäß § 6 Abs 2 MRG darf allein aus diesem Grund nicht ab‑ oder zurückgewiesen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zwangsverwaltung\", \"Erhaltungsarbeiten\", \"MRG\", \"Einheit des Verwertungsverfahrens\", \"Exekutionsbewilligung\"]}, {\"rs_number\": \"RS003605"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_32518852",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Erhaltungspflicht gemeinsame Teile",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 19.6,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Verwalter Erhaltungspflicht gemeinsame Teile\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_73538118",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0042763",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 804.16,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0042763\", \"rechtssatz_text\": \"Ob ein bestimmtes Verhalten des Verwalters als grobe Vernachlässigung einer Pflicht zu werten ist, bietet wegen des dabei gebrauchten unbestimmten Gesetzesbegriffes \\\"grob\\\" einen gewissen Beurteilungsspielraum. Solange das Gericht zweiter Instanz seine Entscheidung innerhalb dieses Beurteilungsspielr...\", \"te_count\": 17, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3200, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob202_23a|OGH|2024-01-30\", \"gz\": \"5Ob202_23a\", \"datum\": \"2024-01-30\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit eines Revisionsrekurses gegen die gerichtliche Auflösung eines Verwaltungsvertrags wegen grober Pflichtverletzung im Wohnungseigentumskontext.\"}, {\"te_stable_key\": \"5Ob106_22g|OGH|2023-01-31\", \"gz\": \"5Ob106_22g\", \"datum\": \"2023-01-31\", \"gericht\": \"OGH\", \"mini_story\": \"Der Senat gibt dem außerordentlichen Revisionsrekurs der Verwalterin teilweise statt, da der Sachbeschluss des Vorverfahrens keinen bindenden Mehrheitsbeschluss für den Verwalter darstellt und keine grobe Pflichtverletzung vorliegt.\"}, {\"te_stable_key\": \"5Ob189_20k|OGH|2021-04-27\", \"gz\": \"5Ob189_20k\", \"datum\": \"2021-04-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH beurteilt die Zulässigkeit eines Revisionsrekurses gegen die Ablehnung der Abberufung eines Miteigentümers als Verwalter einer Liegenschaft und klärt das Stimmrecht des Verwalters bei seiner eigenen Abberufung.\"}, {\"te_stable_key\": \"5Ob107_19z|OGH|2019-07-31\", \"gz\": \"5Ob107_19z\", \"datum\": \"2019-07-31\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Voraussetzungen für die Auflösung eines Verwaltungsvertrags im Wohnungseigentum wegen grober Vernachlässigung der Verwalterpflichten und bestätigt die Entscheidung des Rekursgerichts.\"}, {\"te_stable_key\": \"5Ob26_19p|OGH|2019-04-25\", \"gz\": \"5Ob26_19p\", \"datum\": \"2019-04-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung des Revisionsrekurses gegen die Ablehnung der Auflösung eines Verwaltungsvertrags wegen angeblicher grober Vernachlässigung der Verwalterpflichten gemäß § 21 Abs 3 WEG.\"}, {\"te_stable_key\": \"6Ob196_18v|OGH|2018-11-21\", \"gz\": \"6Ob196_18v\", \"datum\": \"2018-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision bezüglich Auflösung des Verwaltungsvertrags eines Hausve"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_02333765",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0060192",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 687.29,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0060192\", \"rechtssatz_text\": \"Das in § 1 Abs 1 WEG als dingliches Recht definierte Wohnungseigentumsrecht stellt auf das Miteigentum an einer einzelnen Liegenschaft ab. Das Wohnungseigentumsobjekt kann nur physischer Teil einer bestimmten als Grundbuchskörper individualisierten Liegenschaft sein. Miteigentum kann nur an einem...\", \"te_count\": 7, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 8192, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob117_20x|OGH|2021-01-07\", \"gz\": \"5Ob117_20x\", \"datum\": \"2021-01-07\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs zurück, da die bauliche Verbindung eines Wohnungseigentumsobjekts mit einem Objekt auf der Nachbarliegenschaft die Voraussetzungen der Wohnungseigentumstauglichkeit nach § 2 Abs 2 WEG 2002 verletzt und einer Genehmigung nach § 16 Abs 2 WEG 2002 entgegensteht.\"}, {\"te_stable_key\": \"6Ob106_19k|OGH|2019-06-27\", \"gz\": \"6Ob106_19k\", \"datum\": \"2019-06-27\", \"gericht\": \"OGH\", \"mini_story\": \"Verwerfung der Revision in einem Gewährleistungsstreit aus dem Kauf von Liegenschaftsanteilen aufgrund fehlender erheblicher Rechtsfragen und Prozessfähigkeit trotz Konkurs.\"}, {\"te_stable_key\": \"5Ob125_17v|OGH|2017-08-29\", \"gz\": \"5Ob125_17v\", \"datum\": \"2017-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs gegen die Ablehnung der Einverleibung von Wohnungseigentum an einer teilweise grenzüberschreitenden Liegenschaft zurück.\"}, {\"te_stable_key\": \"5Ob137_17h|OGH|2017-08-29\", \"gz\": \"5Ob137_17h\", \"datum\": \"2017-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Die Eigentümergemeinschaft ist legitimiert, Beiträge zu Aufwendungen und Rücklage einzuziehen, selbst wenn die Wohnungseigentumsbegründung unwirksam sein sollte, solange der Grundbuchstand Wohnungseigentum ausweist.\"}, {\"te_stable_key\": \"5Ob60_16h|OGH|2016-08-25\", \"gz\": \"5Ob60_16h\", \"datum\": \"2016-08-25\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH stellt die Unwirksamkeit der Wohnungseigentumsbegründung an einer Tiefgarage fest, die sich über zwei Liegenschaften erstreckt, und weist daher die Anfechtung eines Eigentümerbeschlusses ab.\"}, {\"te_stable_key\": \"5Ob61_16f|OGH|2016-08-25\", \"gz\": \"5Ob61_16f\", \"datum\": \"2016-08-25\", \"gericht\": \"OGH\", \"mini_story\": \"Die Begründung von Wohnungseigen"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_61359617",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0124735",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.63,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0124735\", \"rechtssatz_text\": \"Der Verwalter ist verpflichtet und befugt, alle Maßnahmen, die zur Erhaltung und Verwaltung des gemeinsamen Guts dienen, zu besorgen, wobei Verwaltungshandlungen ebenso wie deren Unterlassung der Eigentümergemeinschaft zuzurechnen sind.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 10092, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob160_23z|OGH|2024-05-28\", \"gz\": \"5Ob160_23z\", \"datum\": \"2024-05-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Verwalters im Wohnungseigentum für entgangenen Mietzins durch Unterlassung der Sanierung von Wasserschäden.\"}, {\"te_stable_key\": \"5Ob84_22x|OGH|2022-09-19\", \"gz\": \"5Ob84_22x\", \"datum\": \"2022-09-19\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit des Antrags eines vorläufigen Verwalters auf eigene Abberufung und Neubestellung eines anderen Verwalters gemäß § 23 WEG.\"}, {\"te_stable_key\": \"5Ob48_22b|OGH|2022-06-01\", \"gz\": \"5Ob48_22b\", \"datum\": \"2022-06-01\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erklärt die Revision eines Miteigentümers gegen die Abweisung seines Schadenersatzanspruchs wegen angeblicher Verzögerung der Sanierung eines Wasserschadens durch die Verwalterin für unzulässig.\"}, {\"te_stable_key\": \"5Ob37_19f|OGH|2019-07-31\", \"gz\": \"5Ob37_19f\", \"datum\": \"2019-07-31\", \"gericht\": \"OGH\", \"mini_story\": \"Die Entscheidung klärt die Haftung der Eigentümergemeinschaft gegenüber einem Wohnungseigentümer für einen Sturzunfall auf dem gemeinsamen Parkplatz infolge mangelnder Streutätigkeit nach dem Schneeräumen.\"}, {\"te_stable_key\": \"5Ob173_16a|OGH|2016-11-22\", \"gz\": \"5Ob173_16a\", \"datum\": \"2016-11-22\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Vertretungsmacht des Hausverwalters einer Liegenschaft mit teilweisem Wohnungseigentum (Mischhaus) gegenüber Dritten bei Sanierungsmaßnahmen am Stöcklgebäude.\"}, {\"te_stable_key\": \"10Ob44_12m|OGH|2013-01-29\", \"gz\": \"10Ob44_12m\", \"datum\": \"2013-01-29\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung der Vertretungsbefugnis der Hausverwalterin einer Wohnungseigentümergemeinschaft bei Abschluss eines Darlehensvertrags zur Sanierung der Liegenschaft.\"}], \"te_items_count\": 6}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_29209516",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0122841",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.12,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0122841\", \"rechtssatz_text\": \"Maßnahmen der ordentlichen Verwaltung kann und muss der Verwalter auch ohne Beschlüsse der Eigentümergemeinschaft nach eigenem pflichtgemäßen Ermessen eigenständig setzen.\", \"te_count\": 11, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 5496, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob160_23z|OGH|2024-05-28\", \"gz\": \"5Ob160_23z\", \"datum\": \"2024-05-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Verwalters im Wohnungseigentum für entgangenen Mietzins durch Unterlassung der Sanierung von Wasserschäden.\"}, {\"te_stable_key\": \"5Ob106_22g|OGH|2023-01-31\", \"gz\": \"5Ob106_22g\", \"datum\": \"2023-01-31\", \"gericht\": \"OGH\", \"mini_story\": \"Der Senat gibt dem außerordentlichen Revisionsrekurs der Verwalterin teilweise statt, da der Sachbeschluss des Vorverfahrens keinen bindenden Mehrheitsbeschluss für den Verwalter darstellt und keine grobe Pflichtverletzung vorliegt.\"}, {\"te_stable_key\": \"5Ob84_22x|OGH|2022-09-19\", \"gz\": \"5Ob84_22x\", \"datum\": \"2022-09-19\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit des Antrags eines vorläufigen Verwalters auf eigene Abberufung und Neubestellung eines anderen Verwalters gemäß § 23 WEG.\"}, {\"te_stable_key\": \"5Ob48_22b|OGH|2022-06-01\", \"gz\": \"5Ob48_22b\", \"datum\": \"2022-06-01\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erklärt die Revision eines Miteigentümers gegen die Abweisung seines Schadenersatzanspruchs wegen angeblicher Verzögerung der Sanierung eines Wasserschadens durch die Verwalterin für unzulässig.\"}, {\"te_stable_key\": \"5Ob97_20f|OGH|2020-10-22\", \"gz\": \"5Ob97_20f\", \"datum\": \"2020-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung, ob ein Hausverwalter im Rahmen der ordentlichen Verwaltung einen eigenmächtigen Eingriff eines Miteigentümers an allgemeinen Teilen nachträglich genehmigen kann, wenn dieser für behördlich angeordnete Sanierungsmaßnahmen erforderlich ist.\"}, {\"te_stable_key\": \"5Ob173_16a|OGH|2016-11-22\", \"gz\": \"5Ob173_16a\", \"datum\": \"2016-11-22\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Vertretungsmacht des Hausverwalters einer Liegenschaft mit teilweisem Wohnungseigentum (Mischhaus) gegenüber Dritten bei Sanierungsmaßnahmen am Stöcklgebäude.\"}, {\"te_stable_key\": \"7Ob131_16i|OGH|2016-11-09\", \"gz\": \"7Ob131_16i\", \"datum\": \"2016-11-09\", \"gericht\": \"OGH"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_28333625",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114886",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 18.02,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0114886\", \"rechtssatz_text\": \"Ohne besondere Vertragsbeziehung haftet die Wohnungseigentümergemeinschaft ihren Mitgliedern und deren Mietern nur deliktisch für die Verletzung der ihr im Rahmen der Verwaltung obliegenden Wegsicherungspflichten. Die Miteigentümer und Wohnungseigentümer einer Liegenschaft stehen auf Grund des...\", \"te_count\": 11, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 5448, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob160_23z|OGH|2024-05-28\", \"gz\": \"5Ob160_23z\", \"datum\": \"2024-05-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Verwalters im Wohnungseigentum für entgangenen Mietzins durch Unterlassung der Sanierung von Wasserschäden.\"}, {\"te_stable_key\": \"5Ob48_22b|OGH|2022-06-01\", \"gz\": \"5Ob48_22b\", \"datum\": \"2022-06-01\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erklärt die Revision eines Miteigentümers gegen die Abweisung seines Schadenersatzanspruchs wegen angeblicher Verzögerung der Sanierung eines Wasserschadens durch die Verwalterin für unzulässig.\"}, {\"te_stable_key\": \"5Ob160_20w|OGH|2020-08-25\", \"gz\": \"5Ob160_20w\", \"datum\": \"2020-08-25\", \"gericht\": \"OGH\", \"mini_story\": \"Die Eigentümergemeinschaft haftet deliktisch für Fehlverhalten des Hausbesorgers beim Winterdienst, wenn dieser als Repräsentant mit eigenverantwortlicher Entscheidungsbefugnis ausgestattet ist.\"}, {\"te_stable_key\": \"5Ob142_19x|OGH|2019-09-24\", \"gz\": \"5Ob142_19x\", \"datum\": \"2019-09-24\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Abweisung eines Feststellungsbegehrens der Haftung der Eigentümergemeinschaft für künftige Schäden aus unzureichender Schimmel-Sanierung ist unzulässig.\"}, {\"te_stable_key\": \"5Ob37_19f|OGH|2019-07-31\", \"gz\": \"5Ob37_19f\", \"datum\": \"2019-07-31\", \"gericht\": \"OGH\", \"mini_story\": \"Die Entscheidung klärt die Haftung der Eigentümergemeinschaft gegenüber einem Wohnungseigentümer für einen Sturzunfall auf dem gemeinsamen Parkplatz infolge mangelnder Streutätigkeit nach dem Schneeräumen.\"}, {\"te_stable_key\": \"7Ob113_13p|OGH|2013-07-03\", \"gz\": \"7Ob113_13p\", \"datum\": \"2013-07-03\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der Revision in einem deliktischen Haftungsstreit einer Wohnungseigentümergemeinschaft wegen fehlender Beleuchtung eines Gangs.\"}, {\"te_stable_key\": \"3Ob136_12i|OGH|2012-09-19"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_84780969",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 17 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 838.29,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 17 WEG\", \"results\": [{\"rs_number\": \"RS0083447\", \"kernaussage\": \"Es unterliegt keinem Zweifel, dass auch im Anwendungsbereich des § 17 WEG 1975 der Verwalter im Innenverhältnis nur - wie sonst ganz allgemein - zu Maßnahmen der ordentlichen Verwaltung berechtigt ist.\", \"schlagworte\": [\"Miteigentum\", \"Wohnungseigentum\", \"Heizungsanlage\", \"Verwalter\", \"Negatorische Klage\", \"Hausverwalter\", \"Verwaltungvollmacht\", \"Nutzwerte\", \"Parifizierungsverfahren\", \"Reparaturrücklage\", \"Verwalterbefugnis\", \"Eigentümergemeinschaft\", \"Zahlungspflicht\", \"WEG\", \"Umlaufbeschluss\", \"Angebote einholen\", \"Erhaltungsarbeiten\", \"Beschlussanfechtung\", \"Verwalterabrechnung\", \"ordentliche Verwaltung\", \"außerordentliche Verwaltung\", \"energiesparende Maßnahmen\", \"actio negatoria\", \"mittelbarer Störer\", \"Nachbarstörung\", \"Immissionen\", \"Sachverständigengutachten\", \"Aufzugseinbau\", \"Eigentümerversammlung\", \"Eigenmächtiger Eingriff\"]}, {\"rs_number\": \"JWR_1990150008_19920316X01\", \"kernaussage\": \"Zustellung Abgabenbescheide an Verwalter gem. § 17 WEG\", \"schlagworte\": [\"Verwalter\", \"passive Vertretung\", \"Zustellung\", \"Abgabenbescheid\", \"§ 17 WEG\", \"juristische Person\", \"Formalvollmacht\", \"Liegenschaftsabgaben\"]}, {\"rs_number\": \"RS0111727\", \"kernaussage\": \"Mit der Verweisung auf § 17 WEG in der Kompetenznorm des § 26 Abs 1 Z 5 WEG (früher § 26 Abs 1 Z 4 lit a WEG) wurde keine Einschränkung der außerstreitigen Zuständigkeit auf die Durchsetzung der in § 17 WEG namentlich angeführten Verwalterpflichten vorgenommen. Die Regelung des § 26 Abs 1 Z 5 WEG...\", \"schlagworte\": [\"Wohnungseigentum\", \"Hausve"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_72889531",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 21 WEG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 807.51,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 21 WEG\", \"results\": [{\"rs_number\": \"RS0118636\", \"kernaussage\": \"Die endgültig feststehende Nichterrichtung eines ursprünglich geplanten und in die Wohnungseigentumsbegründung einbezogenen Objekts ist dessen Untergang gleichzuhalten, was wiederum gemäß § 35 WEG 2002 (vormals § 21 WEG 1975) das Erlöschen des Wohnungseigentums nach sich zieht und in weiterer Folge...\", \"schlagworte\": [\"Revisionsrekurs\", \"Zustellung\", \"Miet- und Schikanesachen\", \"Wohnungseigentum\", \"Abrechnungseinheit\", \"Betriebskosten\", \"Parifizierung\", \"nicht errichtetes Objekt\", \"Liegenschaftsaufwendungen\", \"Grundbuchsstand\", \"Verwalterpflichten\", \"Schikaneverbot\", \"Nutzwert\", \"Aufteilungsschlüssel\", \"Dachbodenausbau\", \"Baubewilligung\", \"Kfz-Abstellplätze\", \"Erwerbsbeschränkung\", \"Nutzwerte\", \"Grundbuch\", \"Eigentümergemeinschaft\", \"Realteilung\", \"Grundbuchanmerkung\", \"Teilungsklage\", \"Nutzungsmöglichkeit\", \"Untergang des Objekts\", \"Mindestanteile\", \"Grundbuchsberichtigung\", \"Neuparifizierung\", \"§ 35 WEG\"]}], \"count\": 1}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_66485016",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "gemeinsame Anlage",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1208.8,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"gemeinsame Anlage\", \"results\": [{\"rs_number\": \"JWR_1985070344_19870707X07\", \"kernaussage\": \"Keine Umdeutung spezifischer Zaunpflicht in Gesamtanteil\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Sonderteilungsverfahren\", \"Agrargemeinschaft\", \"Abfindungsfläche\", \"Zaun\", \"gemeinsame Anlage\", \"verbindliche Vorentscheidung\", \"Rechtskraft\", \"Verpflichtung\"]}, {\"rs_number\": \"RS0126982\", \"kernaussage\": \"Die Feststellung der Forderung gemäß §§ 23b Abs 2 und 23c Abs 4 WAG 1996 beruht auf einer selbständigen Prüfung von Höhe und Berechtigung der angemeldeten Anlegerforderung durch die Entschädigungseinrichtung. Fristgerechte Anmeldungen sind jedenfalls unverzüglich zu prüfen und gegebenenfalls...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anlegerentschädigung\", \"Verjährung\", \"Wertpapieraufsichtsgesetz\", \"WAG 1996\", \"Anlegerentschädigungseinrichtung\", \"Fälligkeit\", \"Legitimierung\", \"Prüffrist\", \"Legitimation\", \"Revisionzulässigkeit\", \"Beweislast\", \"Entschädigungseinrichtung\", \"Wertpapierdienstleistungsunternehmen\", \"Nachweispflicht\", \"Auszahlungsfrist\", \"Prüfungspflicht\", \"Rechtsfrage\", \"Revision\", \"Anleger\", \"ZPO\", \"Feststellungsinteresse\", \"Treuhandvermögen\", \"WAG\", \"Prüfungsfrist\", \"Prioritätsprinzip\", \"Luxemburg\", \"Wertpapierdienstleister\", \"Zulässigkeit\", \"Anlegerzertifikat\", \"SICAV-Fonds\", \"Konkurs\", \"Liquidationsmasse\", \"Zinseszinsen\", \"Quotenminderung\", \"Legalzession\", \"Rückgriff\", \"Konkurs Wertpapierdienstleister\", \"Revision zulässig\", \"Subsidiarität Entschädigungsanspruch\", \"Treuhandvermögen WAG\", \"Legalzession § 1358 ABGB\", \"Einlagensicherung\", \"AMIS\", "
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_77920303",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "WEG Verwalter Pflicht Erhaltung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.43,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"WEG Verwalter Pflicht Erhaltung\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0130151",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0130151",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.3,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0130151\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0126982",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126982",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.72,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0126982\", \"rechtssatz_text\": \"Die Feststellung der Forderung gemäß §§ 23b Abs 2 und 23c Abs 4 WAG 1996 beruht auf einer selbständigen Prüfung von Höhe und Berechtigung der angemeldeten Anlegerforderung durch die Entschädigungseinrichtung. Fristgerechte Anmeldungen sind jedenfalls unverzüglich zu prüfen und gegebenenfalls...\", \"te_count\": 21, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2560, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob215_13v|OGH|2014-01-23\", \"gz\": \"1Ob215_13v\", \"datum\": \"2014-01-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH lehnt die Übertragung der Rechtsprechung zur Einlagensicherung (§ 93 Abs 3 BWG) auf die Anlegerentschädigung (§ 23b WAG 1996) ab und verneint die Aktivlegitimation des Zweitklägers.\"}, {\"te_stable_key\": \"9Ob45_13b|OGH|2013-10-29\", \"gz\": \"9Ob45_13b\", \"datum\": \"2013-10-29\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung der Entschädigungseinrichtung nach WAG 1996 für Verluste aus Insolvenz eines Wertpapierdienstleisters mit Investitionen in luxemburgische SICAV-Fonds.\"}, {\"te_stable_key\": \"7Ob74_13b|OGH|2013-09-17\", \"gz\": \"7Ob74_13b\", \"datum\": \"2013-09-17\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH regelt die Anrechnung von Konkursquoten auf den Haftungsbetrag der Entschädigungseinrichtung nach WAG 1996 sowie den Beginn der Prüffrist und der Fälligkeit des Anspruchs.\"}, {\"te_stable_key\": \"10Ob39_13b|OGH|2013-09-12\", \"gz\": \"10Ob39_13b\", \"datum\": \"2013-09-12\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist Revisionen zurück, da keine erhebliche Rechtsfrage nach § 502 Abs 1 ZPO vorliegt, weil die streitgegenständlichen Fragen zur Anlegerentschädigung bereits durch OGH-Rechtsprechung geklärt sind.\"}, {\"te_stable_key\": \"10Ob27_13p|OGH|2013-07-23\", \"gz\": \"10Ob27_13p\", \"datum\": \"2013-07-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH lehnt die Revision ab, da keine erhebliche Rechtsfrage mehr vorliegt, nachdem vergleichbare Fragen durch neuere Rechtsprechung geklärt wurden.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0125905",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0125905",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.4,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0125905\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0118793",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0118793",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.17,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0118793\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0118636",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0118636",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.22,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0118636\", \"rechtssatz_text\": \"Die endgültig feststehende Nichterrichtung eines ursprünglich geplanten und in die Wohnungseigentumsbegründung einbezogenen Objekts ist dessen Untergang gleichzuhalten, was wiederum gemäß § 35 WEG 2002 (vormals § 21 WEG 1975) das Erlöschen des Wohnungseigentums nach sich zieht und in weiterer Folge...\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11626, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob122_22k|OGH|2022-08-29\", \"gz\": \"5Ob122_22k\", \"datum\": \"2022-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs gegen die Ablehnung der Löschung von Mindestanteilen an untergegangenen Wohnungseigentumsobjekten und der Berichtigung der Anteile ab.\"}, {\"te_stable_key\": \"5Ob128_21s|OGH|2022-02-07\", \"gz\": \"5Ob128_21s\", \"datum\": \"2022-02-07\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs gegen die Ablehnung eines Antrags auf Neufestsetzung des Aufteilungsschlüssels im Wohnungseigentum als unzulässig zurück, da keine wesentliche Änderung der Nutzungsmöglichkeiten vorliegt.\"}, {\"te_stable_key\": \"5Ob107_16w|OGH|2016-10-25\", \"gz\": \"5Ob107_16w\", \"datum\": \"2016-10-25\", \"gericht\": \"OGH\", \"mini_story\": \"Revisionsrekurs gegen die Ablehnung der Neufestsetzung eines abweichenden Aufteilungsschlüssels für Liftkosten in einer Wohnungseigentümergemeinschaft aufgrund angeblicher fehlender Nutzungsmöglichkeiten.\"}, {\"te_stable_key\": \"5Ob100_16s|OGH|2016-07-11\", \"gz\": \"5Ob100_16s\", \"datum\": \"2016-07-11\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH prüft, ob die Anmerkung einer Zusage zur Einräumung von Wohnungseigentum nach § 40 Abs 2 WEG 2002 einer Realteilung der Liegenschaft nach §§ 830 ff ABGB entgegensteht.\"}, {\"te_stable_key\": \"5Ob164_12x|OGH|2012-10-02\", \"gz\": \"5Ob164_12x\", \"datum\": \"2012-10-02\", \"gericht\": \"OGH\", \"mini_story\": \"Bewilligung der Einverleibung von Wohnungseigentum an Garagenstellplätzen nach Ablauf der Dreijahresfrist des § 5 Abs 2 WEG trotz Neuplanung.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 25,
+      "tool_calls_ok": 25,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Binding Legal Framework (WEG-Erhaltungspflichten, Verwalter/EG):**\n\n### 1. **Status der Öltankanlage als allgemeiner Liegenschaftsteil (§ 2 Abs. 4 WEG)**\n   - Bestätigt: Gemeinsame Anlagen wie Heizraum/Öltankanlage fallen unter allgemeine Teile; Miteigentum an einheitlicher Liegenschaft (Grundbuchskörper). **RS0060192** (OGH: Wohnungseigentum nur physisch an individualisierter Liegenschaft; TE: 5Ob117_20x u.a. zu grenzüberschreitenden Teilen). Keine Individualrechte (§ 13 WEG) greifen; EG/Verwalter verantwortlich. **RS0109843** (§ 13 WEG: Versorgungsleitungen gemeinschaftlich).\n\n### 2. **Erhaltungspflicht der EG/Verwalter an Gemeinschaftsteilen**\n   - **EG-Pflicht**: Eigentümergemeinschaft haftet für Erhaltung gemeinsamer Teile; Verwalterhandlungen/Unterlassungen imputierbar. **RS0124735** (OGH: Verwalter \"verpflichtet und befugt, alle Maßnahmen zur Erhaltung des gemeinsamen Guts zu besorgen\"; TE: 5Ob160_23z [Haftung Wasserschaden-Sanierung], 5Ob48_22b [Verzögerung Sanierung], 5Ob37_19f [Parkplatz-Sturz]). **RS0122841** (OGH: Ordentliche Verwaltung eigenständig ohne Beschluss; TE: 5Ob160_23z [Wasserschaden], 5Ob97_20f [Eigenmacht nachträglich genehmigen]).\n   - **Dringende Reparaturen (Ölaustritt)**: Sofortmaßnahmen (Auffangen, Dokumentation) als ordentliche Erhaltung; Verwalter muss handeln (kein Beschluss nötig). **RS0122841** (pflichtgemäßes Ermessen). Rücklage (§ 16 WEG) für Erhaltungsarbeiten: **RS0019436**, **RS0083315** (gebundenes Vermögen für Erhaltung/Verbesserung).\n   - **§ 20 Abs. 2 WEG**: Keine explizite \"sofort handeln\"-Pflicht; regelt Erträge/Verwaltung (nicht Erhaltung). **RS0083245** (nur Erträgnisse), **RS0013824** (keine Nutzung). Allg. Pflicht aus §§ 17, 18 WEG ableitbar.\n\n### 3. **Ansprüche des Eigentümers (Top 16, 174/2742 Anteils)**\n   | **Anspruch** | **Rechtsgrund** | **Gegner** | **RS/GZ-Bezug** | **Beweislast** |\n   |--------------|-----------------|------------|-----------------|---------------|\n   | **Beseitigung/Reparatur (Unterlassungsklage)** | §§ 17, 18 WEG (Verwalterpflichten); § 1318 ABGB (deliktisch, Unterlassung); Negatorik (§ 13 WEG) | HV (Verwalter), EG | **RS0124735** (Erhaltungspflicht); **RS0114886** (deliktische Haftung EG für Wegsicherung/Erhaltung; TE: 5Ob160_23z [Öl=Wasserschaden analog], 5Ob162_06v [austretendes Wasser]); **RS0022522** (§ 1318 ABGB: Installateurhaftung Wasserschaden → analog Leck). Nachfrist erfüllt → Eigenmacht möglich. | Eigentümer: Nachweis Leck/Meldung/Unterlassung (dokumentiert). Gegner: Sorgfalt (keine Pflichtverletzung). Umkehr bei deliktisch (§ 1298 ABGB). |\n   | **Schadenersatz (entgangener Nutzen, Folgeschäden)** | § 1299 ABGB (vertraglich, Sorgfalt); § 1318 ABGB (deliktisch) | HV (vertraglich), EG (deliktisch) | **RS0114886** (deliktisch für Erhaltungsfehler; TE: 5Ob160_23z [Mietzinsausfall Sanierungsverzug]); **RS0124735** (Imputation an EG); **RS0030894** (§ 1318: Umfall → keine Haftung, aber Unterlassung ja). | Eigentümer: Kausalität (Leck → Schaden). Gegner: keine Verschuldung. Beweislastumkehr bei Aufklärungsfehler/Nachbarhaftung möglich. |\n   | **Verwalterabberufung/Auflösung** | § 18 Abs. 1 Z 3 WEG (grobe Vernachlässigung) | EG | **RS0042763** (Beurteilungsspielraum \"grob\"; TE: 5Ob202_23a [Auflösung], 5Ob106_22g [keine grob bei Verzug]). Unterlassung Ölleck = grob? | Eigentümer: Nachweis grober Pflichtverletzung. |\n   | **Rechnungslegung/Herausgabe** | § 17 Abs. 1 Z 1 WEG | HV | **RS0111727** (§ 17: Außerstreitig durchsetzbar). | Eigentümer: Bestellung als Verwalter. |\n\n### 4. **§ 20 Abs. 2 WEG: Sofortige Handlungspflicht HV?**\n   - Nein (explizit): Regelt Erträge/Nutzung, nicht Erhaltung. **RS0083245**. Implizit: Aus §§ 17/18 WEG (ordentliche Verwaltung, **RS0122841**). Bei Gefahr (Öl): Dringlichkeit → sofort (analog **RS0124735**). Nachfrist → Vollstreckung (§ 28 WEG? **RS JWR_2006050293** irrelevant für Vollstreckung).\n\n**Empfehlung**: Sofort Eigenmacht (Doku), Klage auf Beseitigung/SE (Bezirksgericht, § 26 Abs. 1 Z 5 WEG außerstreitig). Beweislast EG/HV für Sorgfalt. Keine Duplizierung anderer Streams.",
+      "answer_chars": 4063,
+      "e2e_ms": 57751.73
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 21830.99,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 5578,
+    "usage": {
+      "prompt_tokens": 24264,
+      "completion_tokens": 3031,
+      "total_tokens": 27295,
+      "cost": 0.0063491,
+      "cached_tokens": 128,
+      "reasoning_tokens": 1179
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": true,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0124735",
+          "RS0083245",
+          "RS0122841",
+          "RS0114886",
+          "RS0083447",
+          "RS0042763",
+          "RS0109843"
+        ],
+        "validation": {
+          "cited": 7,
+          "checked": 7,
+          "valid": 7,
+          "invalid": [],
+          "sample_valid": [
+            "RS0042763",
+            "RS0083245",
+            "RS0083447",
+            "RS0109843",
+            "RS0114886",
+            "RS0122841",
+            "RS0124735"
+          ]
+        },
+        "valid": [
+          "RS0124735",
+          "RS0083245",
+          "RS0122841",
+          "RS0114886",
+          "RS0083447",
+          "RS0042763",
+          "RS0109843"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 17 WEG iVm §§ 837, 1014 ABGB",
+          "§ 13 WEG iVm §§ 854, 855 ABGB",
+          "§§ 837, 1014 ABGB"
+        ],
+        "ungrounded": [
+          "§ 17 WEG iVm §§ 837, 1014 ABGB",
+          "§ 13 WEG iVm §§ 854, 855 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0005846",
+          "RS0007030",
+          "RS0007046",
+          "RS0008726",
+          "RS0008736",
+          "RS0008738",
+          "RS0013661",
+          "RS0013748",
+          "RS0013767",
+          "RS0013824",
+          "RS0019436",
+          "RS0033840",
+          "RS0035833",
+          "RS0042763",
+          "RS0054997",
+          "RS0060192",
+          "RS0061300",
+          "RS0061314",
+          "RS0070461",
+          "RS0082805",
+          "RS0082913",
+          "RS0082922",
+          "RS0083041",
+          "RS0083095",
+          "RS0083245",
+          "RS0083267",
+          "RS0083280",
+          "RS0083315",
+          "RS0083331",
+          "RS0083447",
+          "RS0083488",
+          "RS0083586",
+          "RS0101594",
+          "RS0106051",
+          "RS0107160",
+          "RS0109579",
+          "RS0109843",
+          "RS0111617",
+          "RS0111727",
+          "RS0114109",
+          "RS0114886",
+          "RS0117352",
+          "RS0117371",
+          "RS0118636",
+          "RS0118793",
+          "RS0122841",
+          "RS0124735",
+          "RS0125756",
+          "RS0125903",
+          "RS0125905",
+          "RS0126982",
+          "RS0130151",
+          "RS0132062"
+        ],
+        "te_ogh": [],
+        "norms": [
+          "§ 1008 ABGB",
+          "§ 1014 ABGB",
+          "§ 1025 ABGB",
+          "§ 13 WEG) den Regeln der gemeinschaftlichen Nutzung (§§ 854, 855 ABGB",
+          "§ 1313a ABGB",
+          "§ 1358 ABGB",
+          "§ 20 Abs 6 WEG\", \"Unternehmenseinbringung\", \"§ 38 UGB",
+          "§ 30 Abs 2 ZPO",
+          "§ 35 Abs 2 EO",
+          "§ 40 Abs 2 WEG 2002 einer Realteilung der Liegenschaft nach §§ 830 ff ABGB",
+          "§ 502 Abs 1 ZPO",
+          "§ 839 ABGB",
+          "§ 93 StVO",
+          "§§ 1020 und 1021 ABGB",
+          "§§ 837, 1009, 1012 ABGB",
+          "§§ 837, 1014 ABGB"
+        ],
+        "stats": {
+          "rs_count": 53,
+          "te_ogh_count": 0,
+          "norm_count": 16
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": true,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0124735",
+          "RS0083245",
+          "RS0122841",
+          "RS0114886",
+          "RS0083447",
+          "RS0042763",
+          "RS0109843"
+        ],
+        "validation": {
+          "cited": 7,
+          "checked": 7,
+          "valid": 7,
+          "invalid": [],
+          "sample_valid": [
+            "RS0042763",
+            "RS0083245",
+            "RS0083447",
+            "RS0109843",
+            "RS0114886",
+            "RS0122841",
+            "RS0124735"
+          ]
+        },
+        "valid": [
+          "RS0124735",
+          "RS0083245",
+          "RS0122841",
+          "RS0114886",
+          "RS0083447",
+          "RS0042763",
+          "RS0109843"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§§ 837, 1014 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0005846",
+          "RS0007030",
+          "RS0007046",
+          "RS0008726",
+          "RS0008736",
+          "RS0008738",
+          "RS0013661",
+          "RS0013748",
+          "RS0013767",
+          "RS0013824",
+          "RS0019436",
+          "RS0033840",
+          "RS0035833",
+          "RS0042763",
+          "RS0054997",
+          "RS0060192",
+          "RS0061300",
+          "RS0061314",
+          "RS0070461",
+          "RS0082805",
+          "RS0082913",
+          "RS0082922",
+          "RS0083041",
+          "RS0083095",
+          "RS0083245",
+          "RS0083267",
+          "RS0083280",
+          "RS0083315",
+          "RS0083331",
+          "RS0083447",
+          "RS0083488",
+          "RS0083586",
+          "RS0101594",
+          "RS0106051",
+          "RS0107160",
+          "RS0109579",
+          "RS0109843",
+          "RS0111617",
+          "RS0111727",
+          "RS0114109",
+          "RS0114886",
+          "RS0117352",
+          "RS0117371",
+          "RS0118636",
+          "RS0118793",
+          "RS0122841",
+          "RS0124735",
+          "RS0125756",
+          "RS0125903",
+          "RS0125905",
+          "RS0126982",
+          "RS0130151",
+          "RS0132062"
+        ],
+        "te_ogh": [],
+        "norms": [
+          "§ 1008 ABGB",
+          "§ 1014 ABGB",
+          "§ 1025 ABGB",
+          "§ 13 WEG) den Regeln der gemeinschaftlichen Nutzung (§§ 854, 855 ABGB",
+          "§ 1313a ABGB",
+          "§ 1358 ABGB",
+          "§ 20 Abs 6 WEG\", \"Unternehmenseinbringung\", \"§ 38 UGB",
+          "§ 30 Abs 2 ZPO",
+          "§ 35 Abs 2 EO",
+          "§ 40 Abs 2 WEG 2002 einer Realteilung der Liegenschaft nach §§ 830 ff ABGB",
+          "§ 502 Abs 1 ZPO",
+          "§ 839 ABGB",
+          "§ 93 StVO",
+          "§§ 1020 und 1021 ABGB",
+          "§§ 837, 1009, 1012 ABGB",
+          "§§ 837, 1014 ABGB"
+        ],
+        "stats": {
+          "rs_count": 53,
+          "te_ogh_count": 0,
+          "norm_count": 16
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 18123.65,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3713,
+        "completion_tokens": 3013,
+        "total_tokens": 6726,
+        "cost": 0.0022299,
+        "cached_tokens": 128,
+        "reasoning_tokens": 1276
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 1,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Liegt eine Pflichtverletzung der Hausverwaltung (HV) vor, da sie auf die Meldung des Ölaustritts an der gemeinsamen Öltankanlage nicht substantiell reagiert hat?** Die HV ist zur ordentlichen Verwaltung verpflichtet, wozu Maßnahmen zur Erhaltung gemeinsamer Teile gehören (RS0124735).\n- **Welche Ansprüche hat der Eigentümer gegen HV und Eigentümergemeinschaft (EG), insbesondere Erfüllung der Sanierung und Schadenersatz?** Doppelgleisigkeit: vertraglich gegen HV (iVm §§ 837, 1014 ABGB), mitgemeinschaftlich gegen EG.\n- **Verpflichtet § 20 Abs 2 WEG die HV zu sofortigem Handeln?** Nein, § 20 WEG regelt nur Erträgnisse der gemeinschaftlichen Sache, nicht die Verwaltung (RS0083245).\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage: Erfüllungspflicht der HV aus ordentlicher Verwaltung (inkl. Erhaltung gemeinsamer Teile).** \nDer Verwalter ist befugt und verpflichtet, Maßnahmen zur Erhaltung des gemeinsamen Guts zu setzen (RS0124735; RS0122841); Stufenbau zu Schadenersatz (§§ 837, 1014 ABGB) bei Nichterfüllung.\n\n**Eventualanspruchsgrundlage: Miteigentumspflichten der EG; Erhaltung allgemeiner Teile).** \nGemeinsame Nutzung und Erhaltungspflicht an allgemeinen Teilen; Doppelgleisigkeit, da EG für Verwalterhandeln haftbar (RS0114886). Keine Regelung in § 20 Abs 2 WEG (RS0083245).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0124735**: Verwalter ist verpflichtet und befugt, alle Maßnahmen zur Erhaltung und Verwaltung des gemeinsamen Guts zu besorgen; relevant, da Öltankanlage allgemeiner Teil ist und Austritt Erhaltung erfordert.\n- **RS0122841**: Maßnahmen der ordentlichen Verwaltung kann der Verwalter eigenständig nach pflichtgemäßem Ermessen setzen; relevant für Sofortreaktion auf Schaden ohne Beschluss.\n- **RS0083447**: Verwalter ist im Innenverhältnis nur zu Maßnahmen der ordentlichen Verwaltung berechtigt; relevant zur Abgrenzung, Sanierung als ordentliche Verwaltung.\n- **RS0114886**: EG haftet deliktisch für Verletzung von Erhaltungspflichten im Verwaltungsrahmen; relevant für Haftung der Gemeinschaft bei Verwalteruntätigkeit.\n- **RS0083245**: § 20 WEG regelt nur Erträgnisse, nicht Verwaltung; relevant gegen Sofortpflicht aus § 20 Abs 2 WEG.\n\n### 4. SUBSUMTION\n**Gegen HV:** Öltankanlage ist allgemeiner Teil, Austritt erfordert Erhaltungsmaßnahme als ordentliche Verwaltung (RS0124735; RS0122841). Schriftliche Meldung mit Fotodokumentation und Nachfrist erfüllt Mitwirkungspflicht; fehlende substantielle Reaktion = Pflichtverletzung (RS0083447). Erfüllungsanspruch auf Sanierung besteht; bei Dauer: Schadenersatz (§§ 837, 1014 ABGB).\n\n**Gegen EG:** Gemeinsame Nutzung allgemeiner Teile verpflichtet EG zur Erhaltung; Verwalteruntätigkeit zurechenbar (RS0114886). Anteil (174/2742) berechtigt zu pro rata Anspruch; Sofortmaßnahmen des Eigentümers mindern Schaden nicht die Pflicht der EG.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Tatsache \"Ölaustritt vorhanden\"**: Eigentümer beweist (Fotos/Dokumentation vorliegend); HV/EG widerlegt.\n- **Tatsache \"Meldung/Nachfrist an HV\"**: Eigentümer beweist (schriftlich mit Fotodokumentation vorliegend).\n- **Tatsache \"fehlende substantielle Reaktion\"**: Eigentümer beweist Untätigkeit (vorliegend); HV/EG beweist Ergreifung von Maßnahmen (fehlt).\n- **Tatsache \"Schaden/Sofortbedrohung\"**: Eigentümer beweist Kausalität zu Gefährdung (Dokumentation vorliegend, Umfang unklar); HV/EG entlastet (fehlt).\n- **Tatsache \"Erhaltungspflicht umfasst Sofortmaßnahme\"**: Prima facie aus Verwalterpflichten (RS0124735), Eigentümer trägt keine Last.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (hohe Erfolgsaussicht):** Erfüllungsklage gegen HV auf Sanierung der Öltankanlage; eventuell vorläufige Verfügung auf Sofortmaßnahmen. \n**Eventualbegehren (mittlere Erfolgsaussicht):** Schadenersatz gegen HV/EG (§§ 837, 1014 ABGB iVm; subsidiär gegen EG als Miteigentum. Streitiges Verfahren; Klage am Wohnbezirk.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0083245): Keine Sofortpflicht aus § 20 Abs 2 WEG, da nur Erträgnisse geregelt.** Replik: Ordentliche Verwaltung umfasst Erhaltung (RS0124735); § 20 irrelevant.\n- **Risiko 2 (RS0083447): Sanierung als außerordentliche Verwaltung, Mehrheitsbeschluss erforderlich.** Replik: Erhaltung gemeinsamer Teile ist ordentliche Verwaltung, eigenständig setzbar (RS0122841).\n- **Risiko 3 (RS0114886): Keine deliktische Haftung EG ohne Sorgfaltsverletzung.** Replik: Verwalterhandeln zurechenbar, Untätigkeit = Pflichtverletzung (RS0124735).\n- **Risiko 4 (RS0042763): Untätigkeit keine \"grobe\" Vernachlässigung für Abberufung.** Replik: Für Erfüllung/Schadenersatz reicht einfache Pflichtverletzung, Beurteilungsspielraum bestätigt Anspruch (RS0122841).\n- **Risiko 5 (RS0109843): Individualrechte § 13 WEG schränken Gemeinschaftspflicht ein.** Replik: Gilt für Nutzung, nicht Erhaltung allgemeiner Teile (RS0114886).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Erfüllung gegen HV:** 85% (starke RS zu Verwalterpflichten bei Erhaltung, Beweise vorhanden).\n- **Gegen EG:** 65% (Zurechnung Verwalterhandeln, aber Miteigentum verteilt Last).\n- **Schadenersatz (§§ 837, 1014 ABGB):** 50% (Kausalität/Schadenshöhe unklar)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Liegt eine Pflichtverletzung der Hausverwaltung (HV) vor, da sie auf die Meldung des Ölaustritts an der gemeinsamen Öltankanlage nicht substantiell reagiert hat?** Die HV ist zur ordentlichen Verwaltung verpflichtet, wozu Maßnahmen zur Erhaltung gemeinsamer Teile gehören (RS0124735).\n- **Welche Ansprüche hat der Eigentümer gegen HV und Eigentümergemeinschaft (EG), insbesondere Erfüllung der Sanierung und Schadenersatz?** Doppelgleisigkeit: vertraglich gegen HV (iVm §§ 837, 1014 ABGB), mitgemeinschaftlich gegen EG.\n- **Verpflichtet § 20 Abs 2 WEG die HV zu sofortigem Handeln?** Nein, § 20 WEG regelt nur Erträgnisse der gemeinschaftlichen Sache, nicht die Verwaltung (RS0083245).\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage: Erfüllungspflicht der HV aus ordentlicher Verwaltung (inkl. Erhaltung gemeinsamer Teile).** \nDer Verwalter ist befugt und verpflichtet, Maßnahmen zur Erhaltung des gemeinsamen Guts zu setzen (RS0124735; RS0122841); Stufenbau zu Schadenersatz (§§ 837, 1014 ABGB) bei Nichterfüllung.\n\n**Eventualanspruchsgrundlage: Miteigentumspflichten der EG; Erhaltung allgemeiner Teile).** \nGemeinsame Nutzung und Erhaltungspflicht an allgemeinen Teilen; Doppelgleisigkeit, da EG für Verwalterhandeln haftbar (RS0114886). Keine Regelung in § 20 Abs 2 WEG (RS0083245).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0124735**: Verwalter ist verpflichtet und befugt, alle Maßnahmen zur Erhaltung und Verwaltung des gemeinsamen Guts zu besorgen; relevant, da Öltankanlage allgemeiner Teil ist und Austritt Erhaltung erfordert.\n- **RS0122841**: Maßnahmen der ordentlichen Verwaltung kann der Verwalter eigenständig nach pflichtgemäßem Ermessen setzen; relevant für Sofortreaktion auf Schaden ohne Beschluss.\n- **RS0083447**: Verwalter ist im Innenverhältnis nur zu Maßnahmen der ordentlichen Verwaltung berechtigt; relevant zur Abgrenzung, Sanierung als ordentliche Verwaltung.\n- **RS0114886**: EG haftet deliktisch für Verletzung von Erhaltungspflichten im Verwaltungsrahmen; relevant für Haftung der Gemeinschaft bei Verwalteruntätigkeit.\n- **RS0083245**: § 20 WEG regelt nur Erträgnisse, nicht Verwaltung; relevant gegen Sofortpflicht aus § 20 Abs 2 WEG.\n\n### 4. SUBSUMTION\n**Gegen HV:** Öltankanlage ist allgemeiner Teil, Austritt erfordert Erhaltungsmaßnahme als ordentliche Verwaltung (RS0124735; RS0122841). Schriftliche Meldung mit Fotodokumentation und Nachfrist erfüllt Mitwirkungspflicht; fehlende substantielle Reaktion = Pflichtverletzung (RS0083447). Erfüllungsanspruch auf Sanierung besteht; bei Dauer: Schadenersatz (§§ 837, 1014 ABGB).\n\n**Gegen EG:** Gemeinsame Nutzung allgemeiner Teile verpflichtet EG zur Erhaltung; Verwalteruntätigkeit zurechenbar (RS0114886). Anteil (174/2742) berechtigt zu pro rata Anspruch; Sofortmaßnahmen des Eigentümers mindern Schaden nicht die Pflicht der EG.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Tatsache \"Ölaustritt vorhanden\"**: Eigentümer beweist (Fotos/Dokumentation vorliegend); HV/EG widerlegt.\n- **Tatsache \"Meldung/Nachfrist an HV\"**: Eigentümer beweist (schriftlich mit Fotodokumentation vorliegend).\n- **Tatsache \"fehlende substantielle Reaktion\"**: Eigentümer beweist Untätigkeit (vorliegend); HV/EG beweist Ergreifung von Maßnahmen (fehlt).\n- **Tatsache \"Schaden/Sofortbedrohung\"**: Eigentümer beweist Kausalität zu Gefährdung (Dokumentation vorliegend, Umfang unklar); HV/EG entlastet (fehlt).\n- **Tatsache \"Erhaltungspflicht umfasst Sofortmaßnahme\"**: Prima facie aus Verwalterpflichten (RS0124735), Eigentümer trägt keine Last.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (hohe Erfolgsaussicht):** Erfüllungsklage gegen HV auf Sanierung der Öltankanlage; eventuell vorläufige Verfügung auf Sofortmaßnahmen. \n**Eventualbegehren (mittlere Erfolgsaussicht):** Schadenersatz gegen HV/EG (§§ 837, 1014 ABGB iVm; subsidiär gegen EG als Miteigentum. Streitiges Verfahren; Klage am Wohnbezirk.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0083245): Keine Sofortpflicht aus § 20 Abs 2 WEG, da nur Erträgnisse geregelt.** Replik: Ordentliche Verwaltung umfasst Erhaltung (RS0124735); § 20 irrelevant.\n- **Risiko 2 (RS0083447): Sanierung als außerordentliche Verwaltung, Mehrheitsbeschluss erforderlich.** Replik: Erhaltung gemeinsamer Teile ist ordentliche Verwaltung, eigenständig setzbar (RS0122841).\n- **Risiko 3 (RS0114886): Keine deliktische Haftung EG ohne Sorgfaltsverletzung.** Replik: Verwalterhandeln zurechenbar, Untätigkeit = Pflichtverletzung (RS0124735).\n- **Risiko 4 (RS0042763): Untätigkeit keine \"grobe\" Vernachlässigung für Abberufung.** Replik: Für Erfüllung/Schadenersatz reicht einfache Pflichtverletzung, Beurteilungsspielraum bestätigt Anspruch (RS0122841).\n- **Risiko 5 (RS0109843): Individualrechte § 13 WEG schränken Gemeinschaftspflicht ein.** Replik: Gilt für Nutzung, nicht Erhaltung allgemeiner Teile (RS0114886).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Erfüllung gegen HV:** 85% (starke RS zu Verwalterpflichten bei Erhaltung, Beweise vorhanden).\n- **Gegen EG:** 65% (Zurechnung Verwalterhandeln, aber Miteigentum verteilt Last).\n- **Schadenersatz (§§ 837, 1014 ABGB):** 50% (Kausalität/Schadenshöhe unklar).",
+  "elapsed_ms": 134546.69
+}

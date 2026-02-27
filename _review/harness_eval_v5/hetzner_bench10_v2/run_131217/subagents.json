@@ -1,0 +1,1153 @@
+[
+  {
+    "name": "Analyze subcontractor liability and principal responsibility",
+    "goal": "Clarify whether Ofenbau AG is liable for acts of Allerlei GmbH under § 1306 ABGB (vicarious liability) and relevant RS",
+    "mode": "llm",
+    "tools": [
+      "hot_rs_search",
+      "search_by_paragraph",
+      "hot_cluster_context",
+      "detect_clusters",
+      "search_by_schlagwort",
+      "search_ogh_rechtssaetze",
+      "get_rechtssatz",
+      "hot_rs_lookup"
+    ],
+    "llm_model": "x-ai/grok-4.1-fast",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 9911.67,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 5,
+        "usage": {
+          "prompt_tokens": 1774,
+          "completion_tokens": 1081,
+          "total_tokens": 2855,
+          "cost": 0.0008761,
+          "cached_tokens": 128,
+          "reasoning_tokens": 852
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 6674.87,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 8,
+        "usage": {
+          "prompt_tokens": 12593,
+          "completion_tokens": 867,
+          "total_tokens": 13460,
+          "cost": 0.0028345,
+          "cached_tokens": 784,
+          "reasoning_tokens": 518
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 18017.42,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 37868,
+          "completion_tokens": 1985,
+          "total_tokens": 39853,
+          "cost": 0.00667715,
+          "cached_tokens": 12593,
+          "reasoning_tokens": 1018
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "call_71345929",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1306 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2512.68,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1306 ABGB\", \"results\": [], \"count\": 0}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_91251879",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1313a ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2215.77,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0026751\", \"kernaussage\": \"Der geschädigte Bauherr muss sich - auch außerhalb von Schuldverhältnissen - das Verschulden seiner Gehilfen (Auftragnehmer) zurechnen lassen; für die Beurteilung, wer Gehilfe ist, ist auch außerhalb von Schuldverhältnissen § 1313a ABGB entsprechend heranzuziehen.\", \"schlagworte\": [\"Bauwesenversicherung\", \"Regreßverzicht\", \"Mitversicherung\", \"Bauleistungen\", \"Werkvertrag\", \"Mängelfolgeschaden\", \"Warnpflicht\", \"Mitverschulden\", \"Solidarhaftung\", \"Haftung des Herstellers\", \"Wartungspflicht des Eigentümers\", \"Regress des Haftpflichtversicherers\", \"Amtshaftung Lehrer\", \"Hangrutsch\", \"Baugrubensicherung\", \"Baumeisterhaftung\", \"Sanierungskosten\", \"Erfüllungsgehilfe\", \"Vorunternehmer\", \"Bauherrnhaftung\", \"Großkreditgrenzen\", \"Kreditwirtschaftsgesetz\", \"Bankwesengesetz\", \"Pfandrecht\", \"Nichtigkeit\", \"Schadenersatz\", \"Unterfangung\", \"Gebäudesicherung\", \"Nachbarschaden\", \"Folgeschaden\", \"Sanierungsschaden\", \"Trocknungsschaden\", \"Rettungsschaden\", \"Gehilfe\", \"Naturalersatz\", \"adäquater Kausalzusammenhang\", \"Ölaustritt\", \"Tankanlage\", \"Grenzwertgeber\", \"Verschuldensaufteilung\", \"Gehilfenverschulden\", \"Treuhand\", \"Unterschriftfälschung\", \"Schadensersatz\", \"Herstellungsgehilfe\", \"Schadensminderung\"]}, {\"rs_number\": \"RS0028495\", \"kernaussage\": \"Die ratio der Haftung des Unternehmers nach § 1313a ABGB ist, dass der Werkunternehmer durch die Einschaltung von Hilfspersonen (Erfüllungsgehilfen im Sinne des § 1313a ABGB) den Besteller in seiner Rechtsposition nicht schlechterstellen darf. Entscheidend für die "
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_04926985",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Unternehmerhaftung",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 191.23,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Unternehmerhaftung\", \"results\": [{\"rs_number\": \"RS0026494\", \"kernaussage\": \"Ein Unternehmer, der eine Reifenfachwerkstätte betreibt, gibt zu erkennen, dass er über jene technischen Kenntnisse verfügt, die für die betriebssichere Ausrüstung von Fahrzeugen mit Reifen notwendig sind. Von ihm kann erwartet werden, dass er überdurchschnittliche Sorgfalt darauf verwendet, ...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Reifenmontage\", \"Unternehmerhaftung\", \"Warnpflicht\", \"Mitverschulden\", \"Sommerrodelbahn\", \"Bremssystem\", \"Haftung Konstrukteur\", \"Sachverständiger\", \"Versicherungsregress\"]}, {\"rs_number\": \"RS0028824\", \"kernaussage\": \"1) Eine einmalige Unachtsamkeit ist noch keine Untüchtigkeit. 2) Eine Person, die zur gehörigen Besorgung nur unter Leitung und Überwachung fähig ist, ist ohne diese Überwachung nur dann als untüchtig anzusehen, wenn nachgewiesen wird, daß sie nur bei ordentlicher Überwachung imstande ist, die ihr...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unternehmerhaftung\", \"Erfüllungsgehilfe\", \"Untüchtigkeit\", \"Auswahlverschulden\", \"Haftung gegenüber Dritten\", \"§ 1313a ABGB\", \"Subunternehmer\", \"Haftung für untüchtigen Besorgungsgehilfen\", \"Montagefehler\", \"Bauherrenhaftung\", \"Kabelbeschädigung\", \"Verkehrssicherungspflicht\", \"Besorgungsgehilfe\", \"Organisationsverschulden\", \"Gehsteigpflege\", \"Eisbildung\", \"Haftung Eigentümer\", \"Hausbesorger\", \"Schiffsunfall\", \"fahrlässige Körperverletzung\", \"Seenverkehrsordnung\", \"Mitverschulden\", \"Zwischenurteil\", \"Baustellenabsicherung\", \"Schutzgesetzverletzung\", \"Subunternehmerhaftung\", \"Gehsteigunfall\", \"habituelle Unt"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_34775176",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Hilfspersonenhaftung",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1832.32,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Hilfspersonenhaftung\", \"results\": [{\"rs_number\": \"JWR_2002150010_20050923X03\", \"kernaussage\": \"Zurechnung deliktischen Handelns des GF zur GmbH\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"GmbH\", \"Geschäftsführer\", \"Zurechnung\", \"Deliktshaftung\", \"Schadenersatzpflicht\", \"Geschäftsführungstätigkeit\", \"Vertretungsmacht\", \"Organschaft\", \"Hilfspersonenhaftung\"]}, {\"rs_number\": \"JWR_1952001511_19540714X01\", \"kernaussage\": \"Verantwortung Preisauszeichnung nicht iSd § 137 GewO\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Preisauszeichnung\", \"Verantwortlichkeit\", \"§ 137 GewO\", \"Gewerbetreibender\", \"Ordnungsstrafe\", \"Hilfspersonenhaftung\"]}, {\"rs_number\": \"JWR_1999040014_19990303X01\", \"kernaussage\": \"Kanzleiorganisation bei Mängelbehebung und Sorgfaltspflicht\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Anwaltliche Sorgfaltspflicht\", \"Kanzleibetrieb\", \"Mängelbehebungsauftrag\", \"Fristversäumnis\", \"Postversand\", \"Aktenvollständigkeit\", \"Hilfspersonenhaftung\", \"VwGH-Verfahren\"]}], \"count\": 3}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_15499133",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Haftung Auftragnehmer für Subunternehmer",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.16,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Haftung Auftragnehmer für Subunternehmer\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_26038202",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1313a ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1004.99,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0123219\", \"kernaussage\": \"Ein Wertpapierdienstleistungsunternehmen haftet gemäß § 1313a ABGB für das Verhalten von Personen, derer es sich bei der Erbringung der Wertpapierdienstleistungen bediente. Ein Anlageberater ist grundsätzlich als Erfüllungsgehilfe seinem Geschäftsherrn zuzurechnen.\", \"schlagworte\": [\"Anlageberatung\", \"Erfüllungsgehilfe\", \"Haftung\", \"WAG\", \"Veruntreuung\", \"Wertpapierdienstleistungsunternehmen\", \"Anlageberater\", \"Eigenhaftung\", \"Wertpapiergeschäfte\", \"Aufklärungspflicht\", \"Margin-Call\", \"Rechtswahl\", \"Kooperationsvertrag\", \"Wertpapieraufsichtsgesetz\", \"Auskunftsvertrag\"]}, {\"rs_number\": \"RS0131910\", \"kernaussage\": \"Die Krankenkasse haftet ihren Versicherten nicht nach § 1313a ABGB für das Verschulden eines nicht von der Krankenkasse selbst betriebenen Fahrtendienstes, dessen Kosten sie zu tragen hat.\", \"schlagworte\": [\"Gehilfenzurechnung\", \"Krankenkasse\", \"Fahrtendienst\", \"Erfüllungsgehilfe\"]}, {\"rs_number\": \"RS0038103\", \"kernaussage\": \"Haftung für Beschädigung vor Beendigung des Verladens zur Beförderung nicht gemäß § 4 EVO, sondern für Verschulden des einweisenden Bahnbediensteten als Erfüllungsgehilfen gemäß § 1313a ABGB (ergangen zu § 6 EVO 1954 betreffend Beförderung von Kraftfahrzeugen und Anhängern als Reisegepäck in...\", \"schlagworte\": [\"Schadenersatz\", \"Erfüllungsgehilfe\", \"Eisenbahnhaftung\", \"Reisegepäck\"]}, {\"rs_number\": \"RS0121747\", \"kernaussage\": \"Weisungsbefugnisse des Geschäftsherren gegenüber seinem Gehilfen sind zwar in der Praxis häufig. Sie sind jedoch keine Voraussetzung, "
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_77576459",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Erfüllungsgehilfe",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 61.03,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Erfüllungsgehilfe\", \"results\": [{\"rs_number\": \"RS0119829\", \"kernaussage\": \"Beim Umfang der Aufklärungspflicht der Bank ist grundsätzlich auf den Vertreter des Kunden abzustellen. Übermittelt ein Wertpapierdienstleistungsunternehmen unter Offenlegung der Identität des Kunden Orders an die Bank, bestimmt sich der Umfang der Aufklärungspflicht aber nicht nach der Professional...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aufklärungspflicht\", \"Beratungspflicht\", \"Wertpapiergeschäfte\", \"Wertpapieraufsichtsgesetz\", \"Wertpapierdepot\", \"Anlegerprofil\", \"Risikohinweis\", \"Bankhaftung\", \"Anlageberatung\", \"Erfüllungsgehilfe\", \"Werbefolder\", \"UWG\", \"Margin-Call\", \"Rechtswahl\", \"Kooperationsvertrag\"]}, {\"rs_number\": \"RS0120593\", \"kernaussage\": \"Das Pfandrecht des Kommissionärs besteht zwar grundsätzlich am ganzen Kommissionsgut, auch wenn die zu sichernden Forderungen unter dem Wert des Guts liegen; allerdings kann im Einzelfall Treu und Glauben eine andere Beurteilung rechtfertigen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wertpapierdepot\", \"Optionsgeschäfte\", \"Verwaltungsvollmacht\", \"Allgemeine Geschäftsbedingungen\", \"Erfüllungsgehilfe\", \"Aufklärungspflicht\"]}, {\"rs_number\": \"RS0120608\", \"kernaussage\": \"Die Bestimmung gilt generell für jede verspätete Zahlung von Geldforderungen zwischen Unternehmern aus einem unternehmerischen Geschäft und zwar auch für Schadenersatzforderungen und unabhängig davon, um welchen Vertragstyp es sich handelt. Nicht entscheidend ist, ob die Geldforderung aus der...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Werkvertrag\", \"Berufshaft"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_92814639",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Subunternehmer",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 146.89,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Subunternehmer\", \"results\": [{\"rs_number\": \"RS0119794\", \"kernaussage\": \"Faktischer Geschäftsführer ist, wer - ohne förmlich bestellt zu sein - maßgeblichen Einfluss auf die Geschäftsführung nimmt, womit es nicht darauf ankommt, ob es sich um einen Angestellten, Gesellschafter, Angehörigen oder Außenstehenden handelt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Konkursverschleppungshaftung\", \"Bauabnahme\", \"WDVS\", \"Sachverständigengutachten\", \"Subunternehmer\", \"Formelle Organfunktion\", \"Faktischer Geschäftsführer\", \"Organhaftung\", \"Fassadenmängel\", \"Abgabenrechtliche Agenden\", \"Finanzstrafrechtliche Verantwortlichkeit\", \"Teleologische Auslegung\", \"Streitverkündung\", \"Geschäftsführerhaftung\", \"Insolvenzverwalter\", \"Strohmann-Geschäftsführer\"]}, {\"rs_number\": \"RS0027441\", \"kernaussage\": \"Die Bestimmung des § 69 KO ist im Sinne des § 1311 ABGB ein Schutzgesetz zugunsten aller durch die nicht rechtzeitige Konkurseröffnung geschädigten Gläubiger.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Liquiditätslücke\", \"Konkurseröffnungsverfahren\", \"Durchgriffshaftung\", \"Verjährung § 1489 ABGB\", \"persönliche Zahlungszusage\", \"Sachverständigengutachten\", \"Subunternehmer\", \"Akteneinsicht\", \"Schutzzweck § 69 KO\", \"Quotenschaden\", \"rechtliches Interesse\", \"Datenschutz\", \"Konkursantrag\", \"Fassadenmängel\", \"Konkurseröffnung\", \"Sozialversicherungsbeiträge\", \"Streitverkündung\", \"Überschuldung\", \"Schadenersatz ex delicto\", \"Bindungswirkung\", \"Geschäftsführerhaftung\", \"Gewährleistung\", \"Insolvenzverschleppung\", \"Neugläubiger\", \"Bauabnahme\", \"WDVS\", \"Konkursanmeldung\", \"Konkursa"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_64225348",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Generalunternehmer",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 472.13,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Generalunternehmer\", \"results\": [{\"rs_number\": \"JWR_1996060210_19961107X02\", \"kernaussage\": \"Bauherr als Ausführender bei Beauftragung Generalunternehmers\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Bauherr\", \"bauliche Maßnahme\", \"Ausführung\", \"Generalunternehmer\", \"Baubewilligung\", \"Tatbestandserfüllung\", \"Verwaltungsstrafe\", \"Slbg BauPolG\"]}, {\"rs_number\": \"RS0070443\", \"kernaussage\": \"Gemäß § 37 Abs 3 Z 15 MRG hat nur die Entscheidung in der Sache mit Sachbeschluss zu ergehen. Es kommt dabei nicht auf die Bezeichnung, sondern auf den Inhalt der Entscheidung an. Eine Wahrnehmung der Unzulässigkeit des außerstreitigen Rechtsweges erfordert aber keinen Sachbeschluss.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Untermietvertrag\", \"still schweigende Verlängerung\", \"außerstreitiges Verfahren\", \"Revisionsrekurs\", \"§ 569 ZPO\", \"Baukostenendabrechnung\", \"Generalunternehmer\", \"Pauschalpreis\", \"Sachbeschluss\", \"Schlichtungsstelle\", \"Prozessvoraussetzung\", \"Rechtsmittelfrist\", \"AußStrG\", \"MRG\", \"Rekursfrist\", \"Ablehnungsantrag\", \"erhebliche Rechtsfrage\", \"WGG\", \"Revisionsrekurszulässigkeit\", \"Befangenheit\", \"Rechtsmittelfristen\", \"Revisionsrekursfrist\", \"Außerstreitverfahren\", \"WEG\", \"Verwalterpflichten\", \"Fristversäumnis\", \"Rechtsschutzinteresse\", \"Kostenvoranschläge\", \"Erhaltungsarbeiten\", \"Finanzierungsbeitrag\", \"WWFSG 1989\", \"Frist\", \"außerstreitiger Rechtsweg\", \"Abänderung Sachbeschluss\", \"Anfechtungsinteresse\", \"außerordentlicher Revisionsrekurs\", \"Rekurs zurückweisen\", \"WEG-Verwaltung\", \"Verwalterbestellung\", \"Rekurs\", \"HeizKG\", \"Wohnungseigentum\", \"Verwa"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_93966587",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Haftung Auftragnehmer Subunternehmer Ofenbau Montage",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 19.22,
+        "error": null,
+        "payload_preview": "{\"query\": \"Haftung Auftragnehmer Subunternehmer Ofenbau Montage\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_76071077",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0026751",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.48,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026751\", \"rechtssatz_text\": \"Der geschädigte Bauherr muss sich - auch außerhalb von Schuldverhältnissen - das Verschulden seiner Gehilfen (Auftragnehmer) zurechnen lassen; für die Beurteilung, wer Gehilfe ist, ist auch außerhalb von Schuldverhältnissen § 1313a ABGB entsprechend heranzuziehen.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9104, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob188_20y|OGH|2021-01-20\", \"gz\": \"3Ob188_20y\", \"datum\": \"2021-01-20\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Privatsachverständigen für fehlerhaftes Gutachten aus Kauf- und Bauträgervertrag mit Zurechnung von Mitverschulden des Rechtsanwalts als Gehilfe.\"}, {\"te_stable_key\": \"6Ob217_10w|OGH|2011-10-13\", \"gz\": \"6Ob217_10w\", \"datum\": \"2011-10-13\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Handwerkers für Folgekosten aus nicht abgedichteter Abflussleitung und Zurechnung des Verschuldens von beauftragten Sanierungsgehilfen.\"}, {\"te_stable_key\": \"1Ob18_10v|OGH|2010-04-20\", \"gz\": \"1Ob18_10v\", \"datum\": \"2010-04-20\", \"gericht\": \"OGH\", \"mini_story\": \"OGH prüft die Haftung eines als Treuhänder beauftragten Rechtsanwalts für unberechtigte Auszahlung von Kaufpreisraten aufgrund gefälschter Unterschrift und die Zurechenbarkeit des Verhaltens des Zweitbeklagten der Klägerin.\"}, {\"te_stable_key\": \"1Ob1_09t|OGH|2009-02-26\", \"gz\": \"1Ob1_09t\", \"datum\": \"2009-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Öllieferanten für Schäden durch Ölaustritt bei Tankbefüllung infolge von Mängeln der Tankanlage und Verschulden des Fahrers.\"}, {\"te_stable_key\": \"9Ob42_08d|OGH|2008-08-20\", \"gz\": \"9Ob42_08d\", \"datum\": \"2008-08-20\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Erstschädigers für Schäden durch Sanierungsunternehmen, das von der Haftpflichtversicherung namhaft gemacht und bezahlt wurde.\"}, {\"te_stable_key\": \"6Ob287_00z|OGH|2001-09-27\", \"gz\": \"6Ob287_00z\", \"datum\": \"2001-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Bank bei pro-forma Auslagerung von Krediten zur Umgehung gesetzlicher Großkreditgrenzen an ein insolventes Unternehmen.\"}], \"te_items_count\": 6}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_23816684",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0028495",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 23.61,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0028495\", \"rechtssatz_text\": \"Die ratio der Haftung des Unternehmers nach § 1313a ABGB ist, dass der Werkunternehmer durch die Einschaltung von Hilfspersonen (Erfüllungsgehilfen im Sinne des § 1313a ABGB) den Besteller in seiner Rechtsposition nicht schlechterstellen darf. Entscheidend für die Wissenszurechnung zu Lasten des...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9117, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob155_22s|OGH|2022-09-27\", \"gz\": \"2Ob155_22s\", \"datum\": \"2022-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH bejaht die Haftung des Vermieters für einen Sturz der Klägerin in einen Lichtschacht, da der Hausmeister trotz Kenntnis wiederholter Fehlpositionierungen der Gitter keine Fixierungsmaßnahmen ergriffen hat.\"}, {\"te_stable_key\": \"8Ob98_20z|OGH|2021-01-28\", \"gz\": \"8Ob98_20z\", \"datum\": \"2021-01-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Krankenhauses für Behandlungsfehler durch verzögerte Revisionsoperation nach Appendektomie mit tödlichem Ausgang und Ansprüche auf Schmerzengeld und Unterhalt der Hinterbliebenen.\"}, {\"te_stable_key\": \"6Ob223_17p|OGH|2017-12-21\", \"gz\": \"6Ob223_17p\", \"datum\": \"2017-12-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die Krankenkasse haftet nicht nach § 1313a ABGB für Verschulden eines externen Fahrtendienstes.\"}, {\"te_stable_key\": \"9ObA4_14z|OGH|2014-01-29\", \"gz\": \"9ObA4_14z\", \"datum\": \"2014-01-29\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision klärt, ob das Dienstgeberhaftungsprivileg des § 333 ASVG eine Haftung für vorsätzliches Handeln eines Erfüllungsgehilfen ausschließt.\"}, {\"te_stable_key\": \"8Ob106_12i|OGH|2013-08-29\", \"gz\": \"8Ob106_12i\", \"datum\": \"2013-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Hotelbetreibers für eine Legionellen-Infektion einer Gästin durch unzureichende Wartung der Warmwasserversorgungsanlage.\"}, {\"te_stable_key\": \"4Ob129_12t|OGH|2012-12-17\", \"gz\": \"4Ob129_12t\", \"datum\": \"2012-12-17\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Bank für Fehlberatung durch einen externen Vermittler beim Verkauf von Währungszertifikaten.\"}], \"te_items_count\": 6}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_08455801",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0028691",
+          "te_limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.26,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0028691\", \"rechtssatz_text\": \"Haftung für Delikte des Erfüllungsgehilfen. Wird das Delikt vom Erfüllungsgehilfen innerhalb des Pflichtenkreises gesetzt, den der Geschäftsherr vertraglich übernommen hat, so haftet der Geschäftsherr nach § 1313a ABGB für den durch den Erfüllungsgehilfen verschuldeten Schaden.\", \"te_count\": 13, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 4316, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob91_16g|OGH|2017-03-29\", \"gz\": \"7Ob91_16g\", \"datum\": \"2017-03-29\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Spediteurs für den Verlust einer Ladung durch einen Subunternehmer im internationalen Straßentransport gemäß CMR.\"}, {\"te_stable_key\": \"1Ob201_16i|OGH|2017-02-27\", \"gz\": \"1Ob201_16i\", \"datum\": \"2017-02-27\", \"gericht\": \"OGH\", \"mini_story\": \"Strittig ist die Zulässigkeit des Rechtswegs für Schadenersatzansprüche gegen Erbinnen eines verstorbenen Landeshauptmanns aufgrund mutmaßlicher Beteiligung an Untreue bei Honorarzahlung der KLH.\"}, {\"te_stable_key\": \"7Ob114_15p|OGH|2016-06-15\", \"gz\": \"7Ob114_15p\", \"datum\": \"2016-06-15\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Entscheidung des Berufungsgerichts auf, da die Vorinstanzen die Bindungswirkung des Urteils im Vorprozess verkannt haben.\"}, {\"te_stable_key\": \"7Ob92_16d|OGH|2016-06-15\", \"gz\": \"7Ob92_16d\", \"datum\": \"2016-06-15\", \"gericht\": \"OGH\", \"mini_story\": \"Rekurs gegen Beschluss des Berufungsgerichts zur Rückforderung von Prämien aus nicht autorisierten Derivatgeschäften aufgrund ungerechtfertigter Bereicherung.\"}, {\"te_stable_key\": \"5Ob125_15s|OGH|2015-12-21\", \"gz\": \"5Ob125_15s\", \"datum\": \"2015-12-21\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück und bestätigt den Regressanspruch des Generalunternehmers gegen den Subunternehmer wegen mangelhafter Zimmererarbeiten an Dächern.\"}, {\"te_stable_key\": \"1Ob43_15b|OGH|2015-05-21\", \"gz\": \"1Ob43_15b\", \"datum\": \"2015-05-21\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer Bank für das Verschulden eines Finanzberaters als Erfüllungsgehilfen gemäß § 1313a ABGB bei eigenmächtigem Kauf von Zertifikaten.\"}, {\"te_stable_key\": \"1Ob150_13k|OGH|2014-02-27\", \"gz\": \"1Ob150_13k\", \"datum\": \"2014-02-27\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Handwerkers und seines Arbeitgebers für "
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0131910",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0131910",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 779.06,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0131910\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0123219",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0123219",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 787.1,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0123219\", \"rechtssatz_text\": \"Ein Wertpapierdienstleistungsunternehmen haftet gemäß § 1313a ABGB für das Verhalten von Personen, derer es sich bei der Erbringung der Wertpapierdienstleistungen bediente. Ein Anlageberater ist grundsätzlich als Erfüllungsgehilfe seinem Geschäftsherrn zuzurechnen.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17459, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10Ob62_15p|OGH|2016-06-28\", \"gz\": \"10Ob62_15p\", \"datum\": \"2016-06-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Versicherungsmaklers als Erfüllungsgehilfe für fehlerhafte Beratung bei Genussscheinen aufgrund Verletzung von Aufklärungspflichten gemäß WAG 1996.\"}, {\"te_stable_key\": \"1Ob48_12h|OGH|2012-12-13\", \"gz\": \"1Ob48_12h\", \"datum\": \"2012-12-13\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung einer deutschen Bank für Aufklärungs- und Warnpflichten bei kreditfinanzierten Wertpapierinvestments österreichischer Kunden über einen österreichischen Berater.\"}, {\"te_stable_key\": \"2Ob66_11m|OGH|2011-09-16\", \"gz\": \"2Ob66_11m\", \"datum\": \"2011-09-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da die Haftung eines Wertpapierdienstleistungsunternehmens gemäß § 1313a ABGB für Erfüllungsgehilfen grundsätzlich gilt und Ausnahmen für Eigenhaftung des Vertreters hier nicht vorliegen.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0121747",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0121747",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 579.64,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0121747\", \"rechtssatz_text\": \"Weisungsbefugnisse des Geschäftsherren gegenüber seinem Gehilfen sind zwar in der Praxis häufig. Sie sind jedoch keine Voraussetzung, sondern nur eine Folge des Gehilfenverhältnisses: Denn es liegt rein faktisch im Interesse des Geschäftsherrn, sich wegen der nach § 1313a ABGB drohenden Haftung...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17404, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob13_19v|OGH|2019-05-28\", \"gz\": \"4Ob13_19v\", \"datum\": \"2019-05-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Supermarktbetreibers für den Sturz eines Kunden auf vereistem Parkplatz eines Einkaufszentrums nach Abschluss des Einkaufs aufgrund nachvertraglicher Schutzpflichten.\"}, {\"te_stable_key\": \"6Ob180_14k|OGH|2015-05-27\", \"gz\": \"6Ob180_14k\", \"datum\": \"2015-05-27\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Geschäftsinhabers für Verletzungen eines Kunden auf einem gemeinsamen Parkplatz eines Einkaufszentrums aufgrund vor- und nachvertraglicher Schutz- und Sorgfaltspflichten.\"}, {\"te_stable_key\": \"8Ob106_12i|OGH|2013-08-29\", \"gz\": \"8Ob106_12i\", \"datum\": \"2013-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Hotelbetreibers für eine Legionellen-Infektion einer Gästin durch unzureichende Wartung der Warmwasserversorgungsanlage.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0120608",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0120608",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 14.15,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0120608\", \"rechtssatz_text\": \"Die Bestimmung gilt generell für jede verspätete Zahlung von Geldforderungen zwischen Unternehmern aus einem unternehmerischen Geschäft und zwar auch für Schadenersatzforderungen und unabhängig davon, um welchen Vertragstyp es sich handelt. Nicht entscheidend ist, ob die Geldforderung aus der...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7591, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob246_20z|OGH|2021-05-12\", \"gz\": \"6Ob246_20z\", \"datum\": \"2021-05-12\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Titulierung von Ansprüchen und die Möglichkeit eines Ausspruchs über Zinsen im Verfahren zur Überprüfung der Barabfindung nach GesAusG iVm §§ 225c ff AktG.\"}, {\"te_stable_key\": \"6Ob126_18z|OGH|2018-12-20\", \"gz\": \"6Ob126_18z\", \"datum\": \"2018-12-20\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision betrifft die Bindungswirkung eines Schiedsgutachtens zur Bewertung von GmbH-Geschäftsanteilen im Rahmen eines Management-Buy-In-Vertrags sowie die Qualifikation als unternehmerisches Geschäft für Verzugszinsen.\"}, {\"te_stable_key\": \"6Ob185_17z|OGH|2017-10-25\", \"gz\": \"6Ob185_17z\", \"datum\": \"2017-10-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Zuerkennung von Schadenersatz aus einem Lizenz- und Know-how-Vertrag zurück, da die Klage trotz anfänglicher Unschlüssigkeit rechtzeitig verbessert wurde und der Anspruch begründet ist.\"}, {\"te_stable_key\": \"1Ob17_16f|OGH|2016-04-28\", \"gz\": \"1Ob17_16f\", \"datum\": \"2016-04-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines gerichtlich bestellten Sachverständigen für ein unrichtiges Gutachten im Vorverfahren, das zu einem Prozessverlust und Vermögensschaden führte.\"}, {\"te_stable_key\": \"6Ob117_15x|OGH|2015-09-01\", \"gz\": \"6Ob117_15x\", \"datum\": \"2015-09-01\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung eines bereicherungsrechtlichen Anspruchs auf Rückzahlung überzahlter Gewährleistungsleistungen inklusive Zinsen nach § 1333 ABGB.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0120593",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0120593",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.79,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0120593\"}"
+      }
+    ],
+    "tool_calls_total": 18,
+    "tool_calls_ok": 18,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "**Ofenbau AG haftet für Handlungen der Allerlei GmbH als Erfüllungsgehilfin (Subunternehmerin) iSd § 1313a ABGB (keine Treffer zu § 1306 ABGB; deliktische Hilfspersonenhaftung primär durch vertragliche Werkunternehmerhaftung abgedeckt).**\n\n### Kernregelungen (mit RS/GZ):\n- **§ 1313a ABGB (vertragliche Haftung für Erfüllungsgehilfen)**: Ofenbau AG als Werkunternehmer haftet für Verschulden der Mitarbeiter der Subunternehmerin Allerlei GmbH bei Einbau/Montage des Kachelofens, da diese im Rahmen der Erfüllung des Werkvertrags (§§ 1151 ff ABGB) handelten. Ratio: Besteller (Karl) darf durch Einschaltung von Hilfspersonen nicht schlechter gestellt werden (RS0028495; TE: 8Ob98/20z Krankenhaus-Behandlungsfehler; 4Ob129/12t Bank-Vermittler). Delikte innerhalb des Pflichtenkreises (Mängel: fehlende Löcher, Luftschieber, Herdeinsatz; Demontageschaden) zurechenbar (RS0028691; TE: 7Ob91/16g Spediteur-Subunternehmer; 5Ob125/15s Generalunternehmer-Regress-Zimmerer; 1Ob150/13k Handwerker-Gasexplosion).\n- **Gehilfenkriterium**: Subunternehmer/Mitarbeiter als Erfüllungsgehilfen, wenn im Interesse des Unternehmers tätig (Interessenverfolgungsprogramm; RS0028425). Zurechnung auch bei Werkvertragsketten/Generalunternehmer-Sub (RS0017185; Schlagwörter \"Haftung für Subunternehmer\", \"Werkvertragskette\"; TE RS0026751: 6Ob217/10w Handwerker-Sanierungsgehilfen).\n- **Anwendung auf Fall**: Montage-Mängel (vergessene Löcher etc.) und Demontageschaden (Gabelstapler) fallen in Pflichtenkreis des Einbaus/Reparatur; Allerlei-Mitarbeiter = Erfüllungsgehilfen (vgl. RS0026751: Bauherr zurechnet Auftragnehmer-Verschulden; TE: 1Ob18/10v Treuhänder-Rechtsanwalt; RS0112247 Werkunternehmer-Beweislast §1298+§1313a).\n\n### Beweislast:\n| Anspruch | Beweislastträger | Begründung/RS |\n|----------|------------------|---------------|\n| **Mängelhaftung (Werkvertrag, §§922/932 ABGB)** | Ofenbau AG (§1298 ABGB Beweislastumkehr) | Verschulden (eigenes + Gehilfen §1313a) unwahrscheinlich zu machen; Sachverständigerfeststellung (Neuaufbau €10.000) bindend (RS0112247; RS0026751). |\n| **Zusätzlicher Demontageschaden (deliktisch §1295/§1313a)** | Ofenbau AG | Gehilfenverschulden zurechenbar; keine Haftungsfreiheit nachweisbar (RS0028691; TE: 2Ob191/12w Laderampe-Erfüllungsgehilfe). |\n| **Schadenshöhe (Neuaufbau vs. Marktwert)** | Karl (prima facie) | Naturalrestitution möglich, wenn angemessen; Ofenbau muss Unverhältnismäßigkeit beweisen (parallel stream). |\n\n**Keine Haftungsausschlüsse**: Keine Weisungsbefugnis erforderlich (RS0121747); Untüchtigkeit/Auswahlverschulden nicht zwingend (RS0028824). Regress Ofenbau vs. Allerlei möglich (RS0017495 Solidarhaftung). \n\nQuellen: Phase1: search_by_paragraph §1313a (20 RS); Schlagwörter \"Erfüllungsgehilfe\"/\"Subunternehmer\"/\"Generalunternehmer\". Phase2: hot_rs_lookup RS0026751/8495/8691 (TEs mit Sub-/Generalunternehmer-Fällen).",
+    "answer_chars": 2861,
+    "e2e_ms": 49784.93
+  },
+  {
+    "name": "Assess damages and mitigation (Neuaufbau vs. Marktwert)",
+    "goal": "Evaluate whether full replacement cost (EUR 10.000) is claimable or limited to market value; examine duty to mitigate under § 1323 ABGB",
+    "mode": "llm",
+    "tools": [
+      "search_kommentar_paragraph",
+      "build_grounding_context",
+      "search_ogh_rechtssaetze",
+      "search_by_paragraph",
+      "search_by_schlagwort",
+      "get_rechtssatz",
+      "hot_rs_lookup"
+    ],
+    "llm_model": "x-ai/grok-4.1-fast",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 9632.16,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 1802,
+          "completion_tokens": 964,
+          "total_tokens": 2766,
+          "cost": 0.0008199,
+          "cached_tokens": 150,
+          "reasoning_tokens": 698
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 6969.05,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 7,
+        "usage": {
+          "prompt_tokens": 15732,
+          "completion_tokens": 719,
+          "total_tokens": 16451,
+          "cost": 0.0034834,
+          "cached_tokens": 150,
+          "reasoning_tokens": 359
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 10990.26,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 7,
+        "usage": {
+          "prompt_tokens": 22477,
+          "completion_tokens": 1194,
+          "total_tokens": 23671,
+          "cost": 0.00273245,
+          "cached_tokens": 15733,
+          "reasoning_tokens": 879
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 18977.26,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 27048,
+          "completion_tokens": 2035,
+          "total_tokens": 29083,
+          "cost": 0.0030563,
+          "cached_tokens": 22472,
+          "reasoning_tokens": 827
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "call_04197649",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1323 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1951.73,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1323 ABGB\", \"results\": [{\"rs_number\": \"RS0102888\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 1293 ABGB: Die Entscheidungen zur Abgrenzung einschlägigen Begriffe wie positiver Schade - entgangener Gewinn, \\\"merkantiler Minderwert\\\" abstrakter Schaden, Verzögerungsschaden und dergleichen befinden sich bei § 1323 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102933\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 1323 ABGB A Grundsätzliches (auch = abstrakter Schaden) (auch Umsatzsteuer) B Naturalersatz (Tunlichkeit - Untunlichkeit) C Schätzwert 1) allgemein 2) merkantiler Minderwert D Unterscheidung: wirklicher Schaden - entgangener Gewinn E Tilgung der Beleidigung F Ersatz...\", \"schlagworte\": []}, {\"rs_number\": \"RS0106347\", \"kernaussage\": \"Der in \\\"Technischen Richtlinien\\\" und dergleichen verwendete Begriff der \\\"Tunlichkeit\\\" ist mit dem Begriff \\\"Möglichkeit\\\" gleichzusetzen und im Sinne des § 1323 ABGB dahin auszulegen, daß damit kein ungebundenes Ermessen eingeräumt wird.\", \"schlagworte\": [\"Gasexplosion\", \"Gasversorgungsunternehmen\", \"Haftung\", \"Technische Richtlinien ÖVGW-TR Gas 1975\", \"Wiener Gasgesetz\"]}, {\"rs_number\": \"RS0112641\", \"kernaussage\": \"§ 979 ABGB bietet keine Rechtsgrundlage, anstelle der an sich möglichen Herausgabe den Ersatz des Wertes der Gegenstände zu begehren. Lediglich bei Unmöglichkeit oder Untunlichkeit der Naturalrestitution ist gemäß § 1323 ABGB Wertersatz nach schadenersatzrechtlichen Gesichtspunkten zu leisten.\", \"schlagworte\": [\"Leihvertrag\", \"Rückgabe\", \"Wertersatz\", \"Schadenersatz\"]}, {\"rs_number\": \"RS0021540\","
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_63294749",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 932 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1148.08,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 932 ABGB\", \"results\": [{\"rs_number\": \"RS0121684\", \"kernaussage\": \"Auch nach der neuen Rechtslage (§ 932 ABGB idF BGBl I 48/2001) ist die „Unverhältnismäßigkeit\\\" der Verbesserung im Sinn des § 932 Abs 4 ABGB nicht - wie nach § 932 Abs 2 ABGB - „relativ\\\" im Verhältnis zu einer konkreten sekundären Abhilfe (Preisminderung) zu beurteilen, sondern wie bisher „absolut\\\"...\", \"schlagworte\": [\"Werkvertrag\", \"CE-Kennzeichnung\", \"Bauträgervertrag\", \"latenter Mangel\", \"Mängelgewährleistung\", \"Sachmangel\", \"Oberbau\", \"Vorschuss\", \"Motorschaden\", \"Verschulden\", \"Stützmauer\", \"Feuchtigkeitsschäden\", \"Mängelhaftung\", \"Werkmängel\", \"Mängelverbesserung\", \"Unverhältnismäßiger Aufwand\", \"Warmwasseraufbereitung\", \"Berufung\", \"WEG\", \"Verhältnismäßigkeit\", \"RVS-Normen\", \"Totalschaden\", \"Deckungskapital\", \"Aus- und Einbaukosten\", \"Unverhältnismäßigkeit\", \"Austausch der Sache\", \"Gefälle\", \"Warnpflicht\", \"laesio enormis\", \"Revision\"]}, {\"rs_number\": \"RS0022885\", \"kernaussage\": \"Ein Schadenersatzanspruch nach § 932 ABGB ist nur dann gegeben, wenn durch den Mangel ein weiterer Schaden verursacht wurde, der Schaden also nicht nur im Vorhandensein des Mangels besteht.\", \"schlagworte\": [\"Nichterfüllung\", \"Drainagemangel\", \"Werkvertrag\", \"Architektenhonorar\", \"Nebenintervenient\", \"Mängelbehebung\", \"Bauwerkvertrag\", \"Mangelschaden\", \"Statikerhaftung\", \"Preissteigerung\", \"Hangwasser\", \"Konsumentenschutz\", \"Zwischendecken\", \"Mangelsvermutung\", \"Rücktritt\", \"Baumängel\", \"Gewährleistung\", \"Schadenersatz\", \"Gewährleistungsausschluss\", \"Wiederherstellungskosten\", \"Bauwerk\", \"verborgene Mängel"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_96557221",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 933 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2181.84,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 933 ABGB\", \"results\": [{\"rs_number\": \"RS0024011\", \"kernaussage\": \"Auch bei der fehlerhaften Beschaffenheit des Euters und des dadurch verursachten geringen Milchertrages handelt es sich um Viehmängel im Sinne des § 933 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0024186\", \"kernaussage\": \"Die Frist des § 933 ABGB beginnt erst dann, wenn das Ergebnis der Nachforschungen des Klägers den Bestand des vom Dritten behaupteten Rechtes glaubhaft erscheinen läßt.\", \"schlagworte\": []}, {\"rs_number\": \"RS0025488\", \"kernaussage\": \"Die infolge des gerügten Viehmangels vertragsgemäß übernommene Verpflichtung zur Rücknahme des verkauften Viehes oder zum Schadenersatz unterliegt nicht der Präklusivfrist des § 933 ABGB, sondern der allgemeinen Verjährung.\", \"schlagworte\": []}, {\"rs_number\": \"RS0025576\", \"kernaussage\": \"Die Frist des § 933 ABGB gilt nicht für die Klage auf Erfüllung der Zusage eines Dritten, für Gwährleistungsmängel einer Ware aufzukommen.\", \"schlagworte\": []}, {\"rs_number\": \"RS0025648\", \"kernaussage\": \"In die sechswöchige Klagefrist des § 933 ABGB ist der Tag der Ablieferung nicht einzurechnen.\", \"schlagworte\": []}, {\"rs_number\": \"RS0038661\", \"kernaussage\": \"§ 89 GOG gilt nur für prozessuale, nicht aber für Fristen des materiellen Rechtes; deshalb müssen Gewährleistungsklagen innerhalb der Frist des § 933 ABGB und Schadenersatzklagen innerhalb der Frist der § 1489 ABGB bereits bei Gericht eingelangt sein (Klage langte am 01.10.1952 bei Gericht ein). ...\", \"schlagworte\": [\"Schadenersatz\", \"Gewährleistung\", \"Anwaltshaftung\", \"Postenlauf\", \"Mandatswidrigkeit\", "
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_71100495",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 922 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2180.05,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbeprospekt\"]}, {\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswür"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_41878855",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Gewährleistung",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 38.6,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Gewährleistung\", \"results\": [{\"rs_number\": \"RS0116099\", \"kernaussage\": \"Die inhaltlichen Anforderungen der Mängelanzeige dürfen nicht überspannt werden. Die Rüge muss insofern spezifiziert sein, als sie die Vertragswidrigkeit genau beschreiben muss. Pauschale Aussagen und allgemein formulierte Beanstandungen genügen nicht den inhaltlichen Anforderungen, die an eine Rüge...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Italienisches Recht\", \"Gewährleistung\", \"Rom I-VO\", \"Art 82 UN-Kaufrecht\", \"Allgemeine Geschäftsbedingungen\", \"Schwestergesellschaft\", \"Lieferverzug\", \"UN-Kaufrecht\", \"Inkassozession\", \"Mängelrüge\", \"Aufrechnung\", \"Verjährung BGB\", \"Quality Complaint\", \"Teillieferung\", \"Recyclinganlage\", \"CISG Art 39\", \"Sittenwidrigkeit\", \"Art 39 UN-K\", \"Zession\", \"Vertragsrücktritt\", \"Verpackungsmängel\", \"Werklieferungsvertrag\", \"Mängelhaftung\"]}, {\"rs_number\": \"RS0116136\", \"kernaussage\": \"Mangels abweichender Bestimmungen in der KO gilt auch im Konkursverfahren die Bestimmung des § 526 Abs 1 ZPO, nach der über den Rekurs ohne vorhergehende mündliche Verhandlung zu entscheiden ist. Damit ist auch im Konkursverfahren der zweiten Instanz die Möglichkeit der Umwürdigung vom Erstgericht...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"EuGVVO\", \"Ausgleich\", \"Gewährleistung\", \"Werkvertrag\", \"Dokumentenakkreditiv\", \"Casino grenznah\", \"internationale Zuständigkeit\", \"ÖNORM B 5300\", \"Verbraucherschutz\", \"UCP 500\", \"Warnpflicht\", \"Ausrichtung auf Österreich\", \"Geschäftsunfähigkeit\", \"tschechisches Recht\", \"Bescheinigung der Konkursforderung\", \"Konkurseröffnung\", \"Verbrauchersache\", \""
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_87547797",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Ersatzkosten höher als Wert Schadenersatz Gewährleistung",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.33,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Ersatzkosten höher als Wert Schadenersatz Gewährleistung\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_00750884",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Neuaufbau Kosten höher Wert Gewährleistung",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 434.6,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Neuaufbau Kosten höher Wert Gewährleistung\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_45609131",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Herstellungskosten Wiederbeschaffungskosten Ersatzkosten Gewährleistung Mangel",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 59.15,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Herstellungskosten Wiederbeschaffungskosten Ersatzkosten Gewährleistung Mangel\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_65004884",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Werkvertrag",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 71.62,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Werkvertrag\", \"results\": [{\"rs_number\": \"RS0127731\", \"kernaussage\": \"Obwohl Unterhaltsvorschüsse seit dem 1. 5. 2010 vom Anwendungsbereich der VO (EG) 883/2004 ausgenommen sind, kann ein Anspruch auf Gewährung von Unterhaltsvorschüssen dennoch bestehen, wenn ein Kind mit der Staatsbürgerschaft eines EU-Mitgliedstaats seinen gewöhnlichen Aufenthalt in einem anderen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unterhaltsvorschuss\", \"Grenzgänger\", \"Freizügigkeitsverordnung\", \"Wohnsitzkriterium\", \"mittelbare Diskriminierung\", \"Richtervorbehalt\", \"ausländisches Recht\", \"EU-Recht\", \"RpflG\", \"UVG\", \"AußStrG\", \"FreizügigkeitsVO\", \"Arbeitnehmerbegriff\", \"24-Stunden-Pflege\", \"Werkvertrag\", \"Selbständigkeit\"]}, {\"rs_number\": \"RS0128685\", \"kernaussage\": \"Eine Rechtswahl kann nach Art 3 Abs 1 Satz 2 EVÜ ausdrücklich sein oder sich mit hinreichender Sicherheit aus den Bestimmungen des Vertrags oder aus den Umständen des Falls ergeben. Es muss sich nicht um eine individuell ausgehandelte Klausel handeln, auch die Vereinbarung einer Rechtswahl in...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Architektenvertrag\", \"§ 34 MSchG\", \"Werkvertrag\", \"Rom I-VO\", \"Identität Waren/Dienste\", \"Markenlöschung\", \"Berufung\", \"Margin-Call\", \"Aufklärungspflicht\", \"Wertpapiergeschäfte\", \"österreichische Marke\", \"Unionsmarke\", \"Patentamt\", \"Gewährleistungsfristen\", \"Fassadensanierung\", \"EVÜ\", \"Solidarhaftung\", \"Rechtswahl\", \"Kooperationsvertrag\", \"Planungsmängel\", \"OLG Wien\", \"bösgläubige Anmeldung\"]}, {\"rs_number\": \"RS0128707\", \"kernaussage\": \"Wesentlich für die Haftungsbefreiung sowohl von Haupt‑ al"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_34050674",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1299 ABGB",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 654.63,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1299 ABGB\", \"results\": [{\"rs_number\": \"RS0033311\", \"kernaussage\": \"Unkenntnis der Schulden macht den Übernehmer nicht haftungsfrei, wenn er jene Sorgfalt außer acht läßt, welche (gemäß § 1297 ABGB) bei gewöhnlichen Fähigkeiten angewendet werden kann und darüber hinaus (gemäß § 1299 ABGB) jene besondere Sorgfalt, die gerade eine Unternehmensübernahme erfordert.\", \"schlagworte\": []}, {\"rs_number\": \"RS0038160\", \"kernaussage\": \"Ein Angestellter der eine ordnungsgemäße kaufmännische Lehre absolviert hat und anschließend als Verkäufer in die Lebensmittelbranche, dann etwa ein Jahr lang als Filialleiter in einem Lebensmittelgeschäft tätig war, hat nach § 1299 ABGB die für die Ausübung des Berufs eines Filialleiters eines...\", \"schlagworte\": [\"Filialleiter\", \"Manko\", \"Inventur\", \"Schwund\", \"Dienstverhältnis\"]}, {\"rs_number\": \"RS0022480\", \"kernaussage\": \"Dritten, vom Auftraggeber oder Besteller der Arbeit verschiedenen Personen gegenüber besteht eine Haftung gemäß § 1299 ABGB nur unter bestimmten Voraussetzungen so bei Herstellung der Erzeugnisse unter Verstoß gegen Schutzvorschriften oder ein allgemeines Gefährdungsverbot.\", \"schlagworte\": [\"Kabelschaden\", \"Bauunternehmer\", \"Subunternehmer\", \"Diligenzpflicht\", \"Regress\", \"Versicherer\"]}, {\"rs_number\": \"RS0026496\", \"kernaussage\": \"Mit der Annahme der Bestellung eines für den speziellen Bodenbelag geeigneten Klebstoffes hat der Verkäufer zu erkennen gegeben, daß er sich die erforderlichen Kenntnisse bezüglich der Auswahl eines geeigneten Klebstoffes zutraue, und muß daher den Mangel dieser Kenntnis nach § 1299 ABGB v"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_03354836",
+        "tool": "build_grounding_context",
+        "args": {
+          "topic": "gewährleistung",
+          "query": "Sind bei Gewährleistungsansprüchen aus Werkvertrag Ersatzkosten über Marktwert des Ofens hinaus claimable? Pflicht zur Schadensminderung §1323 ABGB",
+          "max_clusters": 2,
+          "max_tokens": 500
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.63,
+        "error": null,
+        "payload_preview": "\"Unknown tool: build_grounding_context\""
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_96582763",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0131584",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.15,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0131584\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_69746871",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0086353",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 18.35,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0086353\", \"rechtssatz_text\": \"Unterlässt der Schuldner (Werkunternehmer) seine Verbesserung, so muss er den Gläubiger so stellen wie er stünde, wenn er ordnungsgemäß erfüllt hätte. Es steht demnach das Erfüllungsinteresse zu. Der Ersatzanspruch ist primär auf Naturalersatz, also auf Behebung des Mangels gerichtet (§ 1323 ABGB). ...\", \"te_count\": 21, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2516, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob110_24s|OGH|2025-01-21\", \"gz\": \"4Ob110_24s\", \"datum\": \"2025-01-21\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung von Schadenersatzansprüchen wegen Schlechterfüllung eines Architektenvertrags durch Planungsfehler sowie Verjährung bei pauschalierten Teileinklagungen.\"}, {\"te_stable_key\": \"4Ob188_24m|OGH|2024-11-19\", \"gz\": \"4Ob188_24m\", \"datum\": \"2024-11-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Werkunternehmerin zurück, die gegen die Zuerkennung des Vorschusses auf Mängelverbesserungskosten gerichtet ist.\"}, {\"te_stable_key\": \"8Ob130_23k|OGH|2024-05-22\", \"gz\": \"8Ob130_23k\", \"datum\": \"2024-05-22\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Rechtsnatur von Leistungsstörungs- und Schadenersatzansprüchen des Erwerbers bei Freihandverkauf im Insolvenzverfahren als Sondermasseforderungen.\"}, {\"te_stable_key\": \"8Ob36_24p|OGH|2024-05-22\", \"gz\": \"8Ob36_24p\", \"datum\": \"2024-05-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage zum Beginn des Verbesserungsverzugs und den Anforderungen an eine Mängelrüge vorliegt.\"}, {\"te_stable_key\": \"1Ob77_23i|OGH|2023-09-20\", \"gz\": \"1Ob77_23i\", \"datum\": \"2023-09-20\", \"gericht\": \"OGH\", \"mini_story\": \"Auslegung eines Gewährleistungsverzichts im Kaufvertrag einer Liegenschaft unter Einbeziehung von Exposé-Angaben und Zusage einer umfassenden Sanierung.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_14941843",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0121684"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.36,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0121684\", \"rechtssatz\": \"Auch nach der neuen Rechtslage (§ 932 ABGB idF BGBl I 48/2001) ist die „Unverhältnismäßigkeit\\\" der Verbesserung im Sinn des § 932 Abs 4 ABGB nicht - wie nach § 932 Abs 2 ABGB - „relativ\\\" im Verhältnis zu einer konkreten sekundären Abhilfe (Preisminderung) zu beurteilen, sondern wie bisher „absolut\\\" und gewichtiger (Daher keine Übertragung der in § 932 Abs 2 ABGB vorgegebenen Beurteilungsmechanismen und deren Gewichtung).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"CE-Kennzeichnung\", \"Bauträgervertrag\", \"latenter Mangel\", \"Mängelgewährleistung\", \"Sachmangel\", \"Oberbau\", \"Vorschuss\", \"Motorschaden\", \"Verschulden\", \"Stützmauer\", \"Feuchtigkeitsschäden\", \"Mängelhaftung\", \"Werkmängel\", \"Mängelverbesserung\", \"Unverhältnismäßiger Aufwand\", \"Warmwasseraufbereitung\", \"Berufung\", \"WEG\", \"Verhältnismäßigkeit\", \"RVS-Normen\", \"Totalschaden\", \"Deckungskapital\", \"Aus- und Einbaukosten\", \"Unverhältnismäßigkeit\", \"Austausch der Sache\", \"Gefälle\", \"Warnpflicht\", \"laesio enormis\", \"Revision\"], \"fachgebiete\": [\"Gewährleistung\", \"Berufung\", \"Baurecht\"], \"datum\": \"2024-11-19\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_24859298",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0102933"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.26,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0102933\", \"rechtssatz\": \"Übersicht der Entscheidungen zu § 1323 ABGB\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1996-09-26\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_46957403",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0131584"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.31,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0131584\", \"rechtssatz\": \"Der nach § 1323 ABGB zu ersetzende gemeine Wert einer Sache kann im Austausch-, im Ertrags- und allenfalls im Herstellungswert bestehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wiederbeschaffungswert\", \"Herstellungswert\", \"Austauschwert\", \"neu für alt\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2017-05-30\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_10044155",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Herstellungswert Naturalersatz",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.02,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Herstellungswert Naturalersatz\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_07780305",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Schadensminderung",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 33.19,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Schadensminderung\", \"results\": [{\"rs_number\": \"RS0026751\", \"kernaussage\": \"Der geschädigte Bauherr muss sich - auch außerhalb von Schuldverhältnissen - das Verschulden seiner Gehilfen (Auftragnehmer) zurechnen lassen; für die Beurteilung, wer Gehilfe ist, ist auch außerhalb von Schuldverhältnissen § 1313a ABGB entsprechend heranzuziehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bauwesenversicherung\", \"Regreßverzicht\", \"Mitversicherung\", \"Bauleistungen\", \"Werkvertrag\", \"Mängelfolgeschaden\", \"Warnpflicht\", \"Mitverschulden\", \"Solidarhaftung\", \"Haftung des Herstellers\", \"Wartungspflicht des Eigentümers\", \"Regress des Haftpflichtversicherers\", \"Amtshaftung Lehrer\", \"Hangrutsch\", \"Baugrubensicherung\", \"Baumeisterhaftung\", \"Sanierungskosten\", \"Erfüllungsgehilfe\", \"Vorunternehmer\", \"Bauherrnhaftung\", \"Großkreditgrenzen\", \"Kreditwirtschaftsgesetz\", \"Bankwesengesetz\", \"Pfandrecht\", \"Nichtigkeit\", \"Schadenersatz\", \"Unterfangung\", \"Gebäudesicherung\", \"Nachbarschaden\", \"Folgeschaden\", \"Sanierungsschaden\", \"Trocknungsschaden\", \"Rettungsschaden\", \"Gehilfe\", \"Naturalersatz\", \"adäquater Kausalzusammenhang\", \"Ölaustritt\", \"Tankanlage\", \"Grenzwertgeber\", \"Verschuldensaufteilung\", \"Gehilfenverschulden\", \"Treuhand\", \"Unterschriftfälschung\", \"Schadensersatz\", \"Herstellungsgehilfe\", \"Schadensminderung\"]}, {\"rs_number\": \"RS0026806\", \"kernaussage\": \"Der Verletzte muß nicht jeden beliebigen Erwerb allein schon deswegen annehmen, weil damit ein höheres Einkommen verbunden ist, wenn wichtige Interessen dagegen sprechen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verkehrsunfall\", \"Schadensmin"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_53942664",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 874 ABGB",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 836.43,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 874 ABGB\", \"results\": [{\"rs_number\": \"RS0135454\", \"kernaussage\": \"Ein Vorstandsvorsitzender einer Bank, die irreführende Werbeunterlagen zu vertreten hat, kann gemäß § 1301 ABGB Mittäter oder Beitragstäter zu gemäß § 1295 Abs 2, § 1300 Satz 2 oder § 874 ABGB verpöntem Verhalten sein, wenn sein Handeln vom entsprechenden Vorsatz getragen war. Wusste er von der...\", \"schlagworte\": [\"Anlegerirreführung\", \"Werbebroschüren\", \"Ad-hoc-Meldungen\", \"Vergleichsvereinbarung\"]}, {\"rs_number\": \"RS0025334\", \"kernaussage\": \"Nach § 874 ABGB ist nur der Schaden zu ersetzen, der durch die widerrechtliche Einwirkung auf den Willen des Betrogenen verursacht wurde. Dieser Schaden kann darin bestehen, daß der Betrogene infolge des Betruges einem ihm nachteiligen Vertrag geschlossen hat oder darin, daß er infolge des Vertrages, ...\", \"schlagworte\": [\"Manipulationssoftware\", \"Arglistige Irreführung\", \"Schadenersatz\", \"Kausalität\", \"Feststellung zukünftiger Schäden\"]}, {\"rs_number\": \"RS0012086\", \"kernaussage\": \"Ein Mieter, der für die Dauer seiner Evakuierung seine Wohnung einem Dritten überlassen hat, kann diesen auch dann auf Räumung klagen, wenn der Dritte sich eine Einweisung verschafft und sodann mit dem Hauseigentümer einen Mietvertrag geschlossen hat. Das Räumungsbegehren kann mit der auf § 874 ABGB...\", \"schlagworte\": []}, {\"rs_number\": \"RS0016299\", \"kernaussage\": \"Maßgebend für die Art der Schadensgutmachung nach § 874 ABGB ist die allgemeine Regel des § 1323 ABGB wonach alles in den vorigen Stand zurückversetzt und nur , wenn das nicht tunlich ist , der Schätzwert vergüte"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_26341201",
+        "tool": "build_grounding_context",
+        "args": {
+          "topic": "schadenersatz",
+          "query": "Ersatzkosten Neuaufbau Ofen über Marktwert, Schadensminderungspflicht §1323 ABGB Werkvertrag Mängel",
+          "max_clusters": 2,
+          "max_tokens": 500
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.56,
+        "error": null,
+        "payload_preview": "\"Unknown tool: build_grounding_context\""
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0135454",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0135454",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.89,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0135454\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0128707",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0128707",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 16.85,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0128707\", \"rechtssatz_text\": \"Wesentlich für die Haftungsbefreiung sowohl von Haupt‑ als auch Nebenunternehmer gegenüber einem Dienstnehmer eines der beteiligten Unternehmen ist nicht nur eine organisatorisch koordinierte Zusammenarbeit zur Erzielung eines gemeinsamen Erfolgs, sondern immer auch die Eingliederung des (fremden...\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11796, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob153_24z|OGH|2025-04-29\", \"gz\": \"2Ob153_24z\", \"datum\": \"2025-04-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet, dass kein Unfall beim Betrieb des Betonmischfahrzeugs i.S.d. § 1 EKHG vorliegt und die Rekurse hinsichtlich § 333 ASVG unzulässig sind.\"}, {\"te_stable_key\": \"9ObA39_19d|OGH|2019-07-23\", \"gz\": \"9ObA39_19d\", \"datum\": \"2019-07-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Rekurs der Beklagten zurück, da ausreichend Rechtsprechung zur Frage der Eingliederung einer Dienstnehmerin eines Shop-in-Shop-Betreibers in den Betrieb des Supermarkts iSd § 333 ASVG vorliegt und keine erhebliche Rechtsfrage besteht.\"}, {\"te_stable_key\": \"2Ob209_17z|OGH|2018-11-29\", \"gz\": \"2Ob209_17z\", \"datum\": \"2018-11-29\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung der Reinigungsfirma für Sturzschaden eines Bahnmitarbeiters auf rutschigem Boden im Bahnhof aufgrund Vertrag mit Schutzwirkung und Dienstgeberhaftungsprivileg.\"}, {\"te_stable_key\": \"2Ob24_15s|OGH|2015-04-09\", \"gz\": \"2Ob24_15s\", \"datum\": \"2015-04-09\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen das Teilurteil des Berufungsgerichts, das den Dienstgeberhaftungsprivileg nach § 333 ASVG verneinte, ist zurückzuweisen.\"}, {\"te_stable_key\": \"2Ob36_14d|OGH|2014-08-27\", \"gz\": \"2Ob36_14d\", \"datum\": \"2014-08-27\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Baggerfahrers bei Unfall auf Staumauer und Qualifikation des Vertragsverhältnisses zwischen Baggerhalter und Betreiber.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0128685",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0128685",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.1,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0128685\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0127731",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0127731",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.63,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127731\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0116136",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0116136",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.9,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0116136\"}"
+      }
+    ],
+    "tool_calls_total": 25,
+    "tool_calls_ok": 25,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "**PHASE 3 SUMMARY (Gewährleistung & Schadenersatz im Werkvertragskontext):**\n\n### Core Ruleset (with RS Citations):\n- **Primärer Anspruch: Naturalersatz/Verbesserung (§§ 922, 932 ABGB; § 1323 ABGB)**: Im Werkvertrag (§ 1151 ABGB) steht dem Besteller primär das **Erfüllungsinteresse** zu. Der Unternehmer muss den Mangel beheben (Neuaufbau/Verbesserung), sofern **tunlich** (§ 1323 ABGB: Zurückversetzung in den vorigen Stand). RS0086353 (OGH): \"Der Ersatzanspruch ist primär auf Naturalersatz, also auf Behebung des Mangels gerichtet (§ 1323 ABGB)\"; Erfüllungsinteresse prev. Schadenersatzinteresse. RS0102933 (OGH): Übersicht zu § 1323 (Naturalersatz vor Wertersatz).  \n  - **Unverhältnismäßigkeit der Verbesserung (§ 932 Abs 4 ABGB)**: Absolut zu prüfen (Kosten vs. Wert/Nutzen), nicht relativ zu Preisminderung. RS0121684 (OGH, 19.11.2024): \"Unverhältnismäßigkeit [...] 'absolut' und gewichtiger\"; hier EUR 10.000 > Ofenwert (EUR 9.000) + Marktwert → potenziell unverhältnismäßig → Sekundäransprüche (Preisminderung/Wandlung). Sachverständigengutachten belegt Notwendigkeit, aber Kostenübersteigung spricht ggü. Tunlichkeit.\n\n- **Wertersatz/Schätzwert bei Untunlichkeit (§ 1323 ABGB)**: Wenn Naturalersatz untunlich/unverhältnismäßig, Wertersatz = **gemeiner Wert** (Verkehrswert/Marktwert). **Full replacement (EUR 10.000) nicht voll claimable**, da > Marktwert; begrenzt auf **Herstellungswert/Austauschwert** nur ausnahmsweise (z.B. einzigartige Sache, Nutzwert). RS0131584 (OGH, 30.5.2017): \"Der [...] gemeine Wert [...] kann im Austausch-, im Ertrags- und allenfalls im **Herstellungswert** bestehen\" (Schlagworte: Wiederbeschaffungswert, neu für alt → hier Kachelofen ggf. Herstellungswert, aber Marktwert maßgeblich, wenn keine Spezialnutzung). Kein Automatismus für Überkosten.\n\n- **Zusätzlicher Gebäudeschaden (Demontage)**: Separater **Schadenersatzanspruch** (§ 932 ABGB iVm § 1323 ABGB; deliktisch § 1295 ABGB möglich). Full Kosten claimable, wenn kausal/verschuldet (Gabelstapler statt Kran, Eile); Naturalersatz priorisiert.\n\n### Beweislast:\n| Issue | Tragende Partei | RS-Beleg |\n|-------|-----------------|----------|\n| Mangelvorliegen (vergessene Löcher, Luftschieber, Herdeinsatz) | Karl (Besteller) | §§ 922, 932 ABGB (analog); Sachverständiger beweist. |\n| Untunlichkeit/Unverhältnismäßigkeit Neuaufbau (EUR 10k > Wert) | Ofenbau AG (muss Unverhältnismäßigkeit beweisen) | RS0121684; § 932 Abs 4. |\n| Höhe Schätzwert/Herstellungswert | Karl (prima facie Gutachten); Ofenbau konter | RS0131584; § 1323. |\n| Kausalität Gebäudeschaden | Karl | § 1323; Gehilfenverschulden (§ 1313a). |\n\n### Schadensminderungspflicht (§ 1323/1326 ABGB):\n- **Karl (Geschädigter)**: Muss **zweckmäßig/naheliegend** handeln (prompt Reparaturauftrag, keine Verschärfung). RS0027052 (OGH): Genüge durch \"unverzügliche[n] [...] Auftrag [an] geeigneten Gewerbsmann\". Hier Demontage durch AG-Mitarbeiter → Keine Pflichtverletzung Karls (er forderte Reparatur). RS0027001: Zuwarten auf Versicherer/Sachverständigen ok, wenn kooperativ.\n- **Ofenbau AG**: Primärpflicht zur Minderung via Verbesserung. Keine Beweislastumkehr (§ 1298 irrelevant, da Werkvertrag/Gewährleistung verschuldensunabhängig).\n- **Folge**: Überkosten (10k) mindern, wenn Karl untätig; hier Gutachten → voll ersatzfähig bis Wertgrenze.\n\n**Gesamteinschätzung**: EUR 10.000 **nicht voll claimable** (begrenzt auf Marktwert/Herstellungswert, RS0131584); Verbesserung ggf. abgelehnt (unverhältnismäßig, RS0121684) → Preisminderung/Wandlung + Gebäudeschaden full. Keine Mitigationsverletzung Karls. Parallelströme: Gewährleistung primär; AG haftet für Sub (Erfüllungsgehilfe, § 1313a).",
+    "answer_chars": 3644,
+    "e2e_ms": 61575.67
+  },
+  {
+    "name": "Identify core legal claims under Austrian civil law",
+    "goal": "Determine applicable claims (e.g., warranty, tort, contract) against Ofenbau AG based on factual defects and additional damage",
+    "mode": "llm",
+    "tools": [
+      "search_by_paragraph",
+      "search_by_schlagwort",
+      "get_rechtssatz",
+      "hot_rs_lookup",
+      "search_ogh_rechtssaetze"
+    ],
+    "llm_model": "x-ai/grok-4.1-fast",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 8405.87,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 1530,
+          "completion_tokens": 1188,
+          "total_tokens": 2718,
+          "cost": 0.0008808,
+          "cached_tokens": 128,
+          "reasoning_tokens": 935
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 12417.75,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 21146,
+          "completion_tokens": 1233,
+          "total_tokens": 22379,
+          "cost": 0.0048232,
+          "cached_tokens": 150,
+          "reasoning_tokens": 997
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 12847.96,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 38549,
+          "completion_tokens": 1129,
+          "total_tokens": 39678,
+          "cost": 0.0030882,
+          "cached_tokens": 50474,
+          "reasoning_tokens": 907
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 16321.68,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 50605,
+          "completion_tokens": 1773,
+          "total_tokens": 52378,
+          "cost": 0.0051505,
+          "cached_tokens": 85280,
+          "reasoning_tokens": 778
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "call_06595762",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1168 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 826.06,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1168 ABGB\", \"results\": [{\"rs_number\": \"RS0121919\", \"kernaussage\": \"§ 1020 ABGB ist auf die Auflösung eines Verwaltungsvertrages nach dem WEG nicht anzuwenden. Das dem Geschäftsbesorger im Fall der Beendigung zustehende Entgelt bzw dessen Aufwandersatz ist unter analoger Anwendung des § 1155 ABGB bzw § 1168 ABGB zu prüfen.\", \"schlagworte\": [\"Hausverwalter\", \"Kündigung\", \"Honorar\", \"Erlagsverfahren\", \"Eigentümergemeinschaft\", \"WEG\", \"Verwaltungsvertrag\", \"Mehrheitsbeschluss\", \"Beschlussanfechtung\", \"Vollziehbarkeit\", \"Wohnungseigentümergemeinschaft\", \"Verwalterkündigung\", \"außerordentliche Kündigung\", \"wichtiger Grund\", \"Außerstreitverfahren\", \"Umlaufbeschluss\", \"WEG 2002\"]}, {\"rs_number\": \"RS0021851\", \"kernaussage\": \"Nach § 1168 ABGB hat der Unternehmer im Falle des Unterbleibens der Ausführung des Werkes nur Anspruch auf den reinen Verdienst, der ihm im Falle der Ausführung des Vertrages zugekommen wäre. Darunter fallen aber die Zentralregien nicht.\", \"schlagworte\": []}, {\"rs_number\": \"RS0021916\", \"kernaussage\": \"Ein, wenn auch nach § 1168 ABGB gesetzlich zulässiger Rücktritt des Bestellers vom Werkvertrag kann eine anfechtbare Rechtshandlung sein.\", \"schlagworte\": []}, {\"rs_number\": \"RS0025706\", \"kernaussage\": \"Keine Anwendung des § 1168 ABGB auf Verlagsverträge.\", \"schlagworte\": [\"Verlagsvertrag\", \"Rücktritt\", \"Vorschuss\", \"Verkehrssitte\", \"Urheberrechtsgesetz\"]}, {\"rs_number\": \"RS0025713\", \"kernaussage\": \"Dem Unternehmer steht unter der Voraussetzung des § 1168 ABGB der Ersatz auch der Vorarbeiten zu, welche er in Erwartung des abzuschließenden Vertrages"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_90369059",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 922 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1597.94,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbeprospekt\"]}, {\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswür"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_13550129",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 932 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1763.55,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 932 ABGB\", \"results\": [{\"rs_number\": \"RS0086350\", \"kernaussage\": \"Aus § 1435 ABGB, der bei der Auflösung des Vertrages durch Wandlung nach § 932 ABGB unmittelbar anzuwenden ist, ergibt sich, dass durch den Rücktritt vom Vertrag beiderseitige Kondiktionsansprüche entstehen, soweit von beiden Seiten bereits Leistungen erbracht wurden. Die beiderseitigen Leistungen...\", \"schlagworte\": [\"Werkvertrag\", \"Zug um Zug\", \"Thermofenster\", \"Lackprüfung\", \"Verbesserungsanspruch\", \"§ 57a KFG\", \"Anfechtung\", \"VO (EG) Nr 715/2007\", \"Währungsumrechnung\", \"Dienstleistungsfreiheit AEUV\", \"UN-Kaufrecht\", \"Vermögensverwaltung\", \"Irrtum\", \"außerordentliche Revision\", \"Rückforderung\", \"Wandlung\", \"Online-Glücksspiel\", \"Poker-Verluste\", \"Software-Update\", \"Rückabwicklung synallagmatischer Verträge\", \"Passivlegitimation\", \"Streitwertbestimmung\", \"Servitutseinräumung\", \"Mängelhaftung\", \"Fahrzeugmangel\", \"Gewährleistungsausschluss\", \"Fahrzeugrahmen\", \"Bereicherungsrecht\", \"Abschalteinrichtung\", \"Kaufvertrag\"]}, {\"rs_number\": \"RS0102760\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 932 ABGB I Allgemeines II Mängel a) Allgemeines b) Erheblicher und unerheblicher Mangel (= wesentlich und unwesentlich) c) Behebbarer Mangel d) Unbehebbarer Mangel III Wandlung a) Allgemeines b) Behauptungspflicht c) Verlust des Wandlungsanspruches d) Wandlungseinre...\", \"schlagworte\": []}, {\"rs_number\": \"RS0110929\", \"kernaussage\": \"Die Preisminderung nach § 932 ABGB findet ihre untere Grenze nicht im gemeinen Wert (Verkehrswert) des mit dem Mangel behafteten Kaufobjekts.\", \"schlagworte\": [\"Preisminde"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_96470985",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1299 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 647.73,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1299 ABGB\", \"results\": [{\"rs_number\": \"RS0037133\", \"kernaussage\": \"Ein Steuerberater übt ein \\\"qualifiziertes Gewerbe\\\" im Sinn des § 1299 ABGB aus. Einem Steuerberater, der für seinen Mandanten jahrelang tätig war, obliegt aufgrund dieser Tätigkeit für den Mandanten eine Schutzpflicht, Fürsorgepflicht und Aufklärungspflicht. Eine Äußerung des Steuerberaters, \\\"er...\", \"schlagworte\": [\"Steuerberater\", \"Beratungspflicht\", \"Energiekostenzuschuss\", \"Vererblichkeit Schadenersatzanspruch\", \"Besorgungsgehilfe\", \"Haftungsbeschränkung\", \"Konzernabschluss\", \"Ist-Besteuerung\", \"Beratungshaftung\", \"Aufklärungspflicht\", \"Subunternehmer\", \"AfA Bemessung\", \"ASVG\", \"Erfüllungsgehilfe\", \"Touristenexport\", \"Jahresabschluss\", \"Voranmeldung\", \"Masseverwalterklage\", \"Kontrollpflicht\", \"Verjährungseinwand\", \"Buchführung\", \"Buchnachweis\", \"Malversationen\", \"Beweislast\", \"Umwandlung GmbH\", \"AAB 2018\", \"Fürsorgepflicht\", \"Schadenersatz\", \"Schadensminderungspflicht\", \"Insolvenzverschleppung\"]}, {\"rs_number\": \"RS0038202\", \"kernaussage\": \"Ärzte haben nach § 1299 ABGB den Mangel der gewissenhaften Betreuung ihrer Patienten nach Maßgabe der ärztlichen Wissenschaft und Erfahrung zu vertreten, also jene Sorgfalt, die von einem ordentlichen und pflichtgetreuen Durchschnittsarzt in der konkreten Situation erwartet wird.\", \"schlagworte\": [\"Radiologe\", \"AUVA-Haftung\", \"Behandlungsvertrag\", \"§ 289 ZPO\", \"Harnverhalt\", \"Diagnostik\", \"Frozen Shoulder\", \"Klinikhaftung\", \"Gynäkomastie\", \"Sachverständigengutachten\", \"Gastroskopie\", \"Syndesmose\", \"Computertomographie\", \"Motorradunfall\", \"Wirbelsäul"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_31298283",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Werkvertrag",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 1422.4,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Werkvertrag\", \"results\": [{\"rs_number\": \"RS0023574\", \"kernaussage\": \"Die im Innenverhältnis allein ersatzpflichtige Person - hier zufolge § 1313 zweiter Satz ABGB der Beklagte - hat der bloß auf Grund bestehender Haftung (hier nach § 1313 a ABGB) vom Geschädigten belangten Person auch die von ihr aufgewendeten Prozeßkosten nach den Grundsätzen der Bestimmungen über...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"Prozesskostenersatz\", \"Schlechterfüllung\", \"Konventionalstrafe\", \"Rückgriffsanspruch\", \"Korrosionsschaden\", \"Versicherungsregress\", \"§ 1014 ABGB\", \"Erfüllungsgehilfe\", \"Geschäftsführung ohne Auftrag\", \"Verzugszinsen\", \"Prozesskosten\", \"Regress\", \"Veranstalterhaftung\", \"Ausgleichsverfahren\", \"Nachbarrecht\", \"Solidarhaftung\", \"Zulässigkeit\", \"Rechtswidrigkeitszusammenhang\", \"Beweisrüge\", \"Mangelfolgeschäden\", \"Kausalität und Adäquanz\", \"Schadenshaftung\", \"Schadenersatz\", \"Auftragsvertrag\", \"Rennversicherung\", \"Berufung\", \"Bauvertrag\", \"Aufwendungsersatz\", \"Unterfrachtführer\"]}, {\"rs_number\": \"RS0024589\", \"kernaussage\": \"Aus der Entgeltlichkeit von Leistungen folgt nicht notwendig, daß ihnen auch ein zweiseitig verbindlicher Vertrag entspricht, wie etwa der Fall der sogenannten \\\"konditionalen Verknüpfung\\\" von Leistung und Gegenleistung zeigt, wo also jemand ein Entgelt versprochen wird, wenn er eine bestimmte...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aushubmaterial\", \"Ablagerung\", \"Planierarbeiten\", \"Werkvertrag\", \"Rücktritt\"]}, {\"rs_number\": \"RS0023841\", \"kernaussage\": \"Der Schädiger, der sich darauf beruft, sich zur Erfüllung der ihm oblieg"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "call_00618717",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Mängelhaftung",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2139.5,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Mängelhaftung\", \"results\": [{\"rs_number\": \"RS0081015\", \"kernaussage\": \"Der Deckungsanspruch des Haftpflichtversicherten ist durch das versicherte Risiko spezialisiert und von dem vom Geschädigten erhobenen Anspruch abhängig.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Erbschaftsstreit\", \"Verbandsverantwortlichkeit\", \"Deckungspflicht\", \"§ 1302 ABGB\", \"Rechtsschutzversicherung\", \"ABHV 2007\", \"GewO\", \"Versicherungsfall\", \"Subunternehmer\", \"versichertes Risiko\", \"Wasserleitungsschaden\", \"AHVB 2017\", \"Planungsleistungen\", \"ARB 2012\", \"Vermögensschaden\", \"Ausschlussklausel\", \"Risikoausschluss\", \"Vorsatzausschluss\", \"Vorsatz\", \"Rekurszulässigkeit\", \"Haftpflichtversicherung\", \"Gutachten\", \"Mängelhaftung\", \"EHVB 1986\", \"Schadenersatz\", \"Gewährleistungsausschluss\", \"grobe Fahrlässigkeit\", \"Berufung\", \"AHVB 2004\", \"Arbeitsunfall\"]}, {\"rs_number\": \"RS0081518\", \"kernaussage\": \"Der Zweck der Tätigkeitsklausel liegt darin, den Versicherer in einem gewissen Umfang vom erhöhten Risiko zu befreien, das sich aus der gewerblichen oder beruflichen Tätigkeit des Versicherungsnehmers ergibt. Dies entspricht dem Grundsatz der Haftpflichtversicherung, nicht das Unternehmerrisiko auf...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"AHVB\", \"Werkvertrag\", \"§ 1302 ABGB\", \"Berufshaftpflichtversicherung\", \"Dentisten\", \"Deckungserweiterung\", \"Vertragserfüllung\", \"Mängelfolgeschaden\", \"Herstellungs- und Lieferklausel\", \"Mängelbehebung\", \"AHVB 1995\", \"Verwahrungsausschluss\", \"Rechtsanwalt\", \"Tätigkeitsschäden\", \"Risikoausschlüsse\", \"Amtshaftung\", \"Ausschlussklausel\", \"Deckungsausschlüsse\", \"Rettungskost"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_52063593",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1313a ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 744.4,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0026751\", \"kernaussage\": \"Der geschädigte Bauherr muss sich - auch außerhalb von Schuldverhältnissen - das Verschulden seiner Gehilfen (Auftragnehmer) zurechnen lassen; für die Beurteilung, wer Gehilfe ist, ist auch außerhalb von Schuldverhältnissen § 1313a ABGB entsprechend heranzuziehen.\", \"schlagworte\": [\"Bauwesenversicherung\", \"Regreßverzicht\", \"Mitversicherung\", \"Bauleistungen\", \"Werkvertrag\", \"Mängelfolgeschaden\", \"Warnpflicht\", \"Mitverschulden\", \"Solidarhaftung\", \"Haftung des Herstellers\", \"Wartungspflicht des Eigentümers\", \"Regress des Haftpflichtversicherers\", \"Amtshaftung Lehrer\", \"Hangrutsch\", \"Baugrubensicherung\", \"Baumeisterhaftung\", \"Sanierungskosten\", \"Erfüllungsgehilfe\", \"Vorunternehmer\", \"Bauherrnhaftung\", \"Großkreditgrenzen\", \"Kreditwirtschaftsgesetz\", \"Bankwesengesetz\", \"Pfandrecht\", \"Nichtigkeit\", \"Schadenersatz\", \"Unterfangung\", \"Gebäudesicherung\", \"Nachbarschaden\", \"Folgeschaden\", \"Sanierungsschaden\", \"Trocknungsschaden\", \"Rettungsschaden\", \"Gehilfe\", \"Naturalersatz\", \"adäquater Kausalzusammenhang\", \"Ölaustritt\", \"Tankanlage\", \"Grenzwertgeber\", \"Verschuldensaufteilung\", \"Gehilfenverschulden\", \"Treuhand\", \"Unterschriftfälschung\", \"Schadensersatz\", \"Herstellungsgehilfe\", \"Schadensminderung\"]}, {\"rs_number\": \"RS0028495\", \"kernaussage\": \"Die ratio der Haftung des Unternehmers nach § 1313a ABGB ist, dass der Werkunternehmer durch die Einschaltung von Hilfspersonen (Erfüllungsgehilfen im Sinne des § 1313a ABGB) den Besteller in seiner Rechtsposition nicht schlechterstellen darf. Entscheidend für die "
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_34339756",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1167 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 730.27,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1167 ABGB\", \"results\": [{\"rs_number\": \"RS0021788\", \"kernaussage\": \"Dem Besteller eines Werkes steht bei unwesentlichen behebbaren Mängeln gemäß § 1167 ABGB das Wahlrecht zu, entweder die Verbesserung des mangelhaften Werks oder aber Preisminderung zu begehren (SZ 39/208).\", \"schlagworte\": []}, {\"rs_number\": \"RS0022053\", \"kernaussage\": \"Zum Unterschied von den allgemeinen Regeln kann der Besteller beim Werkvertrag gemäß § 1167 ABGB bei allen Arten von Mängeln Minderung verlangen.\", \"schlagworte\": []}, {\"rs_number\": \"RS0022057\", \"kernaussage\": \"§ 1167 ABGB gewährt auch bei unbehebbaren wesentlichen Mängeln den Preisminderungsanspruch (hier: Bühnenauftrittsvertrag, bei welchem eine Verbesserung oder der Nachtrag des Fehlenden schon der Natur des Vertrages nach nicht in Betracht kommt).\", \"schlagworte\": []}, {\"rs_number\": \"RS0022063\", \"kernaussage\": \"Im Falle der Verbesserung eines Werkes im Sinne des § 1167 ABGB ist es unbeachtlich, ob die Verbesserungsaufwendungen den Wert des Werkes übersteigen (SZ 25/277).\", \"schlagworte\": [\"Mitverschulden\", \"Drainagemangel\", \"Werkvertrag\", \"Richterliche Anleitungspflicht\", \"Nebenintervenient\", \"Verbesserungsanspruch\", \"Beweiswürdigung\", \"RVS 08.18.01\", \"Leistungsverweigerungsrecht\", \"ÖNORM B 2214\", \"Bewertung des Entscheidungsgegenstands\", \"Mangelhaftigkeit\", \"optische Mängel\", \"Verzugszinsen\", \"Motorschaden\", \"Hangwasser\", \"Vorteilsausgleich\", \"Unverhältnismäßigkeit der Verbesserung\", \"Mehrheitsbeschluß\", \"Baugenehmigung\", \"Erfüllungsinteresse\", \"Mängelhaftung\", \"Selbstverbesserung\", \"Mängelverbesserung\", \"Gewährleistung\""
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_81404373",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1313 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 624.11,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1313 ABGB\", \"results\": [{\"rs_number\": \"RS0025922\", \"kernaussage\": \"Nach § 1313 ABGB können die Aufwendungen, die zur Feststellung des Schadens dem Grunde und der Höhe nach im Prozeßweg erforderlich waren, nicht im Regreßweg geltend gemacht werden.\", \"schlagworte\": []}, {\"rs_number\": \"RS0086691\", \"kernaussage\": \"Der aus der gesetzlich für zulässig erklärten Überwälzung einer Abgabenschuld resultierende zivilrechtliche Ersatzanspruch ist nach zivilrechtlichen Grundsätzen zu beurteilen, daher sind die Regeln des Regreßrechts (§ 1313 ABGB) jedenfalls analog anzuwenden.\", \"schlagworte\": []}, {\"rs_number\": \"RS0028394\", \"kernaussage\": \"Der Rückersatzanspruch gemäß § 1313 ABGB zweiter Satz entsteht, wie in den Fällen der §§ 896, 1302 ABGB, noch nicht mit dem Schaden des Dritten selbst oder mit der Geltendmachung des Schadenersatzanspruches durch den geschädigten Dritten, sondern erst dann, wenn und soweit der in Anspruch genommene...\", \"schlagworte\": [\"Regressanspruch\", \"Statische Berechnung\", \"Mitverschulden\", \"Halleneinsturz\", \"CMR\", \"Unterfrachtführer\", \"Rückgriff\", \"grobe Fahrlässigkeit\", \"Diebstahl Frachtgut\", \"Frachtführerhaftung\", \"Diebstahl\", \"Haftungsausschluss\", \"Streckengeschäft\", \"Regreßanspruch\", \"Erfüllungsgehilfe\", \"UN-Kaufrecht\", \"Werkvertrag\", \"Bauschaden\", \"Auflager\", \"Vertragsstrafe\", \"Pönale\", \"Subunternehmer\", \"Generalunternehmer\", \"Gewährleistung\", \"Schadenersatz\", \"Solidarhaftung\", \"Bauschäden\", \"Nachbargrundstück\", \"Warnpflicht\", \"Baumängel\", \"Hausverwalterpflichten\", \"Verjährung\", \"Kellerabdichtung\", \"Regress\", \"Feststellungsklage\", \"Regres"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_13742303",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Erfüllungsgehilfe",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 32.0,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Erfüllungsgehilfe\", \"results\": [{\"rs_number\": \"RS0021803\", \"kernaussage\": \"Haftung des Schuldners für Verschulden des von seinem Erfüllungsgehilfen verwendeten weiteren Erfüllungsgehilfen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Erfüllungsgehilfe\", \"Mitverschulden\", \"Unfallhaftung\", \"Baggereinsatz\", \"Abschleppunfall\", \"EKHG-Haftung\", \"konstitutives Anerkenntnis\", \"Schutzpflichten Dritter\", \"Frachtführerhaftung\", \"ATL\", \"Verjährung\", \"deliktische Haftung\", \"Grobe Fahrlässigkeit\", \"Gehilfenzurechnung\", \"Krankenkasse\", \"Fahrtendienst\", \"Reiseveranstalter\", \"Pauschalreise\", \"Fluggastrechte-VO\", \"KSchG\", \"Verkehrssicherungspflicht\", \"Vertrag mit Schutzwirkung zugunsten Dritter\", \"Geschäftsinhaberhaftung\", \"Aufzug\", \"Regress\", \"Erfüllungsgehilfenkette\", \"Sub-Subunternehmer\", \"Werkvertrag\"]}, {\"rs_number\": \"RS0021808\", \"kernaussage\": \"Die Fürsorgepflicht des Werkbestellers und seiner Erfüllungsgehilfen kann sich nicht darauf erstrecken, dass der fachkundige Unternehmer (sogar noch trotz Warnung) sich in eine offensichtliche Gefahr begibt, anstatt dieselbe zu beheben oder ihre Beseitigung zu veranlassen (vgl JBl 1966,206).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Baustellenhaftung\", \"Generalunternehmervertrag\", \"Werkvertrag\", \"Baustellenunfall\", \"ArbeitnehmerInnenschutzgesetz\", \"Werkbesteller\", \"§ 1169 ABGB\", \"Bauunfall\", \"Schutzpflichten\", \"Subunternehmer\", \"Erfüllungsgehilfe\", \"Baugerüst\", \"Beweiserleichterung\", \"Bauführerhaftung\", \"BauKG\", \"Haftung\", \"Brandschutzvorschriften\", \"Bauherrenhaftung\", \"Fürsorgepflicht\", \"Schutzgesetze\", \"Bauherrinhaftun"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_72959007",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0023574"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.14,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0023574\", \"rechtssatz\": \"Die im Innenverhältnis allein ersatzpflichtige Person - hier zufolge § 1313 zweiter Satz ABGB der Beklagte - hat der bloß auf Grund bestehender Haftung (hier nach § 1313 a ABGB) vom Geschädigten belangten Person auch die von ihr aufgewendeten Prozeßkosten nach den Grundsätzen der Bestimmungen über den Schadenersatz zu ersetzen (ebenso neben SZ 34/34, teilweise dies geradezu als selbstverständlich voraussetzend, SZ 38/53, VersR 1970,560 ua).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"Prozesskostenersatz\", \"Schlechterfüllung\", \"Konventionalstrafe\", \"Rückgriffsanspruch\", \"Korrosionsschaden\", \"Versicherungsregress\", \"§ 1014 ABGB\", \"Erfüllungsgehilfe\", \"Geschäftsführung ohne Auftrag\", \"Verzugszinsen\", \"Prozesskosten\", \"Regress\", \"Veranstalterhaftung\", \"Ausgleichsverfahren\", \"Nachbarrecht\", \"Solidarhaftung\", \"Zulässigkeit\", \"Rechtswidrigkeitszusammenhang\", \"Beweisrüge\", \"Mangelfolgeschäden\", \"Kausalität und Adäquanz\", \"Schadenshaftung\", \"Schadenersatz\", \"Auftragsvertrag\", \"Rennversicherung\", \"Berufung\", \"Bauvertrag\", \"Aufwendungsersatz\", \"Unterfrachtführer\"], \"fachgebiete\": [\"Haftungsrecht\", \"Vertragsauslegung\", \"Revision\", \"Gewährleistung\"], \"datum\": \"2014-07-23\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "call_72549411",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0023841"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.02,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0023841\", \"rechtssatz\": \"Der Schädiger, der sich darauf beruft, sich zur Erfüllung der ihm obliegenden Verkehrssicherungspflicht eines Gehilfen bedient zu haben, hat nicht nur die Tüchtigkeit des Besorgungsgehilfen zu beweisen, sondern auch, dass er durch entsprechende organisatorische Maßnahmen für die nach Lage des Falles erforderliche Überwachung des Besorgungsgehilfen gesorgt hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Gehsteigpflicht\", \"Werkvertrag\", \"Auswahlverschulden\", \"Eisglätte\", \"Besorgungsgehilfe\", \"Schadensersatz\", \"Haltepflicht\", \"Quad-Unfall\", \"Subunternehmer\", \"Streuung\", \"Schnee räumen\", \"Delegation an Freiwillige Feuerwehr\", \"Anweisungs- und Überwachungspflicht\", \"Verkehrssicherungspflicht\", \"§ 93 StVO\", \"§ 1319a ABGB\", \"Organhaftung\", \"Eigentümergemeinschaft\", \"Erfüllungsgehilfenhaftung\", \"Grundstückseigentümer\", \"Schutzpflichten gegenüber Dritten\", \"Vereinshaftung\", \"Wohnungseigentum\", \"Generalunternehmer\", \"Winterdienst\", \"Schulfest\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2012-08-09\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_69836859",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1298 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 814.62,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1298 ABGB\", \"results\": [{\"rs_number\": \"RS0127719\", \"kernaussage\": \"In den von § 1298 ABGB erfassten Fällen ändert sich an der Behauptungs‑ und Beweislast des Schädigers für das fehlende Verschulden des rechtswidrig Handelnden auch dann nichts, wenn dieses Verhalten in einem Prozess gesetzt (oder fortgesetzt) wird.\", \"schlagworte\": [\"Räumungsklage\", \"Schadenersatz\", \"Mietzinsentgang\", \"Passivlegitimation\", \"Beweislast\"]}, {\"rs_number\": \"RS0018309\", \"kernaussage\": \"Bei verschuldeter Nichterfüllung richtet sich die Ersatzpflicht nach den allgemeinen Regeln des Schadenersatzes, weshalb dem Schuldner gemäß § 1298 ABGB der Beweis obliegt, an der Erfüllung der vertragsmäßigen Verbindlichkeit ohne sein Verschulden verhindert gewesen zu sein (6 Ob 6,7/71 = HS 637/9, ...\", \"schlagworte\": [\"Nichterfüllung\", \"Versicherungsmittlerin\", \"Werkvertrag\", \"Gegenforderung\", \"Kaufpreiszahlung\", \"Konkurrenzschutzklausel\", \"Mehraufwendungen\", \"Mietrückstände\", \"Bauleistung\", \"Schadensverlagerung\", \"Kaufmannseigenschaft\", \"Verzug\", \"entgangene Urlaubsfreude\", \"Verbrauchervertrag\", \"Schutz- und Sorgfaltspflichten gegenüber Dritten\", \"Rücktritt\", \"Widmung von Zahlungen\", \"Reisemängel\", \"auflösende Bedingung\", \"gerichtlicher Erlag\", \"IESG\", \"Veredelungsvertrag\", \"Baumängel\", \"Nichterfüllungsschaden\", \"Differenzanspruch\", \"Kostenabrechnung\", \"Einrede nicht erfüllter Vertrag\", \"Gehilfenhaftung\", \"Verzugsschaden\", \"Mängelrüge\"]}, {\"rs_number\": \"RS0022705\", \"kernaussage\": \"Die Vorschrift des § 1298 ABGB ist auch auf denjenigen anzuwenden, der einen Vertrag schließt und als Schuldner eine"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_00829796",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1167 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 786.14,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1167 ABGB\", \"results\": [{\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0033916\", \"kernaussage\": \"Falls der Besteller im Sinne des § 1167 ABGB vom \\\"Vertrage abgeht\\\" und erklärt, einerseits gegen das vereinbarte Entgelt und andererseits auch gegen andere Forderungen den gesamten Aufwand \\\"aufzurechnen\\\", handelt es sich hinsichtlich des vereinbarten Entgeltes um einen einheitlichen, sich aus dem...\", \"schlagworte\": []}, {\"rs_number\": \"RS0025815\", \"kernaussage\": \"§ 1167 ABGB gilt auch bei Herstellung von unkörperlichen Sachen.\", \"schlagworte\": [\"Werkvertrag\", \"Mängelgewährleistung\", \"Vertragsinterpretation\"]}, {\"rs_number\": \"RS0022004\", \"kernaussage\": \"Zum Begriffe des wesentlichen Mangels im Sinne des § 1167 ABGB.\", \"schlagworte\": [\"Werkvertrag\", \"Mängelgewährleistung\", \"Vertragsinterpretation\", \"Werkvertrag Architekt\", \"Werkmängel\", \"Einreichplan\", \"Abbestellung\"]}, {\"rs_number\": \"RS0022061\", \"kernaussage\": \"Weist ein bestelltes Werk wesentliche Mängel auf und können sich die Parteien über die Verbesserung nicht einigen, kann der Besteller gemäß § 1167 ABGB vom Vertrag abgehen.\", \"schlagworte\": []}, {\"rs_number\": \"RS0018729\", \"kernaussage\": \"Die Bestimmung des § 1167 ABGB, wonach Verbesserung nur dann gefordert werden darf, wenn sie nicht einen unverhältnismäßigen Aufwand erfordert, ist auf Verbesserungsansprüche nach § 932 ABGB analog anzuwenden.\", \"schlagworte\": [\"Mangelhaftigkeit\", \"Parkettboden\", \"Unverhältnismäßigkeit\", \"Ve"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_33320437",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 1302 ABGB",
+          "limit": 20
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 637.74,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 1302 ABGB\", \"results\": [{\"rs_number\": \"RS0026790\", \"kernaussage\": \"Bindung an strafgerichtliches Erkenntnis im Regreßprozeß nach § 1302 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102914\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 1302 ABGB A Solidarhaftung B Rückersatz\", \"schlagworte\": []}, {\"rs_number\": \"RS0022712\", \"kernaussage\": \"Kommen als Ursache für einen eingetretenen Schaden die schuldhaften oder sonst einen Haftungsgrund bildenden Handlungen mehrerer Personen in Frage, hat das Unaufklärbarkeitsrisiko jede von ihnen und nicht der Geschädigte zu tragen (analoge Anwendung des § 1302 ABGB; sogenannte alternative Kausalität...\", \"schlagworte\": [\"Werkvertrag\", \"EKHG\", \"Werklohn\", \"Beweiswürdigung\", \"Wasserrechtsgesetz\", \"§ 91 StGB\", \"Tiefengründung\", \"Tierhalterhaftung\", \"gröbliche Benachteiligung\", \"Datenschutz\", \"Bau- und Benützungsbewilligung\", \"Haftung mehrerer Auftragnehmer\", \"Skiunfall\", \"Schadenshaftung\", \"Notwehrüberschreitung\", \"§ 879 Abs 3 ABGB\", \"Berufung\", \"Pistenhaftung\", \"§ 258 StPO\", \"Beweislast Kausalzusammenhang\", \"Bauaufsicht\", \"Adhäsionserkenntnis\", \"Kausalität\", \"Raufhandel\", \"Gehsteig\", \"Gesamtgläubiger\", \"Verschuldensteilung\", \"Bindung an Strafurteil\", \"analoge Anwendung § 1302 ABGB\", \"Adäquanztheorie\"]}, {\"rs_number\": \"RS0018684\", \"kernaussage\": \"Wird der Händler für Mängelfolgeschäden aus dem Titel des eigenen pflichtwidrige und schuldhaften Verhaltens dem Letztverbraucher gegenüber leistungspflichtig und leistet der Versicherer des Händlers, so ist sein Anspruch gegen den Produzenten ein solcher gemäß § 1302 ABGB, also"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_60828210",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0026751"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.66,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026751\", \"rechtssatz\": \"Der geschädigte Bauherr muss sich - auch außerhalb von Schuldverhältnissen - das Verschulden seiner Gehilfen (Auftragnehmer) zurechnen lassen; für die Beurteilung, wer Gehilfe ist, ist auch außerhalb von Schuldverhältnissen § 1313a ABGB entsprechend heranzuziehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bauwesenversicherung\", \"Regreßverzicht\", \"Mitversicherung\", \"Bauleistungen\", \"Werkvertrag\", \"Mängelfolgeschaden\", \"Warnpflicht\", \"Mitverschulden\", \"Solidarhaftung\", \"Haftung des Herstellers\", \"Wartungspflicht des Eigentümers\", \"Regress des Haftpflichtversicherers\", \"Amtshaftung Lehrer\", \"Hangrutsch\", \"Baugrubensicherung\", \"Baumeisterhaftung\", \"Sanierungskosten\", \"Erfüllungsgehilfe\", \"Vorunternehmer\", \"Bauherrnhaftung\", \"Großkreditgrenzen\", \"Kreditwirtschaftsgesetz\", \"Bankwesengesetz\", \"Pfandrecht\", \"Nichtigkeit\", \"Schadenersatz\", \"Unterfangung\", \"Gebäudesicherung\", \"Nachbarschaden\", \"Folgeschaden\", \"Sanierungsschaden\", \"Trocknungsschaden\", \"Rettungsschaden\", \"Gehilfe\", \"Naturalersatz\", \"adäquater Kausalzusammenhang\", \"Ölaustritt\", \"Tankanlage\", \"Grenzwertgeber\", \"Verschuldensaufteilung\", \"Gehilfenverschulden\", \"Treuhand\", \"Unterschriftfälschung\", \"Schadensersatz\", \"Herstellungsgehilfe\", \"Schadensminderung\"], \"fachgebiete\": [\"Haftungsrecht\"], \"datum\": \"2011-10-13\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_23965801",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0112247"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 14.44,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0112247\", \"rechtssatz\": \"Errichtet ein Werkunternehmer das Werk mangelhaft, leistet er also den vertraglich geschuldeten Erfolg nicht, so trifft ihn zufolge § 1298 ABGB die Beweislast dafür, dass ihn (und seine Gehilfen, für die er nach § 1313a ABGB einzustehen hat) kein Verschulden trifft, dass er also die gebotene Sorgfalt - nach dem Maßstab des § 1299 ABGB - eingehalten hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"Luftbeförderung\", \"Mängelbehebung\", \"Mangelschaden\", \"Schadensminderung\", \"Sachmangel\", \"Sachverständiger\", \"Versicherungsregress\", \"Mangelhaftigkeit\", \"optische Mängel\", \"Terrassengeländer\", \"Standsicherheit\", \"Ichse\", \"Stehfalz\", \"Verschulden\", \"Sachverständigenhaftung\", \"Stützmauer\", \"Ö-Norm B7219\", \"Mängelhaftung\", \"Auskragung\", \"Gewährleistung\", \"Werkunternehmer\", \"ÖNORMEN\", \"Reiseveranstaltungsvertrag\", \"Sommerrodelbahn\", \"Rückbau\", \"Unverhältnismäßigkeit\", \"Spaltungsvertrag\", \"Verjährung\", \"Balkone\"], \"fachgebiete\": [\"Gewährleistung\", \"Baurecht\", \"Haftungsrecht\"], \"datum\": \"2025-04-02\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "call_18334937",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0021788"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 10.81,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0021788\", \"rechtssatz\": \"Dem Besteller eines Werkes steht bei unwesentlichen behebbaren Mängeln gemäß § 1167 ABGB das Wahlrecht zu, entweder die Verbesserung des mangelhaften Werks oder aber Preisminderung zu begehren (SZ 39/208).\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"2005-05-25\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0127719",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0127719",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.12,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0127719\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0121919",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0121919",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.71,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0121919\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0114805",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0114805",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.41,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114805\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0110929",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0110929",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 14.0,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0110929\", \"rechtssatz_text\": \"Die Preisminderung nach § 932 ABGB findet ihre untere Grenze nicht im gemeinen Wert (Verkehrswert) des mit dem Mangel behafteten Kaufobjekts.\", \"te_count\": 2, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"KAUFVERTRAG\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 17836, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob96_23k|OGH|2024-01-11\", \"gz\": \"8Ob96_23k\", \"datum\": \"2024-01-11\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung zur Zurechnung von Handlungen eines Stellvertreters, restriktiver Auslegung von Verzichtserklärungen auf Gewährleistung und Anwendung der relativen Berechnungsmethode bei Preisminderung für einen Oldtimer.\"}, {\"te_stable_key\": \"9Ob50_10h|OGH|2010-07-28\", \"gz\": \"9Ob50_10h\", \"datum\": \"2010-07-28\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Wirksamkeit eines Gewährleistungsverzichts bei einem Liegenschaftskauf, bei dem das Haus auf einer aufgefüllten Schottergrube errichtet wurde.\"}], \"te_items_count\": 2}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0102914",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0102914",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.75,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102914\"}"
+      }
+    ],
+    "tool_calls_total": 23,
+    "tool_calls_ok": 23,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "**Applicable Claims of Karl against Ofenbau AG:**\n\n### 1. **Vertragliche Mängelhaftung aus Werkvertrag (§§ 1151, 1167 ABGB iVm §§ 922 ff. ABGB)**\n   - **Sachverhalt**: Der Einbau des Kachelofens ist Werkvertrag (RS0023574). Mängel (fehlende Löcher, defekter Luftschieber, instabiler Herdeinsatz) machen das Werk unbrauchbar; Sachverständiger fordert Neuaufbau (Kosten > Marktwert EUR 9.000). Wesentliche Mängel (RS0021788: Wahlrecht bei behebbaren Mängeln; RS0022061: Wandlung bei wesentlichen Mängeln).\n   - **Ansprüche**:\n     | Behelf | Voraussetzungen | RS/GZ-Referenz |\n     |--------|-----------------|---------------|\n     | **Verbesserung** (Nachbesserung/Neuaufbau) | Wahlrecht bei behebbaren Mängeln; unverhältnismäßig, wenn Kosten > Wert (analog RS0018729 zu § 932). Hier: EUR 10.000 > Wert → unverhältnismäßig. | RS0021788 (§ 1167); RS0022025 (Überprüfungskosten nicht erstattbar). |\n     | **Preisminderung** | Bei allen Mängeln möglich (RS0022053); relativ (Wertmangel). | RS0022057 (§ 1167 bei unbehebbaren Mängeln). |\n     | **Wandlung** (Rücktritt + Rückabwicklung) | Wesentliche Mängel; kausal für Vertrag (RS0107073). Rückerstattung EUR 9.000 minus Nutzung. | RS0021725; RS0022061 (§ 1167). |\n   - **Haftung für Subunternehmer**: Allerlei GmbH = Erfüllungsgehilfe (§ 1313a ABGB). Ofenbau haftet voll (RS0026751: Zurechnung Gehilfenverschulden; RS0112247: Beweislastumkehr inkl. Gehilfen; RS0023574: Regress intern).\n   - **Beweislast**: Karl beweist Mangel (Sachverständiger). Ofenbau trägt Beweislast kein Verschulden (iVm § 1299 Sorgfalt; auch Gehilfen, § 1313a; RS0112247 zu § 1298). Keine Warnpflichtverletzung nötig (RS0023841: Auswahl-/Überwachungspflicht Gehilfe).\n\n### 2. **Schadenersatz für Mangelfolgeschaden / Zusätzlichen Gebäudeschaden (§ 1167 iVm § 932 ABGB; alternativ § 1295 Delikt)**\n   - **Sachverhalt**: Demontage-Schaden (Gabelstapler statt Kran) = Folge mangelhafter Leistung oder separater Pflichtverletzung (Eile = Fahrlässigkeit).\n   - **Anspruch**: Positive Schadenersatz (Naturalrestitution/Sanierung; Deckungskapital, nicht über Marktwert). Unabhängig von Gewährleistung (RS0022931).\n   - **Beweislast**: Ofenbau (§ 1298 ABGB; RS0112247). Solidarhaftung bei Mehrverursachern möglich (§ 1302; RS0022712 alternative Kausalität).\n   - **RS-Referenz**: RS0023841 (Überwachungspflicht Gehilfe); RS0102085 (Warnpflicht bei Untauglichkeit).\n\n**Gesamthöhe**: Wandlung (EUR 9.000 Rückzahlung) + Folgeschaden (Sanierung Gebäudeschaden). Keine Überkompensation (Schadensminderungspflicht Karl). Verjährung: 3 Jahre (§ 1489 ABGB) ab Kenntnis Mängel.\n\n**Party mit Beweislast**:\n| Issue | Beweislastträger |\n|-------|------------------|\n| Mangelhaftigkeit | Karl (Sachverständiger). |\n| Kein Verschulden (inkl. Gehilfen) | Ofenbau AG (§ 1298, 1313a; RS0112247). |\n| Kausalität Folgeschaden | Karl (prima); Ofenbau entlastend (§ 1298). |\n| Schadenshöhe (Neuaufbau vs. Wert) | Ofenbau (Unverhältnismäßigkeit; RS0018729). |",
+    "answer_chars": 2952,
+    "e2e_ms": 67194.17
+  }
+]

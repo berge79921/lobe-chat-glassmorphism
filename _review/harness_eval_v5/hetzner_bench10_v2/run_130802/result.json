@@ -1,0 +1,1567 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T13:08:02.316019+00:00",
+  "config": {
+    "config_dir": "config",
+    "query": "Unternehmer X betreibt Weinanbau in Wien. Er bestellt bei Großhändler Y ein Harz zur Ertragssteigerung der Rebstöcke. Das Harz wurde von Chemiefabrik Z in Linz hergestellt. Nach Aufbringung im Mai werden bis September sämtliche Rebstöcke zerstört. Neubepflanzungskosten: 500.000 Euro. X verlangt von Y vollen Schadenersatz. Y wendet ein, das Harz sei von Z fehlerhaft produziert worden. Welche Ansprüche hat X gegen Y und Z? Greift das PHG?",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "docker_exec",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "config",
+    "files": {
+      "agent_profiles": {
+        "path": "config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "schadenersatz",
+    "subdomain": "",
+    "confidence": 0.125,
+    "paragraphs": [
+      "§ 1295 ABGB",
+      "§ 1299 ABGB",
+      "§ 1298 ABGB",
+      "§ 1313a ABGB",
+      "§ 1325 ABGB"
+    ],
+    "mandatory_paragraphs": [
+      "§ 1295 ABGB",
+      "§ 1299 ABGB",
+      "§ 1298 ABGB",
+      "§ 1313a ABGB",
+      "§ 1325 ABGB"
+    ],
+    "keywords": [
+      "Schadenersatz"
+    ],
+    "all_scores": {
+      "schadenersatz": 0.125
+    },
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 5000,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Anspruchsgrundlagen gegen Y (Verkäufer)",
+        "goal": "Ermitteln, ob X Anspruch auf Schadenersatz gegen Y gemäß Kaufrecht, insb. Mangelhaftigkeit (§ 936 ff. ABGB iVm § 1295, § 1298, § 1299 ABGB) und/oder Geschäftsuntauglichkeit (§ 1313a ABGB) hat",
+        "tools": [
+          "search_ogh_entscheidungen",
+          "hot_rs_lookup",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz"
+        ]
+      },
+      {
+        "name": "Anspruchsgrundlagen gegen Z (Hersteller)",
+        "goal": "Prüfen, ob X Anspruch gegen Z auf Schadenersatz gemäß Produkthaftungsgesetz (PHG) oder Delikt (§ 1325 ABGB) hat, insb. bei fehlerhafter Herstellung",
+        "tools": [
+          "search_ogh_rechtssaetze",
+          "hot_cluster_context",
+          "get_rechtssatz",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "PHG-Anwendbarkeit & Haftungsausschluss durch Drittverschulden",
+        "goal": "Klären, ob PHG greift (Herstellerdefinition, Produktbegriff, Haftungsausschluss bei Zulassung/Entwicklung), und ob Y sich auf Verschulden des Herstellers (Z) berufen kann",
+        "tools": [
+          "hot_rs_search",
+          "search_kommentar_paragraph",
+          "search_kommentar_keyword",
+          "detect_clusters",
+          "build_grounding_context",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Zentrale Frage: Ist Y gegenüber X haftbar, auch wenn der Mangel von Z herrührt? Und greift das PHG gegen Z – und wie wirkt sich das auf die Haftungskette aus?"
+  },
+  "organizer_meta": {
+    "latency_ms": 26134.24,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Anspruchsgrundlagen gegen Y (Verkäufer)\",\n      \"goal\": \"Ermitteln, ob X Anspruch auf Schadenersatz gegen Y gemäß Kaufrecht, insb. Mangelhaftigkeit (§ 936 ff. ABGB iVm § 1295, § 1298, § 1299 ABGB) und/oder Geschäftsuntauglichkeit (§ 1313a ABGB) hat\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 1295 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 1298 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 1299 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 1313a ABGB\\\")\",\n        \"search_ogh_entscheidungen\",\n        \"hot_rs_lookup\"\n      ]\n    },\n    {\n      \"name\": \"Anspruchsgrundlagen gegen Z (Hersteller)\",\n      \"goal\": \"Prüfen, ob X Anspruch gegen Z auf Schadenersatz gemäß Produkthaftungsgesetz (PHG) oder Delikt (§ 1325 ABGB) hat, insb. bei fehlerhafter Herstellung\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 1325 ABGB\\\")\",\n        \"search_by_schlagwort(\\\"Schadenersatz\\\")\",\n        \"search_ogh_rechtssaetze\",\n        \"hot_cluster_context\",\n        \"get_rechtssatz\"\n      ]\n    },\n    {\n      \"name\": \"PHG-Anwendbarkeit & Haftungsausschluss durch Drittverschulden\",\n      \"goal\": \"Klären, ob PHG greift (Herstellerdefinition, Produktbegriff, Haftungsausschluss bei Zulassung/Entwicklung), und ob Y sich auf Verschulden des Herstellers (Z) berufen kann\",\n      \"tools\": [\n        \"hot_rs_search\",\n        \"search_kommentar_paragraph\",\n        \"search_kommentar_keyword\",\n        \"detect_clusters\",\n        \"build_grounding_context\"\n      ]\n    },\n    {\n      \"name\": \"Schadenshöhe & Mitverschulden\",\n      \"goal\": \"Prüfung der Schadensermittlung (Neubepflanzungskosten 500.000 €) und möglicher Mitverschuldensminderung (z. B. durch unzureichende Testung durch X)\",\n      \"tools\": [\n        \"hot_index_stats\",\n        \"ask_gemini_zivilrecht\",\n        \"search_ogh_entscheidungen\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Zentrale Frage: Ist Y gegenüber X haftbar, auch wenn der Mangel von Z herrührt? Und greift das PHG gegen Z – und wie wirkt sich das auf die Haftungskette aus?\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 431,
+      "completion_tokens": 658,
+      "total_tokens": 1089,
+      "cost": 0.00071834,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "schadenersatz",
+      "subdomain": "",
+      "confidence": 0.125,
+      "paragraphs": [
+        "§ 1295 ABGB",
+        "§ 1299 ABGB",
+        "§ 1298 ABGB",
+        "§ 1313a ABGB",
+        "§ 1325 ABGB"
+      ],
+      "mandatory_paragraphs": [
+        "§ 1295 ABGB",
+        "§ 1299 ABGB",
+        "§ 1298 ABGB",
+        "§ 1313a ABGB",
+        "§ 1325 ABGB"
+      ],
+      "keywords": [
+        "Schadenersatz"
+      ],
+      "all_scores": {
+        "schadenersatz": 0.125
+      },
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Anspruchsgrundlagen gegen Y (Verkäufer)",
+      "goal": "Ermitteln, ob X Anspruch auf Schadenersatz gegen Y gemäß Kaufrecht, insb. Mangelhaftigkeit (§ 936 ff. ABGB iVm § 1295, § 1298, § 1299 ABGB) und/oder Geschäftsuntauglichkeit (§ 1313a ABGB) hat",
+      "mode": "llm",
+      "tools": [
+        "search_ogh_entscheidungen",
+        "hot_rs_lookup",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 15474.11,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3212,
+            "completion_tokens": 2093,
+            "total_tokens": 5305,
+            "cost": 0.0016697,
+            "cached_tokens": 128,
+            "reasoning_tokens": 1870
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 6051.7,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 14570,
+            "completion_tokens": 569,
+            "total_tokens": 15139,
+            "cost": 0.0031793,
+            "cached_tokens": 128,
+            "reasoning_tokens": 285
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 27151.27,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 29383,
+            "completion_tokens": 2682,
+            "total_tokens": 32065,
+            "cost": 0.0035362,
+            "cached_tokens": 43904,
+            "reasoning_tokens": 1158
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_13940714",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 922 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1832.66,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswürdigung\"]}, {\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbepr"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_62730756",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 932 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 795.51,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 932 ABGB\", \"results\": [{\"rs_number\": \"RS0016329\", \"kernaussage\": \"Kommt es zur Aufhebung des Kaufvertrages des Leasinggebers mit dem Dritten (Hersteller, Lieferant) gemäß § 932 ABGB, so richtet sich die Rückabwicklung zwischen Leasinggeber und Leasingnehmer nach den §§ 877, 1435 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0018814\", \"kernaussage\": \"Gleich dem Wandlungsanspruch nach § 932 ABGB muss auch der Anspruch auf Aufhebung des Vertrages wegen Verkürzung über die Hälfte des wahren Wertes, vom Fall einer Übereinkunft der Parteien abgesehen, gerichtlich durch Klage oder Einrede geltend gemacht werden; nicht schon die Erklärung des Verletzte...\", \"schlagworte\": [\"Laesio enormis\", \"Verkürzung über die Hälfte\", \"Aufhebung des Vertrags\", \"§ 934 ABGB\", \"gerichtliche Klage\", \"ex tunc\", \"schuldrechtliche Wirkung\", \"Kaufvertrag\", \"Wandlungsanspruch § 932 ABGB\"]}, {\"rs_number\": \"RS0102760\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 932 ABGB I Allgemeines II Mängel a) Allgemeines b) Erheblicher und unerheblicher Mangel (= wesentlich und unwesentlich) c) Behebbarer Mangel d) Unbehebbarer Mangel III Wandlung a) Allgemeines b) Behauptungspflicht c) Verlust des Wandlungsanspruches d) Wandlungseinre...\", \"schlagworte\": []}, {\"rs_number\": \"RS0117295\", \"kernaussage\": \"Der (dem Werkbesteller zufolge der notwendigen Reparaturen entstehenden) Verdienstentgang stellt einen Mangelfolgeschaden dar, also einen Schaden, der durch die mangelhafte Leistung verursacht wird (Reischauer in Rummel³ Rz 20i zu § 932 ABGB mwN). Er entsteht nur dann, wenn tatsächlich repariert...\""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_78649723",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 936 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 827.19,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 936 ABGB\", \"results\": [{\"rs_number\": \"RS0125898\", \"kernaussage\": \"Für den Vorvertrag nach § 936 ABGB hat es bei dem allgemeinen im Gesetz auch festgelegten Grundsatz zu bleiben, dass für die Beurteilung des Missverhältnisses nach § 934 ABGB auf den Zeitpunkt des Abschlusses des Vorvertrags abzustellen ist.\", \"schlagworte\": [\"Vorvertrag\", \"Laesio enormis\", \"Verkürzung über die Hälfte\", \"Teilbarkeit\"]}, {\"rs_number\": \"RS0016411\", \"kernaussage\": \"Die Haftung für Vertrauensschaden wegen der Unterlassung des Abschlusses eines in Aussicht genommenen Vertrages scheidet ( Größenschluß aus § 936 ABGB ) aus , wenn sich die in dieser Bestimmung genannten Umstände geändert haben oder der Abbrechende des Zutrauen zu seinem in Aussicht genommenen...\", \"schlagworte\": [\"Pachtvertrag\", \"Revision\", \"Schadenersatz\", \"Vorpachtvertrag\", \"vorvertragliche Pflichten\"]}, {\"rs_number\": \"RS0018065\", \"kernaussage\": \"Wenn eine übereinstimmende Parteienabsicht zum Abschluß eines Vorvertrages gemäß § 936 ABGB festgestellt ist, erübrigen sich die rechtlichen Überlegungen darüber, wie dieser Vertrag normativ auszulegen wäre.\", \"schlagworte\": []}, {\"rs_number\": \"RS0019181\", \"kernaussage\": \"Für die Annahme eines Vorvertrages im Sinne des § 936 ABGB ist kein Raum, wenn der Vertrag die wesentlichen Stücke eines Kaufvertrages bereits enthält und auch ein Formvorbehalt im Sinne des § 884 ABGB den Vertragsbestimmungen nicht entnommen werden kann.\", \"schlagworte\": [\"Kaufvertrag\", \"Irrtum\", \"Anfechtung\", \"Devisenbewilligung\", \"Eigentumswohnung\"]}, {\"rs_number\": \"RS0023981\", \"kernaussage\": \"Die Über"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_68258562",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Gewährleistung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 41.0,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Gewährleistung\", \"results\": [{\"rs_number\": \"RS0016592\", \"kernaussage\": \"Zulässigkeit einer Vereinbarung, wonach der Käufer nicht Zahlungen wegen Gewährleistungsansprüche oder vom Verkäufer nicht anerkannten Gegenansprüchen zurückhalten darf.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistungsansprüche\", \"Zahlungsrückhalt\", \"Allgemeine Lieferbedingungen\", \"Sittenwidrigkeit\", \"Verkaufsbedingungen\", \"Gewährleistung\", \"Verbesserung\", \"Wandlung\", \"Geschäftsbedingungen\", \"Zurückhaltung des Werklohns\", \"Pönalevereinbarung\", \"Vertragsauslegung\", \"Zurückbehaltungsverbot\", \"Treu und Glauben\", \"Kompensationsverbot\", \"Aufrechnung\", \"Allgemeine Liefer- und Verkaufsbedingungen\", \"Allgemeine Geschäftsbedingungen\", \"Wandlungsrecht\", \"Zurückbehaltungsrecht\", \"Werkvertrag\", \"Vorleistung\", \"Mängel\", \"Vertragsrücktritt\", \"Kaufvertrag\", \"Mängelrüge\", \"AGB\", \"Verfahrensverstoß\", \"Aufrechnungsverbot\", \"Mängelhaftung\", \"Zahlungszurückbehaltungsverbot\", \"Zahlungszurückhaltung\", \"Vorleistungspflicht\"]}, {\"rs_number\": \"RS0131269\", \"kernaussage\": \"Das Erfüllungsinteresse besteht zunächst in den Kosten der Mängelbeseitigung. Als Geldersatz für den Mangelschaden gebühren daher ‑ nach Wahl des Gewährleistungsberechtigten ‑ die Verbesserungskosten, die Austauschkosten oder die Ersatzvornahmekosten, der Ersatz der Wertdifferenz zwischen der...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkmängel\", \"Gewährleistung\", \"Erfüllungsinteresse\", \"Ersatzvornahme\", \"Kaufvertrag\", \"Schadenersatz\", \"Mängelbeseitigung\", \"Deckungskapital\", \"außerordentliche Revision\", \"Vorlagepflicht\", \"Aktenrückstellung"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_59324213",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Schadenersatz Mangel Kaufrecht Gewährleistung Folgeschaden",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.03,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Schadenersatz Mangel Kaufrecht Gewährleistung Folgeschaden\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_13280525",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Kaufrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1208.26,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Kaufrecht\", \"results\": [{\"rs_number\": \"RS0014120\", \"kernaussage\": \"Bei der Beurteilung des verpflichtenden Stillschweigens ist zwar Zurückhaltung geboten, doch ist seine Deutung als Annahme namentlich dann gerechtfertigt, wenn die Ablehnung durch erkennbar wichtige Interessen des Vorschlagenden, namentlich innerhalb bereits bestehender Rechtsverhältnisse, geboten...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anwaltshaftung\", \"Aufwandersatz\", \"Preisminderung\", \"Beweiswiederholung\", \"Stillschweigen als Zustimmung\", \"Kündigungsentschädigung\", \"Vertrauensunwürdigkeit\", \"Pachtvertrag\", \"Anwaltsentgelt\", \"Beweiswürdigung\", \"Geschäftsgeheimnisse\", \"Erlaubnis\", \"Schweigen als Zustimmung\", \"Verjährung\", \"Unmittelbarkeitsgrundsatz\", \"§ 27 AngG\", \"Kündigung\", \"Stundungsvereinbarung\", \"USB-Stick\", \"Berufungsverhandlung\", \"§ 1097 ABGB\", \"Kaufrecht\", \"Schlechtvertretung\", \"Datenkopie\"]}, {\"rs_number\": \"RS0019972\", \"kernaussage\": \"Das Leistungsverweigerungsrecht nach § 1052 Satz 1 ABGB steht zwar nicht zu, wenn der andere Teil mit einer unwesentlichen Nebenleistung im Verzug ist, wohl aber, wenn einer Nebenleistung im Gegenseitigkeitsverhältnis erhebliche Bedeutung zukommt (hier: Sicherheitsgarantie für ein neues Produkt).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Einrede des nicht erfüllten Vertrages\", \"Leistungsverweigerungsrecht\", \"Garantieverpflichtung\", \"Zession\", \"Unsicherheitseinrede\", \"Werkvertrag\", \"Bankgarantie\", \"Gewährleistung\", \"Nebenpflicht\", \"Pachtvertrag\", \"Auflösung\", \"Ablösesumme\", \"Wucher\", \"Verkürzung über die Hälfte\", \"Leistungsverweigerung\", \"Bauführer\", \"We"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_14054191",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Mangelfolgeschaden",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 199.85,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Mangelfolgeschaden\", \"results\": [{\"rs_number\": \"RS0128304\", \"kernaussage\": \"Die Zusatzdeckung im Allgemeinen Vertrags‑Rechtsschutz erfasst die Mangelfolge‑ oder Begleitschäden im Zuge einer Vertragserfüllung, die nicht Folge der Verletzung eines absolut geschützten Rechtsguts sind. Die Geltendmachung von Mangelfolge‑ oder Begleitschäden an Personen und Sachen, die auf der...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rechtsschutzversicherung\", \"ARB 2005\", \"Allgemeiner Vertrags-Rechtsschutz\", \"Mangelfolgeschaden\"]}, {\"rs_number\": \"RS0131237\", \"kernaussage\": \"Hinsichtlich der Mängelbeseitigungskosten, die versicherungsrechtlich der Gewährleistung und dem Erfüllungssurrogat zuzuschlagen sind, ist zu differenzieren wie folgt: Ausgeschlossen sind jene Kosten, die ausschließlich der Verbesserung der bedungenen Werkleistung dienen. Hat die mangelhafte...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Betriebshaftpflichtversicherung\", \"Erfüllungssurrogat\", \"Gewährleistungsklausel\", \"Herstellungsklausel\", \"Mangelfolgeschaden\", \"Erfüllungssurrogate\", \"Mangelfolgeschäden\", \"Risikoeinschlüsse\", \"Absonderungsanspruch\"]}, {\"rs_number\": \"RS0013203\", \"kernaussage\": \"Das Interesse eines Miteigentümers an der Abwehr eines eigenmächtigen Eingriffs in das Miteigentum ist stets zuzubilligen und schließt die Annahme aus, der einzige Grund der Rechtsausübung bilde die Absicht, den Beklagten zu schädigen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Wohnungseigentum\", \"Miteigentum\", \"bauliche Veränderungen\", \"Beseitigung\", \"Unterlassung\", \"Kaufvertrag\", \"Gewährleistung\", \"Mangelfolgeschaden\", \"IPRG\""
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_83943444",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Gewährleistung Schadenersatz Kauf Mangel",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1189.83,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Gewährleistung Schadenersatz Kauf Mangel\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_10832318",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 870 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1710.1,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 870 ABGB\", \"results\": [{\"rs_number\": \"RS0102652\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 870 ABGB A Allgemeines zu § 870 ABGB B Unanfechtbare Verfahrenshandlungen C Listige Irreführung I. Allgemeines II. Begriff der Arglist III. Einzelfälle listiger Irreführung IV. Sonstiges arglistiges Handeln, exeptio doli D Ungerechte und gegründete Furcht I. ...\", \"schlagworte\": []}, {\"rs_number\": \"RS0014884\", \"kernaussage\": \"Die Furcht vor einem Übel, dessen Zufügung durch Abschluß des Vertrages abzuwenden versucht wird und das weder durch Worte noch durch schlüssiges Verhalten angedroht war, fällt nicht unter § 870 ABGB. Die Drohung mit der Unterlassung einer Handlung, zu deren Vornahme der Drohende weder durch Gesetz...\", \"schlagworte\": [\"Mietvertrag\", \"Zwangslage\", \"Nichtigkeit\", \"Zwang\"]}, {\"rs_number\": \"RS0014789\", \"kernaussage\": \"Die gesetzliche Regelung der Anfechtbarkeit von Anträgen, die unter dem Einfluss arglistiger Täuschung zustandegekommen sind (§ 870 ABGB), schützt die Entschließungsfreiheit. Es soll niemand in seinem Entschluss, ein Rechtsgeschäft überhaupt oder doch mit einem bestimmten Inhalt vorzunehmen, durch...\", \"schlagworte\": [\"Arglist\", \"Täuschung durch Verschweigen\", \"Konkurseröffnung\", \"Mietvertrag Auflösung\", \"Anfechtung\", \"Irrtum über Wohnungsgröße\", \"Vertragsanpassung\", \"Geschäftsirrtum\", \"Mietvertrag\", \"Geschäftsgegenstand\", \"listige Irreführung\", \"Revision zulässig\", \"Arglistige Täuschung\", \"Irrtumsanfechtung\", \"Kaufvertrag Liegenschaft\", \"Vorvertrag\", \"Irrtumanfechtung\", \"List\", \"Aufklärungspflicht\", \"Kaufvertrag\", \"Liegenscha"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_65707417",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 874 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1726.87,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 874 ABGB\", \"results\": [{\"rs_number\": \"RS0012086\", \"kernaussage\": \"Ein Mieter, der für die Dauer seiner Evakuierung seine Wohnung einem Dritten überlassen hat, kann diesen auch dann auf Räumung klagen, wenn der Dritte sich eine Einweisung verschafft und sodann mit dem Hauseigentümer einen Mietvertrag geschlossen hat. Das Räumungsbegehren kann mit der auf § 874 ABGB...\", \"schlagworte\": []}, {\"rs_number\": \"RS0120502\", \"kernaussage\": \"Der aus § 874 ABGB und den Grundsätzen der Haftung für culpa in contrahendo abgeleitete, auch bei fahrlässiger Irreführung zustehende Schadenersatzanspruch gegen den Vertragspartner verjährt unabhängig vom Anfechtungsrecht wegen Irrtums (vgl § 1487 ABGB) nach den allgemeinen Schadenersatzregeln nach...\", \"schlagworte\": [\"Händlerhaftung\", \"Warnpflicht\", \"Produkthaftung\", \"Werkstoffeigenschaften\", \"Polyamid 6 Guss\"]}, {\"rs_number\": \"RS0135454\", \"kernaussage\": \"Ein Vorstandsvorsitzender einer Bank, die irreführende Werbeunterlagen zu vertreten hat, kann gemäß § 1301 ABGB Mittäter oder Beitragstäter zu gemäß § 1295 Abs 2, § 1300 Satz 2 oder § 874 ABGB verpöntem Verhalten sein, wenn sein Handeln vom entsprechenden Vorsatz getragen war. Wusste er von der...\", \"schlagworte\": [\"Anlegerirreführung\", \"Werbebroschüren\", \"Ad-hoc-Meldungen\", \"Vergleichsvereinbarung\"]}, {\"rs_number\": \"RS0016000\", \"kernaussage\": \"Bei listiger Irreführung ( Behauptung, daß das zum Verkauf angebotene Auto eine bestimmte Laufzeit habe, während sie in Wahrheit zehnmal so groß war ) besteht ein Anspruch auf Genugtuung im Sinne des § 874 ABGB, dh es ist nicht nur der "
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_59047433",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0018547"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.6,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0018547\", \"rechtssatz\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswürdigung\"], \"fachgebiete\": [\"Gewährleistung\", \"Revision\", \"Unterlassung\", \"Baurecht\", \"Haftungsrecht\"], \"datum\": \"2025-09-23\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_55804911",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0022916"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1027.53,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0022916\", \"rechtssatz\": \"Der Schadenersatzanspruch, den § 932 ABGB dem Erwerber bzw Besteller vorbehält, setzt eine rechtswidriges, schuldhaftes Verhalten des Veräußerers oder Unternehmers voraus. Der Besteller oder Erwerber müssen daher, wenn sie einen über die Gewährleistung hinausgehenden Schadenersatzanspruch geltend machen, jedenfalls behaupten und erweisen, dass der Mangel durch ein rechtswidriges, schuldhaftes Verhalten des Beklagten verursacht wurde und weiters erweisen, worin dieses rechtswidrige Verhalten besteht.Der Schadenersatzanspruch, den Paragraph 932, ABGB dem Erwerber bzw Besteller vorbehält, setzt eine rechtswidriges, schuldhaftes Verhalten des Veräußerers oder Unternehmers voraus. Der Besteller oder Erwerber müssen daher, wenn sie einen über die Gewährleistung hinausgehenden Schadenersatzanspruch geltend machen, jedenfalls behaupten und erweisen, dass der Mangel durch ein rechtswidriges, schuldhaftes Verhalten des Beklagten verursacht wurde und weiters erweisen, worin dieses rechtswidrige Verhalten besteht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Schadenersatz\", \"Mängelhaftung\", \"Garantie\", \"Kilometerstand\", \"Handelsgeschäft\", \"Produkthaftung\", \"Händlerhaftung\", \"Mangelfolgeschaden\", \"Anhängerkupplung\", \"Konstruktionsmangel\", \"Garagentor\", \"Werkvertrag\", \"Produzentenhaftung\", \"Kontrollpflicht\", \"Erfüllungsgehilfe\", \"Zulieferer\", \"Forderungsübergang § 67 VersVG\", \"Gebrauchtwagenkauf Mängelhaftung\", \"Bremsflüssigkeitsbehälter\", \"Kontaminierung\", \"Liegenschaftskauf\", \"Arglistige Täuschung\", \"Schutzwirkung zug"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0135454",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0135454",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.99,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0135454\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0131269",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0131269",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.96,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0131269\", \"rechtssatz_text\": \"Das Erfüllungsinteresse besteht zunächst in den Kosten der Mängelbeseitigung. Als Geldersatz für den Mangelschaden gebühren daher ‑ nach Wahl des Gewährleistungsberechtigten ‑ die Verbesserungskosten, die Austauschkosten oder die Ersatzvornahmekosten, der Ersatz der Wertdifferenz zwischen der...\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11823, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob36_24p|OGH|2024-05-22\", \"gz\": \"8Ob36_24p\", \"datum\": \"2024-05-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage zum Beginn des Verbesserungsverzugs und den Anforderungen an eine Mängelrüge vorliegt.\"}, {\"te_stable_key\": \"1Ob77_23i|OGH|2023-09-20\", \"gz\": \"1Ob77_23i\", \"datum\": \"2023-09-20\", \"gericht\": \"OGH\", \"mini_story\": \"Auslegung eines Gewährleistungsverzichts im Kaufvertrag einer Liegenschaft unter Einbeziehung von Exposé-Angaben und Zusage einer umfassenden Sanierung.\"}, {\"te_stable_key\": \"4Ob146_20d|OGH|2020-09-22\", \"gz\": \"4Ob146_20d\", \"datum\": \"2020-09-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Beklagten zurück und bestätigt den Anspruch der Klägerin auf Ersatz von Aufschließungskosten aufgrund falscher vertraglicher Zusicherung als Rechtsmangel.\"}, {\"te_stable_key\": \"9Ob1_20t|OGH|2020-04-14\", \"gz\": \"9Ob1_20t\", \"datum\": \"2020-04-14\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Berufungsentscheidung auf und verweist die Sache zurück, weil das Berufungsgericht das Vorbringen der Beklagten gemäß § 179 ZPO zu Unrecht als verspätet zurückwies.\"}, {\"te_stable_key\": \"1Ob138_17a|OGH|2017-08-30\", \"gz\": \"1Ob138_17a\", \"datum\": \"2017-08-30\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung eines Schadenersatzanspruchs aus Gewährleistung im Kaufvertrag über eine Liegenschaft aufgrund erfolgter Mängelbeseitigung.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0131237",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0131237",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.79,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0131237\", \"rechtssatz_text\": \"Hinsichtlich der Mängelbeseitigungskosten, die versicherungsrechtlich der Gewährleistung und dem Erfüllungssurrogat zuzuschlagen sind, ist zu differenzieren wie folgt: Ausgeschlossen sind jene Kosten, die ausschließlich der Verbesserung der bedungenen Werkleistung dienen. Hat die mangelhafte...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17712, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"17Ob9/25k|OGH|2025-10-07\", \"gz\": \"17Ob9/25k\", \"datum\": \"2025-10-07\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Klägerin gegen ein Teilurteil in einem Absonderungsanspruch aus der Betriebshaftpflichtversicherung einer Subauftragnehmerin zurück, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"17Ob9_25k|OGH|2025-10-07\", \"gz\": \"17Ob9_25k\", \"datum\": \"2025-10-07\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Klägerin gegen ein Teilurteil in einem Absonderungsanspruch aus der Betriebshaftpflichtversicherung einer Subauftragnehmerin zurück, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"7Ob222_17y|OGH|2018-05-24\", \"gz\": \"7Ob222_17y\", \"datum\": \"2018-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der Revision in einem Versicherungsstreit über Deckung von Kosten für mangelhafte Auskleidung eines Ausgleichsbeckens in der Betriebshaftpflichtversicherung.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0128304",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0128304",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.9,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0128304\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0125898",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0125898",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.8,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0125898\"}"
+        }
+      ],
+      "tool_calls_total": 17,
+      "tool_calls_ok": 17,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Zusammenfassung der Ansprüche von X gegen Y (Großhändler) im Kaufrecht (Schadenersatz wegen Mangelhaftigkeit/Geschäftsuntauglichkeit):**\n\n### 1. **Grundlage: Kaufvertragliches Gewährleistungsrecht (§§ 922, 932 ABGB)**\n   - **Mangelhaftigkeit (§ 922 ABGB)**: Das Harz ist mangelhaft, wenn es qualitativ/quantitativ hinter dem Geschuldeten (Vertragsinhalt: Harz zur Ertragssteigerung der Rebstöcke) zurückbleibt. Hier: Vollständige Zerstörung der Rebstöcke bis Sept. nach Aufbringung im Mai → **Sachmangel vorliegend** (vgl. RS0018547: \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten [...] zurückbleibt.\"). Keine Erwähnung von Zusage oder Werbung, aber typisch für solche Produkte (vgl. RS0127170 zu öffentlichen Äußerungen/Hersteller).\n   - **Folgen (§ 932 ABGB)**:\n     | Anspruch | Voraussetzungen | Umfang (hier: Neupflanzungskosten 500.000 € als Mangelfolgeschaden) | RS/GZ-Referenz |\n     |----------|------------------|-------------------------------------------------------------|---------------|\n     | **Verbesserung/Nachbesserung** | Behebbarer Mangel | Kosten der Beseitigung (neu für alt); Folgeschaden nur, wenn adäquat kausal (RS0018627). | RS0018729 (Unverhältnismäßigkeit); RS0121684. |\n     | **Wandlung** | Unbehebbarer/erheblicher Mangel (> Halbwertersenkung) | Rückabwicklung + Schadenersatz für Folgeschäden (Verdienstentgang, Neupflanzung); Harz verbraucht → Naturalrestitution unmöglich → Wertdiff. | RS0018679 (Rückstellung); RS0016329 (Rückabwicklung); RS0022916. |\n     | **Preisminderung** | Jeder Mangel | Relative Methode: Wertminderung (hier potenziell total → auf 0 €); keine untere Grenze im Verkehrswert (RS0110929). | RS0018547; RS0117295. |\n     | **Schadenersatz iVm § 932 S 2 ABGB** | **Zusätzlich Verschulden Y** (rechtswidriges, schuldhaftes Verhalten, z.B. Kontrollpflicht) | Mangelfolgeschaden (Neupflanzung als adäquater Folgeschaden); **X trägt volle Beweislast für Verschulden Y** (§ 1296 ABGB). Y's Einwand (Fehler Z) relevant für Regress, nicht Ausschluss. | **RS0022916 (kernrelevant: \"Schadenersatzanspruch [...] setzt [...] rechtswidriges, schuldhaftes Verhalten [...] voraus. [...] Beweislast bei Kläger.\")**; RS0022936; RS0018592. |\n\n   - **Beweislast (§§ 924, 928 ABGB; nicht § 1298 – primär vertraglich)**: X beweist Mangel/Ursache (keine Umkehr bei Kauf; § 1298 für Nichterfüllung allg., hier RS0038150 zu Dienstvertrag). Y entlastet sich ggf. (§ 924 S 3). **X trägt Primärlast für Mangel + Kausalität; Y für Entlastung.**\n\n### 2. **Geschäftsuntauglichkeit (§ 1313a ABGB) – separater Track**\n   - **Anspruch**: Y haftet für Unbrauchbarkeit des Harzes für bestimmungsgemäßen Geschäftsgebrauch (Ertragssteigerung → Zerstörung Rebstöcke). Primärer Anspruch parallel zu § 922 (RS0020881: § 1313a nicht für Mieterfehler, aber affirmativ für Sachuntauglichkeit).\n   - **Folgen**: Wie § 932 (Wandlung/Preisminderung/Schadenersatz bei Verschulden). **Vollständige Zerstörung → Unbrauchbar; Anspruch auf vollen Schadenersatz (500.000 €), wenn Verschulden Y (z.B. Prüfungspflicht als Großhändler).**\n   - **Beweislast**: X beweist Unbrauchbarkeit + Kausalität; **keine Umkehr ohne Arglist** (vgl. Pre-Search RS0020881). Y haftet als Händler (Kontrollpflicht, RS0018468 zu Warnpflicht).\n\n### 3. **Deliktisch/Vertraglich iVm §§ 1295, 1299, 1298, 1325 ABGB (§ 936 ff. vorrangig)**\n   - **Subsidär (§ 1299 ABGB Sorgfaltsmaßstab)**: Bei Verschulden Y (grobe Fahrlässigkeit als Großhändler) → voller Schadenersatz (RS0126124: Fachkenntnisse → § 1299). **Beweislastumkehr § 1298?** Nur bei Nichterfüllung (Pre-Search RS0038150/8322: Arbeitgeber, nicht Kauf).\n   - **§ 1295 ABGB**: Deliktisch subsidär (RS0022909: Drittschäden § 1327); hier vertraglich vorrangig.\n   - **§ 1325 ABGB**: Wertsicherung irrelevant (Pre-Search RS0019225).\n   - **Kein Arglist-Track (§§ 870/874)**: Keine Hinweise auf Täuschung (RS0014789/874).\n\n### 4. **PHG (Produkthaftungsgesetz)? Kein Greifen (Parallel-Stream)**\n   - PHG für Personens-/Sachschäden > 500 € durch fehlerhaftes Produkt (Harz als \"Produkt\"); aber **Kaufrecht vorrangig** (kein Delikt nötig). Y haftet nicht primär als \"Hersteller\", sondern Händler (Regress gegen Z möglich).\n\n**Gesamteinschätzung**: X hat **starken Gewährleistungsanspruch gegen Y** (Wandlung/Preisminderung + Folgeschaden bei Verschulden; Beweislast X für Mangel/Verschulden). **Voller SE (500k €) bei Wandlung + Verschulden.** Y-Regress gegen Z (Herstellerhaftung). **Keine Haftungsausschluss durch Drittverschulden Z** (Y-Prüfungspflicht).",
+      "answer_chars": 4569,
+      "e2e_ms": 62541.89
+    },
+    {
+      "name": "Anspruchsgrundlagen gegen Z (Hersteller)",
+      "goal": "Prüfen, ob X Anspruch gegen Z auf Schadenersatz gemäß Produkthaftungsgesetz (PHG) oder Delikt (§ 1325 ABGB) hat, insb. bei fehlerhafter Herstellung",
+      "mode": "llm",
+      "tools": [
+        "search_ogh_rechtssaetze",
+        "hot_cluster_context",
+        "get_rechtssatz",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 10394.5,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3206,
+            "completion_tokens": 1183,
+            "total_tokens": 4389,
+            "cost": 0.0012102,
+            "cached_tokens": 150,
+            "reasoning_tokens": 951
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 10206.01,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 31073,
+            "completion_tokens": 966,
+            "total_tokens": 32039,
+            "cost": 0.0066751,
+            "cached_tokens": 150,
+            "reasoning_tokens": 723
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 21416.09,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 32152,
+            "completion_tokens": 2038,
+            "total_tokens": 34190,
+            "cost": 0.0074269,
+            "cached_tokens": 150,
+            "reasoning_tokens": 924
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_59288930",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Produkthaftung",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 412.84,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Produkthaftung\", \"results\": [{\"rs_number\": \"JWR_1992150068_19930426X02\", \"kernaussage\": \"Zulässigkeit Rückstellungen für ungewisse Verbindlichkeiten\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Rückstellungen\", \"ungwisse Verbindlichkeiten\", \"Produkthaftung\", \"Bilanzstichtag\", \"Verpflichtungsgrundlage\", \"Wirtschaftsjahr\", \"Bilanzierung\", \"Realisationsprinzip\"]}, {\"rs_number\": \"RS0071525\", \"kernaussage\": \"Die angemessene Frist ist eine Schutznorm zugunsten des Geschädigten; sie ist verzichtbar und ihre Einhaltung ist nicht von Amts wegen zu untersuchen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Auffanghaftung\", \"Benennung Vorlieferant\"]}, {\"rs_number\": \"RS0071529\", \"kernaussage\": \"Hat der Händler seinen Vorlieferanten benannt und steht dieser fest, so tritt nicht wieder eine Haftung des Händlers ein, wenn der Vorlieferant seinerseits seiner Benennungspflicht nicht hinreichend nachkommt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Auffanghaftung\", \"Benennung Vorlieferant\"]}, {\"rs_number\": \"RS0071559\", \"kernaussage\": \"Die Beweislast, das Produkt vor dem Stichtag in Verkehr gebracht zu haben, trifft den Unternehmer.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Inverkehrbringen\", \"Beweislast\", \"Produktfehler\", \"Überdruck\"]}, {\"rs_number\": \"RS0129308\", \"kernaussage\": \"Art 5 Nr 3 der Verordnung (EG) Nr 44/2001 des Rates vom 22. Dezember 2000 über die gerichtliche Zuständigkeit und die Anerkennung und Vollstreckung von Entscheidungen in Zivil‑ und Handelssachen ist dahin auszulegen, dass in dem Fall, dass die Haftung "
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_40722852",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "PHG Produkthaftung Hersteller Schadenersatz fehlerhafte Herstellung",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.94,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"PHG Produkthaftung Hersteller Schadenersatz fehlerhafte Herstellung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_99809209",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Produkthaftungsgesetz",
+            "limit": 30
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 391.45,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Produkthaftungsgesetz\", \"results\": [{\"rs_number\": \"RS0022476\", \"kernaussage\": \"Der Verkehrssicherungspflichtige hat zu beweisen, dass er die erforderlichen Sicherheitsvorkehrungen getroffen hat, ohne Rücksicht darauf, ob sich diese Pflicht aus allgemeinen Rechtsgrundsätzen (Ingerenzprinzip) oder einem Vertrag ergibt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Demonstrationsschaden\", \"Behandlungsvertrag\", \"non-liquet\", \"Sorgfaltsmaßnahmen\", \"Nylonseil\", \"Baustellenschaden\", \"Schutzpflichten\", \"Notfallknopf\", \"Sachverständigenauskunft\", \"Förderband\", \"Eisenbahnübergang\", \"Verkehrssicherungspflicht\", \"Friedhofsbetreiber\", \"außerordentliche Revision\", \"Asphaltvertiefung\", \"Erkennbarkeit\", \"Haftungsfeststellung\", \"Produkthaftungsgesetz\", \"Betriebsgelände\", \"Wegehalterhaftung\", \"Schaulustige\", \"Mietverhältnis\", \"Mehrbettzimmer\", \"Schadenersatz\", \"Schneeauftrag\", \"Schneestufen\", \"§ 303 ZPO\", \"LKW-Fahrer\", \"Handlauf\", \"Unaufmerksamkeit\"]}, {\"rs_number\": \"RS0022580\", \"kernaussage\": \"Dass der Geschädigte bei gehöriger Aufmerksamkeit den Schadenseintritt vermeiden konnte, begründet sein Mitverschulden; dieses kann aber den Rechtswidrigkeitszusammenhang zwischen dem Verstoß des vorschriftswidrig Handelnden und dem eingetretenen Schaden nicht beseitigen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ärztlicher Kunstfehler\", \"Arzthaftung\", \"Paravenöse Infiltration\", \"Zytostatika\", \"Schadensteilung\", \"Produzentenhaftung\", \"Warnpflicht\", \"Desinfektionsmittel\", \"Produkthaftungsgesetz\", \"Bindungswirkung strafgerichtlicher Verurteilung\", \"Mitverschulden\", \"Verbrechensopfergesetz\", \"Solid"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_99239227",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1 PHG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 925.53,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1 PHG\", \"results\": [{\"rs_number\": \"RS0111199\", \"kernaussage\": \"Wurde das Produkt nach dem 1. 1. 1994 (Inkrafttreten des Abkommens über den Europäischen Wirtschaftsraum (BGBl 1993/909) weder vom Hersteller noch vom Importeur, sondern von einem anderen Unternehmer in Verkehr gebracht, so kommt es bei der Frage der Anwendbarkeit des § 1 PHG in der Fassung vor oder...\", \"schlagworte\": [\"Produkthaftung\", \"Zwischenhändler\", \"Benennungspflicht\", \"Importeur\"]}, {\"rs_number\": \"RS0071502\", \"kernaussage\": \"Zu den sogenannten \\\"Weiterfresserschäden\\\": Nach § 1 PHG hat der Produzent eines fehlerhaften Teilproduktes für am Endprodukt verursachte Schäden nur einzustehen, wenn der Geschädigte dieses Teilprodukt als selbständiges Produkt erworben hat; ob dies der Fall ist, ist nach der Verkehrsauffassung zu...\", \"schlagworte\": [\"Produkthaftung\", \"Importeur\", \"Teilprodukt\", \"Endprodukt\", \"Weiterfresserschaden\", \"Regress\", \"Auffanghaftung\", \"Mängelrüge\", \"Legalzession\", \"Verpackungseinheit\", \"Konstruktionsfehler\", \"PHG\"]}, {\"rs_number\": \"RS0111982\", \"kernaussage\": \"\\\"Reine\\\" Vermögensschäden sind keine nach § 1 PHG ersatzfähige Sachschäden; keine Drittschadensliquidation im Wege des Produkthaftungsgesetzes.\", \"schlagworte\": [\"Produkthaftungsgesetz\", \"Importeurhaftung\", \"Sachschaden\", \"Produktfehler\", \"Gewährleistung\", \"reiner Vermögensschaden\", \"Schutzpflichten gegenüber Dritten\", \"Produkthaftung\", \"Gerichtsbarkeit\", \"EuGVVO\", \"PHG\", \"Juristenkalender\", \"Fristenberechnung\", \"Verlagshaftung\", \"Berufshaftpflicht\", \"Vertrag mit Schutzwirkungen zugunsten Dritter\", \"Unternehmer § "
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_77053717",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 4 PHG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1485.97,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 4 PHG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_75252173",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0107611"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.04,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0107611\", \"rechtssatz\": \"Das Kernelement des Entwicklungsrisiko liegt darin, dass die Gefährlichkeit einer bestimmten Produkteigenschaft beim Inverkehrbringen nicht erkennbar war (hier: Produktionsfehler, wenn die Verschlussschraube beim Öffnen einer Mineralwasserflasche weggeschleudert wird).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Produktionsfehler\", \"Instruktionsfehler\", \"Mitverschulden\", \"Mineralwasserflasche\", \"Überdruck\", \"Warnpflicht\", \"Mineralwasserflaschen\", \"Glasflaschen unter Druck\", \"fehlerhaftes Produkt\", \"Entwicklungsrisiko\", \"Sicherheitserwartungen\", \"Kaffeemaschine\", \"Hausbrand\", \"Explosion\", \"Gefrieren\", \"Kohlensäure\", \"Produktfehler\", \"Stand der Technik\"], \"fachgebiete\": [\"Haftungsrecht\", \"Produkthaftung\"], \"datum\": \"2023-10-18\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_56760287",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126150",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.23,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126150\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_01667882",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0071559",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.29,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0071559\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_89451313",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 4 PHG",
+            "limit": 20
+          },
+          "ok": false,
+          "status": null,
+          "latency_ms": null,
+          "error": "duplicate_zero_result"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_60109037",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 6 PHG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1857.99,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 6 PHG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_70586068",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "PHG Produktfehler Herstellung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.89,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0113076\", \"rechtssatz\": \"Zur Frage, ob der Hersteller, der ein Endprodukt in den Verkehr bringt, in das ein fehlerhaftes Zulieferteil eingebaut sei, damit bereits als Verursacher dieses Produktfehlers im Sinne des § 12 Abs 1 PHG anzusehen sei und somit als Regressberechtigter nach dieser Gesetzesbestimmung grundsätzlich nicht in Frage kommt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.078}], \"count\": 1, \"query\": \"PHG Produktfehler Herstellung\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0129308",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0129308",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.48,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0129308\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0113076",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0113076",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.48,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0113076\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111982",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111982",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.56,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0111982\", \"rechtssatz_text\": \"\\\"Reine\\\" Vermögensschäden sind keine nach § 1 PHG ersatzfähige Sachschäden; keine Drittschadensliquidation im Wege des Produkthaftungsgesetzes.\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"PRODUKTHAFTUNG_PHG\"], \"topic_ids\": [\"schadenersatz\"], \"hot_rank\": 6826, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob77/25z|OGH|2025-11-18\", \"gz\": \"2Ob77/25z\", \"datum\": \"2025-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH fasst in der Sache über die Revision der klagenden Partei gegen das Berufungsurteil des OLG Innsbruck einen Beschluss.\"}, {\"te_stable_key\": \"8Ob15_25a|OGH|2025-08-12\", \"gz\": \"8Ob15_25a\", \"datum\": \"2025-08-12\", \"gericht\": \"OGH\", \"mini_story\": \"Abgrenzung des Sachschadens im Sinne des Produkthaftungsgesetzes und Zulässigkeit der Schadensberechnung mit Bauzeitwert.\"}, {\"te_stable_key\": \"4Ob114_23b|OGH|2023-12-19\", \"gz\": \"4Ob114_23b\", \"datum\": \"2023-12-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision in einem Regressprozess eines Versicherers gegen eine Händlerin wegen Produzentenhaftung aus einem Wasserschaden durch ein defektes Exzenterfitting als unzulässig zurück.\"}, {\"te_stable_key\": \"8Ob69_21m|OGH|2022-05-25\", \"gz\": \"8Ob69_21m\", \"datum\": \"2022-05-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Abweisung von Schadenersatz- und Feststellungsansprüchen wegen einer ungewollten Schwangerschaft durch eine defekte Verhütungsspirale zurück.\"}, {\"te_stable_key\": \"2Ob162_10b|OGH|2010-12-02\", \"gz\": \"2Ob162_10b\", \"datum\": \"2010-12-02\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen das Urteil des Berufungsgerichts zurück, das Schadenersatz wegen defekter Dachfolie zugesprochen hatte, da kein Schaden an einer vom Produkt verschiedenen körperlichen Sache vorliegt.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111199",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111199",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.83,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111199\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0071529",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0071529",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.42,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0071529\"}"
+        }
+      ],
+      "tool_calls_total": 16,
+      "tool_calls_ok": 15,
+      "tool_calls_ok_rate": 0.938,
+      "llm_error": null,
+      "answer": "**Zusammenfassung der Ansprüche von X gegen Z (Fokus: PHG und § 1325 ABGB bei fehlerhafter Herstellung)**\n\n### 1. **Anspruch gegen Z nach Produkthaftungsgesetz (PHG) – primäre Grundlage**\nDas PHG gilt als verschuldensunabhängige **Risikohaftung** des Herstellers (Erzeuger, § 2 Z 1 PHG: Chemiefabrik Z als Produzent des Harzes) für Schäden durch **fehlerhafte Produkte** (§ 1 PHG). Es greift hier, da:\n- **Produktfehler bei Herstellung (Produktionsfehler)**: Das Harz als bewegliche Sache (§ 2 Z 2 PHG) verursachte Zerstörung der Rebstöcke (Sachschaden an anderer Habe > 500 €, § 1 Abs 1 PHG). Fehlerhafte Zusammensetzung/Wirkung (Ertragssteigerung fehlgeschlagen, totale Zerstörung) begründet Mangel an erwartbarer Sicherheit (§ 4 PHG; vgl. RS0107611: Produktionsfehler als Kern des Defekts, z. B. bei Überdruck in Flaschen – analog für chem. Produkte; RS0071559: Beweislast für Inverkehrbringung beim Hersteller).\n- **Schadensart**: Neubepflanzungskosten (500.000 €) als Sachschaden an Rebstöcken (nicht am Harz selbst, § 6 Abs 1 PHG schließt nur Schäden **am defekten Produkt** aus). Kein reiner Vermögensschaden (RS0111982). Für Unternehmer X gilt § 6 Abs 2 PHG (Folgeschäden aus Sachmangel) **nicht**, da primärer Sachschaden vorliegt (RS0071502: Teilprodukt/Sachschaden an Endgut haftbar).\n- **Anwendbarkeit trotz Y als Zwischenhändler**: Direkte Haftung gegen Hersteller Z möglich (RS0111579: Primärhaftung Erzeuger; RS0071529: Händler-Benennung entlastet Y, nicht Z). PHG kumulativ zu ABGB (RS0122973).\n- **Beweislast** (X trägt primär):\n  | Element | Beweislastträger |\n  |---------|------------------|\n  | Defekt (§ 4 PHG), Kausalität zum Schaden, Inverkehrbringung durch Z | X (Geschädigter) |\n  | Inverkehrbringung vor Stichtag (§ 11 PHG) | Z |\n  | Haftungsausschluss (§§ 7–10 PHG, z. B. Entwicklungsrisiko § 8 Z 2: Unerkennbarer Stand der Technik; RS0126150 [Kontext]): Z |\n- **RS-Belege**: RS0107611 (Produktionsfehler haftbar); RS0071525/29 (Händler-Regress/Auffang); RS0114946 (Haftung bei spezifischer Gefahr); RS0121126 (PHG als Deliktsstatut-Ergänzung).\n\n**PHG greift: Ja**. X hat vollen Schadenersatzanspruch (§ 1 PHG), sofern Defekt/Kausalität bewiesen. Y's Einwand (Z-Verschulden) irrelevant für X-Z-Beziehung.\n\n### 2. **Subsidärer Anspruch nach § 1325 ABGB (Delikt)**\nBei Fehlen von PHG-Voraussetzungen (z. B. kein Defekt i.S.d. § 4 PHG) greift deliktische Haftung:\n- **Voraussetzungen**: Unrechtmäßiges Verhalten Z (fehlerhafte Herstellung als Verschulden, § 1295 ABGB), Kausalität, Schaden (RS0022909: § 1295 für direkte Schäden; Pre-Suche § 1325: RS0019225/27533 – Verdienstentgang haftbar).\n- **Kein Primäranspruch**: PHG hat Vorrang (Sonderrecht); § 1325 nur subsidiär (RS0121126).\n- **Beweislast**: X beweist Verschulden/Kausalität (keine Umkehr wie § 1298 ABGB); Z entlastet sich durch Fehlen Verschuldens (§ 1299 ABGB Sorgfalt).\n- **RS-Belege**: Pre-Suche § 1295 (RS0022909); § 1325 (RS0019225).\n\n**Empfehlung**: Primär PHG klagen (einfachere Beweislast für Defekt). Gegen Y: Vertraglich (§ 1299 ABGB) + PHG-Regress möglich.\n\n**Offene Punkte**: Gutachten zu Defekt (chem. Analyse Harz/Wurzeln) erforderlich. Verjährung: 3 J. ab Kenntnis (§ 12 PHG/§ 1489 ABGB).",
+      "answer_chars": 3191,
+      "e2e_ms": 50026.91
+    },
+    {
+      "name": "PHG-Anwendbarkeit & Haftungsausschluss durch Drittverschulden",
+      "goal": "Klären, ob PHG greift (Herstellerdefinition, Produktbegriff, Haftungsausschluss bei Zulassung/Entwicklung), und ob Y sich auf Verschulden des Herstellers (Z) berufen kann",
+      "mode": "llm",
+      "tools": [
+        "hot_rs_search",
+        "search_kommentar_paragraph",
+        "search_kommentar_keyword",
+        "detect_clusters",
+        "build_grounding_context",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 12709.78,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 3598,
+            "completion_tokens": 1315,
+            "total_tokens": 4913,
+            "cost": 0.0013546,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1023
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 10219.28,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 17295,
+            "completion_tokens": 1419,
+            "total_tokens": 18714,
+            "cost": 0.004146,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1134
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 9285.6,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 8,
+          "usage": {
+            "prompt_tokens": 19941,
+            "completion_tokens": 1035,
+            "total_tokens": 20976,
+            "cost": 0.0019122,
+            "cached_tokens": 17290,
+            "reasoning_tokens": 662
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 16808.89,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 21941,
+            "completion_tokens": 2084,
+            "total_tokens": 24025,
+            "cost": 0.0024389,
+            "cached_tokens": 19942,
+            "reasoning_tokens": 876
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_00001582",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Produkthaftungsgesetz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 386.7,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Produkthaftungsgesetz\", \"results\": [{\"rs_number\": \"RS0042392\", \"kernaussage\": \"Bei der Prüfung der Zulässigkeit der Revision ist der OGH an einen Ausspruch des Berufungsgerichtes gemäß § 500 Abs 3 ZPO nicht gebunden (§ 508a Abs 1 ZPO), doch sind in diese Prüfung auch die übrigen vom Revisionswerber angeschnittenen Rechtsfragen miteinzubeziehen, weil er innerhalb des Rahmens...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Tierhaftung\", \"Hundeverwahrung\", \"Revisionzulässigkeit\", \"Rückwärtsversicherung\", \"Erstprämie\", \"Deckungspflicht\", \"Einlösung der Polizze\", \"Verzug\", \"Mietvertrag\", \"Vertragsstrafe\", \"Sittenwidrigkeit\", \"Allgemeine Geschäftsbedingungen\", \"Verjährung\", \"Zustellung\", \"Abwesenheitskurator\", \"Eintrittsrecht\", \"Nebenabrede\", \"MRG\", \"unübliche Nebenabrede\", \"Gehsteigreinigung\", \"Besorgungsgehilfenhaftung\", \"Grundstückseigentümerhaftung\", \"§ 93 StVO\", \"Räumung Geschäftslokal\", \"Untermieter\", \"Bestandvertrag\", \"titellose Benützung\", \"Bewertung Entscheidungsgegenstand\", \"Kindesunterhalt\", \"Unterhaltsbemessung\", \"Luxusgrenze\", \"Revisionsrekurs\", \"Erwerberhaftung\", \"Produkthaftungsgesetz\", \"Bestimmtheit des Klagebegehrens\", \"Unterlassungsbegehren\", \"Schikanöse Rechtsausübung\", \"Mietrecht\", \"Gewährleistung\", \"Preisminderung\", \"relative Berechnungsmethode\", \"Rekurszulässigkeit\", \"Lesebrille\", \"Korrektionsbrille\", \"UWG\", \"Augenoptiker\", \"Gewerbeberechtigung\", \"Konkursanfechtung\", \"unentgeltliche Verfügung\", \"Substantiierungstheorie\", \"Individualisierung der Rechtshandlung\", \"Bürgschaft\", \"Kautionsschutzgesetz\", \"Warn- und Aufklärungspflicht\", \"Pfandrecht\", \"Ver"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_14110232",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "PHG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 976.02,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"PHG\", \"results\": [{\"rs_number\": \"RS0114946\", \"kernaussage\": \"Die Haftung für \\\"generell-abstrakt\\\" fehlerfreie Produkte, die in \\\"individuell-konkreten Teilbereichen\\\" der Verwendung zu Schädigungen führen können und somit gefahrenträchtig sind, ist zu bejahen, wenn der Hersteller (Scheinhersteller) mit einer derartigen Verwendung rechnen musste und dennoch auf...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Instruktionsfehler\", \"Scheinhersteller\", \"Tauchausrüstung\", \"Eigenverschulden\", \"Sicherheitserwartung\", \"Arzneimittel\", \"Gebrauchsinformation\", \"PHG\"]}, {\"rs_number\": \"RS0111579\", \"kernaussage\": \"Der \\\"Anscheinshersteller\\\" ist primär haftpflichtig und kann sich nicht - wie ein Händler - durch Benennung des tatsächlichen Herstellers beziehungsweise Vormannes von seiner Haftung nach dem Produkthaftungsgesetz befreien.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftungsgesetz\", \"Anscheinshersteller\", \"Sachschaden\", \"Unternehmer\", \"Inverkehrbringung\", \"Selbstbehalt\", \"Produkthaftung\", \"Instruktionsfehler\", \"Scheinhersteller\", \"Tauchausrüstung\", \"Eigenverschulden\", \"Arzneimittel\", \"Gebrauchsinformation\", \"PHG\"]}, {\"rs_number\": \"RS0126150\", \"kernaussage\": \"Für den Haftungsausschluss des § 8 Z 2 PHG kommt es weder auf die Kenntnisse an, die ein mit der Herstellung des Produkts befasster Techniker haben muss, noch darauf, ob der konkrete Hersteller Zugang zum letzten Stand von Wissenschaft und Technik gehabt hat. Vielmehr ist auf den höchsten Stand der...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Explosion\", \"Mineralwasserflasche\","
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_29407422",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Produkthaftungsgesetz Anwendbarkeit gewerblicher Käufer Landwirtschaft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.04,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Produkthaftungsgesetz Anwendbarkeit gewerblicher Käufer Landwirtschaft\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_97405523",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "PHG Hersteller Haftung Ausschlüsse Zulassung Entwicklung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.26,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"PHG Hersteller Haftung Ausschlüsse Zulassung Entwicklung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_37417342",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Regress Händler gegen Hersteller fehlerhaftes Produkt Schadenersatz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.08,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Regress Händler gegen Hersteller fehlerhaftes Produkt Schadenersatz\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_48862233",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1 PHG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2203.61,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1 PHG\", \"results\": [{\"rs_number\": \"RS0111199\", \"kernaussage\": \"Wurde das Produkt nach dem 1. 1. 1994 (Inkrafttreten des Abkommens über den Europäischen Wirtschaftsraum (BGBl 1993/909) weder vom Hersteller noch vom Importeur, sondern von einem anderen Unternehmer in Verkehr gebracht, so kommt es bei der Frage der Anwendbarkeit des § 1 PHG in der Fassung vor oder...\", \"schlagworte\": [\"Produkthaftung\", \"Zwischenhändler\", \"Benennungspflicht\", \"Importeur\"]}, {\"rs_number\": \"RS0071502\", \"kernaussage\": \"Zu den sogenannten \\\"Weiterfresserschäden\\\": Nach § 1 PHG hat der Produzent eines fehlerhaften Teilproduktes für am Endprodukt verursachte Schäden nur einzustehen, wenn der Geschädigte dieses Teilprodukt als selbständiges Produkt erworben hat; ob dies der Fall ist, ist nach der Verkehrsauffassung zu...\", \"schlagworte\": [\"Produkthaftung\", \"Importeur\", \"Teilprodukt\", \"Endprodukt\", \"Weiterfresserschaden\", \"Regress\", \"Auffanghaftung\", \"Mängelrüge\", \"Legalzession\", \"Verpackungseinheit\", \"Konstruktionsfehler\", \"PHG\"]}, {\"rs_number\": \"RS0111982\", \"kernaussage\": \"\\\"Reine\\\" Vermögensschäden sind keine nach § 1 PHG ersatzfähige Sachschäden; keine Drittschadensliquidation im Wege des Produkthaftungsgesetzes.\", \"schlagworte\": [\"Produkthaftungsgesetz\", \"Importeurhaftung\", \"Sachschaden\", \"Produktfehler\", \"Gewährleistung\", \"reiner Vermögensschaden\", \"Schutzpflichten gegenüber Dritten\", \"Produkthaftung\", \"Gerichtsbarkeit\", \"EuGVVO\", \"PHG\", \"Juristenkalender\", \"Fristenberechnung\", \"Verlagshaftung\", \"Berufshaftpflicht\", \"Vertrag mit Schutzwirkungen zugunsten Dritter\", \"Unternehmer § "
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_11917905",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 2 PHG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1306.17,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 2 PHG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_59978140",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 3 PHG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1711.55,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 3 PHG\", \"results\": [{\"rs_number\": \"RS0121635\", \"kernaussage\": \"Aus den Gesetzesmaterialien (EB RV § 3 PHG, 272 Blg NR 17. GP 9) ergibt sich, dass die Definition des Herstellers auch den „Assembler\\\" umfasst, der nur vorgefertigte Teile zusammenbaut.\", \"schlagworte\": [\"Produkthaftung\", \"Hersteller\", \"Assembler\", \"finishing\"]}, {\"rs_number\": \"RS0114945\", \"kernaussage\": \"Erkennungszeichen iSd § 3 PHG ist alles, woraus die Identität eines Unternehmens erkennbar ist. Aufgrund des erweckten objektiven Scheins kann der einen Teil des Namens des Herstellers (Scheinhersteller) enthaltende Aufdruck auf dem Produkt als Herstellerhinweis verstanden werden. Es ist nicht...\", \"schlagworte\": [\"Produkthaftung\", \"Instruktionsfehler\", \"Scheinhersteller\", \"Tauchausrüstung\", \"Eigenverschulden\", \"Anscheinshersteller\", \"Inverkehrbringen\", \"Implantate-Pass\", \"PHG\"]}], \"count\": 2}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_88284810",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 8 PHG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1741.68,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 8 PHG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_11244615",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 10 PHG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1169.39,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 10 PHG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_81755520",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111170",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.46,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0111170\", \"rechtssatz_text\": \"Unter Sachschaden ist nicht der am Produkt entstandene Schaden zu verstehen, sondern der sogenannte Folgeschaden, den ein Fehler des Produkts an anderen Sachen als dem fehlerhaften Produkt verursacht hat. Ein bloßer (\\\"reiner\\\") Vermögensschaden, der schon im Rahmen der Produkt-Verschuldenshaftung...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7508, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob77/25z|OGH|2025-11-18\", \"gz\": \"2Ob77/25z\", \"datum\": \"2025-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH fasst in der Sache über die Revision der klagenden Partei gegen das Berufungsurteil des OLG Innsbruck einen Beschluss.\"}, {\"te_stable_key\": \"8Ob15_25a|OGH|2025-08-12\", \"gz\": \"8Ob15_25a\", \"datum\": \"2025-08-12\", \"gericht\": \"OGH\", \"mini_story\": \"Abgrenzung des Sachschadens im Sinne des Produkthaftungsgesetzes und Zulässigkeit der Schadensberechnung mit Bauzeitwert.\"}, {\"te_stable_key\": \"4Ob114_23b|OGH|2023-12-19\", \"gz\": \"4Ob114_23b\", \"datum\": \"2023-12-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision in einem Regressprozess eines Versicherers gegen eine Händlerin wegen Produzentenhaftung aus einem Wasserschaden durch ein defektes Exzenterfitting als unzulässig zurück.\"}, {\"te_stable_key\": \"8Ob69_21m|OGH|2022-05-25\", \"gz\": \"8Ob69_21m\", \"datum\": \"2022-05-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Abweisung von Schadenersatz- und Feststellungsansprüchen wegen einer ungewollten Schwangerschaft durch eine defekte Verhütungsspirale zurück.\"}, {\"te_stable_key\": \"7Ob32_18h|OGH|2018-07-04\", \"gz\": \"7Ob32_18h\", \"datum\": \"2018-07-04\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Bestimmung des Versicherungsfallzeitpunkts bei reinen Vermögensschäden aus dem Kauf eines mit unzulässiger Abschalteinrichtung ausgestatteten Fahrzeugs gilt der Erwerbszeitpunkt als maßgeblich.\"}, {\"te_stable_key\": \"2Ob162_10b|OGH|2010-12-02\", \"gz\": \"2Ob162_10b\", \"datum\": \"2010-12-02\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen das Urteil des Berufungsgerichts zurück, das Schadenersatz wegen defekter Dachfolie zugesprochen hatte, da kein Schaden an einer vom Produkt verschiedenen körperlichen Sache vorliegt.\"}, {\"te_stable_key\": \"6Ob162_05z|OGH|2007-06-21\", "
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_25424867",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126150",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.37,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126150\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_22150780",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0117224",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.92,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0117224\", \"rechtssatz_text\": \"Nach dem erklärten Zweck sowohl der EG-Richtlinie als auch des Produkthaftungsgesetzes soll bei Sachschäden nicht \\\"jedermann\\\" in den Schutzbereich des Gesetzes fallen, sondern lediglich die Verbraucher (Konsumenten) (vgl Art 9b RL, § 2 Z 1 PHG).\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17229, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob21_19p|OGH|2019-02-20\", \"gz\": \"3Ob21_19p\", \"datum\": \"2019-02-20\", \"gericht\": \"OGH\", \"mini_story\": \"Die Entscheidung klärt die Anwendbarkeit des PHG bei Sachschäden in gewerblichen Unternehmen und die vertraglichen Aufklärungspflichten bezüglich einseitig beschichteter Kartons für Lebensmittel.\"}, {\"te_stable_key\": \"6Ob108_07m|OGH|2009-02-27\", \"gz\": \"6Ob108_07m\", \"datum\": \"2009-02-27\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Herstellers eines fehlerhaften Leistungsschalters für Schäden an der Elektrik eines Vergnügungsbetriebs auf einem Jahrmarkt.\"}, {\"te_stable_key\": \"7Ob30_07y|OGH|2007-11-16\", \"gz\": \"7Ob30_07y\", \"datum\": \"2007-11-16\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung von Rekursen gegen die Aufhebung eines Urteils in einem Produkthaftungsstreit wegen eines fehlerhaften Deckenventilators.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_09038336",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "PHG Unternehmer Verbraucher",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.46,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"PHG Unternehmer Verbraucher\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_92003297",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "schadenersatz",
+            "query": "PHG greift bei Unternehmer Weinanbau Harz Rebstöcke zerstört? Herstellerdefinition Produktbegriff Haftungsausschluss Zulassung Entwicklung Regress Händler Hersteller",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.69,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_66831269",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117224"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.88,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117224\", \"rechtssatz\": \"Nach dem erklärten Zweck sowohl der EG-Richtlinie als auch des Produkthaftungsgesetzes soll bei Sachschäden nicht \\\"jedermann\\\" in den Schutzbereich des Gesetzes fallen, sondern lediglich die Verbraucher (Konsumenten) (vgl Art 9b RL, § 2 Z 1 PHG).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"reiner Vermögensschaden\", \"Schutzpflichten gegenüber Dritten\", \"Produkthaftung\", \"Gerichtsbarkeit\", \"EuGVVO\", \"PHG\", \"Vertrag mit Schutzwirkungen zugunsten Dritter\", \"Unternehmer § 2 Z 1 PHG\", \"juristische Personen des öffentlichen Rechts\", \"Organisationsverschulden\", \"Vertrag mit Schutzwirkung zugunsten Dritter\", \"Pflanzenschutzmittel\", \"Beratungsfehler\", \"Kausalität\", \"PHG Anwendbarkeit\", \"Aufklärungspflichten\", \"Lebensmittelverpackung\"], \"fachgebiete\": [\"Haftungsrecht\", \"Produkthaftung\"], \"datum\": \"2019-02-20\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_25627769",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111170"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.39,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111170\", \"rechtssatz\": \"Unter Sachschaden ist nicht der am Produkt entstandene Schaden zu verstehen, sondern der sogenannte Folgeschaden, den ein Fehler des Produkts an anderen Sachen als dem fehlerhaften Produkt verursacht hat. Ein bloßer (\\\"reiner\\\") Vermögensschaden, der schon im Rahmen der Produkt-Verschuldenshaftung prinzipiell außer Ansatz bliebe, scheidet aus dem Anwendungsbereich des PHG aus.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Sachschaden\", \"Vermögensschaden\", \"PHG\", \"Produkthaftungsgesetz\", \"Importeurhaftung\", \"Produktfehler\", \"Gewährleistung\", \"reiner Vermögensschaden\", \"Schutzpflichten gegenüber Dritten\", \"Gerichtsbarkeit\", \"EuGVVO\", \"Regressanspruch\", \"EKHG\", \"IPRG\", \"Haftpflichtversicherung\", \"Instruktionspflicht\", \"Witterungsbeständigkeit\", \"Vertrag mit Schutzwirkungen zugunsten Dritter\", \"Unternehmer § 2 Z 1 PHG\", \"juristische Personen des öffentlichen Rechts\", \"Dachfolie\", \"Vertrag mit Schutzwirkung für Dritte\", \"Verkehrssicherungspflicht\", \"Rechtsschutzversicherung\", \"Versicherungsfall\", \"Vorversicherlichkeit\", \"Abschalteinrichtung\", \"Medizinprodukt\", \"Spirale\", \"ungeliebte Schwangerschaft\", \"Schadenersatz\", \"Feststellung\", \"Folgeschaden\"], \"fachgebiete\": [\"Produkthaftung\", \"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2025-08-12\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_33040321",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0114946"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.14,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0114946\", \"rechtssatz\": \"Die Haftung für \\\"generell-abstrakt\\\" fehlerfreie Produkte, die in \\\"individuell-konkreten Teilbereichen\\\" der Verwendung zu Schädigungen führen können und somit gefahrenträchtig sind, ist zu bejahen, wenn der Hersteller (Scheinhersteller) mit einer derartigen Verwendung rechnen musste und dennoch auf die drohenden Gefahren nicht hingewiesen hat (hier: Luftundurchlässiger Unterziehanzug, der bei einem Hobbytaucher zu einer Verlegung des Auslassventils des Trockentauchanzuges geführt hat).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Instruktionsfehler\", \"Scheinhersteller\", \"Tauchausrüstung\", \"Eigenverschulden\", \"Sicherheitserwartung\", \"Arzneimittel\", \"Gebrauchsinformation\", \"PHG\"], \"fachgebiete\": [\"Produkthaftung\"], \"datum\": \"2024-10-22\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_49532934",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0126150"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.7,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0126150\", \"rechtssatz\": \"Für den Haftungsausschluss des § 8 Z 2 PHG kommt es weder auf die Kenntnisse an, die ein mit der Herstellung des Produkts befasster Techniker haben muss, noch darauf, ob der konkrete Hersteller Zugang zum letzten Stand von Wissenschaft und Technik gehabt hat. Vielmehr ist auf den höchsten Stand der Wissenschaft und Technik abzustellen, wie er im Zeitpunkt des Inverkehrbringens des betreffenden Produkts existierte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Produkthaftung\", \"Explosion\", \"Mineralwasserflasche\", \"Gefrieren\", \"Kohlensäure\", \"Produktfehler\", \"Entwicklungsrisiko\", \"Stand der Technik\", \"Instruktionsfehler\", \"Arzneimittel\", \"Gebrauchsinformation\", \"PHG\"], \"fachgebiete\": [\"Produkthaftung\"], \"datum\": \"2024-10-22\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_09690365",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "PHG Konsument Unternehmer",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.78,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"PHG Konsument Unternehmer\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_88669079",
+          "tool": "search_kommentar_keyword",
+          "args": {
+            "keyword": "Produkthaftungsgesetz PHG Verbraucher Unternehmer",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.07,
+          "error": null,
+          "payload_preview": "{\"keyword\": \"Produkthaftungsgesetz PHG Verbraucher Unternehmer\", \"law\": null, \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_06790293",
+          "tool": "search_kommentar_paragraph",
+          "args": {
+            "paragraph": "§ 2 PHG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.12,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 2 PHG\", \"law\": null, \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0121635",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0121635",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.78,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0121635\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114945",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114945",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.94,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114945\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111982",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111982",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.23,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0111982\", \"rechtssatz_text\": \"\\\"Reine\\\" Vermögensschäden sind keine nach § 1 PHG ersatzfähige Sachschäden; keine Drittschadensliquidation im Wege des Produkthaftungsgesetzes.\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"PRODUKTHAFTUNG_PHG\"], \"topic_ids\": [\"schadenersatz\"], \"hot_rank\": 6826, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob77/25z|OGH|2025-11-18\", \"gz\": \"2Ob77/25z\", \"datum\": \"2025-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH fasst in der Sache über die Revision der klagenden Partei gegen das Berufungsurteil des OLG Innsbruck einen Beschluss.\"}, {\"te_stable_key\": \"8Ob15_25a|OGH|2025-08-12\", \"gz\": \"8Ob15_25a\", \"datum\": \"2025-08-12\", \"gericht\": \"OGH\", \"mini_story\": \"Abgrenzung des Sachschadens im Sinne des Produkthaftungsgesetzes und Zulässigkeit der Schadensberechnung mit Bauzeitwert.\"}, {\"te_stable_key\": \"4Ob114_23b|OGH|2023-12-19\", \"gz\": \"4Ob114_23b\", \"datum\": \"2023-12-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision in einem Regressprozess eines Versicherers gegen eine Händlerin wegen Produzentenhaftung aus einem Wasserschaden durch ein defektes Exzenterfitting als unzulässig zurück.\"}, {\"te_stable_key\": \"8Ob69_21m|OGH|2022-05-25\", \"gz\": \"8Ob69_21m\", \"datum\": \"2022-05-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Abweisung von Schadenersatz- und Feststellungsansprüchen wegen einer ungewollten Schwangerschaft durch eine defekte Verhütungsspirale zurück.\"}, {\"te_stable_key\": \"2Ob162_10b|OGH|2010-12-02\", \"gz\": \"2Ob162_10b\", \"datum\": \"2010-12-02\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen das Urteil des Berufungsgerichts zurück, das Schadenersatz wegen defekter Dachfolie zugesprochen hatte, da kein Schaden an einer vom Produkt verschiedenen körperlichen Sache vorliegt.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111579",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111579",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.85,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111579\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111199",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111199",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.19,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111199\"}"
+        }
+      ],
+      "tool_calls_total": 27,
+      "tool_calls_ok": 27,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**PHG-Anwendbarkeit: Greift nicht (RS0117224, GZ 3Ob21/19p; RS0111170, GZ 8Ob15/25a).**\n\n### 1. **Herstellerdefinition (§ 3 PHG)**\n- Z (Chemiefabrik Linz) = Hersteller i.S.d. § 3 Z 1 PHG (Produzent des Harzes; RS0121635: umfasst auch \"Assembler\").\n- Y (Großhändler Wien) = ggf. Händler/Importeur (§ 3 Z 2/3 PHG; haftet subsidiär, kann tatsächlichen Hersteller benennen; RS0114945: Anscheinshersteller haftet primär, RS0111579).\n\n**Beweislast**: Geschädigter (X) beweist Identität/Hersteller (keine Umkehr).\n\n### 2. **Produktbegriff (§ 1 PHG)**\n- Harz = \"Produkt\" (bewegliche Sache, industriell hergestellt; implizit aus RS0071502: Teilprodukte/Endprodukte).\n\n### 3. **Schadensart (§ 1 PHG)**\n- Zerstörung Rebstöcke (Neubepflanzung 500.000 €) = **Sachschaden/Folgeschaden** (Schaden an \"anderen Sachen\" als dem Harz selbst; RS0111170: explizit Folgeschaden abgrenzend von Produktschaden/reinem Vermögensschaden; vgl. GZ 4Ob114/23b: Fitting-Wasserschaden; 2Ob162/10b: Dachfolie).\n- **Kein reiner Vermögensschaden** (RS0111170, RS0111982).\n\n### 4. **Schutzbereich (§ 2 Z 1 PHG): Ausschluss entscheidend**\n- X (Weinanbau-Unternehmer Wien) = **Unternehmer**, **kein Verbraucher/Konsument** (§ 2 Z 1 PHG: schützt nur \"Verbraucher\").\n- RS0117224: PHG-Zweck (RL/§ 2 Z 1) schützt bei Sachschäden **nicht \"jedermann\", sondern nur Konsumenten**; explizit Unternehmer ausgeschlossen (GZ 3Ob21/19p: gewerbliche Unternehmen/Pflanzenschutzmittel; 6Ob108/07m: Vergnügungsbetrieb-Jahrmarkt).\n- Weinanbau = gewerblich (kein privater Konsument) → **PHG unanwendbar** für X vs. Y/Z.\n\n**Beweislast**: X müsste Verbraucher-Status beweisen (hier evident nicht).\n\n### 5. **Haftungsausschlüsse (§ 8 PHG; hypothetisch, falls PHG greifen würde)**\n- **Entwicklungsrisiko (§ 8 Z 2 PHG)**: Ausschluss, wenn Fehler trotz \"höchstem Stand der Wissenschaft/Technik\" zum Inverkehrbringungszeitpunkt (Mai) nicht erkennbar (RS0126150: nicht Techniker-Kenntnisse, sondern objektiver Top-Stand; GZ Mineralwasserflasche-Explosion).\n- **Zulassung/Entwicklung**: Keine spezifischen RS (z.B. Pflanzenschutzmittel-Zulassung AGES?), aber § 8 Z 1 lit. a: Ausschluss bei zugelassenen Arzneimitteln/Pharmaprodukten (analog; RS0114946: Instruktionsfehler trotz \"fehlerfreiem\" Produkt).\n- **Instruktionsfehler**: Haftung bei fehlender Warnung vor Gefahrenträchtigem Gebrauch (RS0114946: Tauchausrüstung; RS0111166: Warnhinweise nicht \"versteckt\").\n\n**Beweislast**: Hersteller (Z) beweist Ausschluss (§ 8 Abs 1 PHG).\n\n### 6. **Y beruft sich auf Verschulden Z? Ja, Regress möglich (auch ohne PHG)**\n- Y haftet primär vertraglich ggü. X (§ 1299 ABGB; Beweislastumkehr § 1298 ABGB als Erfüllungsgehilfe).\n- **Regress Y → Z**: \n  - PHG-hypothetisch: § 10 PHG (Regress Hersteller/Händler; RS0071502: Weiterfresserschäden/Teilprodukt).\n  - Primär: Deliktisch (§ 1295 ABGB, Verschulden Z beweist Y) oder Gewährleistung (§§ 922/932 ABGB; Fehler Z).\n- Y kann Z nicht entlasten (keine vollständige Ablenkung; RS0111579), aber Regress bei Kausalität (RS0111170: Regressversicherer).\n\n**Beweislast Regress**: Y beweist Verschulden Z/Kausalität (§ 1295 ABGB); bei PHG umgekehrt.\n\n**Fazit**: PHG scheitert an § 2 Z 1 (Unternehmer X). X hat deliktische (§ 1295/1325 ABGB) / vertragliche (§ 1299/1313a ABGB) Ansprüche (Beweislast X: Verschulden; Umkehr § 1298). Y-Regress ggü. Z deliktisch/gewährleistungsmäßig.",
+      "answer_chars": 3344,
+      "e2e_ms": 63729.55
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 27164.15,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 6087,
+    "usage": {
+      "prompt_tokens": 16291,
+      "completion_tokens": 3286,
+      "total_tokens": 19577,
+      "cost": 0.00487885,
+      "cached_tokens": 149,
+      "reasoning_tokens": 1219
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0022916",
+          "RS0117224",
+          "RS0111982",
+          "RS0018547",
+          "RS0126150",
+          "RS0111170",
+          "RS0107611"
+        ],
+        "validation": {
+          "cited": 7,
+          "checked": 7,
+          "valid": 7,
+          "invalid": [],
+          "sample_valid": [
+            "RS0018547",
+            "RS0022916",
+            "RS0107611",
+            "RS0111170",
+            "RS0111982",
+            "RS0117224",
+            "RS0126150"
+          ]
+        },
+        "valid": [
+          "RS0022916",
+          "RS0117224",
+          "RS0111982",
+          "RS0018547",
+          "RS0126150",
+          "RS0111170",
+          "RS0107611"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§§ 922, 932 ABGB",
+          "§ 922 ABGB",
+          "§ 932 ABGB",
+          "§ 1295 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 922, 932 ABGB",
+          "§ 1 (gleicher Betrag), subsidiär Delikt (§ 1325 ABGB"
+        ],
+        "ungrounded": [
+          "§§ 922, 932 ABGB",
+          "§ 1295 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 922, 932 ABGB",
+          "§ 1 (gleicher Betrag), subsidiär Delikt (§ 1325 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0012086",
+          "RS0013203",
+          "RS0014120",
+          "RS0014789",
+          "RS0014884",
+          "RS0016000",
+          "RS0016329",
+          "RS0016411",
+          "RS0016592",
+          "RS0018065",
+          "RS0018547",
+          "RS0018814",
+          "RS0019181",
+          "RS0019972",
+          "RS0022476",
+          "RS0022580",
+          "RS0022916",
+          "RS0023981",
+          "RS0042392",
+          "RS0071502",
+          "RS0071525",
+          "RS0071529",
+          "RS0071559",
+          "RS0102652",
+          "RS0102755",
+          "RS0102760",
+          "RS0102868",
+          "RS0107611",
+          "RS0111170",
+          "RS0111199",
+          "RS0111579",
+          "RS0111982",
+          "RS0113076",
+          "RS0114805",
+          "RS0114945",
+          "RS0114946",
+          "RS0117224",
+          "RS0117295",
+          "RS0120502",
+          "RS0121635",
+          "RS0125898",
+          "RS0126150",
+          "RS0128304",
+          "RS0129308",
+          "RS0131237",
+          "RS0131269",
+          "RS0135454"
+        ],
+        "te_ogh": [
+          "17Ob9/25k",
+          "2Ob77/25z"
+        ],
+        "norms": [
+          "§ 1052 Satz 1 ABGB",
+          "§ 1097 ABGB",
+          "§ 1167 ABGB",
+          "§ 1295 Abs 2, § 1300 Satz 2 oder § 874 ABGB",
+          "§ 1295 Ib ABGB",
+          "§ 1301 ABGB",
+          "§ 1487 ABGB",
+          "§ 179 ZPO",
+          "§ 303 ZPO",
+          "§ 500 Abs 3 ZPO",
+          "§ 508a Abs 1 ZPO",
+          "§ 67 VersVG",
+          "§ 870 ABGB",
+          "§ 874 ABGB",
+          "§ 884 ABGB",
+          "§ 922 ABGB",
+          "§ 928 ABGB",
+          "§ 93 StVO",
+          "§ 932 ABGB",
+          "§ 934 ABGB",
+          "§ 936 ABGB",
+          "§344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB",
+          "§§ 877, 1435 ABGB"
+        ],
+        "stats": {
+          "rs_count": 47,
+          "te_ogh_count": 2,
+          "norm_count": 23
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0022916",
+          "RS0117224",
+          "RS0111982",
+          "RS0018547",
+          "RS0111170",
+          "RS0107611",
+          "RS0126150"
+        ],
+        "validation": {
+          "cited": 7,
+          "checked": 7,
+          "valid": 7,
+          "invalid": [],
+          "sample_valid": [
+            "RS0018547",
+            "RS0022916",
+            "RS0107611",
+            "RS0111170",
+            "RS0111982",
+            "RS0117224",
+            "RS0126150"
+          ]
+        },
+        "valid": [
+          "RS0022916",
+          "RS0117224",
+          "RS0111982",
+          "RS0018547",
+          "RS0111170",
+          "RS0107611",
+          "RS0126150"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 922 ABGB",
+          "§ 932 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0012086",
+          "RS0013203",
+          "RS0014120",
+          "RS0014789",
+          "RS0014884",
+          "RS0016000",
+          "RS0016329",
+          "RS0016411",
+          "RS0016592",
+          "RS0018065",
+          "RS0018547",
+          "RS0018814",
+          "RS0019181",
+          "RS0019972",
+          "RS0022476",
+          "RS0022580",
+          "RS0022916",
+          "RS0023981",
+          "RS0042392",
+          "RS0071502",
+          "RS0071525",
+          "RS0071529",
+          "RS0071559",
+          "RS0102652",
+          "RS0102755",
+          "RS0102760",
+          "RS0102868",
+          "RS0107611",
+          "RS0111170",
+          "RS0111199",
+          "RS0111579",
+          "RS0111982",
+          "RS0113076",
+          "RS0114805",
+          "RS0114945",
+          "RS0114946",
+          "RS0117224",
+          "RS0117295",
+          "RS0120502",
+          "RS0121635",
+          "RS0125898",
+          "RS0126150",
+          "RS0128304",
+          "RS0129308",
+          "RS0131237",
+          "RS0131269",
+          "RS0135454"
+        ],
+        "te_ogh": [
+          "17Ob9/25k",
+          "2Ob77/25z"
+        ],
+        "norms": [
+          "§ 1052 Satz 1 ABGB",
+          "§ 1097 ABGB",
+          "§ 1167 ABGB",
+          "§ 1295 Abs 2, § 1300 Satz 2 oder § 874 ABGB",
+          "§ 1295 Ib ABGB",
+          "§ 1301 ABGB",
+          "§ 1487 ABGB",
+          "§ 179 ZPO",
+          "§ 303 ZPO",
+          "§ 500 Abs 3 ZPO",
+          "§ 508a Abs 1 ZPO",
+          "§ 67 VersVG",
+          "§ 870 ABGB",
+          "§ 874 ABGB",
+          "§ 884 ABGB",
+          "§ 922 ABGB",
+          "§ 928 ABGB",
+          "§ 93 StVO",
+          "§ 932 ABGB",
+          "§ 934 ABGB",
+          "§ 936 ABGB",
+          "§344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB",
+          "§§ 877, 1435 ABGB"
+        ],
+        "stats": {
+          "rs_count": 47,
+          "te_ogh_count": 2,
+          "norm_count": 23
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 33062.76,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 4279,
+        "completion_tokens": 3061,
+        "total_tokens": 7340,
+        "cost": 0.00236365,
+        "cached_tokens": 151,
+        "reasoning_tokens": 1520
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 2,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Haftet Y als Großhändler gegenüber X für den Mangelfolgeschaden am Harz trotz Produktionsfehlers bei Z?** Ja, nach Kaufrecht haftet der Verkäufer primär für Mängel, wobei Schadenersatz über Gewährleistung hinaus ein schuldhaftes Verhalten erfordert (RS0022916).\n- **Besteht ein Anspruch von X gegen Z?** Nein, da X als Unternehmer kein Konsument ist und der Schaden als reiner Vermögensschaden oder nicht ersatzfähiger Sachschaden einzustufen ist (RS0117224, RS0111982).\n- **Greift das PHG in der Haftungskette und entlastet Y?** Nein, PHG schützt X nicht direkt; Y haftet vertraglich, unabhängig von Z-Verschulden.\n\n### 2. RECHTSGRUNDLAGEN\n**Gegen Y (Hauptanspruch: Kaufrecht/Gewährleistung, Stufenbau):** \nPrimär: Mangelhaftigkeit der Sache (§ 922 ABGB: Leistung mangelhaft, wenn hinter Geschuldetem zurückbleibend, RS0018547). Wandlung/Preisminderung (§ 932 ABGB). Schadenersatz bei Mangel (§ 932 ABGB). \nSekundär (über Gewährleistung hinaus): Geschäftsuntauglichkeit. \n**Gegen Z (Eventualanspruch):** Keine Anwendbarkeit bei reinem Vermögensschaden (RS0111982).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0018547:** Leistung mangelhaft nur bei Abweichung vom Geschuldeten (§ 922 ABGB). Relevanz: Begründet Mangelprüfung des Harzes als nicht ertragssteigernd.\n- **RS0022916:** Schadenersatz nach § 932 ABGB erfordert Beweis rechtswidrigen, schuldhaften Verhaltens des Verkäufers. Relevanz: X muss Y-Schuld (z.B. Kontrollpflicht) nachweisen für Folgeschaden.\n- **RS0111982:** Reine Vermögensschäden nicht ersatzfähig. Relevanz: Neubepflanzungskosten (500.000 €) fallen aus Schutzbereich.\n- **RS0117224:** Bei Sachschäden nur für Konsumenten, nicht jedermann. Relevanz: X als Unternehmer (Weinanbau) ausgeschlossen.\n- **RS0111170:** Sachschaden = Folgeschaden an anderen Sachen als dem Produkt. Relevanz: Rebstöcke als \"andere Sache\", aber kombiniert mit RS0117224 nicht schutzwürdig für X.\n- **RS0107611:** Produktionsfehler als Produktfehler. Relevanz: Mögliche Einordnung des Harzes.\n\n### 4. SUBSUMTION\n**Gegen Y (Kaufrecht/Gewährleistung,:** \nHarz als Kaufsache mangelhaft, da nicht ertragssteigernd, sondern zerstörerisch (Rückstand hinter Geschuldetem, § 922 ABGB; RS0018547). Folgeschaden (Rebstöcke) ersatzfähig bei Y-Schuld (z.B. Kontrollmangel, RS0022916). Y haftet primär vertraglich, Y-Einwand (Z-Fehler) irrelevant für X-Anspruch. \n**Gegen Z:** Harz mit vermutetem Fehler (Produktionsfehler, RS0107611). Schaden an Rebstöcken als Folgeschaden (RS0111170), aber X kein Konsument (RS0117224) und möglicherweise reiner Vermögensschaden (RS0111982). PHG greift nicht.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Mangelhaftigkeit Harz (§ 922 ABGB):** X beweist Abweichung vom Geschuldeten (RS0018547).\n- **Y-Schuld für Folgeschaden (§ 932 ABGB):** X beweist rechtswidriges, schuldhaftes Verhalten Y (z.B. Kontrollpflichtverletzung, RS0022916).\n- **Produktfehler Z:** X beweist Fehler und Kausalität (RS0107611).\n- **Konsumentenstatus:** Z beweist X-Unternehmer (RS0117224).\n- **Sachschaden vs. Vermögen:** X beweist Folgeschaden an anderer Sache (RS0111170).\nEvidence unvollständig für strittige Tatsachen.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (hohe Erfolgsaussicht):** Schadenersatz gegen Y gem. § 932 ABGB (voller Betrag 500.000 € + Zins/Verzug), da vertragliche Primärhaftung. \n**Eventualbegehren (niedrige Aussicht):** Sollte Y-Schuld fehlen, Anspruch gegen Z. Keine Konkurrenz (Wandlung/Preisminderung § 932 als Stufen vor Schadenersatz). Priorität: Y > Z.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0022916):** Gericht verneint Y-Schuld für Folgeschaden, da Z-Fehler ursächlich. **Replik:** X muss nur Mangel + Kausalität nachweisen; Y haftet als Verkäufer stufenweise, Regress Y vs. Z separat.\n- **Risiko 2 (RS0117224):** Anspruch gegen Z scheitert an X als Unternehmer. **Replik:** Primär Y-Kaufrecht unberührt.\n- **Risiko 3 (RS0111982):** Schaden als reiner Vermögensschaden nicht ersatzfähig. **Replik:** Gegen Y Gewährleistung greift (RS0018547).\n- **Risiko 4 (RS0018547):** Kein Mangel, da Harz \"geschuldet\" (keine Zusage Ertragssteigerung). **Replik:** Geschäftsuntauglichkeit (§ 922: qualitativ untauglich); Zerstörung beweist Rückstand hinter Verkehrsansicht.\n- **Risiko 5 (RS0126150):** Z entlastet sich. **Replik:** Evidence zu Harz-Zerstörung deutet Produktionsfehler (RS0107611).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Gegen Y (Kaufrecht:** 70 % (starke Primärhaftung, aber Beweis Y-Schuld fehlend, RS0022916).\n- **Gegen Z:** 10 % (X kein Konsument RS0117224; Vermögensschaden RS0111982; evidence insufficient)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Haftet Y als Großhändler gegenüber X für den Mangelfolgeschaden am Harz trotz Produktionsfehlers bei Z?** Ja, nach Kaufrecht haftet der Verkäufer primär für Mängel, wobei Schadenersatz über Gewährleistung hinaus ein schuldhaftes Verhalten erfordert (RS0022916).\n- **Besteht ein Anspruch von X gegen Z?** Nein, da X als Unternehmer kein Konsument ist und der Schaden als reiner Vermögensschaden oder nicht ersatzfähiger Sachschaden einzustufen ist (RS0117224, RS0111982).\n- **Greift das PHG in der Haftungskette und entlastet Y?** Nein, PHG schützt X nicht direkt; Y haftet vertraglich, unabhängig von Z-Verschulden.\n\n### 2. RECHTSGRUNDLAGEN\n**Gegen Y (Hauptanspruch: Kaufrecht/Gewährleistung, Stufenbau):** \nPrimär: Mangelhaftigkeit der Sache (§ 922 ABGB: Leistung mangelhaft, wenn hinter Geschuldetem zurückbleibend, RS0018547). Wandlung/Preisminderung (§ 932 ABGB). Schadenersatz bei Mangel (§ 932 ABGB). \nSekundär (über Gewährleistung hinaus): Geschäftsuntauglichkeit. \n**Gegen Z (Eventualanspruch):** Keine Anwendbarkeit bei reinem Vermögensschaden (RS0111982).\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0018547:** Leistung mangelhaft nur bei Abweichung vom Geschuldeten (§ 922 ABGB). Relevanz: Begründet Mangelprüfung des Harzes als nicht ertragssteigernd.\n- **RS0022916:** Schadenersatz nach § 932 ABGB erfordert Beweis rechtswidrigen, schuldhaften Verhaltens des Verkäufers. Relevanz: X muss Y-Schuld (z.B. Kontrollpflicht) nachweisen für Folgeschaden.\n- **RS0111982:** Reine Vermögensschäden nicht ersatzfähig. Relevanz: Neubepflanzungskosten (500.000 €) fallen aus Schutzbereich.\n- **RS0117224:** Bei Sachschäden nur für Konsumenten, nicht jedermann. Relevanz: X als Unternehmer (Weinanbau) ausgeschlossen.\n- **RS0111170:** Sachschaden = Folgeschaden an anderen Sachen als dem Produkt. Relevanz: Rebstöcke als \"andere Sache\", aber kombiniert mit RS0117224 nicht schutzwürdig für X.\n- **RS0107611:** Produktionsfehler als Produktfehler. Relevanz: Mögliche Einordnung des Harzes.\n\n### 4. SUBSUMTION\n**Gegen Y (Kaufrecht/Gewährleistung,:** \nHarz als Kaufsache mangelhaft, da nicht ertragssteigernd, sondern zerstörerisch (Rückstand hinter Geschuldetem, § 922 ABGB; RS0018547). Folgeschaden (Rebstöcke) ersatzfähig bei Y-Schuld (z.B. Kontrollmangel, RS0022916). Y haftet primär vertraglich, Y-Einwand (Z-Fehler) irrelevant für X-Anspruch. \n**Gegen Z:** Harz mit vermutetem Fehler (Produktionsfehler, RS0107611). Schaden an Rebstöcken als Folgeschaden (RS0111170), aber X kein Konsument (RS0117224) und möglicherweise reiner Vermögensschaden (RS0111982). PHG greift nicht.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Mangelhaftigkeit Harz (§ 922 ABGB):** X beweist Abweichung vom Geschuldeten (RS0018547).\n- **Y-Schuld für Folgeschaden (§ 932 ABGB):** X beweist rechtswidriges, schuldhaftes Verhalten Y (z.B. Kontrollpflichtverletzung, RS0022916).\n- **Produktfehler Z:** X beweist Fehler und Kausalität (RS0107611).\n- **Konsumentenstatus:** Z beweist X-Unternehmer (RS0117224).\n- **Sachschaden vs. Vermögen:** X beweist Folgeschaden an anderer Sache (RS0111170).\nEvidence unvollständig für strittige Tatsachen.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren (hohe Erfolgsaussicht):** Schadenersatz gegen Y gem. § 932 ABGB (voller Betrag 500.000 € + Zins/Verzug), da vertragliche Primärhaftung. \n**Eventualbegehren (niedrige Aussicht):** Sollte Y-Schuld fehlen, Anspruch gegen Z. Keine Konkurrenz (Wandlung/Preisminderung § 932 als Stufen vor Schadenersatz). Priorität: Y > Z.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1 (RS0022916):** Gericht verneint Y-Schuld für Folgeschaden, da Z-Fehler ursächlich. **Replik:** X muss nur Mangel + Kausalität nachweisen; Y haftet als Verkäufer stufenweise, Regress Y vs. Z separat.\n- **Risiko 2 (RS0117224):** Anspruch gegen Z scheitert an X als Unternehmer. **Replik:** Primär Y-Kaufrecht unberührt.\n- **Risiko 3 (RS0111982):** Schaden als reiner Vermögensschaden nicht ersatzfähig. **Replik:** Gegen Y Gewährleistung greift (RS0018547).\n- **Risiko 4 (RS0018547):** Kein Mangel, da Harz \"geschuldet\" (keine Zusage Ertragssteigerung). **Replik:** Geschäftsuntauglichkeit (§ 922: qualitativ untauglich); Zerstörung beweist Rückstand hinter Verkehrsansicht.\n- **Risiko 5 (RS0126150):** Z entlastet sich. **Replik:** Evidence zu Harz-Zerstörung deutet Produktionsfehler (RS0107611).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Gegen Y (Kaufrecht:** 70 % (starke Primärhaftung, aber Beweis Y-Schuld fehlend, RS0022916).\n- **Gegen Z:** 10 % (X kein Konsument RS0117224; Vermögensschaden RS0111982; evidence insufficient).",
+  "elapsed_ms": 157502.4
+}
