@@ -3899,6 +3899,39 @@ def discover_config_dir(argv: list[str]) -> Path:
     return cfg
 
 
+def write_output_file(output_path: str, answer: str, query: str, mode: str) -> dict:
+    """Write or append final answer to user-specified output file."""
+    p = Path(output_path).expanduser().resolve()
+    ext = p.suffix.lower()
+    existed = p.exists()
+    p.parent.mkdir(parents=True, exist_ok=True)
+
+    if ext == ".json":
+        entries: list = []
+        if existed:
+            try:
+                entries = json.loads(p.read_text(encoding="utf-8"))
+                if not isinstance(entries, list):
+                    entries = [entries]
+            except Exception:
+                entries = []
+        entries.append({
+            "query": query,
+            "mode": mode,
+            "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "answer": answer,
+        })
+        p.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+    else:
+        with open(p, "a", encoding="utf-8") as f:
+            if existed and p.stat().st_size > 0:
+                f.write(f"\n\n---\n\n<!-- Run: {dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M')} | Mode: {mode} | Query: {query[:80]} -->\n\n")
+            f.write(answer)
+            f.write("\n")
+
+    return {"output_file": str(p), "existed": existed, "ext": ext, "chars_written": len(answer)}
+
+
 def main() -> int:
     raw_argv = sys.argv[1:]
     config_dir = discover_config_dir(raw_argv)
@@ -3946,6 +3979,8 @@ def main() -> int:
     ap.add_argument("--context-exclude", default=[], action="append", help="Exclude file by name/glob (repeatable, e.g. FALLUEBERSICHT.md)")
     ap.add_argument("--ocr", action="store_true", help="OCR PDFs via pdftotext fast mode")
     ap.add_argument("--verbose", action="store_true", help="Log every API/MCP call to verbose_trace.txt")
+    ap.add_argument("--output", default="", metavar="FILE",
+        help="Write final answer to FILE (.md/.txt/.json). Appends if file exists.")
     args = ap.parse_args(raw_argv)
 
     parsed_cfg = Path(args.config_dir).expanduser()
@@ -4067,6 +4102,10 @@ def main() -> int:
         }
         (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
         (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
+        output_file_meta = None
+        if args.output:
+            output_file_meta = write_output_file(args.output, final_answer, args.query, "quick")
+            vlog(f"OUTPUT FILE: {output_file_meta}")
         summary = render_summary(
             query=args.query,
             organizer_model=organizer_model,
@@ -4276,6 +4315,10 @@ def main() -> int:
         (out_dir / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (out_dir / "subagents.json").write_text(json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8")
         (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
+        output_file_meta = None
+        if args.output:
+            output_file_meta = write_output_file(args.output, final_answer, args.query, "deep")
+            vlog(f"OUTPUT FILE: {output_file_meta}")
         summary = render_summary(
             query=args.query,
             organizer_model=organizer_model,
@@ -4318,6 +4361,7 @@ def main() -> int:
                 "summary_md": str(out_dir / "summary.md"),
                 "result_json": str(out_dir / "result.json"),
                 "elapsed_ms": elapsed_ms,
+                "output_file": output_file_meta,
             },
             ensure_ascii=False,
         )
