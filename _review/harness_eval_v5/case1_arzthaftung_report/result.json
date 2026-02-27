@@ -1,0 +1,1503 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T02:44:53.122145+00:00",
+  "config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "query": "Ein 45-jaehriger Tischler erleidet bei einer Knieoperation im Krankenhaus durch fehlerhafte Lagerung einen dauerhaften Peronaeusschaden (Fussheberschwaehe). Er kann seinen Beruf nicht mehr ausueben. Das Krankenhaus bestreitet den Kausalzusammenhang und verweist auf die unterzeichnete Risikoaufklaerung. Ueber Lagerungsrisiken wurde nicht aufgeklaert. Er fordert Schmerzengeld, Verdienstentgang und Feststellung der Haftung fuer Zukunftsschaeden.",
+    "model_profile": "default",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "google/gemini-3-flash-preview",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "remote_ssh",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "files": {
+      "agent_profiles": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      },
+      "skills_bindings": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/skills_bindings.yaml",
+        "roles": 4
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "schadenersatz",
+    "subdomain": "",
+    "confidence": 0.125,
+    "paragraphs": [
+      "§ 1295 ABGB",
+      "§ 1299 ABGB",
+      "§ 1298 ABGB",
+      "§ 1313a ABGB",
+      "§ 1325 ABGB"
+    ],
+    "mandatory_paragraphs": [
+      "§ 1295 ABGB",
+      "§ 1299 ABGB",
+      "§ 1298 ABGB",
+      "§ 1313a ABGB",
+      "§ 1325 ABGB"
+    ],
+    "keywords": [
+      "Schadenersatz"
+    ],
+    "all_scores": {
+      "schadenersatz": 0.125
+    },
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 5000,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Core liability framework (§§ 1295, 1298, 1299 ABGB)",
+        "goal": "Establish fault-based liability elements: Rechtsgutsverletzung, Kausalität, Verschulden, Rechtswidrigkeit",
+        "tools": [
+          "hot_rs_lookup",
+          "get_rechtssatz",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Informed consent & causation defense (§ 1313a, § 1325 ABGB)",
+        "goal": "Assess validity of consent defense and impact of omitted specific risk disclosure on causation",
+        "tools": [
+          "hot_cluster_context",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Damages & future loss (Schmerzengeld, Verdienstentgang, Feststellung)",
+        "goal": "Determine compensability, quantification, and legal basis for future damage recognition",
+        "tools": [
+          "search_ogh_rechtssaetze",
+          "detect_clusters",
+          "build_grounding_context",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Causation under § 1295 ABGB in light of incomplete Risikoaufklärung (§ 1313a ABGB) and its effect on fault-based liability and future damage recognition in medical malpractice."
+  },
+  "organizer_meta": {
+    "latency_ms": 4781.79,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Core liability framework (§§ 1295, 1298, 1299 ABGB)\",\n      \"goal\": \"Establish fault-based liability elements: Rechtsgutsverletzung, Kausalität, Verschulden, Rechtswidrigkeit\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 1295 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 1298 ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 1299 ABGB\\\")\",\n        \"hot_rs_lookup\",\n        \"get_rechtssatz\"\n      ]\n    },\n    {\n      \"name\": \"Informed consent & causation defense (§ 1313a, § 1325 ABGB)\",\n      \"goal\": \"Assess validity of consent defense and impact of omitted specific risk disclosure on causation\",\n      \"tools\": [\n        \"search_by_paragraph(\\\"§ 1313a ABGB\\\")\",\n        \"search_by_paragraph(\\\"§ 1325 ABGB\\\")\",\n        \"search_kommentar_paragraph(\\\"§ 1313a ABGB\\\")\",\n        \"hot_cluster_context\"\n      ]\n    },\n    {\n      \"name\": \"Damages & future loss (Schmerzengeld, Verdienstentgang, Feststellung)\",\n      \"goal\": \"Determine compensability, quantification, and legal basis for future damage recognition\",\n      \"tools\": [\n        \"search_by_schlagwort(\\\"Schadenersatz\\\")\",\n        \"search_ogh_rechtssaetze\",\n        \"detect_clusters\",\n        \"build_grounding_context\"\n      ]\n    },\n    {\n      \"name\": \"Hot-index validation & OGH precedent alignment\",\n      \"goal\": \"Confirm current OGH stance on iatrogenic nerve injury, consent gaps, and causation in orthopedic surgery\",\n      \"tools\": [\n        \"hot_index_stats\",\n        \"search_ogh_entscheidungen\",\n        \"hot_rs_search\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Causation under § 1295 ABGB in light of incomplete Risikoaufklärung (§ 1313a ABGB) and its effect on fault-based liability and future damage recognition in medical malpractice.\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 460,
+      "completion_tokens": 501,
+      "total_tokens": 961,
+      "cost": 0.0005654,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "schadenersatz",
+      "subdomain": "",
+      "confidence": 0.125,
+      "paragraphs": [
+        "§ 1295 ABGB",
+        "§ 1299 ABGB",
+        "§ 1298 ABGB",
+        "§ 1313a ABGB",
+        "§ 1325 ABGB"
+      ],
+      "mandatory_paragraphs": [
+        "§ 1295 ABGB",
+        "§ 1299 ABGB",
+        "§ 1298 ABGB",
+        "§ 1313a ABGB",
+        "§ 1325 ABGB"
+      ],
+      "keywords": [
+        "Schadenersatz"
+      ],
+      "all_scores": {
+        "schadenersatz": 0.125
+      },
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Core liability framework (§§ 1295, 1298, 1299 ABGB)",
+      "goal": "Establish fault-based liability elements: Rechtsgutsverletzung, Kausalität, Verschulden, Rechtswidrigkeit",
+      "mode": "llm",
+      "tools": [
+        "hot_rs_lookup",
+        "get_rechtssatz",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 2070.75,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 2805,
+            "completion_tokens": 137,
+            "total_tokens": 2942,
+            "cost": 0.0018135,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 2046.89,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 4900,
+            "completion_tokens": 167,
+            "total_tokens": 5067,
+            "cost": 0.002951,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 2034.66,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 6924,
+            "completion_tokens": 151,
+            "total_tokens": 7075,
+            "cost": 0.003915,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 7373.72,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 10810,
+            "completion_tokens": 885,
+            "total_tokens": 11695,
+            "cost": 0.00806,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_FZdImcd7jbAqrSBogGFs",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Arzthaftung Lagerungsschaden Peronäuslähmung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.48,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Arzthaftung Lagerungsschaden Peronäuslähmung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_CqrJnYZK2q5Hydcebf5s",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Beweislast Arzthaftung Behandlungsfehler 1298 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.7,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Beweislast Arzthaftung Behandlungsfehler 1298 ABGB\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_g3uad5LtnEWdzqhyydBu",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Krankenhaus Haftung Erfüllungsgehilfe 1313a ABGB Arzt",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.77,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Krankenhaus Haftung Erfüllungsgehilfe 1313a ABGB Arzt\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_schlagwort_Wgqp7Rw258LuBXuiODqU",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Arzthaftung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.72,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Arzthaftung\", \"results\": [{\"rs_number\": \"RS0026437\", \"kernaussage\": \"Es lassen sich keine allgemeinen Richtlinien darüber aufstellen, ab welchem Häufigkeitsgrad eines Operationsrisikos aufgeklärt werden muss. Es kommt vor allem darauf an, ob die nach allgemeiner Erfahrung nicht geradezu ganz seltenen Risken lebensbedrohend sind oder wichtige Körperfunktionen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ärztliche Aufklärungspflicht\", \"Einwilligung\", \"Kropfoperation\", \"Stimmbandlähmung\", \"Einwilligung Minderjähriger\", \"Operationsrisiko Hirnschaden\", \"Lumbalpunktion\", \"Patienteneinwilligung\", \"Krankenhaus haftung\", \"ärztliche Aufklärungspflicht\", \"Behandlungsfehler\", \"Infektionsrisiko\", \"alternative Behandlungsmethode\", \"Kunstfehler\", \"Sterilisation\", \"Arzthaftung\", \"Schmerzengeld\", \"Unterhaltspflicht\", \"Nervenschädigung\", \"Varizenoperation\", \"Anscheinsbeweis\", \"Behandlungsrisiko\", \"Leitungsanästhesie\", \"Notfallbehandlung\", \"Angiographie\", \"Subarachnoidalblutung\", \"intraoperative Wachheit\", \"Sterilisationsoperation\", \"Vollnarkose\", \"Behandlungsvertrag\", \"hypothetische Kausalität\", \"dringende Operation\", \"Rekurszulässigkeit\", \"Aufhebungsbeschluss\"]}, {\"rs_number\": \"RS0026468\", \"kernaussage\": \"Bei einem besonders ängstlichen Menschen wird die Aufklärung auf ein Minimum beschränkt werden dürfen und müssen, damit ein solcher Patient vor psychischen Pressionen bewahrt wird.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ärztliche Aufklärungspflicht\", \"Einwilligung\", \"Kropfoperation\", \"Stimmbandlähmung\", \"typische Operationsrisiken\", \"Ängstlichkeit des Patienten\", \"ärztliche Au"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_ndQ3IcdcVHwmAjQBjONV",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Beweislast 1298 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.32,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Beweislast 1298 ABGB\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_eThnn2fSNO6p2aQooYdg",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Peronäuslähmung Operation Haftung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.83,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Peronäuslähmung Operation Haftung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_FiA5Pyjt3ldzSmz2rJTM",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Krankenhausvertrag Erfüllungsgehilfe 1313a ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.81,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Krankenhausvertrag Erfüllungsgehilfe 1313a ABGB\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_RAEhY41eGPDjyekxkIEy",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026437",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.41,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026437\", \"rechtssatz_text\": \"Es lassen sich keine allgemeinen Richtlinien darüber aufstellen, ab welchem Häufigkeitsgrad eines Operationsrisikos aufgeklärt werden muss. Es kommt vor allem darauf an, ob die nach allgemeiner Erfahrung nicht geradezu ganz seltenen Risken lebensbedrohend sind oder wichtige Körperfunktionen...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9095, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob9_11a|OGH|2011-02-09\", \"gz\": \"5Ob9_11a\", \"datum\": \"2011-02-09\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Rekurs gegen den Aufhebungsbeschluss des Berufungsgerichts wegen fehlender erheblicher Rechtsfrage als unzulässig zurück.\"}, {\"te_stable_key\": \"4Ob203_09w|OGH|2010-02-23\", \"gz\": \"4Ob203_09w\", \"datum\": \"2010-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der Revision in einem Fall ärztlicher Haftung wegen unvollständiger Aufklärung vor einer dringend gebotenen Operation.\"}, {\"te_stable_key\": \"5Ob16_09b|OGH|2009-02-10\", \"gz\": \"5Ob16_09b\", \"datum\": \"2009-02-10\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Feststellung einer Verletzung der ärztlichen Aufklärungspflicht zurück, da der Fall im Rahmen der ständigen Rechtsprechung liegt.\"}, {\"te_stable_key\": \"4Ob87_08k|OGH|2008-06-10\", \"gz\": \"4Ob87_08k\", \"datum\": \"2008-06-10\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Aufklärungspflicht eines Arztes gegenüber dem obsorgeberechtigten Elternteil bei Behandlung eines nicht einsichts- und urteilsfähigen Kleinkindes.\"}, {\"te_stable_key\": \"3Ob11_08a|OGH|2008-04-10\", \"gz\": \"3Ob11_08a\", \"datum\": \"2008-04-10\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision der Beklagten in einer Sache wegen unzureichender Aufklärung über das Risiko intraoperativer Wachheit bei einer Sterilisationsoperation als unzulässig zurück.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_UFYq5CJXMO1YiPql5MwL",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026535",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.2,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026535\", \"rechtssatz_text\": \"Bei § 1299 ABGB geht es um den durchschnittlichen Fachmann des jeweiligen Gebietes, der prinzipiell auch der maßgerechte im Sinn dieser Bestimmung ist. Der Sorgfaltsmaßstab darf nicht überspannt werden.\", \"te_count\": 38, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 1129, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob224_16s|OGH|2017-01-25\", \"gz\": \"7Ob224_16s\", \"datum\": \"2017-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Sachverständigen für die Richtigkeit seines Gutachtens nach § 1299 ABGB und Auslegung des Gutachtensauftrags.\"}, {\"te_stable_key\": \"5Ob131_16z|OGH|2016-11-22\", \"gz\": \"5Ob131_16z\", \"datum\": \"2016-11-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit eines Rekurses in einem Schadenersatzanspruch gegen einen Liegenschaftssachverständigen wegen angeblich fehlerhafter Bewertung im Rahmen eines Erbteilungsgutachtens.\"}, {\"te_stable_key\": \"4Ob42_16d|OGH|2016-03-30\", \"gz\": \"4Ob42_16d\", \"datum\": \"2016-03-30\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Arztes für Schäden durch fehlerhaft hergestellte magistrale Arzneimittel einer Apotheke aufgrund fehlender Kontrolle des Etiketts.\"}, {\"te_stable_key\": \"6Ob16_16w|OGH|2016-02-23\", \"gz\": \"6Ob16_16w\", \"datum\": \"2016-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung eines Schadenersatzanspruchs wegen Brand eines Traktors nach Reparatur aufgrund fehlender Reinigungspflicht unter § 1299 ABGB.\"}, {\"te_stable_key\": \"10Ob50_15y|OGH|2015-07-30\", \"gz\": \"10Ob50_15y\", \"datum\": \"2015-07-30\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines gerichtlich bestellten Sachverständigen für ein fehlerhaftes Gutachten über eine angebliche Bleivergiftung.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_SHYAVFiTrOH4ccDMeZNm",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Krankenhaus Haftung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.45,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Krankenhaus Haftung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_0YlzDjaYMv5Yp4EXzchG",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Beweislastumkehr Behandlungsfehler 1298 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.38,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Beweislastumkehr Behandlungsfehler 1298 ABGB\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_aRGQ6ljZrpclp8D4pxlC",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Krankenhausvertrag Haftung 1313a ABGB Arzt",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.18,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Krankenhausvertrag Haftung 1313a ABGB Arzt\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_paragraph_bLSuB0bArjRp7Kb3Mtfj",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1298 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.2,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1298 ABGB\", \"results\": [{\"rs_number\": \"RS0026290\", \"kernaussage\": \"Die Beweislastumkehr des § 1298 ABGB greift nur Platz, wenn der Geschädigte zunächst beweist, dass der Schädiger objektiv seine Pflicht nicht erfüllt hat. Wenn jedoch ein auch nur objektiv vertragswidriges Verhalten des Schädigers nicht feststellbar ist, kann die Beweislastumkehr nach § 1298 ABGB...\", \"schlagworte\": [\"Reiseveranstalter\", \"Behandlungsvertrag\", \"§ 879 ABGB\", \"Selbstbedienung\", \"Warnschild\", \"Notfallknopf\", \"Verwahrungsvertrag\", \"Beweiswürdigung\", \"Sachverständigenauskunft\", \"Förderband\", \"Schuldlosigkeitsbeweis\", \"§ 1299 ABGB\", \"Verkehrssicherungspflicht\", \"AGB Haftungsausschluss\", \"Innenprovisionen\", \"Schikeller\", \"Unfallhaftung\", \"Haftungshöchstbeträge\", \"Tellerlift\", \"Wertpapieraufträge\", \"Erfolgshaftung\", \"Glasscherbe\", \"Mehrbettzimmer\", \"Reitunfall\", \"Schadenersatz\", \"Stockfäule\", \"§ 303 ZPO\", \"Bizepssehnenruptur\", \"AGB-Kontrolle\", \"Verkäuferhaftung\"]}, {\"rs_number\": \"RS0026458\", \"kernaussage\": \"Die gesetzliche Bestimmung des § 1298 ABGB gilt nur für Erfolgsverbindlichkeiten: Das Abweichen vom geschuldeten Erfolg ist Nichterfüllung. Rechtsanwälte schulden aber keinen bestimmten Erfolg wie etwa den Prozesssieg, sondern lediglich fachgemäße Beratung und Vertretung des Klienten. Die Nichterfül...\", \"schlagworte\": [\"Vergleichsberatung\", \"Anwaltshaftung\", \"Mobilfunkvertrag\", \"Vergleich\", \"Prozesskostenersatz\", \"Notarhaftung\", \"Markenverletzung\", \"Sorgfaltsmaßstab Rechtsanwalt\", \"Vergleichsabschluss\", \"erhebliche Rechtsfrage\", \"SorgfaltsPflicht\", \"Revisionzulassung\", \"Sorgfalts"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_paragraph_GnyZLR4WZpPSVuHHcq3a",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1313a ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 198.8,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1313a ABGB\", \"results\": [{\"rs_number\": \"RS0028621\", \"kernaussage\": \"Auch Verpflichtungen, die auf einer öffentlichrechtlichen Ursache, wie der Einweisung in ein Erziehungsheim beruhen, fallen in das Anwendungsgebiet des § 1313a ABGB (Privatwirtschaftsverwaltung).\", \"schlagworte\": []}, {\"rs_number\": \"RS0126934\", \"kernaussage\": \"Der Eigentümer des Aufzugs hat gemäß §§ 8, 11 WrAZG 1953 den Sachverständigen für die Überprüfung des Aufzugs nur auszuwählen und haftet für ein allfälliges Fehlverhalten des Ausgewählten nicht nach § 1313a ABGB.\", \"schlagworte\": [\"Aufzugsunfall\", \"Türverriegelung\", \"Verkehrssicherungspflicht\", \"Schutzpflichten\", \"Erfüllungsgehilfe\", \"WAZG\"]}, {\"rs_number\": \"RS0020881\", \"kernaussage\": \"§ 1313a ABGB ist bei der Beurteilung eines behaupteten Auflösungsgrundes nach § 1118 ABGB nicht heranzuziehen. Für das Fehlverhalten eines vom Mieter zur Durchführung von Arbeiten herangezogenen Fachmannes wird der Mieter im Rahmen des § 1118 ABGB nur dann einzustehen haben, wenn er die Unfähigkeit...\", \"schlagworte\": [\"Mietvertrag\", \"Rücktritt\", \"Auflösung\", \"erheblich nachteiliger Gebrauch\", \"Baumängel\", \"Umbauarbeiten\", \"Räumungsklage\", \"Wasserschaden\", \"nicht genehmigte Umbauten\", \"Mieterpflichten\", \"Auflösung Mietvertrag\", \"Mietrecht\", \"Bauschäden\", \"gerichtliche Aufkündigung\", \"bauliche Veränderungen\", \"Substanzschäden\", \"§ 30 Abs 2 Z 3 MRG\", \"Feuchtigkeitsisolierung\", \"Fachmann\"]}, {\"rs_number\": \"RS0017185\", \"kernaussage\": \"Auch bei Verletzung vertraglicher Schutzpflichten zugunsten Dritter haftet der Unternehmer für das Gehilfenverschulden gemäß"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0126934",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126934",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.28,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126934\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0028621",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0028621",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.01,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0028621\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026468",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026468",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 21.42,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0026468\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026458",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026458",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.25,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026458\", \"rechtssatz_text\": \"Die gesetzliche Bestimmung des § 1298 ABGB gilt nur für Erfolgsverbindlichkeiten: Das Abweichen vom geschuldeten Erfolg ist Nichterfüllung. Rechtsanwälte schulden aber keinen bestimmten Erfolg wie etwa den Prozesssieg, sondern lediglich fachgemäße Beratung und Vertretung des Klienten. Die Nichterfül...\", \"te_count\": 17, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 3159, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob35_24a|OGH|2024-03-20\", \"gz\": \"6Ob35_24a\", \"datum\": \"2024-03-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Zuerkennung eines Pauschalhonorars an einen Rechtsanwalt zurück, da keine erhebliche Rechtsfrage zur Abgrenzung von Auftrags- und Werkvertrag, zur Sorgfaltspflicht oder zur Schadenshaftung vorliegt.\"}, {\"te_stable_key\": \"1Ob53_21g|OGH|2021-04-21\", \"gz\": \"1Ob53_21g\", \"datum\": \"2021-04-21\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Rechtsanwalts für die Beratung seines Mandanten beim Abschluss eines außergerichtlichen Schadensausgleichsvergleichs nach einem Unfall.\"}, {\"te_stable_key\": \"10Ob32_20h|OGH|2020-10-13\", \"gz\": \"10Ob32_20h\", \"datum\": \"2020-10-13\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Haftung eines Einkaufszentrumsbetreibers für einen Sturz einer Kundin auf rutschigem Boden in der Aufzugsvorhalle nach Reinigungsarbeiten der Erfüllungsgehilfin und zur Beweislastumkehr nach § 1298 ABGB.\"}, {\"te_stable_key\": \"1Ob236_18i|OGH|2019-01-23\", \"gz\": \"1Ob236_18i\", \"datum\": \"2019-01-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision in einem Anwaltshaftungsfall als nicht zulässig zurück.\"}, {\"te_stable_key\": \"5Ob9_18m|OGH|2018-03-13\", \"gz\": \"5Ob9_18m\", \"datum\": \"2018-03-13\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision zur Überprüfung der Schlüssigkeit des Parteienvorbringens in einem Anwaltshaftungsfall wegen Unterlassung von Beweisanträgen im Oppositionsverfahren ist unzulässig.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026290",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026290",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 21.12,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026290\", \"rechtssatz_text\": \"Die Beweislastumkehr des § 1298 ABGB greift nur Platz, wenn der Geschädigte zunächst beweist, dass der Schädiger objektiv seine Pflicht nicht erfüllt hat. Wenn jedoch ein auch nur objektiv vertragswidriges Verhalten des Schädigers nicht feststellbar ist, kann die Beweislastumkehr nach § 1298 ABGB...\", \"te_count\": 25, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 1977, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob10_22x|OGH|2022-11-18\", \"gz\": \"6Ob10_22x\", \"datum\": \"2022-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH gibt der Revision der Beklagten statt und weist das Schadenersatzklagebegehren wegen eines durch Funkenflug bei Schweißarbeiten entstandenen Brands gänzlich ab, da die Klägerin den Beweis der Verletzung vertraglicher Brandschutzpflichten nicht erbracht hat.\"}, {\"te_stable_key\": \"1Ob168_22w|OGH|2022-10-12\", \"gz\": \"1Ob168_22w\", \"datum\": \"2022-10-12\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Betreibers eines Erlebnisparks für eine Verletzung durch Bruch eines vorgeschädigten Sicherungsstifts an einer Schaukel aufgrund verletzter Sorgfaltspflichten.\"}, {\"te_stable_key\": \"1Ob61_22k|OGH|2022-04-20\", \"gz\": \"1Ob61_22k\", \"datum\": \"2022-04-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da keine erhebliche Rechtsfrage zur Sorgfaltspflichtverletzung bei einem Piñata-Spiel vorliegt und die Beweislast für die Pflichtverletzung bei der Klägerin liegt.\"}, {\"te_stable_key\": \"1Ob39_22z|OGH|2022-03-23\", \"gz\": \"1Ob39_22z\", \"datum\": \"2022-03-23\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung einer außerordentlichen Revision gegen die Abweisung der Haftung eines Rauchfangkehrers für Brandschäden aus unzureichender Überprüfung einer Feuerungsanlage.\"}, {\"te_stable_key\": \"3Ob30_22s|OGH|2022-02-23\", \"gz\": \"3Ob30_22s\", \"datum\": \"2022-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung einer außerordentlichen Revision gegen die Abweisung von Schadenersatzansprüchen wegen Baumängeln und merkantiler Wertminderung.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 19,
+      "tool_calls_ok": 19,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Die Haftung des Krankenhauses für den Lagerungsschaden (Peronäuslähmung) lässt sich auf Basis der gesetzlichen Bestimmungen und der OGH-Rechtsprechung wie folgt begründen:\n\n### 1. Rechtsgrundlage und Zurechnung (§ 1313a ABGB)\nZwischen dem Patienten und dem Krankenhausträger besteht ein **Krankenhausvertrag**. Das Krankenhaus haftet für das Verschulden des medizinischen Personals (Ärzte, Pflegepersonen) wie für sein eigenes, da diese als **Erfüllungsgehilfen** im Sinne des **§ 1313a ABGB** tätig werden (**RS0017185**).\n\n### 2. Rechtswidrigkeit und Sorgfaltsmaßstab (§ 1299 ABGB)\n*   **Behandlungsfehler:** Die fehlerhafte Lagerung stellt einen Verstoß gegen die objektive Sorgfalt dar. Gemäß **§ 1299 ABGB** wird von Ärzten und dem Fachpersonal der Standard eines „durchschnittlichen Fachmanns des jeweiligen Gebiets“ verlangt (**RS0026535**). Ein Lagerungsschaden, der bei Anwendung der gebotenen Sorgfalt vermeidbar gewesen wäre, indiziert eine Pflichtverletzung.\n*   **Aufklärungsfehler:** Da über das Lagerungsrisiko nicht aufgeklärt wurde, fehlt es an einer wirksamen Einwilligung für diesen spezifischen Risikoaspekt. Ein ärztlicher Eingriff ist nur insoweit rechtmäßig, als die Einwilligung reicht (**RS0026473**). Typische Risiken, die wichtige Körperfunktionen betreffen (hier: Gehfähigkeit/Fußheber), sind aufklärungspflichtig (**RS0026437**).\n\n### 3. Verschulden und Beweislast (§ 1298 ABGB)\n*   **Beweislastumkehr:** Da eine vertragliche Pflichtverletzung (fehlerhafte Lagerung im Rahmen des Krankenhausvertrags) vorliegt, tritt die **Beweislastumkehr des § 1298 ABGB** ein.\n*   **Rechtsfolge:** Nicht der Patient muss das Verschulden des Personals beweisen, sondern das **Krankenhaus muss beweisen**, dass seine Gehilfen an der fehlerhaften Lagerung **kein Verschulden** trifft (**RS0112247**, **RS0026290**). Gelingt dieser Entlastungsbeweis nicht, wird das Verschulden vermutet.\n\n### 4. Kausalität\nDas Krankenhaus bestreitet den Kausalzusammenhang. \n*   Im Bereich der Arzthaftung gilt: Steht eine grobe Fehlleistung fest, können dem Patienten **Beweiserleichterungen** zugutekommen. \n*   Bei einem **Aufklärungsfehler** muss der Patient zudem plausibel machen, dass er bei ordnungsgemäßer Aufklärung in einen Entscheidungskonflikt geraten wäre und die Operation (so) nicht durchgeführt hätte (hypothetische Kausalität).\n\n### 5. Schaden (§ 1325 ABGB)\nDie Peronäuslähmung stellt eine Körperverletzung dar, die Ansprüche auf:\n*   **Schmerzengeld** (Abgeltung der körperlichen und seelischen Schmerzen),\n*   **Verdienstentgang** (da der Beruf als Tischler nicht mehr ausgeübt werden kann),\n*   sowie die **Feststellung der Haftung für Zukunftsschäden** (wegen der Dauerhaftigkeit des Schadens) rechtfertigt.\n\n**Zusammenfassung der Beweislast:**\n*   **Patient:** Muss den Eintritt des Schadens (Lähmung), die objektive Pflichtwidrigkeit (fehlerhafte Lagerung) und die (natürliche) Kausalität beweisen.\n*   **Krankenhaus:** Muss beweisen, dass die Lagerung dem Fachstandard entsprach (keine Pflichtverletzung) ODER dass das Personal an der Fehlleistung kein Verschulden trifft (§ 1298 ABGB).",
+      "answer_chars": 3106,
+      "e2e_ms": 31552.28
+    },
+    {
+      "name": "Damages & future loss (Schmerzengeld, Verdienstentgang, Feststellung)",
+      "goal": "Determine compensability, quantification, and legal basis for future damage recognition",
+      "mode": "llm",
+      "tools": [
+        "search_ogh_rechtssaetze",
+        "detect_clusters",
+        "build_grounding_context",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 2027.99,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 3137,
+            "completion_tokens": 147,
+            "total_tokens": 3284,
+            "cost": 0.0020095,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 2075.82,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 5863,
+            "completion_tokens": 142,
+            "total_tokens": 6005,
+            "cost": 0.0033575,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 2024.99,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 7549,
+            "completion_tokens": 143,
+            "total_tokens": 7692,
+            "cost": 0.0042035,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 8032.12,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 8923,
+            "completion_tokens": 914,
+            "total_tokens": 9837,
+            "cost": 0.0072035,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_HAyPPGuxn6uSiAgfWOWV",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Operation Peronäuslähmung Haftung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.6,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Operation Peronäuslähmung Haftung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_v7xmQFW1yYpyIzrG5XaL",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Verdienstentgang Tischler Berufsunfähigkeit Schätzung 273 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.76,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Verdienstentgang Tischler Berufsunfähigkeit Schätzung 273 ZPO\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_ZWBwJ08W4Ackuz5pd7bQ",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Feststellungsklage Zukunftsschaden Verjährung Unterbrechung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.99,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Feststellungsklage Zukunftsschaden Verjährung Unterbrechung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_schlagwort_1XcWna9Oa5n1AjQ9zxNx",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Verdienstentgang",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.22,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Verdienstentgang\", \"results\": [{\"rs_number\": \"RS0026838\", \"kernaussage\": \"Wird durch die Beschädigung eines Betriebsmittels (hier Lastkraftwagen) der aus einem Unternehmen gezogenen Nutzen vermindert, so gilt dieser nur dann als Verdienstentgang, wenn auch ein wirtschaftlich vertretbarer Einsatz der übrigen Betriebsmittel im Unternehmen des Geschädigten diese Verminderung...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verdienstentgang\", \"Schadensminderungspflicht\", \"Beweislast\", \"Schwertransport\", \"Ladungssicherung\", \"Straßenaufsicht\", \"Notbremsung\", \"Mitverschulden\"]}, {\"rs_number\": \"RS0026860\", \"kernaussage\": \"Der Anspruch des Geschädigten auf Ersatz der Kosten für ein Mietfahrzeug wird nicht dadurch gemindert, daß er mit dem Reparaturauftrag einige Tage zuwartet, um eine Besichtigung des beschädigten Fahrzeuges durch den Haftpflichtversicherer des Schädigers zu ermöglichen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verkehrsunfall\", \"Schadensminderung\", \"Verdienstentgang\", \"Reparatur\"]}, {\"rs_number\": \"RS0026982\", \"kernaussage\": \"Eine Operation ist zumutbar, wenn sie einfach und gefahrlos ist und ohne nennenswerte Schmerzen sichere Aussicht auf Erfolg bietet.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verkehrsunfall\", \"Schmerzengeld\", \"Verdienstentgang\", \"Mitverschulden\", \"Gurtenpflicht\", \"Schadensminderung\", \"Lasik-Operation\", \"Aufklärungspflicht\", \"Behandlungsfehler\", \"Kausalität\", \"Anscheinsbeweis\", \"Arzthaftung\", \"Schadensminderungspflicht\", \"TVT-Band-Operation\", \"Bluttransfusion\", \"Zeugen Jehovas\", \"Glaubens- und Gewissensfreiheit\", \"Trauerschmerzengeld\", \"Begräb"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_schlagwort_V4FZoQmIBU46qNv1zvvt",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Feststellungsinteresse",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 21.22,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Feststellungsinteresse\", \"results\": [{\"rs_number\": \"RS0026839\", \"kernaussage\": \"Im Falle der Provokation des Schädigers durch den Verletzten ist stets ein Mitverschulden des Verletzten anzunehmen, dessen Ausmaß allerdings von den jeweiligen Umständen des Einzelfalles abhängt (vgl SZ 32/24, SZ 33/54, JBl 1958,364 ua). (Hier Verschuldensteilung 2 : 1 zugunsten des Klassensprecher...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"außerordentliche Revision\", \"Mitverschulden\", \"Provokation\", \"Schmerzengeld\", \"Bindungswirkung strafgerichtlicher Verurteilung\", \"Feststellungsinteresse\", \"Verschuldensgrad\", \"Notwehr\", \"Notwehrüberschreitung\", \"Raufhandel\"]}, {\"rs_number\": \"RS0026842\", \"kernaussage\": \"Leistungen Dritter, die eine dem Schädiger zugutekommende Schadensminderung bewirken, verpflichten den Geschädigten nur zur Vorsorge, daß solche Ansprüche ungeschmälert auf einen Ersatz leistenden Schädiger übergehen können, nicht aber zu dessen Entlastung und Beschränkung seiner Ersatzpflicht auf...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Genossenschaftsvorstand\", \"Vertretungsmacht\", \"Feststellungsinteresse\", \"Schadenersatz\", \"Anwaltshaftung\", \"Wohnungsrecht\", \"Treuhand\", \"Wohnungseigentum\", \"Amtshaftung\", \"Auskunftspflicht\", \"Dispositionsschutz\", \"Schutzzweck\", \"Verjährung\"]}, {\"rs_number\": \"RS0016250\", \"kernaussage\": \"Kein Nachweis des Interesses für Klagen notwendig, womit die Ungültigkeit eines Vertrages wegen Irrtums, Zwanges oder Wegfalles der Geschäftsgrundlage festgestellt werden soll.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mietvertrag\", \"Ungültigkeit\", \"Geschäftsgrundla"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_Mi75cFzVauvYih5wd0c7",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Beweislast Operation",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.62,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Beweislast Operation\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_3fiyjiBgS78zr0Pc64ha",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Aufklärung Lagerung Operation Risiko",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.05,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Aufklärung Lagerung Operation Risiko\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_TyPnX4CoiLqX4vVUwPcR",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Verdienstentgang Selbständiger Schätzung 273 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.84,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Verdienstentgang Selbständiger Schätzung 273 ZPO\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_EfDBvTlSU28g4PC7LgpF",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0034700",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.04,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0034700\", \"rechtssatz_text\": \"Die Feststellungsklage unterbricht die Verjährung auch dann, wenn das Feststellungsbegehren nach Erhebung des Leistungsbegehrens versehentlich aufrecht erhalten und deshalb abgewiesen wurde.\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 12535, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob174_21y|OGH|2022-01-25\", \"gz\": \"4Ob174_21y\", \"datum\": \"2022-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Krankenhauses wegen Verletzung der Aufklärungspflicht über die begrenzte Erfahrung des Operateurs bei einer endoskopischen Bandscheibenoperation.\"}, {\"te_stable_key\": \"4Ob135_13a|OGH|2013-12-17\", \"gz\": \"4Ob135_13a\", \"datum\": \"2013-12-17\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH klärt die Verjährungsfrage bei einem Eventualbegehren auf Naturalrestitution aus pflichtwidriger Anlageberatung und bestätigt die Berechtigung des Leistungsanspruchs.\"}, {\"te_stable_key\": \"6Ob53_13g|OGH|2013-08-28\", \"gz\": \"6Ob53_13g\", \"datum\": \"2013-08-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Zulässigkeit eines Feststellungsbegehrens in einem Anlegerschadensfall aus Fehlberatung bei Wertpapiererwerb und die Verjährung eines nachfolgenden Leistungsbegehrens.\"}, {\"te_stable_key\": \"6Ob353_04m|OGH|2005-04-21\", \"gz\": \"6Ob353_04m\", \"datum\": \"2005-04-21\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Verjährung eines Preisminderungsanspruchs aus einem Kaufvertrag über eine Liegenschaft aufgrund eines ersessenen Wegerechts und hebt die Vorinstanzentscheidung auf.\"}], \"te_items_count\": 4}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_PWSrSRIOSn3kvnY4xsal",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026982",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 274.97,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026982\", \"rechtssatz_text\": \"Eine Operation ist zumutbar, wenn sie einfach und gefahrlos ist und ohne nennenswerte Schmerzen sichere Aussicht auf Erfolg bietet.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15034, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob126_19d|OGH|2019-08-29\", \"gz\": \"3Ob126_19d\", \"datum\": \"2019-08-29\", \"gericht\": \"OGH\", \"mini_story\": \"Zumutbarkeit einer Revisionsoperation im Rahmen der Schadensminderungspflicht nach Kunstfehler bei Hüftprothese.\"}, {\"te_stable_key\": \"2Ob219_10k|OGH|2011-06-22\", \"gz\": \"2Ob219_10k\", \"datum\": \"2011-06-22\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung, ob die Verweigerung einer Bluttransfusion aus religiösen Gründen (Zeugen Jehovas) eine Verletzung der Schadensminderungspflicht iSd § 1304 ABGB darstellt und damit Trauerschmerzengeld sowie Begräbniskosten nicht ersatzfähig sind.\"}, {\"te_stable_key\": \"3Ob106_06v|OGH|2006-07-26\", \"gz\": \"3Ob106_06v\", \"datum\": \"2006-07-26\", \"gericht\": \"OGH\", \"mini_story\": \"OGH-Entscheidung zur Haftung eines Arztes für postoperative Sehbeschwerden nach Lasik-Operationen aufgrund mutmaßlicher Verletzung der Aufklärungspflicht und fehlender Kausalität.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_FIleOo6fVNyn74pPHzQ7",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Beweislast",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.8,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Beweislast\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_6CanWu9c3lGJYttctgmA",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Peronäuslähmung Operation Haftung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.39,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Peronäuslähmung Operation Haftung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_LzkRFAHe2po5KbDcXEFc",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Verdienstentgang Selbständiger Schätzung 273 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 141.36,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Verdienstentgang Selbständiger Schätzung 273 ZPO\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_NX111Yy9Wl4jF52dqTR8",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Feststellungsklage Verjährung Zukunftsschaden",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 23.81,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Feststellungsklage Verjährung Zukunftsschaden\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_paragraph_8pK8XemqJEOACLFz7pfR",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 273 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 30.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 273 ZPO\", \"results\": [{\"rs_number\": \"RS0030717\", \"kernaussage\": \"Anwendung des § 273 ZPO, wenn der Geschädigte ohne den Unfall einer (unselbständigen) Erwerbstätigkeit nicht regelmäßig und ununterbrochen nachgegangen wäre.\", \"schlagworte\": []}, {\"rs_number\": \"RS0031048\", \"kernaussage\": \"Für die gemäß § 273 ZPO vorzunehmende Bemessung des entgangenen Verdienstes eines Provisionsvertreters ist der Buchauszug über die im letzten Jahr erworbenen Provisionsansprüche eine ausreichende Grundlage; daß der Buchauszug infolge Unterbleibens der Ausführung von Geschäften oder Ausfalls von...\", \"schlagworte\": []}, {\"rs_number\": \"RS0031415\", \"kernaussage\": \"Das Schmerzengeld kann nur nach § 273 ZPO unter Berücksichtigung aller Umstände des einzelnen Falles, der körperlichen und seelischen Schmerzen sowie der Art und Schwere der Verletzung nach freier Überzeugung des Richters festgesetzt werden, nicht aber tagweise. RG vom 04.03.1942, VIII 15; Veröff:...\", \"schlagworte\": [\"Lebenserfahrung\", \"häusliche Gewalt\", \"Haftungsverteilung\", \"Rodelbahn\", \"§ 366 StPO\", \"Legalzession\", \"Vorhaftanrechnung\", \"§ 1325 ABGB\", \"Mahnklage\", \"Geschwindigkeitsüberschreitung\", \"Berufung abgewiesen\", \"Beweiswürdigung\", \"Gurtpflicht\", \"Verunstaltungsentschädigung\", \"Sichtverhältnisse\", \"Subjektiver Tatbestand\", \"Beteiligung\", \"Verkehrssicherungspflicht\", \"außerordentliche Revision\", \"Schöffengericht\", \"Mieterhaftung\", \"Motorradunfall\", \"Vorstrafe\", \"Familienkonflikt\", \"Adhäsionsverfahren\", \"§ 84 StGB\", \"Nötigung\", \"Sanierungskosten\", \"Einweiser\", \"Nichtigkeitsberufung\"]}, {\"rs_number\": \"RS003148"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0031415",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0031415",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 30.76,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0031415\", \"rechtssatz_text\": \"Das Schmerzengeld kann nur nach § 273 ZPO unter Berücksichtigung aller Umstände des einzelnen Falles, der körperlichen und seelischen Schmerzen sowie der Art und Schwere der Verletzung nach freier Überzeugung des Richters festgesetzt werden, nicht aber tagweise. RG vom 04.03.1942, VIII 15; Veröff:...\", \"te_count\": 21, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2469, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob117_23d|OGH|2023-06-27\", \"gz\": \"2Ob117_23d\", \"datum\": \"2023-06-27\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Festsetzung des Schmerzengeldes bei Verletzungen durch einen Motorradunfall wird zurückgewiesen, da die Bemessung des Berufungsgerichts im Rahmen der Rechtsprechung liegt.\"}, {\"te_stable_key\": \"5Ob202_20x|OGH|2021-03-18\", \"gz\": \"5Ob202_20x\", \"datum\": \"2021-03-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revisionen in einem Schadenersatzverfahren wegen Querschnittslähmung durch Mountainbike-Unfall hinsichtlich Schmerzengeld und Pflegekosten als unzulässig zurück.\"}, {\"te_stable_key\": \"8Ob98_20z|OGH|2021-01-28\", \"gz\": \"8Ob98_20z\", \"datum\": \"2021-01-28\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Krankenhauses für Behandlungsfehler durch verzögerte Revisionsoperation nach Appendektomie mit tödlichem Ausgang und Ansprüche auf Schmerzengeld und Unterhalt der Hinterbliebenen.\"}, {\"te_stable_key\": \"5Ob110_17p|OGH|2017-07-20\", \"gz\": \"5Ob110_17p\", \"datum\": \"2017-07-20\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision gegen die Zuerkennung von Schmerzengeld und Kosten für Pflege und Haushaltshilfe wegen Verletzung der ärztlichen Aufklärungspflicht.\"}, {\"te_stable_key\": \"7Ob198_15s|OGH|2015-11-19\", \"gz\": \"7Ob198_15s\", \"datum\": \"2015-11-19\", \"gericht\": \"OGH\", \"mini_story\": \"Ablehnung der Revision wegen fehlender erheblicher Rechtsfrage bei Bemessung des Schmerzengeldes nach sexuellem Missbrauch.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0031048",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0031048",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.66,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0031048\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0030717",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0030717",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 19.93,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0030717\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026860",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026860",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.15,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0026860\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026842",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026842",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.8,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0026842\"}"
+        }
+      ],
+      "tool_calls_total": 20,
+      "tool_calls_ok": 20,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Die rechtliche Beurteilung des vorliegenden Falls (Lagerungsschaden mit Peronäuslähmung bei einem selbständigen Tischler) ergibt folgende Ansprüche und Beweislastverteilungen:\n\n### 1. Haftungsgrundlage und Beweislast\n*   **Behandlungsfehler (Lagerungsschaden):** Die Haftung des Krankenhauses stützt sich auf den Behandlungsvertrag (§ 1295, § 1299 ABGB). Bei einem Lagerungsschaden handelt es sich typischerweise um einen Bereich, der voll der Kontrolle des Krankenhauses unterliegt.\n*   **Beweislastumkehr (§ 1298 ABGB):** Da ein Schaden im Rahmen der Vertragserfüllung eingetreten ist, trifft das Krankenhaus die Beweislast dafür, dass seine Gehilfen (§ 1313a ABGB) die objektiv gebotene Sorgfalt eines ordentlichen Facharztes/Pflegepersonals (§ 1299 ABGB) angewandt haben (**RS0112247**).\n*   **Aufklärungsfehler:** Die unterzeichnete Risikoaufklärung entbindet nicht von der Pflicht, über spezifische, typische Risiken wie Lagerungsschäden aufzuklären, sofern diese nicht als allgemein bekannt vorausgesetzt werden können. Da über Lagerungsrisiken unstreitig nicht aufgeklärt wurde, haftet das Krankenhaus für die Folgen des Eingriffs, wenn der Patient bei ordnungsgemäßer Aufklärung die Operation abgelehnt hätte (hypothetische Einwilligung).\n\n### 2. Verdienstentgang des Selbständigen (§ 1325 ABGB)\n*   **Quantifizierung nach § 273 ZPO:** Da der exakte Verdienstentgang bei Selbständigen (Tischler) oft schwer zu beziffern ist, erfolgt die Bemessung nach freier richterlicher Überzeugung gemäß **§ 273 ZPO**. Dabei wird die Differenz zwischen dem hypothetischen Einkommen ohne Schadensereignis und dem tatsächlichen Einkommen (bzw. der Invaliditätspension) geschätzt (**RS0030717**, **RS0031415**).\n*   **Schadensminderungspflicht:** Der Geschädigte muss versuchen, seine verbliebene Arbeitskraft bestmöglich zu verwerten (z.B. Umschulung auf eine sitzende Tätigkeit in der Arbeitsvorbereitung), sofern dies zumutbar ist (**RS0026997**).\n\n### 3. Schmerzengeld (§ 1325 ABGB)\n*   Das Schmerzengeld wird als **Globalbemessung** für alle körperlichen und seelischen Schmerzen (Verlust der Berufsausübung als psychische Belastung) festgesetzt. Die Bemessung erfolgt ebenfalls unter Anwendung des **§ 273 ZPO** (**RS0108277**, **RS0031415**).\n\n### 4. Feststellung der Haftung für Zukunftsschäden\n*   **Feststellungsinteresse:** Da eine dauerhafte Fußheberschwäche vorliegt, ist der Eintritt von Spätschäden (z.B. Folgeschäden an der Wirbelsäule durch Fehlbelastung, Verschlechterung des Nervenschadens) wahrscheinlich oder zumindest nicht auszuschließen.\n*   **Verjährungsschutz:** Die Feststellungsklage ist zulässig und geboten, um die Verjährung für künftige Schäden zu unterbrechen (**RS0034700**). Ohne Feststellungsurteil würden Ansprüche für Schäden, die erst nach 30 Jahren auftreten, verjähren, sofern der Grundschaden bereits bekannt war.\n\n**Zusammenfassung der Beweislast:**\n*   **Patient:** Muss den Schaden (Peronäuslähmung) und die Kausalität der Lagerung für diesen Schaden beweisen (Anscheinsbeweis bei typischen Lagerungsschäden oft ausreichend).\n*   **Krankenhaus:** Muss beweisen, dass kein Verschulden vorliegt (§ 1298 ABGB) und dass eine ordnungsgemäße Aufklärung erfolgte oder der Patient auch bei Aufklärung eingewilligt hätte.",
+      "answer_chars": 3250,
+      "e2e_ms": 33253.64
+    },
+    {
+      "name": "Informed consent & causation defense (§ 1313a, § 1325 ABGB)",
+      "goal": "Assess validity of consent defense and impact of omitted specific risk disclosure on causation",
+      "mode": "llm",
+      "tools": [
+        "hot_cluster_context",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 1675.69,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 3,
+          "usage": {
+            "prompt_tokens": 2908,
+            "completion_tokens": 87,
+            "total_tokens": 2995,
+            "cost": 0.001715,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 1871.91,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 4503,
+            "completion_tokens": 130,
+            "total_tokens": 4633,
+            "cost": 0.0026415,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 1573.1,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 3,
+          "usage": {
+            "prompt_tokens": 5846,
+            "completion_tokens": 78,
+            "total_tokens": 5924,
+            "cost": 0.003157,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 1918.41,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 3,
+          "usage": {
+            "prompt_tokens": 7750,
+            "completion_tokens": 84,
+            "total_tokens": 7834,
+            "cost": 0.004127,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 7953.77,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 9295,
+            "completion_tokens": 902,
+            "total_tokens": 10197,
+            "cost": 0.0073535,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_DCPBDpBJObUfbHlSDsyt",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Aufklärung Lagerungsschaden Operation Risikoaufklärung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.44,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Aufklärung Lagerungsschaden Operation Risikoaufklärung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_04WcVdSnIK7NgzxDQMoA",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "hypothetische Einwilligung Beweislast Aufklärungsfehler",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.1,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"hypothetische Einwilligung Beweislast Aufklärungsfehler\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_schlagwort_8aOubn3xFRA307rvuAeN",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Ärztliche Aufklärungspflicht",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 37.57,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Ärztliche Aufklärungspflicht\", \"results\": [{\"rs_number\": \"RS0012285\", \"kernaussage\": \"Der Nachlass wird im Prozess durch sämtliche erbserklärten Erben vertreten, deren Erbserklärung vom Gerichte angenommen wurde (so auch schon SZ X 341).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anwalts Honorar\", \"RATG\", \"AHR\", \"Streitgenossenzuschlag\", \"Aktivlegitimation\", \"Verlassenschaftsabhandlung\", \"Ärztliche Aufklärungspflicht\", \"Erbengemeinschaft\", \"Verlassenschaft\", \"Mietaufkündigung\", \"Erbserklärung\", \"Einantwortung\", \"Vertretung des Nachlasses\", \"Pflichtteilsklage\", \"Vertretung der Verlassenschaft\", \"Miterben\", \"Vertretungsmangel\", \"Nichtigkeitsberufung\"]}, {\"rs_number\": \"RS0026324\", \"kernaussage\": \"Der Arzt handelt nicht fahrlässig, wenn die von ihm gewählte Behandlungsmethode einer Praxis entspricht, die von angesehenen, mit dieser Methode vertrauten Medizinern anerkannt ist, selbst wenn ebenfalls kompetente Kollegen eine andere Methode bevorzugt hätten. Eine Behandlungsmethode kann grundsätz...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Radiologe\", \"Bandscheibenprothese\", \"Nervenmonitoring\", \"seitlicher Zugang\", \"§ 289 ZPO\", \"Gutachtenfehler\", \"Nervenschädigung\", \"Zufallsbefund\", \"lege artis\", \"state of the art\", \"Aufklärungsfehler\", \"Laparoskopische Sigmaresektion\", \"Ärztliche Aufklärungspflicht\", \"Ärztlicher Kunstfehler\", \"Aufklärungspflicht\", \"Kausalität\", \"Sachverständigengutachten\", \"Parteivernehmung\", \"nervus radialis\", \"Behandlungsfehler\", \"Medizinischer Kunstfehler\", \"Sorgfaltsmaßstab\", \"Famulant\", \"Schmerzengeld\", \"Versteifungsoperation\", \"Bleivergiftung\", \"me"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_6o0wuiwiTig6apz5tQBs",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026387",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.13,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0026387\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_HD64wyNmzTNkSYi9ejNF",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026437",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.71,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026437\", \"rechtssatz_text\": \"Es lassen sich keine allgemeinen Richtlinien darüber aufstellen, ab welchem Häufigkeitsgrad eines Operationsrisikos aufgeklärt werden muss. Es kommt vor allem darauf an, ob die nach allgemeiner Erfahrung nicht geradezu ganz seltenen Risken lebensbedrohend sind oder wichtige Körperfunktionen...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9095, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob9_11a|OGH|2011-02-09\", \"gz\": \"5Ob9_11a\", \"datum\": \"2011-02-09\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Rekurs gegen den Aufhebungsbeschluss des Berufungsgerichts wegen fehlender erheblicher Rechtsfrage als unzulässig zurück.\"}, {\"te_stable_key\": \"4Ob203_09w|OGH|2010-02-23\", \"gz\": \"4Ob203_09w\", \"datum\": \"2010-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der Revision in einem Fall ärztlicher Haftung wegen unvollständiger Aufklärung vor einer dringend gebotenen Operation.\"}, {\"te_stable_key\": \"5Ob16_09b|OGH|2009-02-10\", \"gz\": \"5Ob16_09b\", \"datum\": \"2009-02-10\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Feststellung einer Verletzung der ärztlichen Aufklärungspflicht zurück, da der Fall im Rahmen der ständigen Rechtsprechung liegt.\"}, {\"te_stable_key\": \"4Ob87_08k|OGH|2008-06-10\", \"gz\": \"4Ob87_08k\", \"datum\": \"2008-06-10\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Aufklärungspflicht eines Arztes gegenüber dem obsorgeberechtigten Elternteil bei Behandlung eines nicht einsichts- und urteilsfähigen Kleinkindes.\"}, {\"te_stable_key\": \"3Ob11_08a|OGH|2008-04-10\", \"gz\": \"3Ob11_08a\", \"datum\": \"2008-04-10\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision der Beklagten in einer Sache wegen unzureichender Aufklärung über das Risiko intraoperativer Wachheit bei einer Sterilisationsoperation als unzulässig zurück.\"}, {\"te_stable_key\": \"9Ob76_06a|OGH|2006-09-27\", \"gz\": \"9Ob76_06a\", \"datum\": \"2006-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Reichweite der ärztlichen Aufklärungspflicht bei dringenden diagnostischen Eingriffen im Lebensnotfall.\"}], \"te_items_count\": 6}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_YrBjJ51oIRMW2MeoiHxa",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Aufklärungspflicht typisches Risiko",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.31,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Aufklärungspflicht typisches Risiko\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_9me0S5AfQVnxEw1fbfVi",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Beweislast hypothetische Einwilligung Aufklärungsfehler",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.45,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Beweislast hypothetische Einwilligung Aufklärungsfehler\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_schlagwort_23MzH6E6IB0iGje9Kmwm",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Hypothetische Einwilligung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1062.16,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Hypothetische Einwilligung\", \"results\": [{\"rs_number\": \"RS0000234\", \"kernaussage\": \"Der Sinngehalt einer Entscheidung ist in erster Linie aus ihrem Spruch, hilfsweise aus ihrer Begründung und der der Entscheidung zugrundeliegenden Antragstellung zu ermitteln. Ein etwa in der Entscheidung selbst objektiv nicht hinreichend bestimmt zum Ausdruck gebrachter richterlicher Entscheidungsw...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Aufteilungsverfahren\", \"Schad- und Klagloshaltung\", \"Verzug\", \"Auslegung gerichtlicher Entscheidung\", \"Billigkeit\", \"einstweilige Verfügung\", \"Sicherheitsleistung\", \"Rekursfrist\", \"Wirksamkeit\", \"§ 390 EO\", \"Grundbuchberichtigung\", \"Zwangsversteigerung\", \"Vertrauensschutz\", \"Vollzugsfehler\", \"Grundbuchsvollzug\", \"WEG-Anteile\", \"Entscheidungsauslegung\", \"Parteistellung\", \"Rekurslegitimation\", \"Masseverwalter\", \"Zustellung\", \"Auslegung gerichtlicher Beschlüsse\", \"Sachwaltergenehmigung\", \"§ 132 AußStrG\", \"Wohnungseigentum\", \"Erhaltungsarbeiten\", \"Sanierung Abfallstrang\", \"Minderheitsrecht\", \"Duldungspflicht\", \"Revisionszulässigkeit\", \"Ärztliche Aufklärungspflicht\", \"Hypothetische Einwilligung\", \"Verfahrensergänzung\", \"Verjährung Verdienstentgang\", \"Parteifähigkeit\", \"Rekurszustellung\", \"Zwischenstreit\", \"Titelergänzungsklage\", \"Exekutionstitel\", \"Wegeservitut\", \"Bestimmtheit\", \"Berufsunfähigkeitspension\", \"originäre Berufsunfähigkeit\", \"Wartezeit\", \"Entscheidungsform\", \"Prozesshindernis der entschiedenen Sache\"]}, {\"rs_number\": \"RS0030928\", \"kernaussage\": \"Es kann nicht bloß deshalb, weil der Kläger den monatlich berechneten Verdienstentgang "
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_ofDzq3MMHAAkZ9KtTUke",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden Aufklärungspflicht",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.39,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden Aufklärungspflicht\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_HVYil1MvZ5V9LQhHOwQn",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Beweislast Aufklärung Operation",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.8,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Beweislast Aufklärung Operation\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_by_paragraph_tNzlnNl8bbd4mtYQvZGp",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1298 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 148.88,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1298 ABGB\", \"results\": [{\"rs_number\": \"RS0028091\", \"kernaussage\": \"Die Beweislastumkehrung des § 1298 ABGB gilt nur für die Frage des Vorliegens eines Verschuldens überhaupt, nicht aber für die Art des Verschuldens.\", \"schlagworte\": [\"Ausländerbeschäftigungsgesetz\", \"Beschäftigungsbewilligung\", \"Arbeitsvertrag\", \"Schadenersatz\", \"Eishockeyspieler\", \"Nachbarrecht\", \"Forstgesetz\", \"Haftungsbeschränkung\", \"Waldbewirtschaftung\", \"Feuer\", \"Verzugszinsen\", \"positiver Schaden\", \"Zahlungsverzug\", \"böse Absicht\", \"auffallende Sorglosigkeit\", \"Verkehrswert\", \"LBG\", \"Sachverständigengutachten\", \"Aufklärungspflicht\", \"Werkvertrag\", \"Mangelsvermutung\", \"§ 924 ABGB\", \"Radablösung\"]}, {\"rs_number\": \"RS0016336\", \"kernaussage\": \"Anfechtung wegen List oder Irrtums oder Wandlungsanspruch ausgeschlossen , wenn Rückgabe des Empfangenen unmöglich und Unmöglichkeit vom Anfechtenden verschuldet ist ( wie SZ 11/56 ua ) . Der Anfechtende muß seine Schuldlosigkeit beweisen ( § 1298 ABGB ).\", \"schlagworte\": [\"Kaufvertrag Liegenschaft\", \"Mängel Trinkwasserversorgung\", \"wasserrechtliche Bewilligung\", \"Gewerbekonzession Jugendheim\", \"Täuschung\"]}, {\"rs_number\": \"RS0020652\", \"kernaussage\": \"Den Mieter trifft gemäß § 1298 ABGB hinsichtlich des Entschuldungsbeweises die Beweislast (vgl 6 Ob 212/64).\", \"schlagworte\": [\"Entlastungsbeweis\", \"Pachtvertrag\", \"Elektroinstallation\", \"Rückstellung\", \"Mieterhaftung\", \"Verlust Mietgegenstand\", \"Mietzinsminderung\", \"Negativfeststellung\", \"Untermiete\", \"Präklusivfrist\", \"Beweisrüge\", \"Bestandvertrag\", \"Rückgabepflicht\", \"Zurechnung Familienmitglieder\","
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_rgQ7eNeB93f19yj7sD3W",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Aufklärungsfehler hypothetische Einwilligung Beweislast",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.17,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Aufklärungsfehler hypothetische Einwilligung Beweislast\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_X0CCAoIJ7Ln990bYK2dR",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Lagerungsschaden typisches Risiko Aufklärung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.58,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lagerungsschaden typisches Risiko Aufklärung\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0030928",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0030928",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.36,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0030928\", \"rechtssatz_text\": \"Es kann nicht bloß deshalb, weil der Kläger den monatlich berechneten Verdienstentgang zusammenzählt, bei der Beurteilung der Verjährung des Verdienstentgangsanspruches von einer einmaligen Kapitalabfindung ausgegangen werden. Es ist auch in diesem Fall der Verdienstentgangsanspruch als ein...\", \"te_count\": 11, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 5178, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob192_23h|OGH|2023-11-21\", \"gz\": \"2Ob192_23h\", \"datum\": \"2023-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH weist die außerordentliche Revision der Klägerin in einem Schadenersatzverfahren aus einem Verkehrsunfall ab, da keine erhebliche Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"5Ob139_21h|OGH|2021-09-28\", \"gz\": \"5Ob139_21h\", \"datum\": \"2021-09-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da die Verjährung von Verdienstentgangsansprüchen für die Jahre 2012 bis 2014 nach Rechtskraft des Feststellungsurteils eingetreten ist.\"}, {\"te_stable_key\": \"2Ob78_19p|OGH|2019-10-22\", \"gz\": \"2Ob78_19p\", \"datum\": \"2019-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Verjährung von Ansprüchen auf Ersatz der Steuerbelastung aus Verdienstentgang nach einem Verkehrsunfall und ändert das Teilurteil des Berufungsgerichts teilweise.\"}, {\"te_stable_key\": \"1Ob159_18s|OGH|2018-09-26\", \"gz\": \"1Ob159_18s\", \"datum\": \"2018-09-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist Revisionen in einem Arzthaftungsfall zurück und bestätigt die Befreiung vom Haftung durch hypothetische Einwilligung trotz Aufklärungspflichtverletzung sowie die Verjährung des Verdienstentgangs.\"}, {\"te_stable_key\": \"2Ob142_16w|OGH|2017-06-20\", \"gz\": \"2Ob142_16w\", \"datum\": \"2017-06-20\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit des Einwands der unzulänglichen Versicherungssumme in einem Verfahren zur Anpassung einer Verdienstentgangsrente nach einem Verkehrsunfall.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0028091",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0028091",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.12,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0028091\", \"rechtssatz_text\": \"Die Beweislastumkehrung des § 1298 ABGB gilt nur für die Frage des Vorliegens eines Verschuldens überhaupt, nicht aber für die Art des Verschuldens.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15063, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob24/24v|OGH|2025-10-21\", \"gz\": \"4Ob24/24v\", \"datum\": \"2025-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"OGH-Entscheidung über Revision und Rekurs in Schadenersatzklagen von Franchisenehmerinnen gegen Franchisegeber wegen vertikaler Preisabsprachen.\"}, {\"te_stable_key\": \"4Ob24_24v|OGH|2025-10-21\", \"gz\": \"4Ob24_24v\", \"datum\": \"2025-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"OGH-Entscheidung über Revision und Rekurs in Schadenersatzklagen von Franchisenehmerinnen gegen Franchisegeber wegen vertikaler Preisabsprachen.\"}, {\"te_stable_key\": \"7Ob140_21w|OGH|2021-11-24\", \"gz\": \"7Ob140_21w\", \"datum\": \"2021-11-24\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Dachdeckers für Brandschaden durch Flämmarbeiten unter Berücksichtigung der Haftungsbeschränkung gemäß ÖNORM B 2110.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0026324",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0026324",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 24.29,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0026324\", \"rechtssatz_text\": \"Der Arzt handelt nicht fahrlässig, wenn die von ihm gewählte Behandlungsmethode einer Praxis entspricht, die von angesehenen, mit dieser Methode vertrauten Medizinern anerkannt ist, selbst wenn ebenfalls kompetente Kollegen eine andere Methode bevorzugt hätten. Eine Behandlungsmethode kann grundsätz...\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 12351, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob60_21a|OGH|2021-04-22\", \"gz\": \"3Ob60_21a\", \"datum\": \"2021-04-22\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines gerichtlich bestellten Sachverständigen für ein angeblich unrichtiges Gutachten im Zivilprozess nach § 1299 ABGB.\"}, {\"te_stable_key\": \"8Ob110_19p|OGH|2019-11-18\", \"gz\": \"8Ob110_19p\", \"datum\": \"2019-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung des Betreibers eines Landeskrankenhauses für den durch unterlassene Blutaustauschtransfusion bei einem Frühgeborenen eingetretenen Kernikterus.\"}, {\"te_stable_key\": \"6Ob233_17h|OGH|2018-01-17\", \"gz\": \"6Ob233_17h\", \"datum\": \"2018-01-17\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines Facharztes für Radiologie für die Nichtanerkennung eines Zufallsbefunds im Schilddrüsenbereich bei einer Nachsorgeuntersuchung nach Nierenkarzinom.\"}, {\"te_stable_key\": \"10Ob50_15y|OGH|2015-07-30\", \"gz\": \"10Ob50_15y\", \"datum\": \"2015-07-30\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines gerichtlich bestellten Sachverständigen für ein fehlerhaftes Gutachten über eine angebliche Bleivergiftung.\"}], \"te_items_count\": 4}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0020652",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0020652",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.96,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0020652\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0016336",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0016336",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.5,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0016336\"}"
+        }
+      ],
+      "tool_calls_total": 18,
+      "tool_calls_ok": 18,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Die rechtliche Beurteilung der Wirksamkeit der Einwilligung und der Auswirkungen der unterlassenen Risikoaufklärung bei einem Lagerungsschaden (Peronäusschaden) stellt sich nach der österreichischen Rechtsprechung wie folgt dar:\n\n### 1. Wirksamkeit der Einwilligung und Aufklärungspflicht\nEine Einwilligung ist nur dann rechtswirksam, wenn der Patient über die Art und Tragweite des Eingriffs sowie über die damit verbundenen Risiken ausreichend aufgeklärt wurde.\n*   **Umfang der Aufklärung:** Es müssen Risiken aufgeklärt werden, die nach allgemeiner Erfahrung nicht geradezu ganz selten sind und bei ihrem Eintritt wichtige Körperfunktionen beeinträchtigen (**RS0026437**). Ein Peronäusschaden (Fußheberschwäche) stellt für einen Tischler eine massive Beeinträchtigung einer wichtigen Körperfunktion dar.\n*   **Lagerungsschäden:** Lagerungsschäden gelten in der Rechtsprechung oft als **typische Risiken** einer Operation unter Vollnarkose. Wenn über dieses spezifische Risiko nicht aufgeklärt wurde, ist die Einwilligung in die Operation mangelhaft. Die bloße Unterzeichnung eines allgemeinen Aufklärungsbogens ohne Erwähnung des Lagerungsrisikos reicht nicht aus, wenn dieses Risiko für den Patienten relevant ist.\n\n### 2. Beweislast bei Aufklärungsfehlern\nIm Arzthaftungsprozess gilt eine spezifische Verteilung der Beweislast:\n*   **Beweislast des Patienten:** Der Patient muss zunächst beweisen, dass eine Aufklärung über das spezifische Risiko (hier: Lagerungsschaden) unterblieben ist.\n*   **Beweislast des Krankenhauses (Behandler):** Gelingt dem Patienten dieser Nachweis, muss das Krankenhaus beweisen, dass die Aufklärung ordnungsgemäß erfolgt ist oder dass der Patient auch bei ordnungsgemäßer Aufklärung in die Operation eingewilligt hätte (**hypothetische Einwilligung**).\n\n### 3. Die Einrede der hypothetischen Einwilligung\nDas Krankenhaus kann einwenden, dass der Patient die Operation auch dann hätte durchführen lassen, wenn er über das Lagerungsrisiko informiert worden wäre.\n*   **Anforderungen:** Das Krankenhaus trifft hierfür die volle Beweislast. Es muss nachweisen, dass der Patient bei Kenntnis des Risikos nicht in einen echten Entscheidungskonflikt geraten wäre.\n*   **Entscheidungskonflikt:** Da der Kläger Tischler ist und ein Peronäusschaden seine Berufsausübung dauerhaft unmöglich macht, ist ein erheblicher Entscheidungskonflikt plausibel. Die Einrede der hypothetischen Einwilligung ist daher bei berufsgefährdenden Risiken schwer zu führen.\n\n### 4. Kausalität und Rechtswidrigkeit\n*   **Rechtswidrigkeit:** Jede Operation ohne wirksame Einwilligung stellt eine rechtswidrige körperliche Misshandlung (Eingriff in die körperliche Integrität) dar, selbst wenn die Operation medizinisch fehlerfrei (*lege artis*) durchgeführt wurde.\n*   **Kausalität:** Bei einem Aufklärungsfehler ist der Schaden (der Peronäusschaden) dem Krankenhaus bereits deshalb zuzurechnen, weil der Eingriff ohne die (unwirksame) Einwilligung gar nicht hätte stattfinden dürfen. Das Bestreiten des Kausalzusammenhangs durch das Krankenhaus ist daher rechtlich unerheblich, wenn feststeht, dass der Schaden durch die Operation (bzw. die Lagerung dabei) verursacht wurde und die Aufklärung mangelhaft war.\n\n### Zusammenfassung für den Fall:\n1.  **Aufklärungsfehler:** Da über Lagerungsrisiken nicht aufgeklärt wurde, ist die Einwilligung unwirksam.\n2.  **Haftungsgrund:** Das Krankenhaus haftet für die Folgen des Eingriffs (Schmerzengeld, Verdienstentgang), da die Operation mangels wirksamer Einwilligung rechtswidrig war.\n3.  **Beweislast:** Das Krankenhaus muss beweisen, dass der Tischler die Operation auch bei Kenntnis des Risikos einer Fußheberschwäche hätte vornehmen lassen (hypothetische Einwilligung), was angesichts der Berufsrelevanz schwierig sein wird.",
+      "answer_chars": 3776,
+      "e2e_ms": 33390.93
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 26171.54,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 6400,
+    "usage": {
+      "prompt_tokens": 14806,
+      "completion_tokens": 3209,
+      "total_tokens": 18015,
+      "cost": 0.0045432,
+      "cached_tokens": 150,
+      "reasoning_tokens": 1157
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0026290",
+          "RS0026437",
+          "RS0026458",
+          "RS0026535",
+          "RS0031415",
+          "RS0034700"
+        ],
+        "validation": {
+          "cited": 6,
+          "checked": 6,
+          "valid": 6,
+          "invalid": [],
+          "sample_valid": [
+            "RS0026290",
+            "RS0026437",
+            "RS0026458",
+            "RS0026535",
+            "RS0031415",
+            "RS0034700"
+          ]
+        },
+        "valid": [
+          "RS0026290",
+          "RS0026437",
+          "RS0026458",
+          "RS0026535",
+          "RS0031415",
+          "RS0034700"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1295 ABGB",
+          "§ 1298 ABGB",
+          "§ 1299 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 273 ZPO",
+          "§ 289 ZPO",
+          "§§ 1298, 1299 ABGB"
+        ],
+        "ungrounded": [
+          "§ 1295 ABGB",
+          "§§ 1298, 1299 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000234",
+          "RS0012285",
+          "RS0016250",
+          "RS0016336",
+          "RS0017185",
+          "RS0020652",
+          "RS0020881",
+          "RS0026290",
+          "RS0026324",
+          "RS0026387",
+          "RS0026437",
+          "RS0026458",
+          "RS0026468",
+          "RS0026535",
+          "RS0026838",
+          "RS0026839",
+          "RS0026842",
+          "RS0026860",
+          "RS0026982",
+          "RS0028091",
+          "RS0028621",
+          "RS0030717",
+          "RS0030928",
+          "RS0031048",
+          "RS0031415",
+          "RS0034700",
+          "RS0126934"
+        ],
+        "te_ogh": [
+          "4Ob24/24v",
+          "6Ob212/64"
+        ],
+        "norms": [
+          "§ 1118 ABGB",
+          "§ 1298 ABGB",
+          "§ 1299 ABGB",
+          "§ 1304 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 273 ZPO",
+          "§ 289 ZPO",
+          "§ 303 ZPO",
+          "§ 390 EO",
+          "§ 84 StGB",
+          "§ 879 ABGB",
+          "§ 924 ABGB"
+        ],
+        "stats": {
+          "rs_count": 27,
+          "te_ogh_count": 2,
+          "norm_count": 13
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0026290",
+          "RS0026437",
+          "RS0026458",
+          "RS0026535",
+          "RS0031415",
+          "RS0034700"
+        ],
+        "validation": {
+          "cited": 6,
+          "checked": 6,
+          "valid": 6,
+          "invalid": [],
+          "sample_valid": [
+            "RS0026290",
+            "RS0026437",
+            "RS0026458",
+            "RS0026535",
+            "RS0031415",
+            "RS0034700"
+          ]
+        },
+        "valid": [
+          "RS0026290",
+          "RS0026437",
+          "RS0026458",
+          "RS0026535",
+          "RS0031415",
+          "RS0034700"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1298 ABGB",
+          "§ 1299 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 273 ZPO",
+          "§ 289 ZPO"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000234",
+          "RS0012285",
+          "RS0016250",
+          "RS0016336",
+          "RS0017185",
+          "RS0020652",
+          "RS0020881",
+          "RS0026290",
+          "RS0026324",
+          "RS0026387",
+          "RS0026437",
+          "RS0026458",
+          "RS0026468",
+          "RS0026535",
+          "RS0026838",
+          "RS0026839",
+          "RS0026842",
+          "RS0026860",
+          "RS0026982",
+          "RS0028091",
+          "RS0028621",
+          "RS0030717",
+          "RS0030928",
+          "RS0031048",
+          "RS0031415",
+          "RS0034700",
+          "RS0126934"
+        ],
+        "te_ogh": [
+          "4Ob24/24v",
+          "6Ob212/64"
+        ],
+        "norms": [
+          "§ 1118 ABGB",
+          "§ 1298 ABGB",
+          "§ 1299 ABGB",
+          "§ 1304 ABGB",
+          "§ 1313a ABGB",
+          "§ 1325 ABGB",
+          "§ 273 ZPO",
+          "§ 289 ZPO",
+          "§ 303 ZPO",
+          "§ 390 EO",
+          "§ 84 StGB",
+          "§ 879 ABGB",
+          "§ 924 ABGB"
+        ],
+        "stats": {
+          "rs_count": 27,
+          "te_ogh_count": 2,
+          "norm_count": 13
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 16089.09,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3530,
+        "completion_tokens": 3359,
+        "total_tokens": 6889,
+        "cost": 0.002363,
+        "cached_tokens": 150,
+        "reasoning_tokens": 1340
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 1,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Vorliegen eines Behandlungsfehlers durch fehlerhafte Lagerung iSd § 1299 ABGB und Kausalität zum Peronäusschaden**: Evidence unzureichend für spezifische Beurteilung, da keine RS zu Lagerungsschäden/Peronäusschaden vorliegen; allgemein muss Kläger Nichterfüllung nachweisen, bevor Beweislastumkehr greift (RS0026290).\n- **Verletzung der Aufklärungspflicht über Lagerungsrisiken (§ 1313a ABGB iVm § 1325 ABGB) und hypothetische Kausalität**: Keine Aufklärung über Lagerungsrisiken trotz Relevanz (RS0026437); Einwilligung unvollständig, Beweislast für hypothetische Einwilligung beim Krankenhaus fehlt in Evidence.\n- **Haftung des Krankenhauses für Erfüllungsgehilfen (Ärzte) und Zukunftsschäden**: Krankenhaus haftet nach § 1313a ABGB für Gehilfen, Evidence unzureichend für spezifische Anwendung; Feststellungsklage möglich zur Verjährungssicherung (RS0034700).\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptspur: Vertragliche Haftung aus Behandlungsvertrag ** \n- § 1298 ABGB: Beweislastumkehr für Verschulden nur nach Nachweis objektiver Nichterfüllung (RS0026290, RS0026458); gilt nicht für Erfolgsverbindlichkeiten wie ärztliche Beratung/Behandlung. \n- § 1299 ABGB: Sorgfaltsmaßstab des durchschnittlichen Fachmanns, nicht überspannbar (RS0026535). \n**Eventualspur: Aufklärungspflichtverletzung (§ 1313a ABGB iVm § 1325 ABGB)** \n- § 1313a ABGB: Haftung für Erfüllungsgehilfen (Ärzte); Aufklärung über relevante Risiken erforderlich, keine starren Häufigkeitsrichtlinien (RS0026437). \n**Doppelgleisigkeit/Schäden**: Kausalität für Schmerzengeld/Verdienstentgang/Feststellung Zukunftsschäden; Bemessung nach § 273 ZPO (RS0031415); Feststellung unterbricht Verjährung (RS0034700). Keine konkurrierenden Ansprüche (zB Wandlung), daher Stufenbau: Zuerst Behandlungsfehler, subsidiär Aufklärungsfehler.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0026437**: Keine allgemeinen Richtlinien zur Aufklärungsgrenze bei Operationsrisiken; Relevanz bei nicht-seltenen Risiken mit Beeinträchtigung wichtiger Funktionen – hier Lagerungsrisiko relevant, da nicht aufgeklärt. \n- **RS0026290**: Beweislastumkehr § 1298 ABGB nur nach Nachweis objektiver Pflichtverletzung – Kläger muss fehlerhafte Lagerung zunächst beweisen. \n- **RS0026458**: § 1298 ABGB beschränkt auf Erfolgsverbindlichkeiten, nicht auf fachgemäße Behandlung – keine automatische Umkehr bei Ärzten. \n- **RS0026535**: Sorgfalt nach § 1299 ABGB am durchschnittlichen Fachmann auszurichten – Maßstab für Lagerung. \n- **RS0031415**: Schmerzengeld nach § 273 ZPO freier richterlicher Ermessensspielraum unter Berücksichtigung aller Umstände – für dauerhaften Schaden anwendbar. \n- **RS0034700**: Feststellungsklage unterbricht Verjährung auch bei aufrecht erhaltenem Begehren – schützt Zukunftsschäden.\n\n### 4. SUBSUMTION\n**Hauptanspruchsgrundlage: Behandlungsfehler ** \nFehlerhafte Lagerung stellt potenziell Nichterfüllung dar (Sorgfaltsverletzung durchschnittlichen Fachmanns, RS0026535), kausal für Peronäusschaden und Berufsunfähigkeit; Krankenhaus haftet als Auftraggeber für Gehilfen (§ 1313a ABGB). Schmerzengeld/Verdienstentgang ersatzfähig bei Kausalität, Bemessung § 273 ZPO (RS0031415). \n**Eventualanspruchsgrundlage: Aufklärungsfehler (§ 1313a iVm § 1325 ABGB)** \nFehlende Aufklärung über Lagerungsrisiken verletzt Pflicht (RS0026437), da Risiko relevante Körperfunktion betrifft; hypothetische Einwilligung unwahrscheinlich, da Einwilligung unvollständig; Kausalität zur Operation/Behandlung gegeben, Schäden ersatzfähig. Feststellung Haftung für Zukunftsschäden schützt Verjährung (RS0034700).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Fehlerhafte Lagerung/Nichterfüllung**: Kläger muss beweisen (objektive Pflichtverletzung, RS0026290); fehlen: Sachverständigengutachten zu Standardlagerung – Evidence unzureichend. \n- **Kausalität Peronäusschaden**: Kläger primär (keine Umkehr ohne Nichterfüllung, RS0026458); fehlen: Medizinische Gutachten/Kausalitätsnachweis – Evidence null. \n- **Aufklärungsdefizit Lagerungsrisiken**: Kläger beweist Fehlen (Zeugnisaufklärung); Krankenhaus muss hypothetische Einwilligung beweisen – Evidence: Aufklärung unterzeichnet, aber Lagerung fehlt (RS0026437). \n- **Berufsunfähigkeit/Verdienstentgang**: Kläger (§ 273 ZPO-Schätzung); fehlen: Einkommensnachweise/Sachverständiger – Evidence unzureichend. \n- **Haftung Erfüllungsgehilfen**: Krankenhaus nach § 1313a ABGB, sobald Fehler nachgewiesen. Vorhanden: Unterzeichnete Aufklärung (verteidigt Kausalität).\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren**: Schadenersatz Schmerzengeld + Verdienstentgang (Schätzung § 273 ZPO bis Pension) aus Behandlungsfehler – höchste Erfolgsaussicht bei Gutachten zu Lagerungsfehler. \n**Eventualbegehren 1**: Ebenso aus Aufklärungsfehler (§ 1313a ABGB) – niedriger, aber kausalitätsstark. \n**Eventualbegehren 2**: Feststellung Haftung für Zukunftsschäden – priorisiert zur Verjährungssicherung (RS0034700), bei unklarer Quantifizierung.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1: Fehlende Beweislastumkehr (RS0026290)** – Krankenhaus argumentiert keine Nichterfüllung nachweisbar; **Replik**: Kläger stellt Sachverständigenauskunft § 289 ZPO an, um Lagerungsstandard zu beweisen, Umkehr dann greift. \n- **Risiko 2: Unterzeichnete Risikoaufklärung bricht Kausalität (hypothetische Einwilligung)** – Beklagter verweist auf Einwilligung; **Replik**: Aufklärung lückenhaft (kein Lagerungsrisiko, RS0026437), Patient hätte bei Kenntnis abgelehnt – Parteivernehmung/Zeugen. \n- **Risiko 3: § 1298 ABGB unanwendbar auf Behandlungsvertrag (RS0026458)** – Keine Erfolgsbindung, sondern Sorgfalt; **Replik**: Objektive Nichterfüllung (fehlerhafte Lagerung) bleibt prüfbar, Übergang zu § 1299 ABGB-Sorgfalt (RS0026535). \n- **Risiko 4: Evidence-Mangel zu Kausalität**: Keine RS zu Peronäus/Lagerung; **Replik**: Gerichtliche Sachverständigenauskunft erzwingbar, unzureichende Evidence kein Abweisungsgrund.\n\n### 8. ERFOLGSAUSSICHTEN\n- **Behandlungsfehler **: 30% – Evidence unzureichend für Kausalität/Fehler, abhängig von Gutachten. \n- **Aufklärungsfehler (§ 1313a ABGB)**: 50% – Klarer Defizitnachweis (Lagerung fehlt), RS0026437 stützt Relevanz. \n- **Feststellung Zukunftsschäden**: 70% – Niedrige Hürde, Verjährungsschutz (RS0034700), unabhängig von Quantifizierung."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Vorliegen eines Behandlungsfehlers durch fehlerhafte Lagerung iSd § 1299 ABGB und Kausalität zum Peronäusschaden**: Evidence unzureichend für spezifische Beurteilung, da keine RS zu Lagerungsschäden/Peronäusschaden vorliegen; allgemein muss Kläger Nichterfüllung nachweisen, bevor Beweislastumkehr greift (RS0026290).\n- **Verletzung der Aufklärungspflicht über Lagerungsrisiken (§ 1313a ABGB iVm § 1325 ABGB) und hypothetische Kausalität**: Keine Aufklärung über Lagerungsrisiken trotz Relevanz (RS0026437); Einwilligung unvollständig, Beweislast für hypothetische Einwilligung beim Krankenhaus fehlt in Evidence.\n- **Haftung des Krankenhauses für Erfüllungsgehilfen (Ärzte) und Zukunftsschäden**: Krankenhaus haftet nach § 1313a ABGB für Gehilfen, Evidence unzureichend für spezifische Anwendung; Feststellungsklage möglich zur Verjährungssicherung (RS0034700).\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptspur: Vertragliche Haftung aus Behandlungsvertrag ** \n- § 1298 ABGB: Beweislastumkehr für Verschulden nur nach Nachweis objektiver Nichterfüllung (RS0026290, RS0026458); gilt nicht für Erfolgsverbindlichkeiten wie ärztliche Beratung/Behandlung. \n- § 1299 ABGB: Sorgfaltsmaßstab des durchschnittlichen Fachmanns, nicht überspannbar (RS0026535). \n**Eventualspur: Aufklärungspflichtverletzung (§ 1313a ABGB iVm § 1325 ABGB)** \n- § 1313a ABGB: Haftung für Erfüllungsgehilfen (Ärzte); Aufklärung über relevante Risiken erforderlich, keine starren Häufigkeitsrichtlinien (RS0026437). \n**Doppelgleisigkeit/Schäden**: Kausalität für Schmerzengeld/Verdienstentgang/Feststellung Zukunftsschäden; Bemessung nach § 273 ZPO (RS0031415); Feststellung unterbricht Verjährung (RS0034700). Keine konkurrierenden Ansprüche (zB Wandlung), daher Stufenbau: Zuerst Behandlungsfehler, subsidiär Aufklärungsfehler.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0026437**: Keine allgemeinen Richtlinien zur Aufklärungsgrenze bei Operationsrisiken; Relevanz bei nicht-seltenen Risiken mit Beeinträchtigung wichtiger Funktionen – hier Lagerungsrisiko relevant, da nicht aufgeklärt. \n- **RS0026290**: Beweislastumkehr § 1298 ABGB nur nach Nachweis objektiver Pflichtverletzung – Kläger muss fehlerhafte Lagerung zunächst beweisen. \n- **RS0026458**: § 1298 ABGB beschränkt auf Erfolgsverbindlichkeiten, nicht auf fachgemäße Behandlung – keine automatische Umkehr bei Ärzten. \n- **RS0026535**: Sorgfalt nach § 1299 ABGB am durchschnittlichen Fachmann auszurichten – Maßstab für Lagerung. \n- **RS0031415**: Schmerzengeld nach § 273 ZPO freier richterlicher Ermessensspielraum unter Berücksichtigung aller Umstände – für dauerhaften Schaden anwendbar. \n- **RS0034700**: Feststellungsklage unterbricht Verjährung auch bei aufrecht erhaltenem Begehren – schützt Zukunftsschäden.\n\n### 4. SUBSUMTION\n**Hauptanspruchsgrundlage: Behandlungsfehler ** \nFehlerhafte Lagerung stellt potenziell Nichterfüllung dar (Sorgfaltsverletzung durchschnittlichen Fachmanns, RS0026535), kausal für Peronäusschaden und Berufsunfähigkeit; Krankenhaus haftet als Auftraggeber für Gehilfen (§ 1313a ABGB). Schmerzengeld/Verdienstentgang ersatzfähig bei Kausalität, Bemessung § 273 ZPO (RS0031415). \n**Eventualanspruchsgrundlage: Aufklärungsfehler (§ 1313a iVm § 1325 ABGB)** \nFehlende Aufklärung über Lagerungsrisiken verletzt Pflicht (RS0026437), da Risiko relevante Körperfunktion betrifft; hypothetische Einwilligung unwahrscheinlich, da Einwilligung unvollständig; Kausalität zur Operation/Behandlung gegeben, Schäden ersatzfähig. Feststellung Haftung für Zukunftsschäden schützt Verjährung (RS0034700).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Fehlerhafte Lagerung/Nichterfüllung**: Kläger muss beweisen (objektive Pflichtverletzung, RS0026290); fehlen: Sachverständigengutachten zu Standardlagerung – Evidence unzureichend. \n- **Kausalität Peronäusschaden**: Kläger primär (keine Umkehr ohne Nichterfüllung, RS0026458); fehlen: Medizinische Gutachten/Kausalitätsnachweis – Evidence null. \n- **Aufklärungsdefizit Lagerungsrisiken**: Kläger beweist Fehlen (Zeugnisaufklärung); Krankenhaus muss hypothetische Einwilligung beweisen – Evidence: Aufklärung unterzeichnet, aber Lagerung fehlt (RS0026437). \n- **Berufsunfähigkeit/Verdienstentgang**: Kläger (§ 273 ZPO-Schätzung); fehlen: Einkommensnachweise/Sachverständiger – Evidence unzureichend. \n- **Haftung Erfüllungsgehilfen**: Krankenhaus nach § 1313a ABGB, sobald Fehler nachgewiesen. Vorhanden: Unterzeichnete Aufklärung (verteidigt Kausalität).\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren**: Schadenersatz Schmerzengeld + Verdienstentgang (Schätzung § 273 ZPO bis Pension) aus Behandlungsfehler – höchste Erfolgsaussicht bei Gutachten zu Lagerungsfehler. \n**Eventualbegehren 1**: Ebenso aus Aufklärungsfehler (§ 1313a ABGB) – niedriger, aber kausalitätsstark. \n**Eventualbegehren 2**: Feststellung Haftung für Zukunftsschäden – priorisiert zur Verjährungssicherung (RS0034700), bei unklarer Quantifizierung.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1: Fehlende Beweislastumkehr (RS0026290)** – Krankenhaus argumentiert keine Nichterfüllung nachweisbar; **Replik**: Kläger stellt Sachverständigenauskunft § 289 ZPO an, um Lagerungsstandard zu beweisen, Umkehr dann greift. \n- **Risiko 2: Unterzeichnete Risikoaufklärung bricht Kausalität (hypothetische Einwilligung)** – Beklagter verweist auf Einwilligung; **Replik**: Aufklärung lückenhaft (kein Lagerungsrisiko, RS0026437), Patient hätte bei Kenntnis abgelehnt – Parteivernehmung/Zeugen. \n- **Risiko 3: § 1298 ABGB unanwendbar auf Behandlungsvertrag (RS0026458)** – Keine Erfolgsbindung, sondern Sorgfalt; **Replik**: Objektive Nichterfüllung (fehlerhafte Lagerung) bleibt prüfbar, Übergang zu § 1299 ABGB-Sorgfalt (RS0026535). \n- **Risiko 4: Evidence-Mangel zu Kausalität**: Keine RS zu Peronäus/Lagerung; **Replik**: Gerichtliche Sachverständigenauskunft erzwingbar, unzureichende Evidence kein Abweisungsgrund.\n\n### 8. ERFOLGSAUSSICHTEN\n- **Behandlungsfehler **: 30% – Evidence unzureichend für Kausalität/Fehler, abhängig von Gutachten. \n- **Aufklärungsfehler (§ 1313a ABGB)**: 50% – Klarer Defizitnachweis (Lagerung fehlt), RS0026437 stützt Relevanz. \n- **Feststellung Zukunftsschäden**: 70% – Niedrige Hürde, Verjährungsschutz (RS0034700), unabhängig von Quantifizierung.",
+  "elapsed_ms": 105953.14
+}

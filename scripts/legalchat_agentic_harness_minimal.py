@@ -138,6 +138,26 @@ RECHTSGEBIET_PATTERNS: dict[str, list[str]] = {
     ],
 }
 
+DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
+    "schadenersatz": ["§ 1295 ABGB", "§ 1299 ABGB", "§ 1298 ABGB", "§ 1313a ABGB", "§ 1325 ABGB"],
+    "vertragsrecht": ["§ 871 ABGB", "§ 872 ABGB", "§ 874 ABGB", "§ 877 ABGB", "§ 879 ABGB", "§ 922 ABGB", "§ 932 ABGB", "§ 934 ABGB"],
+    "interzession": ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB", "§ 1346 ABGB"],
+    "exekution": ["§ 35 EO", "§ 36 EO", "§ 40 EO", "§ 42 EO"],
+    "erbrecht": ["§ 762 ABGB", "§ 774 ABGB", "§ 780 ABGB", "§ 781 ABGB"],
+    "familienrecht": ["§ 90 ABGB", "§ 94 ABGB", "§ 49 EheG", "§ 55a EheG"],
+    "sachenrecht": ["§ 367 ABGB", "§ 431 ABGB", "§ 480 ABGB", "§ 1500 ABGB"],
+    "konsumentenschutz": ["§ 6 KSchG", "§ 9 KSchG", "§ 25c KSchG", "§ 25d KSchG"],
+}
+
+SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
+    "arzthaftung": ("schadenersatz", [r"\bArzt\b", r"\bBehandlung", r"\bOperation\b", r"\bKunstfehler\b", r"\bAufkl.rung", r"\bDiagnose\b"],
+                    ["§ 1299 ABGB", "§ 1298 ABGB", "§ 228 ZPO"]),
+    "angehoerigenburgschaft": ("interzession", [r"\bAngehörig", r"\bEhegatt", r"\bHausfrau\b", r"\beinkommenlos"],
+                              ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB"]),
+    "immobilienkauf": ("vertragsrecht", [r"\bLiegenschaft", r"\bWohnung", r"\bKauf.*(?:Haus|Wohnung)", r"\bImmobilie"],
+                      ["§ 922 ABGB", "§ 932 ABGB", "§ 871 ABGB", "§ 874 ABGB", "§ 934 ABGB"]),
+}
+
 _PARAGRAPH_RX = re.compile(r"§\s*(\d+[a-z]?)\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöü]{1,15})")
 
 
@@ -155,10 +175,21 @@ def classify_domain(query: str) -> dict[str, Any]:
         keywords.append(domain.replace("_", " ").title())
     best = max(scores, key=scores.get) if scores else ""
     confidence = scores.get(best, 0.0) if best else 0.0
+    # Inject mandatory paragraphs and sub-domain detection
+    mandatory = list(DOMAIN_MANDATORY_PARAGRAPHS.get(best, []))
+    subdomain = ""
+    for sd_name, (parent, sd_patterns, sd_pars) in SUBDOMAIN_PATTERNS.items():
+        if parent == best and any(re.search(p, text, re.I) for p in sd_patterns):
+            subdomain = sd_name
+            mandatory = list(dict.fromkeys(sd_pars + mandatory))  # dedup, sd_pars first
+            break
+    all_paragraphs = list(dict.fromkeys(mandatory + paragraphs))
     return {
         "domain": best,
+        "subdomain": subdomain,
         "confidence": round(confidence, 3),
-        "paragraphs": paragraphs[:8],
+        "paragraphs": all_paragraphs[:12],
+        "mandatory_paragraphs": mandatory,
         "keywords": keywords[:5],
         "all_scores": {k: round(v, 3) for k, v in sorted(scores.items(), key=lambda x: -x[1])[:5]},
     }
@@ -1223,9 +1254,15 @@ def _build_plan_openrouter(
     class_hint = ""
     if classification and classification.get("domain"):
         class_hint = f"\n\nDomain: {classification['domain']}"
+        sd = classification.get("subdomain")
+        if sd:
+            class_hint += f" (Sub-domain: {sd})"
+        mandatory = classification.get("mandatory_paragraphs") or []
         pars = classification.get("paragraphs") or []
         kws = classification.get("keywords") or []
-        if pars:
+        if mandatory:
+            class_hint += "\nMANDATORY paragraph searches: " + ", ".join(f'search_by_paragraph("{p}")' for p in mandatory[:6])
+        elif pars:
             class_hint += "\nPrioritize: " + ", ".join(f'search_by_paragraph("{p}")' for p in pars[:4])
         if kws:
             class_hint += "\nAlso try: " + ", ".join(f'search_by_schlagwort("{k}")' for k in kws[:3])
@@ -1409,11 +1446,13 @@ def _expand_queries_deterministic(
 ) -> dict[str, list[str]]:
     """Deterministic query expansion from classification results."""
     pars = classification.get("paragraphs") or []
+    mandatory = classification.get("mandatory_paragraphs") or []
+    all_pars = list(dict.fromkeys(mandatory + pars))
     kws = classification.get("keywords") or []
     base = _base_question_text(query)
     return {
-        "paragraph_queries": pars[:4],
-        "schlagwort_queries": kws[:4],
+        "paragraph_queries": all_pars[:6],
+        "schlagwort_queries": kws[:6],
         "keyword_queries": [_compact_search_query(base, max_terms=6)] if base else [],
     }
 
@@ -1429,9 +1468,9 @@ def run_pre_search_scatter(
 ) -> str:
     """Run parallel pre-search MCP calls and return formatted evidence string."""
     tasks: list[tuple[str, dict[str, Any]]] = []
-    for par in expanded.get("paragraph_queries", [])[:3]:
+    for par in expanded.get("paragraph_queries", [])[:5]:
         tasks.append(("search_by_paragraph", {"paragraph": str(par)[:120], "limit": 8}))
-    for sw in expanded.get("schlagwort_queries", [])[:3]:
+    for sw in expanded.get("schlagwort_queries", [])[:4]:
         tasks.append(("search_by_schlagwort", {"schlagwort": str(sw)[:120], "limit": 8}))
     for kw in expanded.get("keyword_queries", [])[:2]:
         tasks.append(("search_ogh_rechtssaetze", {"query": str(kw)[:200], "limit": 8}))
@@ -2068,16 +2107,19 @@ def run_subagent_llm(
         "Do not invent case facts.\n\n"
         "WORK IN PHASES:\n"
         "PHASE 1 - TARGETED SEARCH (2-3 calls):\n"
-        "  - search_by_paragraph for §§ mentioned in the question\n"
+        "  - For EVERY § in the classification: call search_by_paragraph\n"
         "  - search_by_schlagwort for OGH taxonomy keywords\n"
         "  - search_ogh_rechtssaetze for broader keyword search\n\n"
         "PHASE 2 - DEEPEN (2-3 calls):\n"
         "  - get_rechtssatz or hot_rs_lookup for promising RS numbers found in Phase 1\n"
-        "  - build_grounding_context for cluster-level minimal ruleset with RS citations (HIGH VALUE)\n"
-        "  - ask_gemini_zivilrecht for expert analysis on Laesio/Bereicherung/Pflichtteil\n"
+        "  - build_grounding_context for cluster-level minimal ruleset with RS citations\n"
+        "  - If distinct legal regimes exist (e.g. Kunstfehler vs Aufklärungsfehler, "
+        "    Wandlung vs Preisminderung, §25c vs §879 ABGB): search each regime separately\n"
+        "  - Note Beweislast for each claim found\n"
         "  - If 0 results: rewrite query with different terms, synonyms, or try different tool\n\n"
         "PHASE 3 - SUMMARIZE (final call):\n"
-        "  - Compile findings with RS/GZ references\n\n"
+        "  - Compile findings with RS/GZ references\n"
+        "  - Note which party bears Beweislast for each issue\n\n"
         "CRITICAL: After Phase 1, do NOT stop. ALWAYS deepen RS numbers found. "
         "If a tool returns 0 results, try broader terms or a different tool. "
         "Never give up after one empty result."
@@ -2087,9 +2129,15 @@ def run_subagent_llm(
     # Build user message with optional classification and pre-search
     usr_parts = ["Main question:\n" + query]
     if classification and classification.get("domain"):
-        usr_parts.append(f"\nDomain hint: {classification['domain']}")
+        usr_parts.append(f"\nDomain: {classification['domain']}")
+        sd = classification.get("subdomain")
+        if sd:
+            usr_parts.append(f"Sub-domain: {sd}")
+        mandatory = classification.get("mandatory_paragraphs") or []
         pars = classification.get("paragraphs") or []
-        if pars:
+        if mandatory:
+            usr_parts.append("MANDATORY paragraphs to search: " + ", ".join(mandatory[:6]))
+        elif pars:
             usr_parts.append("Key paragraphs: " + ", ".join(pars[:4]))
     usr_parts.append("\nYour stream goal:\n" + stream["goal"])
     usr_parts.append("\nAllowed tools: " + ", ".join(stream_tools))
@@ -2475,10 +2523,10 @@ def _build_synthesis_evidence_chunks(
             tool_evidence.append(
                 {
                     "tool": tc.get("tool"),
-                    "payload_preview": prev[:2400 if _hv else 1800],
+                    "payload_preview": prev[:3000 if _hv else 1800],
                 }
             )
-            if len(tool_evidence) >= 16:
+            if len(tool_evidence) >= 20:
                 break
         item["tool_evidence"] = tool_evidence
         item["tool_evidence_count"] = len(tool_evidence)
@@ -2512,12 +2560,19 @@ def synthesize_answer(
     synth_ctx = role_skill_context("synth")
     structured_format = (
         "\n\nStructure your answer in these sections:\n"
-        "1. KERNFRAGEN — 2-3 zentrale Rechtsfragen\n"
-        "2. RECHTSGRUNDLAGEN — konkrete §§ mit Gesetzen\n"
-        "3. RELEVANTE JUDIKATUR — RS-Nummern mit 1-Satz-Zusammenfassung\n"
-        "4. SUBSUMTION — Anwendung auf den konkreten Fall\n"
-        "5. EMPFOHLENE SCHRITTE — priorisiert, konkret\n"
-        "6. RISIKEN / GEGENARGUMENTE — mind. 2"
+        "1. KERNFRAGEN — 2-3 zentrale Rechtsfragen, jeweils mit kurzer Einordnung\n"
+        "2. RECHTSGRUNDLAGEN — konkrete §§ mit Gesetzen. Bei mehreren Anspruchsgrundlagen: Stufenbau/Doppelgleisigkeit darstellen\n"
+        "3. RELEVANTE JUDIKATUR — RS-Nummern mit 1-Satz-Zusammenfassung und Relevanz für den Fall\n"
+        "4. SUBSUMTION — Anwendung auf den konkreten Fall, GETRENNT nach Anspruchsgrundlagen\n"
+        "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen?\n"
+        "6. PROZESSSTRATEGIE — Haupt- und Eventualbegehren, priorisiert nach Erfolgsaussicht\n"
+        "7. RISIKEN / GEGENARGUMENTE — mind. 3 mit konkreten Repliken/Entkräftungen\n"
+        "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n\n"
+        "WICHTIG:\n"
+        "- Bei mehreren Anspruchsgrundlagen: IMMER Haupt- und Eventualbegehren ordnen\n"
+        "- Konkurrierende Ansprüche (zB Wandlung UND Preisminderung) als Stufen darstellen\n"
+        "- Beweislast EXPLIZIT für jede strittige Tatsache angeben\n"
+        "- Mind. 3 Risiken mit je einer konkreten Replik"
     )
     if postgres_only:
         sys_prompt = (
@@ -2563,7 +2618,7 @@ def synthesize_answer(
         raw_resp, latency_ms = openrouter_chat(
             model=synth_model,
             messages=messages,
-            max_tokens=2800,
+            max_tokens=4500,
             temperature=0.0,
             tools=None,
             tool_choice=None,
@@ -2712,7 +2767,7 @@ def _repair_answer_citations(
         resp, ms = openrouter_chat(
             model=repair_model,
             messages=messages,
-            max_tokens=2800,
+            max_tokens=4500,
             temperature=0.0,
             tools=None,
             tool_choice=None,
