@@ -150,10 +150,10 @@ DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
 }
 
 SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
-    "arzthaftung": ("schadenersatz", [r"\bArzt\b", r"\bBehandlung", r"\bOperation\b", r"\bKunstfehler\b", r"\bAufkl.rung", r"\bDiagnose\b"],
-                    ["§ 1299 ABGB", "§ 1298 ABGB", "§ 228 ZPO"]),
-    "angehoerigenburgschaft": ("interzession", [r"\bAngehörig", r"\bEhegatt", r"\bHausfrau\b", r"\beinkommenlos"],
-                              ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB"]),
+    "arzthaftung": ("schadenersatz", [r"\bArzt\b", r"\bBehandlung", r"\bOperation\b", r"\bKunstfehler\b", r"\bAufkl.rung", r"\bDiagnose\b", r"\bKrankenhaus\b", r"\bLagerung\b", r"\bNarkose\b"],
+                    ["§ 1295 ABGB", "§ 1299 ABGB", "§ 1298 ABGB", "§ 1313a ABGB", "§ 1325 ABGB", "§ 228 ZPO"]),
+    "angehoerigenburgschaft": ("interzession", [r"\bAngehörig", r"\bEhegatt", r"\bHausfrau\b", r"\beinkommenlos", r"\bBürgschaft\b", r"\bmitunterschrieb", r"\bVersäumungsurteil\b", r"\bExekution\b"],
+                              ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB", "§ 35 EO", "§ 1346 ABGB"]),
     "immobilienkauf": ("vertragsrecht", [r"\bLiegenschaft", r"\bWohnung", r"\bKauf.*(?:Haus|Wohnung)", r"\bImmobilie"],
                       ["§ 922 ABGB", "§ 932 ABGB", "§ 871 ABGB", "§ 874 ABGB", "§ 934 ABGB"]),
 }
@@ -2122,7 +2122,15 @@ def run_subagent_llm(
         "  - Note which party bears Beweislast for each issue\n\n"
         "CRITICAL: After Phase 1, do NOT stop. ALWAYS deepen RS numbers found. "
         "If a tool returns 0 results, try broader terms or a different tool. "
-        "Never give up after one empty result."
+        "Never give up after one empty result.\n\n"
+        "DOMAIN-SPECIFIC RULES:\n"
+        "- Arzthaftung: Search BOTH tracks separately: (1) Behandlungsfehler/Kunstfehler "
+        "(§1299 Sorgfaltsmaßstab, §1298 Beweislastumkehr) AND (2) Aufklärungsfehler "
+        "(hypothetische Einwilligung, Risikoaufklärung). Always search deliktisch (§1295/§1325) "
+        "AND vertraglich (§1299/§1313a).\n"
+        "- Interzession/Bürgschaft: Search §25c KSchG AND §879 ABGB (Sittenwidrigkeit) "
+        "as SEPARATE regimes. If Exekution mentioned, also search §35 EO (Oppositionsklage).\n"
+        "- Gewährleistung: Search §§922/932 AND §870/§874 ABGB (Arglist/Irreführung) separately."
     )
     if worker_ctx:
         sys_prompt += "\n\n" + worker_ctx
@@ -2566,13 +2574,17 @@ def synthesize_answer(
         "4. SUBSUMTION — Anwendung auf den konkreten Fall, GETRENNT nach Anspruchsgrundlagen\n"
         "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen?\n"
         "6. PROZESSSTRATEGIE — Haupt- und Eventualbegehren, priorisiert nach Erfolgsaussicht\n"
-        "7. RISIKEN / GEGENARGUMENTE — mind. 3 mit konkreten Repliken/Entkräftungen\n"
+        "7. RISIKEN / GEGENARGUMENTE — mind. 4 mit konkreten Repliken/Entkräftungen (RS-gestützt)\n"
         "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n\n"
         "WICHTIG:\n"
         "- Bei mehreren Anspruchsgrundlagen: IMMER Haupt- und Eventualbegehren ordnen\n"
         "- Konkurrierende Ansprüche (zB Wandlung UND Preisminderung) als Stufen darstellen\n"
         "- Beweislast EXPLIZIT für jede strittige Tatsache angeben\n"
-        "- Mind. 3 Risiken mit je einer konkreten Replik"
+        "- Mind. 4 Risiken, jedes mit RS-Nummer und konkreter Replik. KEINE Füll-Risiken ohne Fallbezug\n"
+        "- Arzthaftung: IMMER Doppelgleisigkeit prüfen (Delikt §1295/§1325 + Vertrag §1299/§1313a), "
+        "Behandlungsfehler UND Aufklärungsfehler getrennt subsumieren\n"
+        "- Interzession: IMMER §25c KSchG + §879 ABGB als getrennte Anspruchsgrundlagen prüfen, "
+        "bei Exekution auch §35 EO (Oppositionsklage) berücksichtigen"
     )
     if postgres_only:
         sys_prompt = (

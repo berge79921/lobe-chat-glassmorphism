@@ -1,0 +1,1622 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T03:14:08.567943+00:00",
+  "config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "query": "Eine Käuferin hat eine Eigentumswohnung um 320.000 Euro gekauft, die als komplett saniert beworben wurde. Nach dem Einzug stellt sich heraus: massiver Schimmelbefall hinter den Wandverkleidungen, die Dachterrassenerweiterung ist nicht baubewilligt (Abbruchauftrag droht), und der Energieausweis wurde gefälscht. Ein Gutachten beziffert den tatsächlichen Wert auf 165.000 Euro. Der Verkäufer ist gewerblicher Immobilienhändler.",
+    "model_profile": "cheap_grok_fast",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "x-ai/grok-4.1-fast",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "remote_ssh",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "files": {
+      "agent_profiles": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      },
+      "skills_bindings": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/skills_bindings.yaml",
+        "roles": 4
+      }
+    }
+  },
+  "mcp_startup": null,
+  "classification": {
+    "domain": "",
+    "subdomain": "",
+    "confidence": 0.0,
+    "paragraphs": [],
+    "mandatory_paragraphs": [],
+    "keywords": [],
+    "all_scores": {},
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 224,
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Zivilrechtliche Gewährleistung & Mängelbeseitigung (§§ 934 ff. ABGB)",
+        "goal": "Ermittlung der rechtlichen Ansprüche der Käuferin gegen den gewerblichen Verkäufer auf Nacherfüllung, Minderung oder Schadensersatz aufgrund von Sachmängeln und Rechtsmängeln",
+        "tools": [
+          "search_by_paragraph",
+          "get_rechtssatz",
+          "hot_rs_lookup",
+          "search_kommentar_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Täuschung & arglistige Verschweigen (§§ 178, 179 ABGB)",
+        "goal": "Prüfung, ob der Verkäufer durch falsche Angaben (Energieausweis, Sanierungsstatus, Baubewilligung) vorsätzlich getäuscht hat und ob dies zur Anfechtung oder Schadensersatzpflicht führt",
+        "tools": [
+          "search_by_paragraph",
+          "search_ogh_entscheidungen",
+          "hot_rs_search",
+          "search_kommentar_keyword",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Gewerblicher Verkäufer – besonderer Schutz (WBO, UWG, Gewährleistungserklärung)",
+        "goal": "Ermittlung zusätzlicher Anspruchsgrundlagen durch gewerbliche Tätigkeit des Verkäufers (z. B. Gewährleistungserklärung nach WBO, unlauterer Wettbewerb nach UWG)",
+        "tools": [
+          "search_by_schlagwort",
+          "hot_index_stats",
+          "hot_cluster_context",
+          "build_grounding_context",
+          "search_by_paragraph",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Anspruchsnachweis gegen gewerblichen Verkäufer auf Schadensersatz (155.000 €) aufgrund von Sach- und Rechtsmängeln sowie arglistiger Täuschung unter Berücksichtigung der Wertdifferenz und besonderer Verkäuferpflichten"
+  },
+  "organizer_meta": {
+    "latency_ms": 6881.34,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Zivilrechtliche Gewährleistung & Mängelbeseitigung (§§ 934 ff. ABGB)\",\n      \"goal\": \"Ermittlung der rechtlichen Ansprüche der Käuferin gegen den gewerblichen Verkäufer auf Nacherfüllung, Minderung oder Schadensersatz aufgrund von Sachmängeln und Rechtsmängeln\",\n      \"tools\": [\n        \"search_by_paragraph\",\n        \"get_rechtssatz\",\n        \"hot_rs_lookup\",\n        \"search_kommentar_paragraph\"\n      ]\n    },\n    {\n      \"name\": \"Täuschung & arglistige Verschweigen (§§ 178, 179 ABGB)\",\n      \"goal\": \"Prüfung, ob der Verkäufer durch falsche Angaben (Energieausweis, Sanierungsstatus, Baubewilligung) vorsätzlich getäuscht hat und ob dies zur Anfechtung oder Schadensersatzpflicht führt\",\n      \"tools\": [\n        \"search_by_paragraph\",\n        \"search_ogh_entscheidungen\",\n        \"hot_rs_search\",\n        \"search_kommentar_keyword\"\n      ]\n    },\n    {\n      \"name\": \"Gewerblicher Verkäufer – besonderer Schutz (WBO, UWG, Gewährleistungserklärung)\",\n      \"goal\": \"Ermittlung zusätzlicher Anspruchsgrundlagen durch gewerbliche Tätigkeit des Verkäufers (z. B. Gewährleistungserklärung nach WBO, unlauterer Wettbewerb nach UWG)\",\n      \"tools\": [\n        \"search_by_schlagwort\",\n        \"hot_index_stats\",\n        \"hot_cluster_context\",\n        \"build_grounding_context\"\n      ]\n    },\n    {\n      \"name\": \"Schadenshöhe & Wertdifferenzberechnung (§ 1215 ABGB)\",\n      \"goal\": \"Sicherstellung, dass die Wertdifferenz (320.000 € – 165.000 € = 155.000 €) als Schaden anerkannt wird und eventuelle Minderungsansprüche oder Ersatz für notwendige Aufwendungen abgedeckt sind\",\n      \"tools\": [\n        \"hot_rs_lookup\",\n        \"search_ogh_rechtssaetze\",\n        \"ask_gemini_zivilrecht\",\n        \"detect_clusters\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Anspruchsnachweis gegen gewerblichen Verkäufer auf Schadensersatz (155.000 €) aufgrund von Sach- und Rechtsmängeln sowie arglistiger Täuschung unter Berücksichtigung der Wertdifferenz und besonderer Verkäuferpflichten\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 365,
+      "completion_tokens": 642,
+      "total_tokens": 1007,
+      "cost": 0.00056835,
+      "cached_tokens": 3,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "",
+      "subdomain": "",
+      "confidence": 0.0,
+      "paragraphs": [],
+      "mandatory_paragraphs": [],
+      "keywords": [],
+      "all_scores": {},
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Gewerblicher Verkäufer – besonderer Schutz (WBO, UWG, Gewährleistungserklärung)",
+      "goal": "Ermittlung zusätzlicher Anspruchsgrundlagen durch gewerbliche Tätigkeit des Verkäufers (z. B. Gewährleistungserklärung nach WBO, unlauterer Wettbewerb nach UWG)",
+      "mode": "llm",
+      "tools": [
+        "search_by_schlagwort",
+        "hot_cluster_context",
+        "build_grounding_context",
+        "search_by_paragraph",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 22671.43,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 1845,
+            "completion_tokens": 2120,
+            "total_tokens": 3965,
+            "cost": 0.0014065,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1878
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 8718.98,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 23701,
+            "completion_tokens": 915,
+            "total_tokens": 24616,
+            "cost": 0.0051752,
+            "cached_tokens": 150,
+            "reasoning_tokens": 620
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 14213.01,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 39974,
+            "completion_tokens": 1800,
+            "total_tokens": 41774,
+            "cost": 0.00533965,
+            "cached_tokens": 23701,
+            "reasoning_tokens": 1446
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 19358.45,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 41376,
+            "completion_tokens": 2315,
+            "total_tokens": 43691,
+            "cost": 0.00343735,
+            "cached_tokens": 39969,
+            "reasoning_tokens": 941
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_77524671",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Wettbewerbsrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 173.76,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Wettbewerbsrecht\", \"results\": [{\"rs_number\": \"RS0080446\", \"kernaussage\": \"Die Obliegenheit der Verständigung des Versicherers von der gerichtlichen Geltendmachung des Schadenersatzanspruches gegen den Versicherungsnehmer endet mit der Ablehnung des Entschädigungsanspruches durch den Versicherer, weil sich das der Vereinbarung zugrundeliegende Ziel, die Leistung des...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Haftpflichtversicherung\", \"Deckungsverweigerung\", \"Obliegenheitsverletzung\", \"Aufsichtspflicht\", \"Versäumungsurteil\", \"Versicherungsnehmer\", \"Versäumnisurteil\", \"IPRG\", \"Mitversicherter\", \"Aktivlegitimation\", \"Befreiungsanspruch\", \"Zahlungsanspruch\", \"Leistungsklage\", \"Berufshaftpflichtversicherung\", \"Pflichtversicherung\", \"Anzeigeobliegenheit\", \"Zahnarzt\", \"Rechtsschutzversicherung\", \"Deckungspflicht\", \"Feststellungsinteresse\", \"Obliegenheiten\", \"Bündelversicherung\", \"Vermögensschadenhaftpflicht\", \"Deckungsablehnung\", \"Versicherungsfallmeldung\", \"Informationsobliegenheit\", \"Unfallversicherung\", \"Invaliditätsgrad\", \"Vorerkrankungen\", \"Auskunftsobliegenheit\", \"Versicherungsfall\", \"Erfolgsaussichten\", \"Kartellrecht\", \"Wettbewerbsrecht\", \"Abschalteinrichtung\", \"Schadenersatz-Rechtsschutz\", \"Diesel-Fahrzeug\", \"Deckungsprozess\", \"VersVG\"]}, {\"rs_number\": \"RS0080946\", \"kernaussage\": \"Substrat der Exekutionsbewilligung nach § 355 EO oder eines darauf folgenden Strafbeschlusses ist nur das vom betreibenden Gläubiger behauptete Verhalten. Nur dieses Verhalten kann dann aber Gegenstand eines vom Verpflichteten eingeleiteten Impugnationsverfahrens sein. Dem beklagten"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_95303480",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Verbraucherschutz",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 488.32,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Verbraucherschutz\", \"results\": [{\"rs_number\": \"RS0042179\", \"kernaussage\": \"Wenn das Berufungsgericht der Ansicht ist, dass der Sachverhalt in der von ihm dargestellten Richtung noch nicht genügend geklärt ist, dann kann der OGH, der nicht Tatsacheninstanz ist, dem nicht entgegentreten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Miteigentumsteilung\", \"Naturalteilung\", \"Zivilteilung\", \"Pfandrecht\", \"Reallast\", \"Patenteingriff\", \"Entfeuchtungsrohr\", \"Patentansprüche\", \"Freundschaftskauf\", \"Schenkung\", \"wirkliche Übergabe\", \"falsa demonstratio\", \"Notariatszwang\", \"Schadenersatz\", \"Verjährung\", \"Schiedsgericht\", \"Unterbrechung der Verjährung\", \"Werkvertrag\", \"Gewährleistungsausschluss\", \"Vorausleistung\", \"vorzeitiger Abbruch\", \"Rekurszulässigkeit\", \"Mietrecht\", \"zurückweisender Teil\", \"Lieferbedingungen\", \"Gewährleistung\", \"Mängelhaftung\", \"Gesellschaft bürgerlichen Rechtes\", \"Zession\", \"Exekution\", \"Oppositionsklage\", \"Zwangsversteigerung\", \"Inkassomandat\", \"Fortsetzung der Klage\", \"Mitverschulden\", \"Regress\", \"Amtshaftung\", \"Dienstfahrt\", \"Arbeitsunfall\", \"Verkehrsunfall\", \"Rettungspflicht\", \"Nachbarrecht\", \"Immissionen\", \"Steinschlag\", \"Übergabsvertrag\", \"Mängelgewährleistung\", \"Konkurs\", \"Masseverwalter\", \"Zurückbehaltungsrecht\", \"Ausbeutungsverordnung\", \"Lohnzession\", \"Sicherstellung auf fortlaufende Bezüge\", \"Aktive Klagslegitimation\", \"Inkassozession\", \"Testierfähigkeit\", \"aufschiebende Bedingung\", \"letztwillige Verfügung\", \"Unterhaltsvergleich\", \"Sittenwidrigkeit\", \"Irrtum\", \"Zwang\", \"Sparbuch\", \"Losungswort\", \"Überbringersparbuch\", \"materielle Berechtigung\","
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_46253617",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "UWG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 405.9,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"UWG\", \"results\": [{\"rs_number\": \"RS0021095\", \"kernaussage\": \"Hängt die Entscheidung von den konkreten Umständen des Einzelfalles ab, ist deren rechtliche Würdigung vom Obersten Gerichtshof nicht zu überprüfen. Nur bei einer auffallenden Fehlbeurteilung der Unzumutbarkeit einer Fortsetzung des Bestandverhältnisses hätte er einzugreifen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kündigungsgrund\", \"Auflösungserklärung\", \"Wohlverhalten\", \"Schmerzengeld\", \"Verschuldensverteilung\", \"Raufhandel\", \"außerordentliche Revision\", \"erheblich nachteiliger Gebrauch\", \"Offenlassen Wasserhahn\", \"erhebliche Rechtsfrage\", \"Auslegung mündlicher Willenserklärungen\", \"Rechtsbeurteilung\", \"Überweisungsbestätigung\", \"konstitutives Anerkenntnis\", \"Unterhaltsverfahren\", \"Vertretungskosten\", \"Sonderbedarf\", \"Revisionsrekurs\", \"Kaufvertrag\", \"Geschäftsunfähigkeit\", \"Rechtsanwalt\", \"Belehrungspflicht\", \"Revision\", \"Ehewohnung\", \"Aufteilungsanspruch\", \"Benützungsanspruch\", \"Räumungsklage\", \"Notar\", \"Kostentragung\", \"Aufklärungspflicht\", \"Anlageberaterhaftung\", \"stille Beteiligung\", \"Revisionzulässigkeit\", \"stillschweigende Beendigung des Dienstverhältnisses\", \"Entlassungsgrund\", \"Neuerungsverbot\", \"Dienstverhältnis\", \"vorzeitiger Austritt\", \"konkludente Erklärung\", \"Ehrverletzung\", \"Kündigung\", \"Arbeitnehmerin\", \"Gerücht\", \"Austrittserklärung\", \"schlüssige Austrittserklärung\", \"Neuwertversicherung\", \"Wiederherstellung\", \"Feuerversicherung\", \"Sicherung der Wiederherstellung\", \"Beratungshaftung\", \"vorvertragliche Haftung\", \"Substanzbeeinträchtigung\", \"Brandgefahr\", \"Instandhaltungspflicht\", \""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_91412269",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Gewährleistungserklärung gewerblicher Verkäufer Immobilie",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 20.15,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Gewährleistungserklärung gewerblicher Verkäufer Immobilie\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_02773548",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "UWG Immobilienverkauf Täuschung gewerblicher Händler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 802.24,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"UWG Immobilienverkauf Täuschung gewerblicher Händler\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_58149625",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Immobilienmakler",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 601.56,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Immobilienmakler\", \"results\": [{\"rs_number\": \"RS0061254\", \"kernaussage\": \"Aus dem Treueverhältnis zwischen Auftraggeber und Makler ergeben sich für letzteren Schutzpflichten, Sorgfaltspflichten und Beratungspflichten, besonders dann, wenn es sich beim Auftraggeber um eine geschäftlich ungewandte und unerfahrene Person handelt oder wenn entsprechende Vereinbarungen über...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Immobilienmakler\", \"Sorgfaltspflicht\", \"lastenfreie Übergabe\", \"Handelsvertreter\", \"Kreditvermittler\", \"Haftung\", \"Schadenersatz\", \"Maklerprovision\", \"Irrtum über Grundstücksfläche\", \"Pfandrechte\", \"Aufklärungspflicht\", \"Versicherungsmakler\", \"Beratungspflicht\", \"Nachforschungspflicht\", \"Unterversicherung\", \"Dauerinvalidität\", \"Unfallversicherung\", \"Krankenversicherung\"]}, {\"rs_number\": \"RS0061274\", \"kernaussage\": \"Die schlagwortartige Abkürzung des protokollierten Firmenwortlautes (hier durch Weglassung des Zusatzes \\\"GmbH\\\") ist bei der Werbung und in öffentlichen Ankündigungen nach Handelsrecht (§ 37 Abs 2 HGB) zulässig.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Firmengebrauch\", \"Namensrecht\", \"GmbH-Firma\", \"Unterlassung\", \"Immobilienmakler\", \"Inserate\", \"Kurzbezeichnung\", \"UWG\", \"ImmMVO\"]}, {\"rs_number\": \"RS0061427\", \"kernaussage\": \"§ 51 Abs 1 GewO ist auch auf einmalige Handlungen im Inland anzuwenden. Die Bestimmungen regelt nämlich, unter welchen Voraussetzungen ausländische Gewerbetreibende im Inland tätig werden dürfen, und geht daher von einer (regelmäßigen) gewerbsmäßigen Tätigkeit dieser Personen im Ausland aus; die...\", \"rechtsgebiet\": \"\", \"s"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_17031850",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Maklerrecht",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1422.93,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Maklerrecht\", \"results\": [{\"rs_number\": \"RS0118755\", \"kernaussage\": \"Der Makler ist ein Geschäftsvermittler. Die Vermittlungstätigkeit selbst entzieht sich einer gesetzlichen Definition, da die an sie zu stellenden Anforderungen je nach Geschäftszweig und Lage des Falls sehr variieren. Selbstverständlich ist, dass der Begriff \\\"Vermitteln\\\" bedeutet, zwei potentielle...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Leistungsverzeichnisse\", \"Vermittlung\", \"Gewerberecht\", \"Berufshaftpflichtversicherung\", \"Pauschalhonorar\", \"Kreditvermittlung\", \"Unternehmensberatung\", \"Vermögensberater\", \"Maklerrecht\", \"Letter of Engagement\", \"Gemischter Vertrag\", \"tätigkeitsbezogene Entlohnung\", \"außerordentliche Revision\", \"UWG\", \"Due Diligence\", \"Neuerungsverbot\", \"Beweisrüge\", \"Investorensuche\", \"Verdienstlichkeit\", \"Namhaftmachung\", \"Finanzierungsberatung\", \"Maklervertrag\", \"Provisionsanspruch\", \"Vermittlungsauftrag\", \"Kausalität\", \"IMV\", \"Verdienstliche Tätigkeit\", \"Provision\", \"Erfolgsversprechen\", \"MaklerG\"]}, {\"rs_number\": \"RS0061287\", \"kernaussage\": \"Der Versicherungsmakler stellt einen Unterfall des Handelsmäklers dar; auf sein Rechtsverhältnis zu der Versicherungsgesellschaft, aber auch zum Versicherungsnehmer, kommen die Vorschriften des 8. Abschnittes des ersten Buches des HGB (§§ 93 ff HGB und Art 6 Nr 13 d 4.EVHGB) zur Anwendung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Versicherungsmakler\", \"Handelsmäkler\", \"Maklervertrag\", \"Anwendung der §§ 93 ff HGB\", \"Rechtsverhältnis zum Versicherungsnehmer\", \"Rechtsverhältnis zur Versicherungsgesellschaft\", \"Maklerrecht\"]}, {\"rs_nu"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_89651269",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Immobiliengeschäft",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1676.5,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Immobiliengeschäft\", \"results\": [{\"rs_number\": \"JWR_1999150155_20011218X03\", \"kernaussage\": \"Berufliche Immobilienerfahrung verstärkt Planmäßigkeit\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Planmäßigkeit\", \"Immobiliengeschäft\", \"Insiderwissen\", \"Fachwissen\", \"Schenkung\", \"Gestaltungstatbestand\", \"Nachbescheid\", \"Abgrenzung Veräußerung\"]}, {\"rs_number\": \"JWR_2003130118_20070124X05\", \"kernaussage\": \"Gewerblicher Grundstückshandel bei beruflichen Immobilienebenpunkten\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"gewerblicher Grundstückshandel\", \"Immobiliengeschäft\", \"berufliche Berührungspunkte\", \"Abgabepflichtiger\", \"Grundstücksveräußerung\", \"Gewerbeeinkünfte\", \"Veräußerungsgewinne\", \"Abgrenzung privat-gewerblich\"]}], \"count\": 2}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_32071452",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1 UWG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 108.46,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1 UWG\", \"results\": [{\"rs_number\": \"RS0077894\", \"kernaussage\": \"Das Verschweigen von Umständen, deren Bekanntgabe der (potentielle) Vertragspartner gar nicht erwartet, ist weder zur Irreführung im Sinne des § 2 UWG geeignet, noch verstößt es gegen die guten Sitten im Sinne des § 1 UWG.\", \"schlagworte\": []}, {\"rs_number\": \"RS0077406\", \"kernaussage\": \"Bedenken gegen die Verfassungsmäßigkeit des § 1 UWG vermag der OGH nicht zu teilen. Die Verwendung unbestimmter Gesetzesbegriffe ist nicht verfassungswidrig; den Begriffen \\\"Billigkeit\\\", \\\"Sitte\\\", \\\"Sittlichkeit\\\" und dergleichen ist im Hinblick auf die bestehenden gesellschaftlichen Auffassungen ein...\", \"schlagworte\": []}, {\"rs_number\": \"RS0077428\", \"kernaussage\": \"Verstöße gegen § 1 UWG können nicht nur von Mitbewerbern im Sinne des § 14 UWG, sondern auch von den unmittelbar Verletzten mit Unterlassungsklage geltend gemacht werden.\", \"schlagworte\": [\"Rabattverweigerung\", \"Preisdiskriminierung\", \"Wettbewerbsverhältnis\"]}, {\"rs_number\": \"RS0077465\", \"kernaussage\": \"§ 1 UWG ist nur dann anwendbar, wenn der festgestellte Tatbestand keiner Sonderbestimmung der §§ 2 ff UWG unterstellt werden kann.\", \"schlagworte\": []}, {\"rs_number\": \"RS0077500\", \"kernaussage\": \"Fehlt es zu einer Verurteilung der beklagten Parteien nach § 9 UWG an dem Tatbestandsmerkmal der Verwechslungsfähigkeit, so könnte eine Verurteilung nach § 1 UWG nur Platz greifen, wenn durch andere Umstände der sittenwidrige Charakter der Wettbewerbshandlung der beklagten Parteien nachgewiesen wäre. ...\", \"schlagworte\": []}, {\"rs_number\": \"RS0077502\", \"ker"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_04407522",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 28 KSchG",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1691.14,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 28 KSchG\", \"results\": [{\"rs_number\": \"RS0111806\", \"kernaussage\": \"Gegenstand des § 28 KSchG sind AGB, die der Verwender \\\"von ihm geschlossenen Verträgen zugrundelegt\\\"; die AGB müssen demnach als Vertragsschablone tatsächlich zum Einsatz gelangen.\", \"schlagworte\": [\"Allgemeine Geschäftsbedingungen\", \"Konsumentenschutzgesetz\", \"Kundenprogramm\", \"Datenschutz\", \"Haftungsausschluss\", \"Mietverträge\", \"Konsumentenschutz\", \"Wiederholungsgefahr\", \"Unterlassungserklärung\", \"Bausparkasse\", \"Zinsanpassung\", \"Aufrundungsklausel\", \"AGB\", \"KSchG\", \"Leasingverträge\", \"Kaution\", \"Bindungsfrist\", \"AGB-Kontrolle\", \"Kündigungsfristen\", \"Fitnessstudio-Verträge\"]}, {\"rs_number\": \"RS0128261\", \"kernaussage\": \"Auch die auf Websites und deren Subpages enthaltenen vorformulierten allgemeinen Vertragsbedingungen, die der Verwender den auf diesem Wege mit Verbrauchern abgeschlossenen Verträgen von vornherein zugrundelegen will, unterliegen der Kontrolle gemäß § 28 KSchG.\", \"schlagworte\": [\"Vertragsformblatt\", \"Webportal\", \"Transparenzgebot KSchG\", \"Buchungsgebühr\", \"Vermittlungsgebühr\", \"Online-Buchung\", \"Allgemeine Geschäftsbedingungen\", \"Konsumentenschutzgesetz\", \"Gutscheine\", \"Gültigkeitsdauer\", \"Gewährleistungsansprüche\", \"Transparenzgebot\", \"AGB-Kontrolle\", \"Servicegebühr\", \"KSchG\", \"Verbandsverfahren\", \"AGB\", \"KuKuSpoSiG\", \"Transparenz\", \"Ticketservice\", \"Verbandsklage\"]}, {\"rs_number\": \"RS0116915\", \"kernaussage\": \"Der Unterlassungsanspruch nach § 28 KSchG besteht schon dann, wenn die dort beschriebenen Bedingungen gegen ein gesetzliches Verbot verstoßen. Kollidieren sie mit ei"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_14481451",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0124842",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 792.72,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0124842\", \"rechtssatz_text\": \"Der Tatbestand nach § 2 Abs 3 Z 1 UWG (Imitationsmarketing) ist erfüllt, wenn eine Produktverpackung, die geeignet ist, beim Verbraucher eine Herkunftsvorstellung auszulösen (also wettbewerbliche Eigenart besitzt), herkunftstäuschend nachgeahmt wird.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 10096, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob199_19x|OGH|2020-01-28\", \"gz\": \"4Ob199_19x\", \"datum\": \"2020-01-28\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung von Unterlassungsansprüchen gegen unlautere Geschäftspraktiken eines Münzhändlers durch unklare Kopplung von Einzelkäufen an einen automatischen Sammler-Service.\"}, {\"te_stable_key\": \"4Ob101_18h|OGH|2018-06-11\", \"gz\": \"4Ob101_18h\", \"datum\": \"2018-06-11\", \"gericht\": \"OGH\", \"mini_story\": \"Ablehnung der Revision in einer Streitsache um Urheberrechtsschutz und unlauteren Wettbewerb bei Zeitungsboxen.\"}, {\"te_stable_key\": \"4Ob13_16i|OGH|2016-02-23\", \"gz\": \"4Ob13_16i\", \"datum\": \"2016-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Revisionsrekurs zurück, da der Zeitungsaufsteller keine urheberrechtlich geschützte Schöpfung darstellt und keine unlautere Geschäftspraktik vorliegt.\"}, {\"te_stable_key\": \"4Ob157_15i|OGH|2015-09-22\", \"gz\": \"4Ob157_15i\", \"datum\": \"2015-09-22\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung eines Unterlassungsanspruchs gegen die Nutzung der Senderbezeichnung 'Radio Klassik' mangels Verwechslungsgefahr mit 'Klassik Radio'.\"}, {\"te_stable_key\": \"4Ob141_13h|OGH|2013-09-23\", \"gz\": \"4Ob141_13h\", \"datum\": \"2013-09-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision in einem Streit um Verwechslungsgefahr zwischen einer Geschäftsbezeichnung und einer Wortbildmarke zurück.\"}, {\"te_stable_key\": \"4Ob227_12d|OGH|2013-02-12\", \"gz\": \"4Ob227_12d\", \"datum\": \"2013-02-12\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung von Imitationsmarketing und Verwechslungsgefahr bei Produktaufmachung von Lutschern gemäß § 2 Abs 3 Z 1 UWG.\"}], \"te_items_count\": 6}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_72162195",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0123123",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.31,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0123123\", \"rechtssatz_text\": \"Bestreitet der Verpflichtete, dass der behauptete Sachverhalt rechtlich ein Zuwiderhandeln gegen das titelmäßige Duldungs- oder Unterlassungsgebot darstellt, steht ihm dafür nur der Rekurs, nicht auch die Impugnationsklage zur Verfügung. Bestreitet er hingegen, den als Zuwiderhandlung behaupteten...\", \"te_count\": 33, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 1432, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob132_17h|OGH|2017-08-30\", \"gz\": \"3Ob132_17h\", \"datum\": \"2017-08-30\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung der außerordentlichen Revision gegen die Abweisung einer Impugnationsklage im Exekutionsverfahren.\"}, {\"te_stable_key\": \"4Ob30_17s|OGH|2017-03-28\", \"gz\": \"4Ob30_17s\", \"datum\": \"2017-03-28\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung eines Unterlassungsanspruchs wegen bewilligungslosen Betriebs von Glücksspielautomaten trotz Einwänden gegen die Unionsrechtskonformität des österreichischen Glücksspielmonopols.\"}, {\"te_stable_key\": \"3Ob263_15w|OGH|2016-03-16\", \"gz\": \"3Ob263_15w\", \"datum\": \"2016-03-16\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Zulässigkeit und Begründetheit einer Impugnationsklage gegen die Exekutionsbewilligung einer Unterlassung wegen Abstellen eines Fahrzeugs auf fremdem Grundstück unter Berücksichtigung einer dem Mieter erteilten Erlaubnis.\"}, {\"te_stable_key\": \"3Ob262_15y|OGH|2016-02-17\", \"gz\": \"3Ob262_15y\", \"datum\": \"2016-02-17\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt das Urteil des Erstgerichts wieder her und bejaht die Impugnationsklage gegen die Unterlassungsexekution wegen fehlender Spürbarkeit der Verletzung der Offenlegungspflicht für ältere Konzernabschlüsse bei fristgerechter Einreichung des aktuellsten Abschlusses.\"}, {\"te_stable_key\": \"3Ob242_14f|OGH|2015-04-21\", \"gz\": \"3Ob242_14f\", \"datum\": \"2015-04-21\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision gegen Strafbeschlüsse wegen angeblicher Verstöße gegen eine Unterlassungsverpflichtung im Zusammenhang mit einer Bestpreisgarantie zurück.\"}, {\"te_stable_key\": \"3Ob12_14g|OGH|2014-07-23\", \"gz\": \"3Ob12_14g\", \"datum\": \"2014-07-23\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer außerordentlichen Revision in einem Impugnationsverfahren gegen Verstöße w"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_22052205",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "wettbewerbsrecht",
+            "query": "gewerblicher Immobilienhändler Täuschung UWG Schimmelbefall gefälschter Energieausweis ungenehmigte Terrasse",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.09,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_36241179",
+          "tool": "build_grounding_context",
+          "args": {
+            "topic": "vertraege",
+            "query": "Gewährleistungserklärung gewerblicher Verkäufer Immobilie WBO saniert",
+            "max_clusters": 3,
+            "max_tokens": 500
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.27,
+          "error": null,
+          "payload_preview": "\"Unknown tool: build_grounding_context\""
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_45275735",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "UWG Immobilien Täuschung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.99,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"UWG Immobilien Täuschung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_18051749",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "gewerblicher Verkäufer Gewährleistung Immobilie",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.6,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"gewerblicher Verkäufer Gewährleistung Immobilie\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_44062928",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 922 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1063.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswürdigung\"]}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbeprospekt\"]}, {\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagwo"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_17069726",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0077894",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.52,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0077894\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "call_90496548",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0065713",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.98,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0065713\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0128261",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0128261",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.91,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0128261\", \"rechtssatz_text\": \"Auch die auf Websites und deren Subpages enthaltenen vorformulierten allgemeinen Vertragsbedingungen, die der Verwender den auf diesem Wege mit Verbrauchern abgeschlossenen Verträgen von vornherein zugrundelegen will, unterliegen der Kontrolle gemäß § 28 KSchG.\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11790, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob168/25g|OGH|2025-11-18\", \"gz\": \"2Ob168/25g\", \"datum\": \"2025-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Revision der beklagten Partei gegen ein bestätigendes Berufungsurteil in einer Unterlassungssache.\"}, {\"te_stable_key\": \"10Ob26_24g|OGH|2025-02-11\", \"gz\": \"10Ob26_24g\", \"datum\": \"2025-02-11\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Zulässigkeit von AGB-Klauseln eines Ticketservices zu Servicegebühren und Rückerstattungspflichten in einer Verbandsklage.\"}, {\"te_stable_key\": \"8Ob64_24f|OGH|2024-06-26\", \"gz\": \"8Ob64_24f\", \"datum\": \"2024-06-26\", \"gericht\": \"OGH\", \"mini_story\": \"Wirksamkeit von AGB-Klauseln zu Servicegebühren bei Ticketverkäufen und Rückerstattung bei Veranstaltungsabsage aufgrund COVID-19.\"}, {\"te_stable_key\": \"9Ob34_24a|OGH|2024-04-24\", \"gz\": \"9Ob34_24a\", \"datum\": \"2024-04-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft AGB-Klauseln eines Webshops für Eintrittskarten auf Transparenz und Wirksamkeit nach KSchG im Verbandsverfahren.\"}, {\"te_stable_key\": \"6Ob210_17a|OGH|2018-05-24\", \"gz\": \"6Ob210_17a\", \"datum\": \"2018-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Kontrolle der Zulässigkeit von AGB-Klauseln in Gutscheinen für Übernachtungsleistungen hinsichtlich Gültigkeitsdauer und Gewährleistungsansprüchen.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0118755",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0118755",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.14,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0118755\", \"rechtssatz_text\": \"Der Makler ist ein Geschäftsvermittler. Die Vermittlungstätigkeit selbst entzieht sich einer gesetzlichen Definition, da die an sie zu stellenden Anforderungen je nach Geschäftszweig und Lage des Falls sehr variieren. Selbstverständlich ist, dass der Begriff \\\"Vermitteln\\\" bedeutet, zwei potentielle...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17288, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob176_21i|OGH|2021-12-15\", \"gz\": \"7Ob176_21i\", \"datum\": \"2021-12-15\", \"gericht\": \"OGH\", \"mini_story\": \"Ablehnung des Deckungsanspruchs aus einer Berufshaftpflichtversicherung für gewerbliche Vermögensberaterin bei Erwerb von Genussrechten.\"}, {\"te_stable_key\": \"7Ob76_18d|OGH|2018-05-24\", \"gz\": \"7Ob76_18d\", \"datum\": \"2018-05-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Verdienstlichkeit der Tätigkeit eines Immobilienmaklers hinsichtlich der Namhaftmachung eines potenziellen Vertragspartners und weist die Revision als unzulässig zurück.\"}, {\"te_stable_key\": \"3Ob131_16k|OGH|2016-11-23\", \"gz\": \"3Ob131_16k\", \"datum\": \"2016-11-23\", \"gericht\": \"OGH\", \"mini_story\": \"Streit über die Berechtigung einer Immobilienmaklerin zur Provision beim Verkauf einer Liegenschaft am Wörthersee.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0116915",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0116915",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.39,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0116915\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114805",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114805",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.61,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114805\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111806",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111806",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.77,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111806\"}"
+        }
+      ],
+      "tool_calls_total": 24,
+      "tool_calls_ok": 24,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Zusätzliche Anspruchsgrundlagen durch gewerbliche Tätigkeit (UWG, KSchG, erhöhte Pflichten)\n\n#### 1. **Unlauterer Wettbewerb (UWG) – Irreführende Werbung/Täuschung**\nGewerblicher Immobilienhändler unterliegt **erhöhten Transparenz- und Aufklärungspflichten** bei Werbung (§ 1, § 2 UWG). \"Komplett saniert\" als Werbeaussage ist **irreführend**, wenn Mängel (Schimmel hinter Verkleidung, ungenehmigte Terrasse, gefälschter Energieausweis) verschwiegen/verschleiert werden. Auch **Herkunfts-/Qualitätstäuschung** möglich (§ 2 Abs 3 Z 1 UWG, RS0124842: Imitations-/Herkunftstäuschung bei wettbewerblicher Eigenart; Beweislast: Klägerin zeigt Eignung zur Täuschung, OGH 4Ob227/12d u.a.).\n\n- **RS0077894** (§ 1, § 2 UWG): Verschweigen unerwarteter Umstände (z.B. Schimmel, Abbruchdrohung) nicht automatisch sittenwidrig/irreführend; **Beweislast Käuferin**: Nachweis **erwarteter Offenlegung** (hier: Werbung \"saniert\" schafft Erwartung; GZ: Allg. RS, keine spezif. TE).\n- **RS0077406** (§ 1 UWG): \"Gute Sitten\"-Verstoß bei Täuschung durch Profi-Händler; **Beweislast Klägerin**: Wettbewerbswidrigkeit (geeignet, Absatz zu fördern).\n- **RS0077428** (§ 1 UWG): **Unmittelbar Geschädigte (Käuferin)** klagbar (nicht nur Mitbewerber); Unterlassung/Widerruf möglich.\n- **RS0077465** (§ 1 UWG als Generalklausel): Fällt nicht unter § 2? → § 1 greift bei Sittenwidrigkeit (gefälschter Ausweis = arglistig).\n- **Kein direkter Immobilien-Hit**, aber **Beweislastumkehr unwahrscheinlich** (Kl. beweist Täuschung/Wiederholungsgefahr für Unterlassung; RS0000756: Beklagter beweist Fehlen Zuwiderhandelns in Exekution).\n\n**Ansprüche**: Unterlassung (§ 1 UWG), Schadenersatz (bei Kausalität zu Wertverlust); **Beweislast Käuferin** für Täuschungseignung/Kausalität (keine Umkehr).\n\n#### 2. **Gewährleistungserklärung / Erhöhte Händlerpflichten (kein WBO-spezifisch; → ABGB + gewerblich)**\nKeine RS zu \"Gewährleistungserklärung nach WBO\" (unbekannt; ggf. ImmMVO/MaklerVO missverstanden – Verkäufer = Händler, kein Makler). Gewerblicher Verkäufer haftet **verstärkt** (§ 922, § 932 ABGB: Händlergarantie für Warenqualität; analog Liegenschaften).\n\n- **RS0018547** (§ 922 ABGB): Mangel = Abweichung von Geschuldetem (\"saniert\"); Schimmel/Feuchtigkeit = Mangel (GZ: RS zu Schimmel, Wertminderung); **Beweislast Käuferin** (§ 933 ABGB: Mangel + Kausalität; Gutachten hier stützt Wertminderung 155k €).\n- **RS0114805** (§ 922 ABGB): Werbeprospekt (\"saniert\") = zugesicherte Eigenschaft; Wohnqualität (Terrasse, Ausweis) geschützt; **Beweislast Käuferin** für Mangel (Gutachten).\n- **RS0065713** (§ 28 KSchG, ImmKontext): Formblätter/Erklärungen (\"saniert\") kontrollierbar; **Verbandsklage möglich**, aber hier individuell; Beweislast Klägerin für Benachteiligung.\n\n**Keine Beweislastumkehr** durch Gewerblichkeit (std. § 933 ABGB); Gutachten entlastet Käuferin.\n\n#### 3. **Konsumentenschutz (KSchG § 28) – AGB/Formblätter**\nFalls Kaufvertrag AGB enthält (üblich bei Händlern), **gröbliche Benachteiligung** prüfbar (z.B. Gewährleistungsausschluss).\n\n- **RS0111806** (§ 28 KSchG): AGB müssen **tatsächlich verwendet** werden; **Beweislast Verband/Klägerin**: Nachteiligkeit.\n- **RS0065713** (Immobilienmakler analog): Formblatt-Klauseln (z.B. \"saniert\"-Zusicherung) unterlassbar; **Beweislast Klägerin** für Wiederholungsgefahr.\n\n**Ansprüche**: Unterlassung unwirksamer Klauseln; **Beweislast Klägerin**.\n\n#### Beweislast-Übersicht\n| Anspruch | Träger | Beleg |\n|----------|--------|-------|\n| UWG Täuschung (§ 1/2) | Käuferin (Täuschungseignung, Kausalität) | RS0077894, RS0000756 |\n| § 922 ABGB Mangel | Käuferin (Mangel + Wertverlust) | RS0018547; Gutachten |\n| KSchG § 28 AGB | Klägerin/Verband (Benachteiligung) | RS0111806 |\n\n**Empfehlung**: Primär ABGB-Gewährleistung (§§ 922 ff., parallel Stream); UWG subsidiär (Werbetäuschung). Keine spezif. WBO-Grundlage gefunden. **0 direkte RS zu gewerbl. ImmHändler-Täuschung** → Ergänzung via § 870/874 ABGB (Arglist) empfohlen (separat suchen).",
+      "answer_chars": 3972,
+      "e2e_ms": 101802.65
+    },
+    {
+      "name": "Täuschung & arglistige Verschweigen (§§ 178, 179 ABGB)",
+      "goal": "Prüfung, ob der Verkäufer durch falsche Angaben (Energieausweis, Sanierungsstatus, Baubewilligung) vorsätzlich getäuscht hat und ob dies zur Anfechtung oder Schadensersatzpflicht führt",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_ogh_entscheidungen",
+        "hot_rs_search",
+        "search_kommentar_keyword",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 8127.36,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 1763,
+            "completion_tokens": 1096,
+            "total_tokens": 2859,
+            "cost": 0.0008814,
+            "cached_tokens": 128,
+            "reasoning_tokens": 835
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 7891.59,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 22755,
+            "completion_tokens": 686,
+            "total_tokens": 23441,
+            "cost": 0.0047707,
+            "cached_tokens": 822,
+            "reasoning_tokens": 386
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 17461.86,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 35333,
+            "completion_tokens": 1999,
+            "total_tokens": 37332,
+            "cost": 0.00465285,
+            "cached_tokens": 22755,
+            "reasoning_tokens": 634
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_99338719",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 870 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1162.79,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 870 ABGB\", \"results\": [{\"rs_number\": \"RS0014884\", \"kernaussage\": \"Die Furcht vor einem Übel, dessen Zufügung durch Abschluß des Vertrages abzuwenden versucht wird und das weder durch Worte noch durch schlüssiges Verhalten angedroht war, fällt nicht unter § 870 ABGB. Die Drohung mit der Unterlassung einer Handlung, zu deren Vornahme der Drohende weder durch Gesetz...\", \"schlagworte\": [\"Mietvertrag\", \"Zwangslage\", \"Nichtigkeit\", \"Zwang\"]}, {\"rs_number\": \"RS0014785\", \"kernaussage\": \"Die Anfechtungsmöglichkeit nach § 870 ABGB steht auch gegen einen Vergleich offen.\", \"schlagworte\": [\"Grenzverhandlung\", \"Vergleich\", \"Anfechtung\", \"Irrtum\", \"Arglist\", \"Rechtsnachfolge\", \"Wiederaufnahme\"]}, {\"rs_number\": \"RS0016029\", \"kernaussage\": \"Zum Begriff der List im Sinne des § 870 ABGB im Zusammenhang m it dem Abschluß eines Mietvertrages.\", \"schlagworte\": []}, {\"rs_number\": \"RS0016066\", \"kernaussage\": \"Der Hinweis auf einen möglichen Rücktritt vom Vertrag beinhaltet ebensowenig einen ungerechten Zwang im Sinne des § 870 ABGB wie etwa die Androhung einer Klage.\", \"schlagworte\": []}, {\"rs_number\": \"RS0016074\", \"kernaussage\": \"Wurde die Unterfertigung eines Deckungswechsels und die damit verbundene Schuldanerkennung durch ungerechte Furcht im Sinne des § 870 ABGB erzwungen, dann kann dieser Anspruch weder wechselmäßig noch aus der Anerkennung durchgesetzt werden.\", \"schlagworte\": []}, {\"rs_number\": \"JWR_2006120138_20070328X04\", \"kernaussage\": \"Ungerechte Furcht als rechtswidriger Zwang iSd § 870 ABGB\", \"schlagworte\": [\"ungerechte Furcht\", \"rechtswidriger Zwang\", \"§ 870 ABGB\""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_73678987",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 871 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3412.16,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 871 ABGB\", \"results\": [{\"rs_number\": \"RS0016188\", \"kernaussage\": \"Veranlassen im Sinne des § 871 ABGB setzt weder absichtliche noch fahrlässige Irreführung voraus. Es genügt jedes für die Entstehung des Irrtums ursächliche Verhalten. Kann ein Kontrahent nach der Verkehrsauffassung auf das Vorhandensein oder Nichtvorhandensein gewisser den Geschäftsinhalt betreffen...\", \"schlagworte\": [\"Prospekt\", \"Pfandbestellung\", \"Makler\", \"Neuwagen\", \"Abmeldung Sozialversicherung\", \"Irrtum\", \"Gebrauchte Maschine\", \"AfA Abschreibungen\", \"Massivbau\", \"Irrtum § 871 ABGB\", \"Bankhaftung\", \"fristwidrige Kündigung\", \"Risikobewertung\", \"Wertpapierverkauf\", \"konkludentes Erklärungsverhalten\", \"baubehördliche Genehmigung\", \"Gewährleistung\", \"endgültiges Abtretungsentgelt\", \"Gewährleistungsausschluss\", \"VO 715/2007/EG\", \"Wertpapierkauf\", \"Wassereintritt\", \"Kaufvertrag\", \"Geschäftsanteilsübertragung\", \"Werbeprospekt\", \"Hagelschaden\", \"Handelsbrauch\", \"Share Deal\", \"Mängelrüge\", \"Wasserqualität\"]}, {\"rs_number\": \"RS0016215\", \"kernaussage\": \"Bei Beurteilung der Frage, wann dem Partner des Irrenden dessen Irrtum \\\"aus den Umständen offenbar auffallen musste\\\" ( § 871 ABGB ), ist nicht auf das subjektive Wissen, bzw das Verschulden des Partners des Irrenden abzustellen; es genügt für das Eingreifen der Irrtumsregeln, wenn er objektiv bei...\", \"schlagworte\": [\"Aufklärungspflicht\", \"einvernehmliche Auflösung\", \"Abmeldung Sozialversicherung\", \"Irrtum\", \"Irrtumsveranlassung\", \"Verhandlungsgehilfe\", \"Anbot\", \"pauschalierter Land- und Forstwirt\", \"§ 20 Abs. 4 AngG\", \"Sittenwidrigkeit\", \"Ruhel"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_71240674",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 874 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1754.34,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 874 ABGB\", \"results\": [{\"rs_number\": \"RS0120502\", \"kernaussage\": \"Der aus § 874 ABGB und den Grundsätzen der Haftung für culpa in contrahendo abgeleitete, auch bei fahrlässiger Irreführung zustehende Schadenersatzanspruch gegen den Vertragspartner verjährt unabhängig vom Anfechtungsrecht wegen Irrtums (vgl § 1487 ABGB) nach den allgemeinen Schadenersatzregeln nach...\", \"schlagworte\": [\"Händlerhaftung\", \"Warnpflicht\", \"Produkthaftung\", \"Werkstoffeigenschaften\", \"Polyamid 6 Guss\"]}, {\"rs_number\": \"RS0135454\", \"kernaussage\": \"Ein Vorstandsvorsitzender einer Bank, die irreführende Werbeunterlagen zu vertreten hat, kann gemäß § 1301 ABGB Mittäter oder Beitragstäter zu gemäß § 1295 Abs 2, § 1300 Satz 2 oder § 874 ABGB verpöntem Verhalten sein, wenn sein Handeln vom entsprechenden Vorsatz getragen war. Wusste er von der...\", \"schlagworte\": [\"Anlegerirreführung\", \"Werbebroschüren\", \"Ad-hoc-Meldungen\", \"Vergleichsvereinbarung\"]}, {\"rs_number\": \"RS0016277\", \"kernaussage\": \"Ein Schadenersatz kommt nach §§ 874 ABGB nur im Falle von List oder ungerechter Furcht in Betracht.\", \"schlagworte\": [\"Irrtum\", \"Verjährung\", \"Kaufvertrag\", \"Eigentumswohnung\", \"Culpa in contrahendo\", \"fahrlässige Irreführung\", \"Vertrauensschaden\", \"Masseverwalterhaftung\", \"§ 81 KO\", \"Nichtigkeitsgrund § 477 ZPO\", \"Schadenersatz\", \"Falschzitat\", \"Pressenhaftung\", \"Prozesskostenersatz\", \"Ehrenrührige Äußerung\", \"MedienG\", \"Händlerhaftung\", \"Warnpflicht\", \"Produkthaftung\", \"Werkstoffeigenschaften\", \"Polyamid 6 Guss\", \"Abschalteinrichtung\", \"Diesel-Skandal\", \"Motorenhersteller\", \"Schutzgesetzverletzun"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_33817087",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Arglist",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 519.75,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Arglist\", \"results\": [{\"rs_number\": \"RS0016247\", \"kernaussage\": \"Bei der Rückabwicklung infolge Irrtumsanfechtung ist der volle Kaufpreis und nicht etwa nur jener Teil des Kaufpreises zurückzuerstatten, der dem tatsächlichen Wert entsprochen hat. Der Käufer seinerseits ist dagegen verpflichtet, den Kaufgegenstand zurückzustellen und ihm die von ihm verursachten...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rücktritt\", \"Tageszulassung\", \"Hagelschaden\", \"Aktienkauf\", \"Stellvertretung\", \"Wassereintritt\", \"ÖNORM V5051\", \"Reparaturmangel\", \"Minderwert\", \"Neuwagen\", \"Flugrost\", \"IPRG\", \"Arglist\", \"Anfechtung wegen List\"]}, {\"rs_number\": \"RS0043220\", \"kernaussage\": \"Die mangelnde rechtliche Erörterung des Sachverhaltes stellt keine Mangelhaftigkeit des Berufungsverfahrens dar.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"außerordentliche Revision\", \"Gewährleistung\", \"Verjährung\", \"Sittenwidrigkeit\", \"AGB-Kontrolle\", \"Haftungsausschluss\", \"Konsumentenschutz\", \"Pferdekauf\", \"Sachverständigengutachten\", \"Tierarztbrief\", \"Verbrauchereigenschaft\", \"Unternehmerbegriff\", \"Zwangslage\", \"Invaliditätspension\", \"Berufungsverhandlung\", \"Arglist\", \"Geschäftsfähigkeit\", \"Irrtum\"]}, {\"rs_number\": \"RS0130827\", \"kernaussage\": \"Kondiktionsansprüche auf Rückforderung periodisch geleisteter Entgelte unterliegen bei Arglist des Schuldners der 30‑jährigen Regelverjährung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mitverschulden\", \"Verjährung\", \"Wertpapierzertifikate\", \"Berufung\", \"Sittenwidrigkeit\", \"WAG\", \"Zession\", \"Leasingvertrag\", \"Insolvenzunterbrechung\", \"Prospekthaftung\", \"Kostenentscheidung\""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_27757628",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Täuschung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1861.78,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Täuschung\", \"results\": [{\"rs_number\": \"JWR_2022220076_20220627L03\", \"kernaussage\": \"Falsche Urkunden relativieren langjährigen Aufenthalt\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"geordnetes Zuwanderungswesen\", \"falsche Urkunden\", \"Aufenthaltstitel\", \"öffentliches Interesse\", \"Sprachdiplome\", \"Täuschung\", \"Widerruf\", \"Abwägung\"]}, {\"rs_number\": \"RS0034350\", \"kernaussage\": \"Die dreijährige Verjährungsfrist des § 1487 ABGB für die Vertragsanfechtung wegen eines Irrtums, wobei sich der andere vertragschließende Teil keiner List schuldig gemacht hat, beginnt schon mit dem Vertragsabschluss zu laufen (Klang in Klang 2.Auflage VI 630, SZ 39/56 ua).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"§ 34 MSchG\", \"Vertragslücke\", \"Thermofenster\", \"Vergleich\", \"Fehlberatung\", \"Selbsteintritt\", \"Leibrente\", \"Unionsmarke\", \"Lenkwinkelerkennung\", \"Rechtsnachfolge\", \"Irrtum\", \"EU-Verordnung 715/2007\", \"Holz- und Streunutzungsrechte\", \"Insolvenz\", \"Dieselabgasskandal\", \"Kaufvertragsaufhebung\", \"Software-Update\", \"bösgläubige Anmeldung\", \"Rechtswidrigkeitszusammenhang\", \"Firmennachfolge\", \"Wegfall der Geschäftsgrundlage\", \"Grenzverlauf\", \"Audi EA897\", \"Irrtumanfechtung\", \"Täuschung\", \"Gewährleistung\", \"Identität Waren/Dienste\", \"auflösende Bedingung\", \"Markenlöschung\", \"Parteiwechsel\"]}, {\"rs_number\": \"RS0034393\", \"kernaussage\": \"Die dreißigjährige Frist des § 1489 ABGB gilt nur gegenüber dem Verbrecher selbst, nicht aber gegen Dritte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kraftfahrzeughaftpflichtversicherung\", \"Vermögensverwaltungsvertrag\", \"Pädophilie\", \"Rechtsschutzve"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_84077421",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "vorsätzliche Täuschung Verkäufer Immobilienkauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 117.22,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"vorsätzliche Täuschung Verkäufer Immobilienkauf\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_78798265",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0014790",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 18.82,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0014790\", \"rechtssatz_text\": \"Für listige Irreführung ist rechtswidrige, vorsätzliche Täuschung erforderlich; grobe Fahrlässigkeit reicht nicht aus. Eine weitere Voraussetzung für die Anfechtung nach § 870 ABGB liegt in dem Erfordernis, dass das Verhalten des Täuschenden und damit der Irrtum für den Vertragsabschluss kausal war, ...\", \"te_count\": 38, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 1123, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS179_21b|OGH|2022-02-22\", \"gz\": \"10ObS179_21b\", \"datum\": \"2022-02-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Rekurs gegen den Aufhebungsbeschluss des Berufungsgerichts in einem Verfahren über die Gewährung von Kinderbetreuungsgeld als Ersatz des Erwerbseinkommens ab, da keine Rechtsfrage von erheblicher Bedeutung aufgezeigt wurde.\"}, {\"te_stable_key\": \"10ObS60_21b|OGH|2021-07-29\", \"gz\": \"10ObS60_21b\", \"datum\": \"2021-07-29\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Zulässigkeit einer außerordentlichen Revision gegen die Feststellung der Nichtigkeit eines Rückersatzanspruchs auf pauschales Kinderbetreuungsgeld wegen angeblicher Scheinkarenz.\"}, {\"te_stable_key\": \"5Ob144_20t|OGH|2020-09-30\", \"gz\": \"5Ob144_20t\", \"datum\": \"2020-09-30\", \"gericht\": \"OGH\", \"mini_story\": \"OGH-Entscheidung zu Wucher und arglistiger Täuschung bei Vertrag über Verzicht auf Rückabtretung von GmbH-Anteilen gegen monatliche Zahlungen.\"}, {\"te_stable_key\": \"2Ob215_19k|OGH|2020-04-15\", \"gz\": \"2Ob215_19k\", \"datum\": \"2020-04-15\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision gegen die Abweisung einer Erbschaftsklage wegen angeblicher Formunwirksamkeit der Erbsentschlagung und Arglist zurück und erklärt den Rekurs der Beklagten für unzulässig.\"}, {\"te_stable_key\": \"5Ob214_19k|OGH|2020-02-20\", \"gz\": \"5Ob214_19k\", \"datum\": \"2020-02-20\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung von Revisionen gegen die Aufhebung eines Kaufvertrags wegen Arglist im Zusammenhang mit falschen Zusicherungen über direkten Pistenzugang.\"}, {\"te_stable_key\": \"1Ob122_18z|OGH|2018-09-26\", \"gz\": \"1Ob122_18z\", \"datum\": \"2018-09-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine Mängel im Berufungsverfahren vorliegen und Arglist iSd § 870 ABGB durch vorsätzliche Täuschun"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_14798560",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0014789",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.21,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0014789\", \"rechtssatz_text\": \"Die gesetzliche Regelung der Anfechtbarkeit von Anträgen, die unter dem Einfluss arglistiger Täuschung zustandegekommen sind (§ 870 ABGB), schützt die Entschließungsfreiheit. Es soll niemand in seinem Entschluss, ein Rechtsgeschäft überhaupt oder doch mit einem bestimmten Inhalt vorzunehmen, durch...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 14717, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob70_12p|OGH|2012-05-30\", \"gz\": \"7Ob70_12p\", \"datum\": \"2012-05-30\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist wegen Fehlens einer erheblichen Rechtsfrage unzulässig, da keine Fehlbeurteilung der Arglistvorliegens vorliegt.\"}, {\"te_stable_key\": \"6Ob42_11m|OGH|2011-03-16\", \"gz\": \"6Ob42_11m\", \"datum\": \"2011-03-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da das Berufungsgericht die Beweis- und Mängelrüge des Klägers ausreichend behandelt hat und die Annahme von Arglist i.S.d. § 870 ABGB vertretbar ist.\"}, {\"te_stable_key\": \"1Ob37_08k|OGH|2008-09-16\", \"gz\": \"1Ob37_08k\", \"datum\": \"2008-09-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision der Verkäufer zurück, die gegen die Anfechtung des Kaufvertrags wegen arglistiger Irreführung über einen Hausschwammbefall gerichtet ist.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_44393796",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0016188",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 24.96,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0016188\", \"rechtssatz_text\": \"Veranlassen im Sinne des § 871 ABGB setzt weder absichtliche noch fahrlässige Irreführung voraus. Es genügt jedes für die Entstehung des Irrtums ursächliche Verhalten. Kann ein Kontrahent nach der Verkehrsauffassung auf das Vorhandensein oder Nichtvorhandensein gewisser den Geschäftsinhalt betreffen...\", \"te_count\": 22, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"IRRTUMSANFECHTUNG\"], \"topic_ids\": [\"allgemeiner_teil\"], \"hot_rank\": 2299, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10Ob36_23a|OGH|2024-04-16\", \"gz\": \"10Ob36_23a\", \"datum\": \"2024-04-16\", \"gericht\": \"OGH\", \"mini_story\": \"Bewertung einer unzulässigen Abschalteinrichtung (Thermofenster) in einem Diesel-Pkw im Kontext von Gewährleistungs- und Irrtumsansprüchen.\"}, {\"te_stable_key\": \"3Ob207_23x|OGH|2024-01-31\", \"gz\": \"3Ob207_23x\", \"datum\": \"2024-01-31\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Gewährung der Irrtumsanfechtung eines Kaufvertrags über einen gebrauchten Pkw wegen falscher Aussagen zur Unfallfreiheit ist zurückzuweisen.\"}, {\"te_stable_key\": \"2Ob122_23i|OGH|2023-10-25\", \"gz\": \"2Ob122_23i\", \"datum\": \"2023-10-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision der Beklagten teilweise zurück und ändert das Urteil des Berufungsgerichts dahin ab, die Klage ganz abzuweisen, da weder ein Sachmangel noch ein Rechtsmangel noch ein veranlasster Irrtum vorliegt.\"}, {\"te_stable_key\": \"3Ob40_23p|OGH|2023-09-06\", \"gz\": \"3Ob40_23p\", \"datum\": \"2023-09-06\", \"gericht\": \"OGH\", \"mini_story\": \"Die OGH beurteilt ein Thermofenster im VW Touareg als unzulässige Abschalteinrichtung iSd VO 715/2007/EG und stellt die Verjährung von Gewährleistungsansprüchen wegen Sachmangel fest.\"}, {\"te_stable_key\": \"5Ob205_22s|OGH|2023-08-17\", \"gz\": \"5Ob205_22s\", \"datum\": \"2023-08-17\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision gegen die Bestätigung eines Schadenersatzanspruchs aus einem Werkvertrag wegen angeblichem Kalkulationsirrtum.\"}, {\"te_stable_key\": \"7Ob156_22z|OGH|2022-11-23\", \"gz\": \"7Ob156_22z\", \"datum\": \"2022-11-23\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Anfechtung eines Kaufvertrags über eine Gemeindeliegenschaft wegen wesentlichen Geschäftsirrtums über das Fehlen weiteren Liegenschaftseigentums der Bewerb"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_44876622",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0079857",
+            "te_limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 473.32,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0079857\", \"rechtssatz_text\": \"§ 870 ABGB ermöglicht dem Getäuschten die Anfechtung des Vertrags, also seine Aufhebung wegen des unterlaufenen Willensmangels, ohne zwischen Geschäftsirrtum und Motivirrtum oder zwischen wesentlichem und unwesentlichem Irrtum zu unterscheiden.\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"LIST_DROHUNG\"], \"topic_ids\": [\"allgemeiner_teil\"], \"hot_rank\": 11852, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob186_21b|OGH|2022-06-22\", \"gz\": \"6Ob186_21b\", \"datum\": \"2022-06-22\", \"gericht\": \"OGH\", \"mini_story\": \"Schadenersatzanspruch der Klägerin wegen arglistiger Täuschung ihres Geschäftsführers bei der Abtretung von GmbH-Geschäftsanteilen an eine deutsche Erwerberin.\"}, {\"te_stable_key\": \"5Ob214_19k|OGH|2020-02-20\", \"gz\": \"5Ob214_19k\", \"datum\": \"2020-02-20\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung von Revisionen gegen die Aufhebung eines Kaufvertrags wegen Arglist im Zusammenhang mit falschen Zusicherungen über direkten Pistenzugang.\"}, {\"te_stable_key\": \"9Ob40_14v|OGH|2014-07-22\", \"gz\": \"9Ob40_14v\", \"datum\": \"2014-07-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision mangels qualifizierter Rechtsfrage bei Irrtumsanfechtung aufgrund angeblicher listiger Irreführung.\"}, {\"te_stable_key\": \"3Ob205_10h|OGH|2010-11-11\", \"gz\": \"3Ob205_10h\", \"datum\": \"2010-11-11\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung der Rückforderung eines Darlehens durch eine KG aufgrund arglistiger Irreführung bei einer Vereinbarung im Kontext eines Scheidungsverfahrens.\"}], \"te_items_count\": 4}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_11318094",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Liegenschaftskauf",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1452.26,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Liegenschaftskauf\", \"results\": [{\"rs_number\": \"RS0022936\", \"kernaussage\": \"Der Schadenersatzanspruch, den § 932 Abs 1 Satz 2 ABGB dem Übernehmer vorbehält, setzt ein rechtswidriges schuldhaftes Verhalten des Veräußerers voraus. Daher haben grundsätzlich die allgemeinen Beweislastregeln des § 1296 ABGB zu gelten, wonach die Klägerin nicht nur zu behaupten und zu beweisen...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Mängelhaftung\", \"Garantieerklärung\", \"Kaufmannssorgfalt\", \"Schadenersatz\", \"Beweislast\", \"Produkthaftung\", \"Händlerhaftung\", \"Mangelfolgeschaden\", \"Anhängerkupplung\", \"Gewährleistung\", \"Konstruktionsmangel\", \"Garagentor\", \"Werkvertrag\", \"Forderungsübergang § 67 VersVG\", \"Gebrauchtwagenkauf Mängelhaftung\", \"Bremsflüssigkeitsbehälter\", \"Preisminderung\", \"Liegenschaftskauf\", \"Tankstelle\", \"Bodenkontamination\", \"Altlasten\", \"Gewährleistungsausschluss\", \"Kontaminierung\", \"Arglistige Täuschung\", \"Rechtsmangel\", \"Regress\", \"Autoabstellplatz\", \"Vakuumsonnenkollektoren\", \"Schlechterfüllung\", \"Revisionzulässigkeit\", \"Beweislastumkehr\", \"Schutzgesetze\"]}, {\"rs_number\": \"RS0025920\", \"kernaussage\": \"Auch eine nur schuldrechtliche Beziehung zwischen zwei Personen ist gegen Eingriffe Dritter grundsätzlich zu schützen; ein Dritter darf das Recht des Gläubigers auf obligationsgemäße Willensrichtung des Schuldners nicht beeinträchtigen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schadenersatz\", \"Vertragsbruch\", \"Verjährung\", \"Belastungs- und Veräußerungsverbot\", \"Familienbesitz\", \"Sittenwidrigkeit\", \"Grundbuch\", \"Vorkaufsrecht\", \"nicht verbüchertes Vorkaufsrecht\", \"Zweitkä"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_91934421",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Arglist Täuschung Immobilie Verkäufer",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 554.42,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Arglist Täuschung Immobilie Verkäufer\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_34481194",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 922 ABGB",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2950.93,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswürdigung\"]}, {\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbepr"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0135454",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0135454",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.03,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0135454\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0130827",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0130827",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.86,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0130827\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0120502",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0120502",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.61,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0120502\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114805",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114805",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.08,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114805\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102868",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102868",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.15,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102868\"}"
+        }
+      ],
+      "tool_calls_total": 18,
+      "tool_calls_ok": 18,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Zusammenfassung: Vorsätzliche Täuschung durch Verkäufer bei Immobilienkauf und Rechtsfolgen (Anfechtung/Schadenersatz)\n\n#### 1. **Relevante Rechtsgrundlage und Voraussetzungen für vorsätzliche Täuschung (Arglist/List iSd § 870 ABGB)**\n   - **Listige Irreführung/Arglist (§ 870 ABGB)**: Erfordert **rechtswidrige, vorsätzliche Täuschung** (nicht grobe Fahrlässigkeit). Der Irrtum muss **kausal für den Vertragsabschluss** sein und die Entschließungsfreiheit des Käufers beeinträchtigen. Kein Unterschied zwischen Geschäfts-/Motiveirrtum oder wesentlich/unwesentlich (RS0014790, RS0014789, RS0079857).\n     - **Beispiele aus OGH-Rechtsprechung (Immobilienkontext)**:\n       - Verschweigen von Hausschwammbefall (ähnlich Schimmel hinter Verkleidungen): Anfechtung möglich (RS0014789; TE 1Ob37_08k).\n       - Falsche Zusicherungen zu Pisten-/Zugang (ähnlich ungenehmigte Dachterrassen-Erweiterung): Arglist vorliegend, Kaufvertrag aufhebbar (RS0079857; TE 5Ob214_19k).\n       - Gefälschte Unterlagen/Machbarkeitsstudien (ähnlich gefälschter Energieausweis): Vorsätzliche Täuschung iSd § 870 (RS0014790; TE 1Ob122_18z).\n     - **Anwendung**: Falsche Angaben zu \"komplett saniert\" (Schimmel), ungenehmigter Terrasse (Abbruchdrohung) und gefälschtem Energieausweis erfüllen typischerweise Vorsatz/Arglist bei gewerblichem Verkäufer (erhöhte Aufklärungspflicht). Gute Chancen auf Anfechtung, wenn Käufer beweist, dass er ohne Täuschung nicht gekauft hätte.\n   - **Irrtumsveranlassung (§ 871 ABGB, ergänzend)**: Breitere Variante ohne Vorsatz (jedes ursächliche Verhalten reicht, objektiv nach Verkehrsauffassung). Hier: Falsche Werbeaussagen/Sanierungsstatus (RS0016188; TEs zu falschen Unfallfreiheitsangaben/Alter bei Fahrzeugen, analog Immobilien: TE 3Ob207_23x, 4Ob11_13s).\n\n   **Beweislast**: Käufer trägt volle Last für Vorsatz/Arglist (§ 1296 ABGB; RS0014790: Kläger muss Täuschung/Kausalität beweisen). Gutachten (Wert 165.000 € vs. 320.000 €) unterstützt Minderwert/Kausalität als Indiz.\n\n#### 2. **Rechtsfolgen**\n   - **Anfechtung des Kaufvertrags (§ 870, 871, 872 ABGB)**:\n     - Erfolgreich bei Arglist: Rückabwicklung (volle Rückzahlung Kaufpreis minus Nutzung; RS0016247 aus Schlagwort \"Arglist\").\n     - Alternativ: Wandlung/Preisminderung bei Festhaltung (relativer Minderwert; RS0014768).\n     - Verjährung: 3 Jahre (§ 1487 ABGB) bei § 871; 30 Jahre bei strafbarem Vorsatz/Betrug (§ 1489 ABGB; RS0034436).\n     - **Immobilien-spezifisch**: Häufig bei verdeckten Mängeln/Baurecht (RS0022936; Schlagwort \"Liegenschaftskauf\": Bodenkontamination analog Schimmel/Terrasse).\n   - **Schadenersatz (§ 874 ABGB)**:\n     - Nur bei Arglist/List: voller Schaden (positiv + entgangener Gewinn, § 1323 ABGB; RS0016298, RS0016000).\n     - Differenzschaden (155.000 €) ersetzbar; Verkäufer haftet auch bei Dritttäuschung (RS0016298).\n     - Bei Festhaltung: Ergänzend zu § 872 (angemessene Vergütung; RS0107864).\n     - **Beweislast**: Käufer für Arglist/Schaden/Kausalität (§ 1296 ABGB); kein automatischer Umkehr wie bei Gewährleistung (§ 929 ABGB).\n\n#### 3. **Besonderheiten gewerblicher Verkäufer (Immobilienhändler)**\n   - Erhöhte Sorgfaltspflicht (§ 1299 ABGB, culpa in contrahendo); Werbeaussagen zugesichert (§ 922 ABGB; RS0114805: Prospekt-Angaben haftbar).\n   - Keine Ausschlussklauseln bei Arglist (RS0014791).\n   - **Beweislast**: Bleibt bei Käufer für Vorsatz, aber Gutachten erleichtert Minderwertbeweis.\n\n#### 4. **Empfehlung & Risiken**\n   - **Hohe Erfolgsaussichten für Anfechtung/Schadenersatz**, wenn Vorsatz (z.B. via Gutachten, Unterlagenprüfung) nachweisbar (vgl. TEs zu gefälschten Unterlagen/Mängelverschweigen).\n   - **Parallelweg Gewährleistung** (§§ 922, 932 ABGB): Mängelrüge (Schimmel/Terrasse als verdeckte Mängel); Beweislastumkehr bei Kenntnis Verkäufer (§ 929). Vermeide Duplikation (Stream-Fokus).\n   - **Nächste Schritte**: Sofort Klage auf Anfechtung/Schadenersatz; Fristen beachten (3/30 Jahre).\n\n**Quellen**: RS0014790/4789/6188/79857/16277/6298 (mit TEs zu Immobilien-Täuschungen); Schlagwörter \"Arglist\"/\"Liegenschaftskauf\" (RS0022936 u.a.). Keine Erfindungen; PostgreSQL-basiert.",
+      "answer_chars": 4117,
+      "e2e_ms": 68202.17
+    },
+    {
+      "name": "Zivilrechtliche Gewährleistung & Mängelbeseitigung (§§ 934 ff. ABGB)",
+      "goal": "Ermittlung der rechtlichen Ansprüche der Käuferin gegen den gewerblichen Verkäufer auf Nacherfüllung, Minderung oder Schadensersatz aufgrund von Sachmängeln und Rechtsmängeln",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "get_rechtssatz",
+        "hot_rs_lookup",
+        "search_kommentar_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "x-ai/grok-4.1-fast",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 8585.19,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 7,
+          "usage": {
+            "prompt_tokens": 1627,
+            "completion_tokens": 1045,
+            "total_tokens": 2672,
+            "cost": 0.0006089,
+            "cached_tokens": 1728,
+            "reasoning_tokens": 753
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 9692.96,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 27396,
+            "completion_tokens": 1224,
+            "total_tokens": 28620,
+            "cost": 0.0060687,
+            "cached_tokens": 150,
+            "reasoning_tokens": 1023
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 18043.03,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 29492,
+            "completion_tokens": 2227,
+            "total_tokens": 31719,
+            "cost": 0.00290325,
+            "cached_tokens": 27391,
+            "reasoning_tokens": 815
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "call_00534505",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 922 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3815.32,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 922 ABGB\", \"results\": [{\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102868\", \"kernaussage\": \"Informationen zu § 1167 ABGB Zum Begriff der \\\"ausdrücklichen Bedingung\\\" siehe bei § 922 ABGB\", \"schlagworte\": []}, {\"rs_number\": \"RS0114805\", \"kernaussage\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und...\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbeprospekt\"]}, {\"rs_number\": \"RS0018547\", \"kernaussage\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswür"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_38278260",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 932 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1001.21,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 932 ABGB\", \"results\": [{\"rs_number\": \"RS0022885\", \"kernaussage\": \"Ein Schadenersatzanspruch nach § 932 ABGB ist nur dann gegeben, wenn durch den Mangel ein weiterer Schaden verursacht wurde, der Schaden also nicht nur im Vorhandensein des Mangels besteht.\", \"schlagworte\": [\"Nichterfüllung\", \"Drainagemangel\", \"Werkvertrag\", \"Architektenhonorar\", \"Nebenintervenient\", \"Mängelbehebung\", \"Bauwerkvertrag\", \"Mangelschaden\", \"Statikerhaftung\", \"Preissteigerung\", \"Hangwasser\", \"Konsumentenschutz\", \"Zwischendecken\", \"Mangelsvermutung\", \"Rücktritt\", \"Baumängel\", \"Gewährleistung\", \"Schadenersatz\", \"Gewährleistungsausschluss\", \"Wiederherstellungskosten\", \"Bauwerk\", \"verborgene Mängel\", \"Handelskauf\", \"Kaufvertrag\", \"Bauüberwachung\", \"Garantie\", \"Mängelrüge\", \"Funktionszusicherung\", \"Swimmingpool\", \"Gewährleistungsfrist\"]}, {\"rs_number\": \"RS0018679\", \"kernaussage\": \"Der Wandlungsanspruch nach § 932 ABGB entfällt dann, wenn der Käufer in schuldbarer Weise die Rückstellung der Sache unmöglich gemacht hat, wobei den Käufer die Beweislast dafür trifft, dass die Unmöglichkeit der Rückstellung nicht von ihm verschuldet ist (so schon HS 250 und 4317).\", \"schlagworte\": [\"Klagsänderung\", \"Gewährleistung\", \"Laesio enormis\", \"Irrtumanfechtung\", \"Wandlung\", \"Werkvertrag\", \"Sachmängel\", \"Preisminderung\", \"stillschweigender Verzicht\", \"Mängelrüge\", \"Rückstellung\", \"Export\", \"Warnpflicht\", \"Haager Kaufrechtsübereinkommen\", \"Wandlunganspruch\", \"Irreführung\", \"Weiterveräußerung\", \"Mängelgewährleistung\", \"Gewährleistungsverzicht\", \"Baumängel\", \"Wandlungsanspruch\", \"Mängel\", \"Verbesserung\""
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_21480054",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 933 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2481.84,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 933 ABGB\", \"results\": [{\"rs_number\": \"RS0018956\", \"kernaussage\": \"Die Frist des § 933 ABGB beginnt erst mit dem Tag zu laufen, an welchem Ansprüche gegen den Gewährleistungskläger geltend gemacht werden.\", \"schlagworte\": [\"Gewährleistung\", \"Servituten\", \"Rechtsmangel\", \"Verjährung\", \"Dienstbarkeit\", \"Anerkenntnis\", \"Baubewilligung\", \"Ölheizung\", \"Schadenersatz\"]}, {\"rs_number\": \"RS0024152\", \"kernaussage\": \"Das Begehren des Mieters auf Vertragserfüllung, gerichtet auf Behebung von Mängeln des Bestandobjektes (§ 1096 ABGB) ist an die Frist des § 933 ABGB nicht gebunden.\", \"schlagworte\": [\"Mietzinsminderung\", \"Zinsbefreiung\", \"Rückforderung\", \"Verjährung\"]}, {\"rs_number\": \"RS0024172\", \"kernaussage\": \"Der Mangel der zugesagten Trächtigkeit einer Kuh begründet einen Viehmangel. Der Lauf der Gewährleistungsfrist beginnt mit dem Zeitpunkt, der ein Erkennen des Mangels der zugesagten Eigenschaft mit Sicherheit gestattet (§ 933 ABGB).\", \"schlagworte\": [\"Gewährleistungsfrist\", \"Viehmängel\", \"§ 933 ABGB\", \"Tierkrankheiten\"]}, {\"rs_number\": \"RS0025795\", \"kernaussage\": \"Die im § 933 ABGB vorgesehene sechswöchige Fallfrist gilt nicht für das Vorbringen rechtlicher Mängel.\", \"schlagworte\": [\"Gewährleistungsfrist\", \"Viehmängel\", \"§ 933 ABGB\", \"Tierkrankheiten\"]}, {\"rs_number\": \"RS0062654\", \"kernaussage\": \"Schadenersatzansprüche werden durch die Genehmigung der Waren nach § 377 HGB ausgeschlossen (HS 240, EvBl 1957/43 S 73), nicht aber durch Ablauf der Fristen des § 933 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0025678\", \"kernaussage\": \"Die Zusicherung des Fehlens bestim"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_29053862",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 870 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1472.97,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 870 ABGB\", \"results\": [{\"rs_number\": \"RS0102652\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 870 ABGB A Allgemeines zu § 870 ABGB B Unanfechtbare Verfahrenshandlungen C Listige Irreführung I. Allgemeines II. Begriff der Arglist III. Einzelfälle listiger Irreführung IV. Sonstiges arglistiges Handeln, exeptio doli D Ungerechte und gegründete Furcht I. ...\", \"schlagworte\": []}, {\"rs_number\": \"RS0014785\", \"kernaussage\": \"Die Anfechtungsmöglichkeit nach § 870 ABGB steht auch gegen einen Vergleich offen.\", \"schlagworte\": [\"Grenzverhandlung\", \"Vergleich\", \"Anfechtung\", \"Irrtum\", \"Arglist\", \"Rechtsnachfolge\", \"Wiederaufnahme\"]}, {\"rs_number\": \"JWR_2006120138_20070328X04\", \"kernaussage\": \"Ungerechte Furcht als rechtswidriger Zwang iSd § 870 ABGB\", \"schlagworte\": [\"ungerechte Furcht\", \"rechtswidriger Zwang\", \"§ 870 ABGB\", \"Beamtenaustritt\", \"Strafanzeige\", \"Dienstermessen\", \"BDG § 21\", \"Wertungsfrage\"]}, {\"rs_number\": \"RS0014790\", \"kernaussage\": \"Für listige Irreführung ist rechtswidrige, vorsätzliche Täuschung erforderlich; grobe Fahrlässigkeit reicht nicht aus. Eine weitere Voraussetzung für die Anfechtung nach § 870 ABGB liegt in dem Erfordernis, dass das Verhalten des Täuschenden und damit der Irrtum für den Vertragsabschluss kausal war, ...\", \"schlagworte\": [\"Kostenrekurs\", \"Mangelschaden\", \"Sachverständigengutachten\", \"Arglistige Täuschung\", \"Verkürzung\", \"Irrtum\", \"AGR-System\", \"Finanzkrise 2008\", \"Aktienemission\", \"Tierarztbrief\", \"Bindungswirkung\", \"Rückkonvertierung\", \"Werbebroschüren\", \"Gewährleistung\", \"Schadenersatz\", \"Gewährleistungsausschluss\", "
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_90730409",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 874 ABGB",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1062.63,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 874 ABGB\", \"results\": [{\"rs_number\": \"RS0012086\", \"kernaussage\": \"Ein Mieter, der für die Dauer seiner Evakuierung seine Wohnung einem Dritten überlassen hat, kann diesen auch dann auf Räumung klagen, wenn der Dritte sich eine Einweisung verschafft und sodann mit dem Hauseigentümer einen Mietvertrag geschlossen hat. Das Räumungsbegehren kann mit der auf § 874 ABGB...\", \"schlagworte\": []}, {\"rs_number\": \"RS0016299\", \"kernaussage\": \"Maßgebend für die Art der Schadensgutmachung nach § 874 ABGB ist die allgemeine Regel des § 1323 ABGB wonach alles in den vorigen Stand zurückversetzt und nur , wenn das nicht tunlich ist , der Schätzwert vergütet werden muß .\", \"schlagworte\": []}, {\"rs_number\": \"RS0016301\", \"kernaussage\": \"Wer nach § 874 ABGB Genugtuung leisten muß , hat nicht nur den positiven Schaden , sondern auch den entgangenen Gewinn zu ersetzen ; er kann sich daher nicht darauf berufen , daß der Verkehrswert ( des abgelisteten Gegenstandes ) inzwischen erheblich gesunken sei.\", \"schlagworte\": []}, {\"rs_number\": \"RS0025334\", \"kernaussage\": \"Nach § 874 ABGB ist nur der Schaden zu ersetzen, der durch die widerrechtliche Einwirkung auf den Willen des Betrogenen verursacht wurde. Dieser Schaden kann darin bestehen, daß der Betrogene infolge des Betruges einem ihm nachteiligen Vertrag geschlossen hat oder darin, daß er infolge des Vertrages, ...\", \"schlagworte\": [\"Manipulationssoftware\", \"Arglistige Irreführung\", \"Schadenersatz\", \"Kausalität\", \"Feststellung zukünftiger Schäden\"]}, {\"rs_number\": \"RS0016277\", \"kernaussage\": \"Ein Schadenersatz kommt nach §§ 874 ABG"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_62063910",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Gewährleistung",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 550.19,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Gewährleistung\", \"results\": [{\"rs_number\": \"RS0040873\", \"kernaussage\": \"Eine Aufrechnungseinrede ist mit Beschluß zurückzuweisen, wenn ihrer Berücksichtigung verfahrensrechtliche Gründe entgegenstehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Werkvertrag\", \"Allgemeine Lieferbedingungen\", \"Schiedsgerichtsklausel\", \"Gewährleistung\", \"Erfüllungsgehilfe\", \"Aufrechnungseinrede\", \"Wohnungseigentum\", \"Rücklage\", \"Verwalter\", \"Überschuss\", \"Aufrechnung\", \"Außerstreitverfahren\"]}, {\"rs_number\": \"RS0126690\", \"kernaussage\": \"Beim Anlagen-Contracting übernimmt der Contractor die Planung, den Bau, die Inbetriebnahme, den technischen Betrieb, den wirtschaftlichen Betrieb und die Finanzierung der Anlage. Der Contractor stellt ein Leistungspaket für die Bedürfnisse des Kunden zusammen, der Kunde bezahlt für den Energiebezug...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Biomasse-Heizanlage\", \"Anlagen-Contracting\", \"Überdimensionierung\", \"Grundpreis\", \"Gewährleistung\", \"Preisminderung\"]}, {\"rs_number\": \"RS0111545\", \"kernaussage\": \"a) Der Verzicht auf einzelne Gewährleistungsbehelfe ist - außerhalb des Anwendungsbereichs des Konsumentenschutzgesetzes - zwar möglich, doch muss der Mangel dennoch ausreichend sanktioniert bleiben. b) Sind wesentliche, also den ordentlichen Gebrauch hindernde Mängel entweder von vornherein...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Allgemeine Geschäftsbedingungen\", \"Wandlungsrecht\", \"Zurückbehaltungsrecht\", \"Sittenwidrigkeit\", \"Wandlung\", \"Verbesserung\", \"Kaufvertrag\", \"Fahrzeugmangel\", \"AGB\"]}, {\"rs_number\": \"RS0134685\", \"kernaussage\":"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "call_15970562",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Sachmängel",
+            "limit": 20
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 292.19,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Sachmängel\", \"results\": [{\"rs_number\": \"RS0126732\", \"kernaussage\": \"Ist der Mangel behebbar, steht dem Übernehmer der Anspruch auf das Erfüllungsinteresse zu; dasselbe gilt, wenn nach Vertragsabschluss ein vom Schuldner zu vertretender unbehebbarer Mangel entsteht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Werkvertrag\", \"Schadensminderungspflicht\", \"Schadenersatz\", \"Vorlagepflicht\", \"Sachmängel\", \"Mangelschaden\", \"WEG\", \"Kaufvertrag\", \"Sanierungsplan\", \"Sachmangel\", \"Kenntnis des Schadens\", \"Deckungskapital\", \"Ersatzvornahme\", \"Quick-Commerce-Plattform\", \"außerordentliche Revision\", \"Aktenrückstellung\", \"Mängelbeseitigung\", \"Verjährung\", \"Website-Programmierung\", \"Mangelfolgeschaden\", \"Standsicherheit\", \"Verschulden\", \"Revision\", \"Softwareentwicklung\", \"Wohnungseigentum\", \"Stützmauer\", \"Sanierungskosten\", \"Erfüllungsinteresse\", \"Feuchtigkeitsschäden\"]}, {\"rs_number\": \"RS0000808\", \"kernaussage\": \"Im Exekutionsantrag nach § 353 EO hat die betreibende Partei zu behaupten, dass der Verpflichtete die ihm laut Exekutionstitel obliegenden Handlungen nicht oder nicht vollständig vorgenommen hat. Sie muss genau anführen, zur Vornahme welcher Handlungen sie an Stelle des Verpflichteten ermächtigt...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekutionsantrag\", \"Bestimmtheit der Leistung\", \"Mangelbehebung\", \"Exekutionstitel\", \"materielle Vollstreckbarkeit\", \"Wiederherstellung\", \"Besitzstörung\", \"Wasserbezug\", \"Regenabfallrohre\", \"Exekution\", \"Schikaneverbot\", \"Nachbarrecht\", \"Exekutionsbewilligung\", \"Titelindividualisierung\", \"Kostenvoranschlag\", \"Ersatzvorn"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_07301919",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0114805"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 885.45,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0114805\", \"rechtssatz\": \"Auch für die Wohnqualität aufgrund der Gestaltung einer gesamten Wohnanlage ist Gewähr zu leisten. Die Angaben in dem dem Kaufvertrag zugrundeliegenden Werbeprospekt sind als zugesicherte Eigenschaften im Sinn des § 922 ABGB zu beurteilen. Die Beurteilung, ob im Einzelfall ein Mangel vorliegt und welche Preisminderung hiefür gerechtfertigt ist, stellt keine Rechtsfrage von erheblicher Bedeutung dar.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gewährleistung\", \"Preisminderung\", \"Werbeprospekt\"], \"fachgebiete\": [\"Gewährleistung\"], \"datum\": \"2001-02-26\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_01942454",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0018767"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 553.34,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0018767\", \"rechtssatz\": \"Liegt ein arglistiges Verschweigen eines Mangels vor, so hat der Käufer auch ohne Mängelanzeige das Wandlungsrecht nach § 932 ABGB.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"2005-09-30\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_35214708",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110929"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 53.44,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110929\", \"rechtssatz\": \"Die Preisminderung nach § 932 ABGB findet ihre untere Grenze nicht im gemeinen Wert (Verkehrswert) des mit dem Mangel behafteten Kaufobjekts.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Preisminderung\", \"relative Berechnungsmethode\", \"Gewährleistungsrecht\", \"Gewährleistungsverzicht\", \"Sachmangel\", \"Liegenschaftskauf\", \"Bodenbeschaffenheit\", \"Vertragsanpassung\", \"Stellvertretung\", \"Gewährleistungsausschluss\"], \"fachgebiete\": [\"Gewährleistung\"], \"datum\": \"2024-01-11\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_82770648",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0022885"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2533.87,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0022885\", \"rechtssatz\": \"Ein Schadenersatzanspruch nach § 932 ABGB ist nur dann gegeben, wenn durch den Mangel ein weiterer Schaden verursacht wurde, der Schaden also nicht nur im Vorhandensein des Mangels besteht.Ein Schadenersatzanspruch nach Paragraph 932, ABGB ist nur dann gegeben, wenn durch den Mangel ein weiterer Schaden verursacht wurde, der Schaden also nicht nur im Vorhandensein des Mangels besteht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Nichterfüllung\", \"Drainagemangel\", \"Werkvertrag\", \"Architektenhonorar\", \"Nebenintervenient\", \"Mängelbehebung\", \"Bauwerkvertrag\", \"Mangelschaden\", \"Statikerhaftung\", \"Preissteigerung\", \"Hangwasser\", \"Konsumentenschutz\", \"Zwischendecken\", \"Mangelsvermutung\", \"Rücktritt\", \"Baumängel\", \"Gewährleistung\", \"Schadenersatz\", \"Gewährleistungsausschluss\", \"Wiederherstellungskosten\", \"Bauwerk\", \"verborgene Mängel\", \"Handelskauf\", \"Kaufvertrag\", \"Bauüberwachung\", \"Garantie\", \"Mängelrüge\", \"Funktionszusicherung\", \"Swimmingpool\", \"Gewährleistungsfrist\"], \"fachgebiete\": [\"Haftungsrecht\", \"Gewährleistung\", \"Baurecht\"], \"datum\": \"2025-11-26\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_17931384",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0018547"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 50.27,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0018547\", \"rechtssatz\": \"Eine Leistung ist nur dann mangelhaft im Sinne des § 922 ABGB, wenn sie qualitativ oder quantitativ hinter dem Geschuldeten, das heißt dem Vertragsinhalt, zurückbleibt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Neufertigung\", \"Preisminderung\", \"Wohnungsgröße\", \"Kriechhang\", \"Vermittlungsverkauf\", \"brevi manu traditio\", \"Berufung abgewiesen\", \"Sachverständigengutachten\", \"UGB §344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB §343\", \"Mangelhaftigkeit\", \"Irrtum\", \"List\", \"Motorschaden\", \"Dieselabgasskandal\", \"Betonrohr\", \"Wandlung\", \"lineare Wertminderung\", \"Mangelhaftung\", \"Grundstückskauf\", \"außerbücherliche Rechte\", \"Wohnwagenmangel\", \"Nachbesserung\", \"Schimmel\", \"Feuchtigkeitsschäden\", \"VGG §11\", \"Immissionen\", \"freie Beweiswürdigung\"], \"fachgebiete\": [\"Gewährleistung\", \"Revision\", \"Unterlassung\", \"Baurecht\", \"Haftungsrecht\"], \"datum\": \"2025-09-23\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "call_97181776",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 928 ABGB",
+            "limit": 10
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1600.02,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 928 ABGB\", \"results\": [{\"rs_number\": \"RS0102758\", \"kernaussage\": \"Informationen zu § 923 ABGB Zur Frage der verborgenen Mängel siehe bei § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0102755\", \"kernaussage\": \"Informationen zu § 922 ABGB Zur Frage des Schadenersatzrechtes und Gewährleistung vgl bei § 1295 Ib ABGB. Zur Frage der verborgenen Mängel siehe § 928 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0018510\", \"kernaussage\": \"Der Schlußsatz des § 928 ABGB ist keine Gewährleistungsbestimmung; er stellt die widerlegbare Vermutung auf, daß der Veräußerer die Sache lastenfrei zu machen hat.\", \"schlagworte\": [\"Kaufvertrag Liegenschaft\", \"Gewährleistung Schuldenstand\", \"Pfandfreimachung\", \"Schuldübernahme\", \"Lastenfreiheit\", \"Depurierungspflicht\", \"Rücktritt\", \"Pfandrecht\", \"Liegenschaftskauf\", \"Pfandrechte\", \"Regress\", \"Lastenfreistellung\", \"§ 928 ABGB\", \"Parteienabsicht\", \"Haftrücklassgarantie\", \"Ersatzpflanzung\", \"Mängelrüge\", \"Wr. BSchG\"]}, {\"rs_number\": \"RS0018555\", \"kernaussage\": \"Durch die Vertragsklausel \\\"besichtigt ... so gekauft wie sie liegt ... ohne Haftung für einen bestimmten Zustand ...\\\" wurde im Sinne des § 929 ABGB auf die Geltendmachung aller Mängel verzichtet, die - wenn auch nicht im Sinne des § 928 ABGB in die Augen fallend - durch eine ordnungsgemäße Untersuch...\", \"schlagworte\": [\"Preisminderung\", \"Gewährleistungsverzicht\", \"Bodenbeschaffenheit\", \"Gebrauchtfahrzeug\", \"Sachmangel\", \"Anfechtung\", \"Abtretung\", \"Weiterfressermangel\", \"Irrtum\", \"List\", \"relative Berechnungsmethode\", \"Liegenschaftskauf\", \"Wandlung\", \"Betriebskosten\", \"Zus"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0134685",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0134685",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.35,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0134685\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0126732",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126732",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.65,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0126732\", \"rechtssatz_text\": \"Ist der Mangel behebbar, steht dem Übernehmer der Anspruch auf das Erfüllungsinteresse zu; dasselbe gilt, wenn nach Vertragsabschluss ein vom Schuldner zu vertretender unbehebbarer Mangel entsteht.\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"SCHADENERSATZ_STATT_GWL\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 10162, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob36_24p|OGH|2024-05-22\", \"gz\": \"8Ob36_24p\", \"datum\": \"2024-05-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage zum Beginn des Verbesserungsverzugs und den Anforderungen an eine Mängelrüge vorliegt.\"}, {\"te_stable_key\": \"1Ob138_17a|OGH|2017-08-30\", \"gz\": \"1Ob138_17a\", \"datum\": \"2017-08-30\", \"gericht\": \"OGH\", \"mini_story\": \"Abweisung eines Schadenersatzanspruchs aus Gewährleistung im Kaufvertrag über eine Liegenschaft aufgrund erfolgter Mängelbeseitigung.\"}, {\"te_stable_key\": \"10Ob29_16m|OGH|2017-06-27\", \"gz\": \"10Ob29_16m\", \"datum\": \"2017-06-27\", \"gericht\": \"OGH\", \"mini_story\": \"Revision gegen die Zuerkennung von Schadenersatz wegen Mängeln bei einem verkauften Hund (falsche Abstammung und genetische Veranlagung zu HD/ED).\"}, {\"te_stable_key\": \"8Ob72_16w|OGH|2016-09-27\", \"gz\": \"8Ob72_16w\", \"datum\": \"2016-09-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da keine erhebliche Rechtsfrage vorliegt, und klärt zu Ansprüchen aus § 933a ABGB, Schadensminderung und Wirkungen eines Sanierungsplans.\"}, {\"te_stable_key\": \"3Ob191_13d|OGH|2014-01-22\", \"gz\": \"3Ob191_13d\", \"datum\": \"2014-01-22\", \"gericht\": \"OGH\", \"mini_story\": \"Schadenersatzansprüche des Bauherrn gegen den Bauunternehmer wegen mangelhafter Ableitung von Schichtwasser bei der Anlage eines Schwimmteichs, das zu Feuchtigkeitsschäden im Keller führte.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0126690",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126690",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.86,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126690\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0111545",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0111545",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.53,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0111545\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102868",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102868",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 556.09,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102868\"}"
+        }
+      ],
+      "tool_calls_total": 18,
+      "tool_calls_ok": 18,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "### Zusammenfassung der rechtlichen Ansprüche der Käuferin (Gewährleistung wegen Sach- und Rechtsmängeln)\n\n#### 1. **Voraussetzungen der Mängelhaftung (§§ 922 ff. ABGB)**\n   - **Sachmängel** (Schimmelbefall hinter Wandverkleidungen, fehlende Baubewilligung der Dachterrassenerweiterung): Eine Leistung ist mangelhaft i.S.d. **§ 922 ABGB**, wenn sie qualitativ/quantitativ hinter dem Geschuldeten (Vertragsinhalt) zurückbleibt (**RS0018547**). \"Komplett saniert\" (Werbung) gilt als **zugesicherte Eigenschaft** i.S.d. **§ 922 ABGB** (**RS0114805**). Schimmel als **verborgener Mangel** (§ 928 ABGB, vgl. RS0102755). Ungenehmigte Terrasse (Abbruchdrohung) = **Rechtsmangel** mit separater Gewährleistung (längere Fristen, § 933 ABGB Abs. 2).\n   - **Weiterer Mangel**: Gefälschter Energieausweis = **zugesicherte Eigenschaft** oder arglistiges Verschweigen (keine Offenkundigkeit, § 928 ABGB).\n   - **Wertminderung**: Gutachten (320.000 € → 165.000 €) belegt **erheblichen Mangel** (laesio enormis-ähnlich, aber primär Gewährleistung).\n   - **Beweislast**: Käuferin trägt **Beweislast** für Vorliegen des Mangels bei Übergabe (§ 922 ABGB; RS0018547). Gutachten entlastet (freie Beweiswürdigung). Bei **arglistigem Verschweigen** entfällt Mängelrüge-Pflicht; Wandlungsrecht besteht dennoch (**RS0018767**). Gewerblicher Verkäufer (Immobilienhändler): Erhöhter Sorgfaltsmaßstab, keine einseitige Ausschlussklausel ohne Kenntnisnahme (kein Verzicht auf Rüge für Verborgene, § 929 ABGB).\n\n#### 2. **Verfügbare Ansprüche (§ 932 ABGB)**\n   | Anspruch | Voraussetzungen & RS-Referenzen | Beweislast & Hinweise |\n   |----------|--------------------------------|-----------------------|\n   | **Nacherfüllung (Verbesserung)** | Behebbarer Mangel → Verkäufer muss beheben, sofern **nicht unverhältnismäßig** (§ 932 Abs. 4 ABGB, analog § 1167 ABGB; vgl. RS0018729). Schimmel/Terrasse potenziell behebbar (Sanierung/Abbruch). | Käuferin: Beweis der Behebarkeit/Unverhältnismäßigkeit (Gutachten). Verkäufer: Gegenbeweis. |\n   | **Preisminderung (Minderung)** | Bei behebarem/unbehebarem Mangel oder Nacherfüllungsverweigerung. **Relative Berechnungsmethode**: Minderung = (Vertrags-preis - Wert mit Mangel) / Vertrags-preis × Kaufpreis → hier ca. 48% (155.000 €). Keine untere Grenze am Verkehrswert (**RS0110929**). | Käuferin: Beweis Wertminderung (Gutachten). |\n   | **Wandlung (Rücktritt/Auflösung)** | **Unbehebbarer/erheblicher Mangel** (§ 932 ABGB), der bestimmungsgemäßen Gebrauch verhindert. Hier: Massiver Schimmel + Abbruchdrohung + Fälschung → potenziell unbehebbar (Wertverlust >50%). Bei Arglist: Ohne Rüge (**RS0018767**). Rückabwicklung § 877 ABGB (Zug-um-Zug). | Käuferin: Beweis Unbehebbarkeit/Erheblichkeit. Kein Verzicht durch Einzug (brevi manu). |\n   | **Schadenersatz** | Nur für **Mangelfolgeschäden** jenseits des Mangels selbst (z.B. Sanierungs-kosten, Abbruchkosten; **RS0022885**). Nicht für Wertminderung allein. | Käuferin: Beweis Kausalität/Verschulden (arglistig?). Verkäufer: Ausschluss bei bloßer Mangelhaftigkeit. |\n\n#### 3. **Besonderheiten gewerblicher Verkäufer & Fristen**\n   - **Gewerblicher Immobilienhändler**: Voll **Gewährleistungspflicht** (§§ 922 ff. ABGB); kein automatischer Ausschluss (vgl. RS0018564). Höhere **Aufklärungspflicht** bei Zusage \"komplett saniert\".\n   - **Fristen (§ 933 ABGB)**: 3 Jahre ab Übergabe (Unbewegliche: länger für Rechtsmängel). Beginn bei Entdeckung (nicht offenkundig). Hier: Nach Einzug → fristgerecht.\n   - **Arglistige Irreführung (§§ 870, 874 ABGB)**: Ergänzt Gewährleistung (Schadenersatz für Täuschungsschaden; vgl. RS0014790). Beweislast Käuferin: Vorsätzliche List (Verschweigen/Fälschung).\n\n#### 4. **Empfehlung & Risiken**\n   - **Primäranspruch**: Preisminderung (sicher, hoch; RS0110929) oder Wandlung (bei Unbehebbarkeit; RS0018767).\n   - **Kein Duplikat**: Täuschung (§§ 870/874) parallel (SchE separat).\n   - **Nächste Schritte**: Mängelrüge (außer Arglist), Gutachten einholen. Beweislastumkehr unwahrscheinlich (kein KSchG für Gewerbl. Immokauf).\n\n**Quellen**: RS0018547, RS0114805, RS0018767, RS0110929, RS0022885 (u.a.); §§ 922, 928, 932, 933 ABGB. Keine Erfindungen; PostgreSQL-basiert.",
+      "answer_chars": 4166,
+      "e2e_ms": 74866.82
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 20164.03,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 5921,
+    "usage": {
+      "prompt_tokens": 22416,
+      "completion_tokens": 3129,
+      "total_tokens": 25545,
+      "cost": 0.0060252,
+      "cached_tokens": 150,
+      "reasoning_tokens": 1124
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0014790",
+          "RS0016188",
+          "RS0016277",
+          "RS0018510",
+          "RS0018547",
+          "RS0018555",
+          "RS0018767",
+          "RS0018956",
+          "RS0022885",
+          "RS0114805",
+          "RS0126732"
+        ],
+        "validation": {
+          "cited": 11,
+          "checked": 11,
+          "valid": 11,
+          "invalid": [],
+          "sample_valid": [
+            "RS0014790",
+            "RS0016188",
+            "RS0016277",
+            "RS0018510",
+            "RS0018547",
+            "RS0018555",
+            "RS0018767",
+            "RS0018956",
+            "RS0022885",
+            "RS0114805"
+          ]
+        },
+        "valid": [
+          "RS0014790",
+          "RS0016188",
+          "RS0016277",
+          "RS0018510",
+          "RS0018547",
+          "RS0018555",
+          "RS0018767",
+          "RS0018956",
+          "RS0022885",
+          "RS0114805"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1296 ABGB",
+          "§ 870 ABGB",
+          "§ 871 ABGB",
+          "§ 874 ABGB",
+          "§ 922 ABGB",
+          "§ 922/928 ABGB",
+          "§ 928 ABGB",
+          "§ 929 ABGB",
+          "§ 932 ABGB",
+          "§ 933 ABGB",
+          "§§ 870, 871 ABGB",
+          "§§ 870, 871, 874 ABGB",
+          "§§ 922, 928 ABGB",
+          "§§ 922, 928, 932 ABGB"
+        ],
+        "ungrounded": [
+          "§ 922/928 ABGB",
+          "§§ 870, 871 ABGB",
+          "§§ 870, 871, 874 ABGB",
+          "§§ 922, 928 ABGB",
+          "§§ 922, 928, 932 ABGB"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000808",
+          "RS0012086",
+          "RS0014785",
+          "RS0014789",
+          "RS0014790",
+          "RS0014884",
+          "RS0016029",
+          "RS0016066",
+          "RS0016074",
+          "RS0016188",
+          "RS0016215",
+          "RS0016247",
+          "RS0016277",
+          "RS0016299",
+          "RS0016301",
+          "RS0018510",
+          "RS0018547",
+          "RS0018555",
+          "RS0018679",
+          "RS0018767",
+          "RS0018956",
+          "RS0021095",
+          "RS0022885",
+          "RS0022936",
+          "RS0024152",
+          "RS0024172",
+          "RS0025334",
+          "RS0025678",
+          "RS0025795",
+          "RS0025920",
+          "RS0034350",
+          "RS0034393",
+          "RS0040873",
+          "RS0042179",
+          "RS0043220",
+          "RS0061254",
+          "RS0061274",
+          "RS0061287",
+          "RS0061427",
+          "RS0062654",
+          "RS0065713",
+          "RS0077406",
+          "RS0077428",
+          "RS0077465",
+          "RS0077500",
+          "RS0077502",
+          "RS0077894",
+          "RS0079857",
+          "RS0080446",
+          "RS0080946",
+          "RS0102652",
+          "RS0102755",
+          "RS0102758",
+          "RS0102868",
+          "RS0110929",
+          "RS0111545",
+          "RS0111806",
+          "RS0114805",
+          "RS0116915",
+          "RS0118755",
+          "RS0120502",
+          "RS0123123",
+          "RS0124842",
+          "RS0126690",
+          "RS0126732",
+          "RS0128261",
+          "RS0130827",
+          "RS0134685",
+          "RS0135454"
+        ],
+        "te_ogh": [
+          "2Ob168/25g"
+        ],
+        "norms": [
+          "§ 1096 ABGB",
+          "§ 1167 ABGB",
+          "§ 1295 Ib ABGB",
+          "§ 1296 ABGB",
+          "§ 1301 ABGB",
+          "§ 1323 ABGB",
+          "§ 1487 ABGB",
+          "§ 1489 ABGB",
+          "§ 28 KSchG",
+          "§ 353 EO",
+          "§ 355 EO",
+          "§ 477 ZPO",
+          "§ 67 VersVG",
+          "§ 870 ABGB",
+          "§ 871 ABGB",
+          "§ 874 ABGB",
+          "§ 922 ABGB",
+          "§ 923 ABGB",
+          "§ 928 ABGB",
+          "§ 929 ABGB",
+          "§ 932 ABGB",
+          "§ 932 Abs 1 Satz 2 ABGB",
+          "§ 933 ABGB",
+          "§ 933a ABGB",
+          "§344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB",
+          "§§ 874 ABGB"
+        ],
+        "stats": {
+          "rs_count": 69,
+          "te_ogh_count": 1,
+          "norm_count": 26
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0014790",
+          "RS0016188",
+          "RS0016277",
+          "RS0018510",
+          "RS0018547",
+          "RS0018555",
+          "RS0018767",
+          "RS0018956",
+          "RS0022885",
+          "RS0114805"
+        ],
+        "validation": {
+          "cited": 10,
+          "checked": 10,
+          "valid": 10,
+          "invalid": [],
+          "sample_valid": [
+            "RS0014790",
+            "RS0016188",
+            "RS0016277",
+            "RS0018510",
+            "RS0018547",
+            "RS0018555",
+            "RS0018767",
+            "RS0018956",
+            "RS0022885",
+            "RS0114805"
+          ]
+        },
+        "valid": [
+          "RS0014790",
+          "RS0016188",
+          "RS0016277",
+          "RS0018510",
+          "RS0018547",
+          "RS0018555",
+          "RS0018767",
+          "RS0018956",
+          "RS0022885",
+          "RS0114805"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "§ 1296 ABGB",
+          "§ 870 ABGB",
+          "§ 871 ABGB",
+          "§ 874 ABGB",
+          "§ 922 ABGB",
+          "§ 928 ABGB",
+          "§ 929 ABGB",
+          "§ 932 ABGB",
+          "§ 933 ABGB"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0000808",
+          "RS0012086",
+          "RS0014785",
+          "RS0014789",
+          "RS0014790",
+          "RS0014884",
+          "RS0016029",
+          "RS0016066",
+          "RS0016074",
+          "RS0016188",
+          "RS0016215",
+          "RS0016247",
+          "RS0016277",
+          "RS0016299",
+          "RS0016301",
+          "RS0018510",
+          "RS0018547",
+          "RS0018555",
+          "RS0018679",
+          "RS0018767",
+          "RS0018956",
+          "RS0021095",
+          "RS0022885",
+          "RS0022936",
+          "RS0024152",
+          "RS0024172",
+          "RS0025334",
+          "RS0025678",
+          "RS0025795",
+          "RS0025920",
+          "RS0034350",
+          "RS0034393",
+          "RS0040873",
+          "RS0042179",
+          "RS0043220",
+          "RS0061254",
+          "RS0061274",
+          "RS0061287",
+          "RS0061427",
+          "RS0062654",
+          "RS0065713",
+          "RS0077406",
+          "RS0077428",
+          "RS0077465",
+          "RS0077500",
+          "RS0077502",
+          "RS0077894",
+          "RS0079857",
+          "RS0080446",
+          "RS0080946",
+          "RS0102652",
+          "RS0102755",
+          "RS0102758",
+          "RS0102868",
+          "RS0110929",
+          "RS0111545",
+          "RS0111806",
+          "RS0114805",
+          "RS0116915",
+          "RS0118755",
+          "RS0120502",
+          "RS0123123",
+          "RS0124842",
+          "RS0126690",
+          "RS0126732",
+          "RS0128261",
+          "RS0130827",
+          "RS0134685",
+          "RS0135454"
+        ],
+        "te_ogh": [
+          "2Ob168/25g"
+        ],
+        "norms": [
+          "§ 1096 ABGB",
+          "§ 1167 ABGB",
+          "§ 1295 Ib ABGB",
+          "§ 1296 ABGB",
+          "§ 1301 ABGB",
+          "§ 1323 ABGB",
+          "§ 1487 ABGB",
+          "§ 1489 ABGB",
+          "§ 28 KSchG",
+          "§ 353 EO",
+          "§ 355 EO",
+          "§ 477 ZPO",
+          "§ 67 VersVG",
+          "§ 870 ABGB",
+          "§ 871 ABGB",
+          "§ 874 ABGB",
+          "§ 922 ABGB",
+          "§ 923 ABGB",
+          "§ 928 ABGB",
+          "§ 929 ABGB",
+          "§ 932 ABGB",
+          "§ 932 Abs 1 Satz 2 ABGB",
+          "§ 933 ABGB",
+          "§ 933a ABGB",
+          "§344\", \"Betriebssicherheit\", \"Beweiswürdigung\", \"UGB",
+          "§§ 874 ABGB"
+        ],
+        "stats": {
+          "rs_count": 69,
+          "te_ogh_count": 1,
+          "norm_count": 26
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 19486.57,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 4249,
+        "completion_tokens": 3367,
+        "total_tokens": 7616,
+        "cost": 0.0025108,
+        "cached_tokens": 150,
+        "reasoning_tokens": 1433
+      },
+      "auto_strip_disallowed_norms": true,
+      "auto_strip_disallowed_norms_count_before": 5,
+      "auto_strip_disallowed_norms_count_after": 0
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Vorliegen von Sach- und Rechtsmängeln i.S.d.**: Schimmelbefall, fehlende Baubewilligung und gefälschter Energieausweis begründen Mängel, da die Wohnung als \"komplett saniert\" beworben wurde und Gutachten Wertminderung bestätigt (RS0018547: Mangel, wenn Leistung hinter Geschuldetem zurückbleibt).\n- **Arglistige Täuschung durch Verkäufer i.S.d.**: Falsche Angaben zu Sanierungsstatus, Baubewilligung und Energieausweis erfordern Nachweis vorsätzlicher Irreführung für Schadensersatz (§ 874 ABGB; RS0014790: Vorsätzliche Täuschung notwendig).\n- **Schadensersatz in Höhe der Wertdifferenz**: Differenz als positives Interesse oder Preisminderung möglich, getrennt nach Gewährleistung und Täuschung (RS0022885: Schadensersatz nur bei weiterem Schaden jenseits des Mangels).\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptspur: Gewährleistung aus Kaufvertrag ** \n- § 922 ABGB: Mangelhaftigkeit, wenn Leistung (hier: \"komplett sanierte\" Wohnung) qualitativ hinter Vertragsinhalt zurückbleibt (Werbung zählt als zugesicherte Eigenschaft, RS0114805). \n- § 928 ABGB: Rechtsmängel (fehlende Baubewilligung, gefälschter Ausweis) vermutet lastenfrei. \n- § 932 ABGB: Wandlung/Preisminderung oder Schadensersatz statt Leistung bei Mangel; Wertdifferenz als Maßstab. \n\n**Eventualspur (Doppelgleisigkeit): Arglistige Täuschung ** \n- § 870 ABGB: Anfechtung bei listiger Irreführung (vorsätzliche Täuschung). \n- § 871 ABGB: Veranlassung des Irrtums durch Verkäuferverhalten (jedes kausale Verhalten reicht, RS0016188). \n- § 874 ABGB: Schadensersatz bei List (Wertdifferenz als positiver Schaden, RS0016277). \nStufenbau: Primär Gewährleistung (§ 932 ABGB, da vertraglich), subsidiär Täuschung (§ 874 ABGB, bei Verschulden des Verkäufers); keine Ausschließlichkeit.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0018547**: Leistung mangelhaft, wenn hinter Geschuldetem zurückbleibend – relevant für Sachmängel (Schimmel hinter Verkleidung) und Werbezusicherung \"komplett saniert\". \n- **RS0114805**: Werbeprospekt-Angaben als zugesicherte Eigenschaften (§ 922 ABGB) – relevant für Sanierungs- und Energieausweis-Täuschung. \n- **RS0014790**: Listige Irreführung erfordert vorsätzliche Täuschung und Kausalität – relevant für Anfechtung/Schadensersatz bei gefälschtem Ausweis/Baubehörde. \n- **RS0016188**: Irrtumsveranlassung durch jedes kausale Verhalten (kein Vorsatz nötig) – relevant für Aufklärungsfehler des gewerblichen Verkäufers. \n- **RS0022885**: Schadensersatz (§ 932 ABGB) nur bei Schaden jenseits des Mangels – relevant für Wertdifferenz als Folgeschaden. \n- **RS0018767**: Bei arglistigem Verschweigen Wandlungsrecht ohne Rüge – relevant für versteckte Mängel (Schimmel, Abbruchdrohung).\n\n### 4. SUBSUMTION\n**Gewährleistung **: \nSchimmel hinter Verkleidungen und fehlende Baubewilligung (Abbruchdrohung) sind Sach-/Rechtsmängel, da Wohnung als \"komplett saniert\" geschuldet (RS0018547); gefälschter Energieausweis verstößt gegen Lastenfreiheit (§ 928 ABGB, RS0018510). Gutachten bestätigt Wertminderung; Schadensersatz statt Leistung i.S.d. § 932 ABGB möglich (RS0022885: bei weiterem Schaden). \n\n**Arglistige Täuschung **: \nFalsche Werbeaussagen und gefälschter Ausweis veranlassen Irrtum (§ 871 ABGB; RS0016188: kausales Verhalten); bei Vorsatz listige Irreführung (§ 870 ABGB, RS0014790), führend zu Schadensersatz der Differenz (§ 874 ABGB, RS0016277). Gewerblicher Verkäufer haftet verschärft durch Werbeprospekt (RS0114805).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Mängelvorliegen **: Käuferin beweist (Gutachten vorliegt; RS0018547); Verkäufer widerlegt Vermutung (§ 928 ABGB, RS0018510: Lastenfreiheit). \n- **Irrtumsveranlassung (§ 871 ABGB)**: Käuferin beweist kausales Verhalten (Werbung/Ausweis; RS0016188). \n- **Vorsatz/Arglist (§ 870 ABGB)**: Käuferin beweist Täuschung (RS0014790). \n- **Schaden/Wertdifferenz**: Käuferin beweist Höhe (Gutachten vorliegt; § 1296 ABGB); Verkäufer Mitverschulden. \n- **Fristen (§ 933 ABGB)**: Käuferin beweist rechtzeitige Rüge (RS0018956). Vorhanden: Gutachten.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren**: Schadensersatz aus Gewährleistung (§ 932 ABGB; hohe Erfolgsaussicht durch Gutachten/Mängelvermutung). \n**Eventualbegehren 1**: Preisminderung/Wandlung (§ 932 ABGB; bei teilweiser Beseitbarkeit). \n**Eventualbegehren 2**: Schadensersatz aus Täuschung (§ 874 ABGB; bei Nachweis Vorsatz). \nPriorisiert: Gewährleistung > Täuschung (einfacherer Beweis).\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1: Kein Mangel, da \"besichtigt so gekauft\" (Gewährleistungsverzicht § 929 ABGB)** – Replik: Versteckte Mängel (Schimmel hinter Verkleidung) nicht ausgeschlossen (RS0018555: Untersuchung nur offensichtliche Mängel). \n- **Risiko 2: Schadensersatz nur bei Folgeschaden, nicht Wertdifferenz (§ 932 ABGB)** – Replik: Differenz als Erfüllungsinteresse bei unbehebarem Mangel (RS0022885). \n- **Risiko 3: Fehlender Vorsatz für Arglist (§ 870 ABGB)** – Replik: Fahrlässige Irreführung reicht für § 871 ABGB (RS0016188: jedes kausale Verhalten); Gewerblicher haftet verschärft (RS0014790). \n- **Risiko 4: Verjährung der Rüge (§ 933 ABGB)** – Replik: Fristbeginn bei Kenntniserlangung (Gutachten; RS0018956: erst bei Geltendmachung); arglistiges Verschweigen entfällt Rüge (RS0018767). \n- **Risiko 5: Keine Kausalität Irrtum-Vertrag** – Replik: Werbeprospekt veranlasst kausal (RS0114805; RS0014790).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Gewährleistung (§ 932 ABGB)**: 85 % (Gutachten stark; Mängel evident, RS0018547/RS0114805). \n- **Arglistige Täuschung (§ 874 ABGB)**: 60 % (Vorsatzbeweis fehlt; aber Veranlassung wahrscheinlich, RS0016188/RS0014790)."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Vorliegen von Sach- und Rechtsmängeln i.S.d.**: Schimmelbefall, fehlende Baubewilligung und gefälschter Energieausweis begründen Mängel, da die Wohnung als \"komplett saniert\" beworben wurde und Gutachten Wertminderung bestätigt (RS0018547: Mangel, wenn Leistung hinter Geschuldetem zurückbleibt).\n- **Arglistige Täuschung durch Verkäufer i.S.d.**: Falsche Angaben zu Sanierungsstatus, Baubewilligung und Energieausweis erfordern Nachweis vorsätzlicher Irreführung für Schadensersatz (§ 874 ABGB; RS0014790: Vorsätzliche Täuschung notwendig).\n- **Schadensersatz in Höhe der Wertdifferenz**: Differenz als positives Interesse oder Preisminderung möglich, getrennt nach Gewährleistung und Täuschung (RS0022885: Schadensersatz nur bei weiterem Schaden jenseits des Mangels).\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptspur: Gewährleistung aus Kaufvertrag ** \n- § 922 ABGB: Mangelhaftigkeit, wenn Leistung (hier: \"komplett sanierte\" Wohnung) qualitativ hinter Vertragsinhalt zurückbleibt (Werbung zählt als zugesicherte Eigenschaft, RS0114805). \n- § 928 ABGB: Rechtsmängel (fehlende Baubewilligung, gefälschter Ausweis) vermutet lastenfrei. \n- § 932 ABGB: Wandlung/Preisminderung oder Schadensersatz statt Leistung bei Mangel; Wertdifferenz als Maßstab. \n\n**Eventualspur (Doppelgleisigkeit): Arglistige Täuschung ** \n- § 870 ABGB: Anfechtung bei listiger Irreführung (vorsätzliche Täuschung). \n- § 871 ABGB: Veranlassung des Irrtums durch Verkäuferverhalten (jedes kausale Verhalten reicht, RS0016188). \n- § 874 ABGB: Schadensersatz bei List (Wertdifferenz als positiver Schaden, RS0016277). \nStufenbau: Primär Gewährleistung (§ 932 ABGB, da vertraglich), subsidiär Täuschung (§ 874 ABGB, bei Verschulden des Verkäufers); keine Ausschließlichkeit.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0018547**: Leistung mangelhaft, wenn hinter Geschuldetem zurückbleibend – relevant für Sachmängel (Schimmel hinter Verkleidung) und Werbezusicherung \"komplett saniert\". \n- **RS0114805**: Werbeprospekt-Angaben als zugesicherte Eigenschaften (§ 922 ABGB) – relevant für Sanierungs- und Energieausweis-Täuschung. \n- **RS0014790**: Listige Irreführung erfordert vorsätzliche Täuschung und Kausalität – relevant für Anfechtung/Schadensersatz bei gefälschtem Ausweis/Baubehörde. \n- **RS0016188**: Irrtumsveranlassung durch jedes kausale Verhalten (kein Vorsatz nötig) – relevant für Aufklärungsfehler des gewerblichen Verkäufers. \n- **RS0022885**: Schadensersatz (§ 932 ABGB) nur bei Schaden jenseits des Mangels – relevant für Wertdifferenz als Folgeschaden. \n- **RS0018767**: Bei arglistigem Verschweigen Wandlungsrecht ohne Rüge – relevant für versteckte Mängel (Schimmel, Abbruchdrohung).\n\n### 4. SUBSUMTION\n**Gewährleistung **: \nSchimmel hinter Verkleidungen und fehlende Baubewilligung (Abbruchdrohung) sind Sach-/Rechtsmängel, da Wohnung als \"komplett saniert\" geschuldet (RS0018547); gefälschter Energieausweis verstößt gegen Lastenfreiheit (§ 928 ABGB, RS0018510). Gutachten bestätigt Wertminderung; Schadensersatz statt Leistung i.S.d. § 932 ABGB möglich (RS0022885: bei weiterem Schaden). \n\n**Arglistige Täuschung **: \nFalsche Werbeaussagen und gefälschter Ausweis veranlassen Irrtum (§ 871 ABGB; RS0016188: kausales Verhalten); bei Vorsatz listige Irreführung (§ 870 ABGB, RS0014790), führend zu Schadensersatz der Differenz (§ 874 ABGB, RS0016277). Gewerblicher Verkäufer haftet verschärft durch Werbeprospekt (RS0114805).\n\n### 5. BEWEISLASTVERTEILUNG\n- **Mängelvorliegen **: Käuferin beweist (Gutachten vorliegt; RS0018547); Verkäufer widerlegt Vermutung (§ 928 ABGB, RS0018510: Lastenfreiheit). \n- **Irrtumsveranlassung (§ 871 ABGB)**: Käuferin beweist kausales Verhalten (Werbung/Ausweis; RS0016188). \n- **Vorsatz/Arglist (§ 870 ABGB)**: Käuferin beweist Täuschung (RS0014790). \n- **Schaden/Wertdifferenz**: Käuferin beweist Höhe (Gutachten vorliegt; § 1296 ABGB); Verkäufer Mitverschulden. \n- **Fristen (§ 933 ABGB)**: Käuferin beweist rechtzeitige Rüge (RS0018956). Vorhanden: Gutachten.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren**: Schadensersatz aus Gewährleistung (§ 932 ABGB; hohe Erfolgsaussicht durch Gutachten/Mängelvermutung). \n**Eventualbegehren 1**: Preisminderung/Wandlung (§ 932 ABGB; bei teilweiser Beseitbarkeit). \n**Eventualbegehren 2**: Schadensersatz aus Täuschung (§ 874 ABGB; bei Nachweis Vorsatz). \nPriorisiert: Gewährleistung > Täuschung (einfacherer Beweis).\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1: Kein Mangel, da \"besichtigt so gekauft\" (Gewährleistungsverzicht § 929 ABGB)** – Replik: Versteckte Mängel (Schimmel hinter Verkleidung) nicht ausgeschlossen (RS0018555: Untersuchung nur offensichtliche Mängel). \n- **Risiko 2: Schadensersatz nur bei Folgeschaden, nicht Wertdifferenz (§ 932 ABGB)** – Replik: Differenz als Erfüllungsinteresse bei unbehebarem Mangel (RS0022885). \n- **Risiko 3: Fehlender Vorsatz für Arglist (§ 870 ABGB)** – Replik: Fahrlässige Irreführung reicht für § 871 ABGB (RS0016188: jedes kausale Verhalten); Gewerblicher haftet verschärft (RS0014790). \n- **Risiko 4: Verjährung der Rüge (§ 933 ABGB)** – Replik: Fristbeginn bei Kenntniserlangung (Gutachten; RS0018956: erst bei Geltendmachung); arglistiges Verschweigen entfällt Rüge (RS0018767). \n- **Risiko 5: Keine Kausalität Irrtum-Vertrag** – Replik: Werbeprospekt veranlasst kausal (RS0114805; RS0014790).\n\n### 8. ERFOLGSAUSSICHTEN\n- **Gewährleistung (§ 932 ABGB)**: 85 % (Gutachten stark; Mängel evident, RS0018547/RS0114805). \n- **Arglistige Täuschung (§ 874 ABGB)**: 60 % (Vorsatzbeweis fehlt; aber Veranlassung wahrscheinlich, RS0016188/RS0014790).",
+  "elapsed_ms": 179213.77
+}
