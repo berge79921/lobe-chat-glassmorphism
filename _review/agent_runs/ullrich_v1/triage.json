@@ -1,0 +1,53 @@
+{
+  "deadlines": [],
+  "urgency": "MEDIUM",
+  "urgency_reason": "Sozialversicherungsrechtliche Ansprüche auf Invaliditätspension unterliegen typischerweise 3-monatigen Widerspruchsfristen nach Bescheid; keine konkreten Daten, aber rasche Ersteinschätzung ratsam für strategische Planung.",
+  "silent_risks": [
+    {
+      "risk": "Versäumnis der Widerspruchsfrist gegen Pensionsablehnung",
+      "consequence": "Rechtskraft der Ablehnung, Verlust des Anspruchs."
+    },
+    {
+      "risk": "Untätigkeit bei Berufsschutzprüfung",
+      "consequence": "Verweisung in unqualifizierten Beruf, Reduktion der Pension."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Greift Berufsschutz (§ 255 Abs. 1/2 ASVG)?",
+      "options": [
+        "Ja (erlernter Beruf/90 QM)",
+        "Nein (Verweisbarkeit § 255 Abs. 3)"
+      ]
+    },
+    {
+      "question": "Verweisbarkeit möglich?",
+      "options": [
+        "Ja (Lohnhöhe-Massstab)",
+        "Nein (keine Lohnhälfte erreichbar)"
+      ]
+    },
+    {
+      "question": "Anrechnung Krankengeld/RHG?",
+      "options": [
+        "Max. 24 Monate KG (§ 255 Abs. 4)",
+        "RHG als vorübergehend (§ 143a)"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "Berufsschutz erfüllt (§ 255 Abs. 1/2 ASVG)",
+      "then": "Invalidität ab erlerntem Beruf, volle Pensionshöhe."
+    },
+    {
+      "if": "Berufsschutz versagt, Verweisbarkeit möglich (§ 255 Abs. 3)",
+      "then": "Pension unter Lohnhälfte-Massstab, ggf. Reha-Maßnahmen."
+    },
+    {
+      "if": "Krankengeld >24 Monate oder RHG vorhanden",
+      "then": "Anrechnung auf Invaliditätsdauer, Pensionsstart verzögert."
+    }
+  ],
+  "response_type_hint": "recommendation"
+}

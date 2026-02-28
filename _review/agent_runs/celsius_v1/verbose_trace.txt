@@ -1,0 +1,283 @@
+[15:01:57.374] === VERBOSE TRACE START === mode=agent query='Gib eine One-Shot-Rekursanalyse zum Fall MITTER:CELSIUS mit Schwerpunkt Zustellmaengel: Wirksamkeit der Zustellung ohne '
+[15:01:57.374]   mcp_mode=local_http model_profile=default
+[15:01:57.374]   context_files=['/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/FALLUEBERSICHT.md', '/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/AKT_KARTEIKARTE.md']
+[15:01:57.374] AGENT Phase 0: TRIAGE start
+[15:01:57.375] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=1500 title=legalchat-agent-triage
+[15:02:24.629] <<< API x-ai/grok-4.1-fast 27254ms finish=stop tool_calls=0 text='{\n  "deadlines": [\n    {\n      "date": "09.03.2026",\n      "type": "Rekurs beim LG Linz gegen Beschluss BG Traun",\n      "source": "§ 399 ZPO iVm § 163 Geo",\n      "days_remaining": 9\n    }\n  ],\n  "urgency": "HIGH",\n  "urgency_reason": "Rekursfrist endet am 09.03.2026 (nur 9 Tage verbleibend); Versä'
+[15:02:24.632] AGENT Phase 0: TRIAGE done in 27257.55ms — urgency=HIGH
+[15:02:24.632] AGENT Phase 1: DEEP ANALYSIS start
+[15:02:24.647] 
+============================================================
+ORGANIZER: model=qwen/qwen3-coder-next query='Gib eine One-Shot-Rekursanalyse zum Fall MITTER:CELSIUS mit Schwerpunkt Zustellmaengel: Wirksamkeit der Zustellung ohne '
+[15:02:24.647]   sys_prompt chars=720 usr_prompt chars=4620
+[15:02:24.793] >>> API qwen/qwen3-coder-next msgs=2 tools=0 max_tok=800 title=legalchat-agentic-organizer
+[15:02:29.563] <<< API qwen/qwen3-coder-next 4770ms finish=length tool_calls=0 text='{\n  "workstreams": [\n    {\n      "name": "Zustellungsfehler & Wirksamkeit unter HZÜ (Art 5 Abs 3 HZÜ-Erkl.)",\n      "goal": "Prüfung, ob Zustellung ohne deutsche Übersetzung (nach Art 5 Abs 3 HZÜ iVm öst. Erklärung) unwirksam ist – insb. bei Hinterlegung an falscher Adresse (§ 17 ZustG iVm § 2 Z 4 Z'
+[15:02:29.572]     MCP >>> search_by_paragraph({"paragraph": "§ 17 ZustG", "limit": 8})
+[15:02:29.572]     MCP >>> search_by_paragraph({"paragraph": "§ 2 ZustG", "limit": 8})
+[15:02:29.573]     MCP >>> search_by_paragraph({"paragraph": "§ 7 ZustG", "limit": 8})
+[15:02:29.573]     MCP >>> search_by_paragraph({"paragraph": "§ 8 ZustG", "limit": 8})
+[15:02:29.574]     MCP >>> search_by_paragraph({"paragraph": "§ 12 ZustG", "limit": 8})
+[15:02:29.574]     MCP >>> search_by_schlagwort({"schlagwort": "Zustellrecht", "limit": 8})
+[15:02:29.575]     MCP >>> search_by_schlagwort({"schlagwort": "Zivilprozess", "limit": 8})
+[15:02:29.575]     MCP >>> search_ogh_rechtssaetze({"query": "Gib One Shot Rekursanalyse MITTER CELSIUS", "limit": 8})
+[15:02:29.576]     MCP >>> search_lehrbuch({"query": "Zustellrecht Zivilprozess", "limit": 5})
+[15:02:29.576]     MCP >>> search_by_paragraph({"paragraph": "§17 ZustG", "limit": 8})
+[15:02:29.801]     MCP <<< search_by_paragraph ok=True 228.06ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1994090248_19950119X02",\\n      "kernaussage": "Abgrenzung vorübergehender Abwesenheit bei Zustellung § 17 ZustG",\\n      "schlagworte": [\\n        "Zustellun'
+[15:02:29.801]     MCP >>> search_by_paragraph({"paragraph": "§2 Z4 ZustG", "limit": 8})
+[15:02:30.214]     MCP <<< search_by_paragraph ok=True 640.8ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 7 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1993090410_19950119X04",\\n      "kernaussage": "Akteneinsicht kein tatsächliches Zukommen (§ 7 ZustG)",\\n      "schlagworte": [\\n        "Zustellung",\\n       '
+[15:02:30.215]     MCP >>> search_by_paragraph({"paragraph": "§8 Abs 2 ZustG", "limit": 8})
+[15:02:31.105]     MCP <<< search_by_paragraph ok=True 1532.1ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 2 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:31.105]     MCP >>> search_by_paragraph({"paragraph": "§163 Abs 4 Geo", "limit": 8})
+[15:02:31.142]     MCP <<< search_by_paragraph ok=True 1568.11ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 8 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1983140021_19830920X03",\\n      "kernaussage": "§ 8 ZustG setzt keine vorherige Zustellung voraus",\\n      "schlagworte": [\\n        "ZustG § 8",\\n        "Zus'
+[15:02:31.142]     MCP >>> search_by_paragraph({"paragraph": "§163 Abs 5 Geo", "limit": 8})
+[15:02:31.509]     MCP <<< search_by_paragraph ok=True 1934.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 12 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:31.510]     MCP >>> search_by_paragraph({"paragraph": "§12 ZustG", "limit": 8})
+[15:02:32.234]     MCP <<< search_by_schlagwort ok=True 2657.64ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Zustellrecht",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2010050165_20110315X01",\\n      "kernaussage": "§ 8 ZustG ohne vorherige Zustellung an Abgabestelle",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "sc'
+[15:02:32.968]     MCP <<< search_by_schlagwort ok=True 3391.44ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Zivilprozess",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1989160145_19900620X01",\\n      "kernaussage": "Bindung der Justizverwaltung an Gerichtsentscheide bei Gebührenfestsetzung",\\n      "rechtsgebiet": "Verwal'
+[15:02:33.323]     MCP <<< search_ogh_rechtssaetze ok=True 3745.37ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Gib One Shot Rekursanalyse MITTER CELSIUS"\\n}\'}], \'isError\': False}}'
+[15:02:33.323]     MCP <<< search_lehrbuch ok=True 3745.27ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellrecht Zivilprozess",\\n  "rechtsgebiet": null,\\n  "werk": null,\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:33.325]     MCP <<< search_by_paragraph ok=True 3746.81ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2009210003_20091124X01",\\n      "kernaussage": ">2 Monate Aufenthalt Frankreich = hindernde Abwesenheit §17 ZustG",\\n      "schlagworte": [\\n        "Zustellun'
+[15:02:33.326]     MCP <<< search_by_paragraph ok=True 3524.7ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§2 Z4 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:33.326]     MCP <<< search_by_paragraph ok=True 3111.42ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§8 Abs 2 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:33.327]     MCP <<< search_by_paragraph ok=True 2221.0ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§163 Abs 4 Geo",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:33.328]     MCP <<< search_by_paragraph ok=True 2185.12ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§163 Abs 5 Geo",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:33.328]     MCP <<< search_by_paragraph ok=True 1818.26ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§12 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:33.329] 
+============================================================
+WORKER START: ogh_rs_core tools=['search_ogh_rechtssaetze', 'search_ogh_entscheidungen', 'get_rechtssatz', 'search_by_paragraph', 'search_by_schlagwort']
+[15:02:33.329]   WORKER ogh_rs_core step=1/8
+[15:02:33.329] 
+============================================================
+WORKER START: hot_index_context tools=['hot_rs_search', 'hot_cluster_context', 'hot_rs_lookup']
+[15:02:33.330]   WORKER hot_index_context step=1/8
+[15:02:33.330] 
+============================================================
+WORKER START: grounding_expert tools=['build_grounding_context', 'detect_clusters', 'ask_gemini_zivilrecht', 'search_kommentar_paragraph', 'search_kommentar_keyword']
+[15:02:33.332]   WORKER grounding_expert step=1/8
+[15:02:33.460] >>> API google/gemini-3-flash-preview msgs=2 tools=5 max_tok=1600 title=legalchat-agentic-subagent-grounding_expert
+[15:02:33.471] >>> API google/gemini-3-flash-preview msgs=2 tools=3 max_tok=1600 title=legalchat-agentic-subagent-hot_index_context
+[15:02:33.481] >>> API google/gemini-3-flash-preview msgs=2 tools=5 max_tok=1600 title=legalchat-agentic-subagent-ogh_rs_core
+[15:02:36.111] <<< API google/gemini-3-flash-preview 2629ms finish=tool_calls tool_calls=12 text=''
+[15:02:36.113]     MCP >>> get_rechtssatz({"rs_number": "RS0083714"})
+[15:02:36.133]     MCP <<< get_rechtssatz ok=True 20.18ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0083714",\\n  "rechtssatz": "Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitier'
+[15:02:36.134]     MCP >>> get_rechtssatz({"rs_number": "RS0108130"})
+[15:02:36.142] <<< API google/gemini-3-flash-preview 2681ms finish=tool_calls tool_calls=5 text=''
+[15:02:36.143]     MCP >>> build_grounding_context({"topic": "internationale_bezuege", "query": "Wirksamkeit der Zustellung ohne deutsche Übersetzung Art 5 Abs 3 HZÜ, Abgabestelle bei Hinterlegung § 17 ZustG iVm § 2 Z 4 ZustG, Heilung § 7 ZustG, ZMR-A)
+[15:02:36.143]     MCP <<< get_rechtssatz ok=True 8.92ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0108130",\\n  "rechtssatz": "Bei einer rund viermonatigen Benützung einer anderen Wohnung ist der bis dahin benutzten Wohnung die Qualifikation als Abgabestelle im Sinne des § 4 ZustG nicht mehr zuzub'
+[15:02:36.143]     MCP >>> get_rechtssatz({"rs_number": "RS0110260"})
+[15:02:36.153]     MCP <<< get_rechtssatz ok=True 9.12ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110260",\\n  "rechtssatz": "Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amts'
+[15:02:36.153]     MCP >>> get_rechtssatz({"rs_number": "RS0110261"})
+[15:02:36.153]     MCP <<< build_grounding_context ok=True 10.41ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Unknown tool: build_grounding_context'}], 'isError': False}}"
+[15:02:36.154]     MCP >>> detect_clusters({"topic": "internationale_bezuege", "query": "Zustellung ohne Übersetzung HZÜ, Hinterlegung falsche Adresse § 17 ZustG, Heilung Zustellmangel § 7 ZustG, ZMR-Abfragepflicht Gericht § 163 Geo, Bindungsw)
+[15:02:36.161]     MCP <<< get_rechtssatz ok=True 7.5ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110261",\\n  "rechtssatz": "Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post'
+[15:02:36.161]     MCP >>> get_rechtssatz({"rs_number": "RS0111049"})
+[15:02:36.162]     MCP <<< detect_clusters ok=True 7.61ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Unknown tool: detect_clusters'}], 'isError': False}}"
+[15:02:36.162]     MCP >>> search_kommentar_paragraph({"paragraph": "17", "limit": 5, "law": "ZUSTG"})
+[15:02:36.189]     MCP <<< get_rechtssatz ok=True 27.42ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111049",\\n  "rechtssatz": "Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andern'
+[15:02:36.189]     MCP >>> get_rechtssatz({"rs_number": "RS0111270"})
+[15:02:36.190]     MCP <<< search_kommentar_paragraph ok=True 27.14ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "17",\\n  "law": "ZUSTG",\\n  "count": 1,\\n  "results": [\\n    {\\n      "artikel_id": 16839,\\n      "werk_id": 8,\\n      "paragraph_ref": "§ 17 ZustG",\\n      "keyword": null,\\n      "title": "Hinterlegung",\\n      "law": '
+[15:02:36.190]     MCP >>> search_kommentar_paragraph({"paragraph": "7", "limit": 5, "law": "ZUSTG"})
+[15:02:36.203]     MCP <<< get_rechtssatz ok=True 14.17ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111270",\\n  "rechtssatz": "Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages ei'
+[15:02:36.204]     MCP >>> get_rechtssatz({"rs_number": "RS0111369"})
+[15:02:36.205]     MCP <<< search_kommentar_paragraph ok=True 15.11ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "7",\\n  "law": "ZUSTG",\\n  "count": 2,\\n  "results": [\\n    {\\n      "artikel_id": 16839,\\n      "werk_id": 8,\\n      "paragraph_ref": "§ 17 ZustG",\\n      "keyword": null,\\n      "title": "Hinterlegung",\\n      "law": "'
+[15:02:36.206]     MCP >>> search_kommentar_paragraph({"paragraph": "163", "limit": 5, "law": "GEO"})
+[15:02:36.215]     MCP <<< get_rechtssatz ok=True 11.66ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111369",\\n  "rechtssatz": "Die Gewährung des rechtlichen Gehörs stellt einen derart fundamentalen Grundsatz des Verfahrensrechts dar, dass dessen Verletzung regelmäßig als Nichtigkeit im Sinne des ('
+[15:02:36.216]     MCP >>> get_rechtssatz({"rs_number": "RS0114024"})
+[15:02:36.216]     MCP <<< search_kommentar_paragraph ok=True 10.25ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "163",\\n  "law": "GEO",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:36.216]   WORKER grounding_expert step=2/8
+[15:02:36.217] >>> API google/gemini-3-flash-preview msgs=9 tools=5 max_tok=1600 title=legalchat-agentic-subagent-grounding_expert
+[15:02:36.231]     MCP <<< get_rechtssatz ok=True 14.93ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0114024",\\n  "rechtssatz": "Die Voraussetzungen für die Vollstreckbarerklärung sind von Amts wegen zu prüfen. Für die Ordnungsmäßigkeit der Zustellung im Sinn des Art 27 Z 2 LGVÜ ist das Recht des St'
+[15:02:36.231]     MCP >>> get_rechtssatz({"rs_number": "RS0115027"})
+[15:02:36.237]     MCP <<< get_rechtssatz ok=True 5.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0115027",\\n  "rechtssatz": "§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung '
+[15:02:36.237]     MCP >>> get_rechtssatz({"rs_number": "RS0117046"})
+[15:02:36.241]     MCP <<< get_rechtssatz ok=True 4.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0117046",\\n  "rechtssatz": "Die Anordnung der im Rechtshilfeweg beantragten Zustellung ist kein anfechtbarer Beschluss.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Zustellungsrechtshilfe",\\n  '
+[15:02:36.242]     MCP >>> get_rechtssatz({"rs_number": "RS0117067"})
+[15:02:36.246]     MCP <<< get_rechtssatz ok=True 4.61ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0117067",\\n  "rechtssatz": "Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verlet'
+[15:02:36.246]     MCP >>> get_rechtssatz({"rs_number": "RS0126357"})
+[15:02:36.252]     MCP <<< get_rechtssatz ok=True 5.81ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0126357",\\n  "rechtssatz": "Nur soweit das Gericht im Einklang mit dem Gesetz ohne Zuziehung einer Partei tätig wird, zB wegen deren Säumnis, liegt mangels ungesetzlichen Vorgangs der Tatbestand des '
+[15:02:36.252]   WORKER ogh_rs_core step=2/8
+[15:02:36.253] >>> API google/gemini-3-flash-preview msgs=15 tools=5 max_tok=1600 title=legalchat-agentic-subagent-ogh_rs_core
+[15:02:36.883] <<< API google/gemini-3-flash-preview 3411ms finish=tool_calls tool_calls=12 text=''
+[15:02:36.884]     MCP >>> hot_rs_lookup({"rs_number": "RS0083714", "te_limit": 5})
+[15:02:36.913]     MCP <<< hot_rs_lookup ok=True 27.83ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0083714",\\n    "rechtssatz_text": "Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässi'
+[15:02:36.913]     MCP >>> hot_rs_lookup({"rs_number": "RS0108130", "te_limit": 5})
+[15:02:36.923]     MCP <<< hot_rs_lookup ok=True 9.33ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0108130"\\n}\'}], \'isError\': False}}'
+[15:02:36.923]     MCP >>> hot_rs_lookup({"rs_number": "RS0110260", "te_limit": 5})
+[15:02:36.936]     MCP <<< hot_rs_lookup ok=True 12.97ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0110260",\\n    "rechtssatz_text": "Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, d'
+[15:02:36.937]     MCP >>> hot_rs_lookup({"rs_number": "RS0110261", "te_limit": 5})
+[15:02:36.948]     MCP <<< hot_rs_lookup ok=True 11.42ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0110261",\\n    "rechtssatz_text": "Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmitt'
+[15:02:36.949]     MCP >>> hot_rs_lookup({"rs_number": "RS0111049", "te_limit": 5})
+[15:02:36.959]     MCP <<< hot_rs_lookup ok=True 10.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0111049",\\n    "rechtssatz_text": "Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt'
+[15:02:36.960]     MCP >>> hot_rs_lookup({"rs_number": "RS0111270", "te_limit": 5})
+[15:02:36.971]     MCP <<< hot_rs_lookup ok=True 11.59ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0111270",\\n    "rechtssatz_text": "Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls ge'
+[15:02:36.972]     MCP >>> hot_rs_lookup({"rs_number": "RS0111369", "te_limit": 5})
+[15:02:36.983]     MCP <<< hot_rs_lookup ok=True 10.67ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0111369",\\n    "rechtssatz_text": "Die Gewährung des rechtlichen Gehörs stellt einen derart fundamentalen Grundsatz des Verfahrensrechts dar, dass dessen Verletzung regelmäßig als Nichti'
+[15:02:36.983]     MCP >>> hot_rs_lookup({"rs_number": "RS0114024", "te_limit": 5})
+[15:02:36.992]     MCP <<< hot_rs_lookup ok=True 9.21ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0114024",\\n    "rechtssatz_text": "Die Voraussetzungen für die Vollstreckbarerklärung sind von Amts wegen zu prüfen. Für die Ordnungsmäßigkeit der Zustellung im Sinn des Art 27 Z 2 LGVÜ '
+[15:02:36.993]     MCP >>> hot_rs_lookup({"rs_number": "RS0115027", "te_limit": 5})
+[15:02:36.999]     MCP <<< hot_rs_lookup ok=True 6.16ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0115027"\\n}\'}], \'isError\': False}}'
+[15:02:36.999]     MCP >>> hot_rs_lookup({"rs_number": "RS0117046", "te_limit": 5})
+[15:02:37.005]     MCP <<< hot_rs_lookup ok=True 5.79ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0117046"\\n}\'}], \'isError\': False}}'
+[15:02:37.006]     MCP >>> hot_rs_lookup({"rs_number": "RS0117067", "te_limit": 5})
+[15:02:37.013]     MCP <<< hot_rs_lookup ok=True 7.74ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0117067",\\n    "rechtssatz_text": "Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen'
+[15:02:37.014]     MCP >>> hot_rs_lookup({"rs_number": "RS0126357", "te_limit": 5})
+[15:02:37.019]     MCP <<< hot_rs_lookup ok=True 5.06ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0126357"\\n}\'}], \'isError\': False}}'
+[15:02:37.019]   WORKER hot_index_context step=2/8
+[15:02:37.020] >>> API google/gemini-3-flash-preview msgs=19 tools=3 max_tok=1600 title=legalchat-agentic-subagent-hot_index_context
+[15:02:38.300] <<< API google/gemini-3-flash-preview 2083ms finish=tool_calls tool_calls=6 text=''
+[15:02:38.301]     MCP >>> search_kommentar_keyword({"keyword": "Zustellzeugnis HZÜ Bindungswirkung", "limit": 5, "law": "HZÜ"})
+[15:02:38.313]     MCP <<< search_kommentar_keyword ok=True 11.13ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "keyword": "Zustellzeugnis HZÜ Bindungswirkung",\\n  "law": "HZÜ",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:38.313]     MCP >>> search_kommentar_keyword({"keyword": "Übersetzung HZÜ Annahmeverweigerung", "limit": 5, "law": "HZÜ"})
+[15:02:38.319]     MCP <<< search_kommentar_keyword ok=True 5.67ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "keyword": "Übersetzung HZÜ Annahmeverweigerung",\\n  "law": "HZÜ",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:38.319]     MCP >>> search_kommentar_keyword({"keyword": "ZMR Abfragepflicht Gericht Zustellung", "limit": 5, "law": "GEO"})
+[15:02:38.324]     MCP <<< search_kommentar_keyword ok=True 5.24ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "keyword": "ZMR Abfragepflicht Gericht Zustellung",\\n  "law": "GEO",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:38.325]     MCP >>> search_kommentar_paragraph({"paragraph": "2", "limit": 5, "law": "ZUSTG"})
+[15:02:38.330]     MCP <<< search_kommentar_paragraph ok=True 5.62ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "2",\\n  "law": "ZUSTG",\\n  "count": 2,\\n  "results": [\\n    {\\n      "artikel_id": 16836,\\n      "werk_id": 8,\\n      "paragraph_ref": "§ 12 ZustG",\\n      "keyword": null,\\n      "title": "Zustellung ausländischer Doku'
+[15:02:38.331]     MCP >>> search_kommentar_paragraph({"paragraph": "8", "limit": 5, "law": "ZUSTG"})
+[15:02:38.336]     MCP <<< search_kommentar_paragraph ok=True 5.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "8",\\n  "law": "ZUSTG",\\n  "count": 1,\\n  "results": [\\n    {\\n      "artikel_id": 16847,\\n      "werk_id": 8,\\n      "paragraph_ref": "§ 8 ZustG",\\n      "keyword": null,\\n      "title": "Änderung der Abgabestelle",\\n '
+[15:02:38.336]     MCP >>> search_kommentar_paragraph({"paragraph": "12", "limit": 5, "law": "ZUSTG"})
+[15:02:38.342]     MCP <<< search_kommentar_paragraph ok=True 5.26ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "12",\\n  "law": "ZUSTG",\\n  "count": 1,\\n  "results": [\\n    {\\n      "artikel_id": 16836,\\n      "werk_id": 8,\\n      "paragraph_ref": "§ 12 ZustG",\\n      "keyword": null,\\n      "title": "Zustellung ausländischer Dok'
+[15:02:38.342]   WORKER grounding_expert step=3/8
+[15:02:38.342] >>> API google/gemini-3-flash-preview msgs=19 tools=5 max_tok=1600 title=legalchat-agentic-subagent-grounding_expert
+[15:02:38.576] <<< API google/gemini-3-flash-preview 2323ms finish=tool_calls tool_calls=4 text=''
+[15:02:38.577]     MCP >>> search_ogh_rechtssaetze({"query": "Art HZÜ Bindungswirkung Zustellzeugnis", "limit": 5})
+[15:02:38.596]     MCP <<< search_ogh_rechtssaetze ok=True 18.39ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Art HZÜ Bindungswirkung Zustellzeugnis"\\n}\'}], \'isError\': False}}'
+[15:02:38.596]     MCP >>> search_by_paragraph({"paragraph": "§ 163 Geo", "limit": 5})
+[15:02:39.007]     MCP <<< search_by_paragraph ok=True 410.85ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 163 Geo",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:02:39.008]     MCP >>> search_ogh_rechtssaetze({"query": "Zustellung ohne Übersetzung HZÜ", "limit": 5})
+[15:02:39.014]     MCP <<< search_ogh_rechtssaetze ok=True 6.19ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Zustellung ohne Übersetzung HZÜ"\\n}\'}], \'isError\': False}}'
+[15:02:39.014]     MCP >>> search_ogh_rechtssaetze({"query": "163 Abs Geo ZMR Abfrage", "limit": 5})
+[15:02:39.021]     MCP <<< search_ogh_rechtssaetze ok=True 6.19ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "163 Abs Geo ZMR Abfrage"\\n}\'}], \'isError\': False}}'
+[15:02:39.021]   WORKER ogh_rs_core step=3/8
+[15:02:39.022] >>> API google/gemini-3-flash-preview msgs=24 tools=5 max_tok=1600 title=legalchat-agentic-subagent-ogh_rs_core
+[15:02:39.534] <<< API google/gemini-3-flash-preview 2514ms finish=tool_calls tool_calls=4 text=''
+[15:02:39.536]     MCP >>> hot_rs_search({"query": "Zustellung ohne Übersetzung HZÜ Art Abs", "limit": 5})
+[15:02:39.555]     MCP <<< hot_rs_search ok=True 18.55ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellung ohne Übersetzung HZÜ Art Abs",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:39.556]     MCP >>> hot_rs_search({"query": "163 Geo ZMR Abfragepflicht Zustellung", "limit": 5})
+[15:02:39.564]     MCP <<< hot_rs_search ok=True 8.24ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "163 Geo ZMR Abfragepflicht Zustellung",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:39.564]     MCP >>> hot_rs_search({"query": "Bindungswirkung Zustellzeugnis Art HZÜ RS0134713", "limit": 5})
+[15:02:39.571]     MCP <<< hot_rs_search ok=True 6.57ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Bindungswirkung Zustellzeugnis Art HZÜ RS0134713",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:39.572]     MCP >>> hot_rs_search({"query": "Heilung Zustellmangel ZustG HZÜ", "limit": 5})
+[15:02:39.578]     MCP <<< hot_rs_search ok=True 6.07ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Heilung Zustellmangel ZustG HZÜ",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:39.578]   WORKER hot_index_context step=3/8
+[15:02:39.579] >>> API google/gemini-3-flash-preview msgs=28 tools=3 max_tok=1600 title=legalchat-agentic-subagent-hot_index_context
+[15:02:41.175] <<< API google/gemini-3-flash-preview 2832ms finish=tool_calls tool_calls=1 text=''
+[15:02:41.176]     MCP >>> ask_gemini_zivilrecht({"question": "Analysiere die Wirksamkeit der Zustellung im Fall MITTER:CELSIUS (18 Hc 4/25t). \nSchwerpunkte:\n1. Wirksamkeit der Zustellung ohne deutsche Übersetzung gemäß Art 5 Abs 3 HZÜ (österreich)
+[15:02:41.192]     MCP <<< ask_gemini_zivilrecht ok=True 15.82ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Authentication error for Vertex AI. Details: google-auth package is missing.. Set application default credentials or VERTEX_ACCESS_TOKEN.'}], 'isError': False}}"
+[15:02:41.192]   WORKER grounding_expert step=4/8
+[15:02:41.193] >>> API google/gemini-3-flash-preview msgs=21 tools=5 max_tok=1600 title=legalchat-agentic-subagent-grounding_expert
+[15:02:41.567] <<< API google/gemini-3-flash-preview 1987ms finish=tool_calls tool_calls=4 text=''
+[15:02:41.568]     MCP >>> hot_rs_search({"query": "HZÜ Übersetzung Annahmeverweigerung", "limit": 5})
+[15:02:41.575] <<< API google/gemini-3-flash-preview 2553ms finish=tool_calls tool_calls=5 text=''
+[15:02:41.575]     MCP >>> search_ogh_rechtssaetze({"query": "RS0134713", "limit": 10})
+[15:02:41.590]     MCP <<< hot_rs_search ok=True 21.36ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "HZÜ Übersetzung Annahmeverweigerung",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:41.591]     MCP >>> hot_rs_search({"query": "163 Geo Einspruch Zustellung", "limit": 5})
+[15:02:41.593]     MCP <<< search_ogh_rechtssaetze ok=True 17.51ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "RS0134713"\\n}\'}], \'isError\': False}}'
+[15:02:41.593]     MCP >>> search_ogh_rechtssaetze({"query": "HZÜ Zustellzeugnis Bindungswirkung", "limit": 10})
+[15:02:41.604]     MCP <<< hot_rs_search ok=True 13.03ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "163 Geo Einspruch Zustellung",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:41.605]     MCP >>> hot_rs_search({"query": "Zustellzeugnis HZÜ Beweiskraft", "limit": 5})
+[15:02:41.605]     MCP <<< search_ogh_rechtssaetze ok=True 11.69ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "HZÜ Zustellzeugnis Bindungswirkung"\\n}\'}], \'isError\': False}}'
+[15:02:41.606]     MCP >>> search_ogh_rechtssaetze({"query": "163 Geo Zustellung", "limit": 10})
+[15:02:41.615]     MCP <<< hot_rs_search ok=True 9.71ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellzeugnis HZÜ Beweiskraft",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:41.615]     MCP >>> hot_rs_search({"query": "ZustG Hinterlegung falsche Adresse", "limit": 5})
+[15:02:41.615]     MCP <<< search_ogh_rechtssaetze ok=True 9.3ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "163 Geo Zustellung"\\n}\'}], \'isError\': False}}'
+[15:02:41.615]     MCP >>> search_ogh_rechtssaetze({"query": "ZustG Abgabestelle Hinterlegung", "limit": 10})
+[15:02:41.626]     MCP <<< hot_rs_search ok=True 10.6ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "ZustG Hinterlegung falsche Adresse",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:02:41.626]   WORKER hot_index_context step=4/8
+[15:02:41.627] >>> API google/gemini-3-flash-preview msgs=37 tools=3 max_tok=1600 title=legalchat-agentic-subagent-hot_index_context
+[15:02:41.634]     MCP <<< search_ogh_rechtssaetze ok=True 18.39ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [\\n    {\\n      "rs_number": "JWR_1996070203_19961212X01",\\n      "rechtssatz": "Hinterlegung ohne Zustellversuch bei fehlender Abgabestelle (§ 8 ZustG)",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "schlagworte": [\\'
+[15:02:41.634]     MCP >>> search_ogh_rechtssaetze({"query": "ZustG Mitteilungspflicht Verfahren", "limit": 10})
+[15:02:41.640]     MCP <<< search_ogh_rechtssaetze ok=True 5.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [\\n    {\\n      "rs_number": "JWR_1994030149_19941214X04",\\n      "rechtssatz": "Mitteilungspflicht § 8 ZustG nur bei Änderung während Verfahrens",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "schlagworte": [\\n      '
+[15:02:41.640]   WORKER ogh_rs_core step=4/8
+[15:02:41.640] >>> API google/gemini-3-flash-preview msgs=33 tools=5 max_tok=1600 title=legalchat-agentic-subagent-ogh_rs_core
+[15:02:49.890] <<< API google/gemini-3-flash-preview 8697ms finish=stop tool_calls=0 text='Basierend auf der Aktenlage (GZ 18 Hc 4/25t) und der österreichischen Rechtslage zum **HZÜ** sowie dem **ZustG** ergibt sich folgende Rekursanalyse für den Fall **MITTER : CELSIUS**:\n\n### 1. Hauptargument: Unwirksamkeit der Hinterlegung (§ 17 ZustG)\nDie Zustellung durch Hinterlegung am 27.01.2025 an'
+[15:02:49.890]   WORKER grounding_expert DONE steps=4 answer='Basierend auf der Aktenlage (GZ 18 Hc 4/25t) und der österreichischen Rechtslage zum **HZÜ** sowie dem **ZustG** ergibt sich folgende Rekursanalyse für den Fall **MITTER : CELSIUS**:\n\n### 1. Hauptargu'
+[15:02:50.864] <<< API google/gemini-3-flash-preview 9237ms finish=stop tool_calls=0 text='Die Rekursanalyse zum Fall **MITTER : CELSIUS** (GZ 18 Hc 4/25t) zeigt eine massive Fehlerkette bei der Rechtshilfezustellung. Der Beschluss des BG Traun vom 20.02.2026 ist wegen Nichtigkeit (§ 477 Abs 1 Z 4 ZPO) anzufechten.\n\n### 1. Hauptargument: Unwirksamkeit der Zustellung (Falsche Abgabestelle)'
+[15:02:50.864]   WORKER hot_index_context DONE steps=4 answer='Die Rekursanalyse zum Fall **MITTER : CELSIUS** (GZ 18 Hc 4/25t) zeigt eine massive Fehlerkette bei der Rechtshilfezustellung. Der Beschluss des BG Traun vom 20.02.2026 ist wegen Nichtigkeit (§ 477 Ab'
+[15:02:50.866]     MCP >>> hot_rs_lookup({"rs_number": "RS0134713", "te_limit": 5})
+[15:02:50.880]     MCP <<< hot_rs_lookup ok=True 14.39ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0134713"\\n}\'}], \'isError\': False}}'
+[15:02:53.192] <<< API google/gemini-3-flash-preview 11552ms finish=stop tool_calls=0 text='Die Rekursanalyse zum Fall **MITTER : CELSIUS** zeigt eine massive Fehlerkette bei der Zustellung im Rechtshilfeverfahren. Die Erfolgsaussichten des Rekurses gegen den Beschluss des BG Traun sind als **sehr hoch** einzustufen, da fundamentale Zustellvorschriften und das Recht auf Gehör verletzt wurd'
+[15:02:53.193]   WORKER ogh_rs_core DONE steps=4 answer='Die Rekursanalyse zum Fall **MITTER : CELSIUS** zeigt eine massive Fehlerkette bei der Zustellung im Rechtshilfeverfahren. Die Erfolgsaussichten des Rekurses gegen den Beschluss des BG Traun sind als '
+[15:02:53.194]     MCP >>> get_rechtssatz({"rs_number": "RS0134713"})
+[15:02:53.210]     MCP <<< get_rechtssatz ok=True 15.09ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134713",\\n  "rechtssatz": "Dem Zustellungszeugnis nach Art 6 Haager Übereinkommen vom 15.11.1965 über die Zustellung gerichtlicher und außergerichtlicher Schriftstücke im Ausland in Zivil- oder Hand'
+[15:02:53.210]     MCP >>> get_rechtssatz({"rs_number": "RS0083956"})
+[15:02:53.218]     MCP <<< get_rechtssatz ok=True 7.81ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0083956",\\n  "rechtssatz": "Kommt die Betriebsstätte mangels eines regelmäßigen Aufenthaltes als Abgabestelle für eine Hinterlegung nicht in Frage, dann kann die Zustellung nicht gemäß § 17 Abs 3 Zus'
+[15:02:53.226] 
+============================================================
+SYNTHESIS: model=x-ai/grok-4.1-fast sys_chars=3994 usr_chars=51707 evidence_chunks=3
+[15:02:53.364] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=6000 title=legalchat-agentic-synthesis
+[15:03:36.586] <<< API x-ai/grok-4.1-fast 43222ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n- **Wirksamkeit der Hinterlegung als Abgabestelle (§ 17 iVm § 2 Z 4 ZustG):** Nach 14-monatiger Abwesenheit (seit 28.11.2023) keine Abgabestelle mehr vorhanden; Hinterlegung unzulässig (stärkstes Standbein).\n- **Fehlende Übersetzung/Belehrung (Art 5 Abs 3 HZÜ, § 163 Abs 5 Geo, § 12'
+[15:03:36.586]   SYNTHESIS DONE 43222ms answer_chars=7154 max_tokens=6000
+[15:03:36.590] 
+============================================================
+SYNTHESIS: model=x-ai/grok-4.1-fast sys_chars=3994 usr_chars=51707 evidence_chunks=3
+[15:03:36.591] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=6000 title=legalchat-agentic-synthesis
+[15:04:24.207] <<< API x-ai/grok-4.1-fast 47616ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Hinterlegung als Abgabestelle (§ 17 iVm § 2 Z 4/5 ZustG):** Nach 14-monatiger Abmeldung keine Abgabestelle mehr vorhanden → Hinterlegung unzulässig (RS0083714, RS0108130, RS0111049); stärkstes Standbein.\n2. **Fehlende Übersetzung/Belehrung (Art 5 Abs 3 HZÜ, § 1'
+[15:04:24.207]   SYNTHESIS DONE 47616ms answer_chars=6937 max_tokens=6000
+[15:04:24.207] AGENT best-of-2: A=94.0 (11 RS) B=84.9 (9 RS)
+[15:04:24.208] 
+============================================================
+CITATION GATE: mode=repair answer_chars=7154
+[15:04:24.224]     MCP >>> get_rechtssatz({"rs_number": "RS0083714"})
+[15:04:24.231]     MCP <<< get_rechtssatz ok=True 6.65ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0083714",\\n  "rechtssatz": "Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitier'
+[15:04:24.231]     MCP >>> get_rechtssatz({"rs_number": "RS0108130"})
+[15:04:24.237]     MCP <<< get_rechtssatz ok=True 5.28ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0108130",\\n  "rechtssatz": "Bei einer rund viermonatigen Benützung einer anderen Wohnung ist der bis dahin benutzten Wohnung die Qualifikation als Abgabestelle im Sinne des § 4 ZustG nicht mehr zuzub'
+[15:04:24.237]     MCP >>> get_rechtssatz({"rs_number": "RS0110260"})
+[15:04:24.244]     MCP <<< get_rechtssatz ok=True 6.8ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110260",\\n  "rechtssatz": "Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amts'
+[15:04:24.244]     MCP >>> get_rechtssatz({"rs_number": "RS0110261"})
+[15:04:24.250]     MCP <<< get_rechtssatz ok=True 6.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110261",\\n  "rechtssatz": "Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post'
+[15:04:24.250]     MCP >>> get_rechtssatz({"rs_number": "RS0111049"})
+[15:04:24.253]     MCP <<< get_rechtssatz ok=True 2.58ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111049",\\n  "rechtssatz": "Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andern'
+[15:04:24.253]     MCP >>> get_rechtssatz({"rs_number": "RS0111270"})
+[15:04:24.257]     MCP <<< get_rechtssatz ok=True 4.13ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111270",\\n  "rechtssatz": "Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages ei'
+[15:04:24.257]     MCP >>> get_rechtssatz({"rs_number": "RS0111369"})
+[15:04:24.261]     MCP <<< get_rechtssatz ok=True 3.6ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111369",\\n  "rechtssatz": "Die Gewährung des rechtlichen Gehörs stellt einen derart fundamentalen Grundsatz des Verfahrensrechts dar, dass dessen Verletzung regelmäßig als Nichtigkeit im Sinne des ('
+[15:04:24.261]     MCP >>> get_rechtssatz({"rs_number": "RS0114024"})
+[15:04:24.265]     MCP <<< get_rechtssatz ok=True 3.56ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0114024",\\n  "rechtssatz": "Die Voraussetzungen für die Vollstreckbarerklärung sind von Amts wegen zu prüfen. Für die Ordnungsmäßigkeit der Zustellung im Sinn des Art 27 Z 2 LGVÜ ist das Recht des St'
+[15:04:24.265]     MCP >>> get_rechtssatz({"rs_number": "RS0115027"})
+[15:04:24.269]     MCP <<< get_rechtssatz ok=True 4.52ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0115027",\\n  "rechtssatz": "§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung '
+[15:04:24.269]     MCP >>> get_rechtssatz({"rs_number": "RS0117067"})
+[15:04:24.274]     MCP <<< get_rechtssatz ok=True 4.53ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0117067",\\n  "rechtssatz": "Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verlet'
+[15:04:24.274]     MCP >>> get_rechtssatz({"rs_number": "RS0134713"})
+[15:04:24.278]     MCP <<< get_rechtssatz ok=True 3.75ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134713",\\n  "rechtssatz": "Dem Zustellungszeugnis nach Art 6 Haager Übereinkommen vom 15.11.1965 über die Zustellung gerichtlicher und außergerichtlicher Schriftstücke im Ausland in Zivil- oder Hand'
+[15:04:24.283] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=4500 title=legalchat-agentic-citation-repair
+[15:04:49.387] <<< API x-ai/grok-4.1-fast 25104ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n- **Wirksamkeit der Hinterlegung als Abgabestelle (§ 17 iVm § 2 ZustG):** Hinterlegung nur zulässig, wenn weder Empfänger noch Ersatzempfänger erreichbar; bei längerer Abwesenheit unzulässig.\n- **Fehlende Übersetzung/Belehrung (§ 12 ZustG):** Verfahrenseinleitende Schriften ohne de'
+[15:04:49.391]     MCP >>> get_rechtssatz({"rs_number": "RS0083714"})
+[15:04:49.406]     MCP <<< get_rechtssatz ok=True 14.41ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0083714",\\n  "rechtssatz": "Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitier'
+[15:04:49.406]     MCP >>> get_rechtssatz({"rs_number": "RS0110260"})
+[15:04:49.416]     MCP <<< get_rechtssatz ok=True 9.2ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110260",\\n  "rechtssatz": "Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amts'
+[15:04:49.416]     MCP >>> get_rechtssatz({"rs_number": "RS0110261"})
+[15:04:49.427]     MCP <<< get_rechtssatz ok=True 11.07ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110261",\\n  "rechtssatz": "Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post'
+[15:04:49.427]     MCP >>> get_rechtssatz({"rs_number": "RS0111049"})
+[15:04:49.435]     MCP <<< get_rechtssatz ok=True 7.55ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111049",\\n  "rechtssatz": "Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andern'
+[15:04:49.435]     MCP >>> get_rechtssatz({"rs_number": "RS0111270"})
+[15:04:49.444]     MCP <<< get_rechtssatz ok=True 8.21ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111270",\\n  "rechtssatz": "Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages ei'
+[15:04:49.444]     MCP >>> get_rechtssatz({"rs_number": "RS0115027"})
+[15:04:49.454]     MCP <<< get_rechtssatz ok=True 10.48ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0115027",\\n  "rechtssatz": "§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung '
+[15:04:49.454]     MCP >>> get_rechtssatz({"rs_number": "RS0117067"})
+[15:04:49.464]     MCP <<< get_rechtssatz ok=True 9.04ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0117067",\\n  "rechtssatz": "Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verlet'
+[15:04:49.464]     MCP >>> get_rechtssatz({"rs_number": "RS0134713"})
+[15:04:49.469]     MCP <<< get_rechtssatz ok=True 5.02ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134713",\\n  "rechtssatz": "Dem Zustellungszeugnis nach Art 6 Haager Übereinkommen vom 15.11.1965 über die Zustellung gerichtlicher und außergerichtlicher Schriftstücke im Ausland in Zivil- oder Hand'
+[15:04:49.474]     MCP >>> get_rechtssatz({"rs_number": "RS0083714"})
+[15:04:49.480]     MCP <<< get_rechtssatz ok=True 5.23ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0083714",\\n  "rechtssatz": "Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitier'
+[15:04:49.480]     MCP >>> get_rechtssatz({"rs_number": "RS0110260"})
+[15:04:49.485]     MCP <<< get_rechtssatz ok=True 5.29ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110260",\\n  "rechtssatz": "Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amts'
+[15:04:49.485]     MCP >>> get_rechtssatz({"rs_number": "RS0110261"})
+[15:04:49.491]     MCP <<< get_rechtssatz ok=True 5.61ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0110261",\\n  "rechtssatz": "Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post'
+[15:04:49.491]     MCP >>> get_rechtssatz({"rs_number": "RS0111049"})
+[15:04:49.496]     MCP <<< get_rechtssatz ok=True 4.85ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111049",\\n  "rechtssatz": "Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andern'
+[15:04:49.496]     MCP >>> get_rechtssatz({"rs_number": "RS0111270"})
+[15:04:49.501]     MCP <<< get_rechtssatz ok=True 5.07ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0111270",\\n  "rechtssatz": "Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages ei'
+[15:04:49.502]     MCP >>> get_rechtssatz({"rs_number": "RS0115027"})
+[15:04:49.506]     MCP <<< get_rechtssatz ok=True 4.26ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0115027",\\n  "rechtssatz": "§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung '
+[15:04:49.506]     MCP >>> get_rechtssatz({"rs_number": "RS0117067"})
+[15:04:49.510]     MCP <<< get_rechtssatz ok=True 4.18ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0117067",\\n  "rechtssatz": "Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verlet'
+[15:04:49.510]     MCP >>> get_rechtssatz({"rs_number": "RS0134713"})
+[15:04:49.514]     MCP <<< get_rechtssatz ok=True 3.17ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134713",\\n  "rechtssatz": "Dem Zustellungszeugnis nach Art 6 Haager Übereinkommen vom 15.11.1965 über die Zustellung gerichtlicher und außergerichtlicher Schriftstücke im Ausland in Zivil- oder Hand'
+[15:04:49.515]   CITATION GATE result: applied=True answer_chars=4460
+[15:04:49.517] AGENT Phase 1: DEEP ANALYSIS done in 144886.73ms
+[15:04:49.517] AGENT Phase 2: STRATEGIC RESPONSE start
+[15:04:49.518] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=4000 title=legalchat-agent-response
+[15:05:03.396] <<< API x-ai/grok-4.1-fast 13878ms finish=stop tool_calls=0 text='# STRATEGISCHE REKURSANALYSE: MITTER/CELSIUS (GZ 18 Hc 4/25t)\n\n## EMPFEHLUNG\n- **Hauptbegehren** (priorisiert als stärkstes Standbein): Aufhebung des Beschlusses des BG Traun vom 20.02.2026 wegen fehlender Abgabestelle bei Hinterlegung (§ 17 iVm § 2 Z 4 ZustG; RS0111049, RS0108130, RS0083714). **Erf'
+[15:05:03.398] AGENT Phase 2: RESPONSE done in 13880.41ms
+[15:05:04.971] === VERBOSE TRACE END === elapsed_ms=186025.93

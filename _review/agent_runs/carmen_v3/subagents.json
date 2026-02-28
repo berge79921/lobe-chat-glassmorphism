@@ -1,0 +1,1040 @@
+[
+  {
+    "name": "grounding_expert",
+    "goal": "Get cluster-level grounding context and expert analysis for the legal question.",
+    "mode": "llm",
+    "tools": [
+      "build_grounding_context",
+      "detect_clusters",
+      "ask_gemini_zivilrecht",
+      "search_kommentar_paragraph",
+      "search_kommentar_keyword"
+    ],
+    "llm_model": "google/gemini-3-flash-preview",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 3670.92,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 4663,
+          "completion_tokens": 442,
+          "total_tokens": 5105,
+          "cost": 0.0036575,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 2394.01,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 5431,
+          "completion_tokens": 213,
+          "total_tokens": 5644,
+          "cost": 0.0033545,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 7474.43,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 6100,
+          "completion_tokens": 1041,
+          "total_tokens": 7141,
+          "cost": 0.006173,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "tool_build_grounding_context_uUiZBdiccnjQJe8SjKWH",
+        "tool": "build_grounding_context",
+        "args": {
+          "topic": "konsumentenschutz",
+          "query": "Interzession Bürgschaft KSchG § 25c § 25d Insolvenz Hauptschuldner Akzessorietät § 14 IO Exekution Oppositionsklage § 35 EO Impugnationsklage § 40 EO Zustellmangel § 7 Abs 3 EO",
+          "max_clusters": 1,
+          "max_tokens": 1200
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.59,
+        "error": null,
+        "payload_preview": "\"Unknown tool: build_grounding_context\""
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_ask_gemini_zivilrecht_8nE7oihLv8lRD7of09Fw",
+        "tool": "ask_gemini_zivilrecht",
+        "args": {
+          "question": "Fall CARMEN: Die Mandantin (Bürgin/Mitschuldnerin) wird aus einem Zahlungsbefehl von 2018 exekutiert. Der Hauptschuldner hat im Insolvenzverfahren (Zahlungsplan) 100% der Forderung (EUR 23.274,46) bis 11/2025 bezahlt. 1. Wie wirkt sich die 100%-Zahlung des Hauptschuldners auf die Verpflichtung der Interzedentin aus (§ 14 IO, Akzessorietät)? 2. Welche Rechtsbehelfe sind gegen die Exekution (BG Melk 25 E 1939/25i) geboten, wenn der zugrunde liegende Titel (Zahlungsbefehl 2018) wegen Zustellmangels"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.57,
+        "error": null,
+        "payload_preview": "\"Authentication error for Vertex AI. Details: google-auth package is missing.. Set application default credentials or VERTEX_ACCESS_TOKEN.\""
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_kommentar_paragraph_bPKbCi8K58PHAkp9DrEB",
+        "tool": "search_kommentar_paragraph",
+        "args": {
+          "paragraph": "25c",
+          "limit": 5,
+          "law": "KSCHG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.26,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"25c\", \"law\": \"KSCHG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_kommentar_paragraph_RGkkt41IDs1cv4BJpEuq",
+        "tool": "search_kommentar_paragraph",
+        "args": {
+          "paragraph": "25d",
+          "limit": 5,
+          "law": "KSCHG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 6.14,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"25d\", \"law\": \"KSCHG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_detect_clusters_pfo4B328zgnVWpeGguhn",
+        "tool": "detect_clusters",
+        "args": {
+          "topic": "konsumentenschutz",
+          "query": "Interzession Bürgschaft KSchG § 25c § 25d Insolvenz Hauptschuldner Akzessorietät § 14 IO Exekution Oppositionsklage § 35 EO Impugnationsklage § 40 EO Zustellmangel § 7 Abs 3 EO"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 158.29,
+        "error": null,
+        "payload_preview": "\"Unknown tool: detect_clusters\""
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_kommentar_keyword_0XnkXDOjF7U27rSpTAKy",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Interzession Informationspflicht 25c KSchG",
+          "limit": 5,
+          "law": "KSCHG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 379.66,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Interzession Informationspflicht 25c KSchG\", \"law\": \"KSCHG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_kommentar_keyword_uTrvAuIE5Xd3gpTeEExE",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Mäßigungsrecht Bürgschaft 25d KSchG",
+          "limit": 5,
+          "law": "KSCHG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.06,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Mäßigungsrecht Bürgschaft 25d KSchG\", \"law\": \"KSCHG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_kommentar_keyword_B5FvZjBpUnciuWpKVTx0",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Akzessorietät Insolvenz Bürge",
+          "limit": 5,
+          "law": "IO"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.76,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Akzessorietät Insolvenz Bürge\", \"law\": \"IO\", \"count\": 0, \"results\": []}"
+      }
+    ],
+    "tool_calls_total": 8,
+    "tool_calls_ok": 8,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "In der Rechtssache **Carmen Renate Toblier** ergibt sich folgende strategische Ersteinschätzung zur Abwehr der Exekution (BG Melk 25 E 1939/25i):\n\n### 1. Strategische Priorisierung der Rechtsbehelfe\nDie Verteidigung muss auf zwei Ebenen gleichzeitig ansetzen, wobei die **Beseitigung des Titels** die stärkste Wirkung entfaltet:\n\n*   **Priorität 1: Bekämpfung der Exekutionsbewilligung (§ 7 Abs 3 EO / § 40 EO)**\n    Da die Mandantin behauptet, den Zahlungsbefehl (2018) nie erhalten zu haben (Zustellung an eine veraltete Adresse), ist der Titel mangels wirksamer Zustellung nie rechtskräftig geworden.\n    *   **Schritt:** Antrag auf Aufhebung der Vollstreckbarkeitsbestätigung beim Titelgericht (BG Gänserndorf) gemäß **§ 7 Abs 3 EO**.\n    *   **Folge:** Fällt die Vollstreckbarkeit weg, ist die Exekution gemäß **§ 40 EO (Impugnationsklage/Einstellung)** einzustellen. Dies ist der effizienteste Weg, da er die gesamte Grundlage entzieht.\n\n*   **Priorität 2: Einwand des Erlöschens der Forderung (§ 35 EO)**\n    Selbst wenn der Titel formal bestünde, ist die Forderung materiell erloschen. Der Hauptschuldner hat im Insolvenzverfahren (11 S 18/19k) eine **100%-Quote** erfüllt.\n    *   **Rechtslage:** Gemäß dem **Akzessorietätsprinzip** führt die vollständige Befriedigung des Gläubigers durch den Hauptschuldner zum Erlöschen der Bürgenverpflichtung.\n    *   **Schritt:** **Oppositionsklage gemäß § 35 EO** gegen die betreibende Partei (Erste Bank). Da die Zahlung (11/2025) nach Entstehung des Titels (2018) erfolgte, ist dieser Einwand zulässig.\n\n### 2. Konsumentenschutzrechtliche Aspekte (§§ 25c, 25d KSchG)\nSollte die Bank versuchen, Restzinsen oder Kosten geltend zu machen, greifen die Schutzbestimmungen für Interzedenten:\n*   **§ 25c KSchG (Informationspflicht):** Die Bank hätte die Mandantin über die wirtschaftliche Lage des Hauptschuldners aufklären müssen. Bei Verletzung haftet die Mandantin nur, wenn sie trotz Warnung beigetreten wäre (**RS0113883**).\n*   **§ 25d KSchG (Mäßigungsrecht):** Da die Mandantin AMS-Bezieherin ist und die Haftung in einem emotionalen Naheverhältnis (Lebensgefährte) übernahm, besteht ein starkes Argument für ein richterliches Mäßigungsrecht wegen eines krassen Missverhältnisses zur Leistungsfähigkeit (**RS0113937**).\n\n### 3. Relevante Rechtssätze zur Absicherung\n*   **RS0113883:** Statuiert die strikte Warnpflicht des Gläubigers gegenüber dem Interzedenten gemäß § 25c KSchG.\n*   **RS0113936 / RS0113937:** Bestätigen die Anwendbarkeit des Mäßigungsrechts (§ 25d KSchG) auch bei privaten Gläubigern und die Berücksichtigung der wirtschaftlichen Überforderung des Bürgen.\n*   **RS0065562:** Unterstreicht die Unabdingbarkeit von Konsumentenschutzrechten (§ 9 KSchG analog für Schutzbestimmungen).\n\n### Kurzfristig wirksamste Schritte:\n1.  **Antrag auf Aufhebung der Vollstreckbarkeitsbestätigung** (§ 7 Abs 3 EO) beim BG Gänserndorf.\n2.  **Antrag auf Aufschiebung der Exekution** (§ 42 EO) beim BG Melk, um die Gehaltsexekution (AMS) sofort zu stoppen, bis über die Wirksamkeit des Titels entschieden ist.\n3.  **Eventualiter: Oppositionsklage** (§ 35 EO) unter Hinweis auf die 100%-Zahlung des Hauptschuldners (Akzessorietät).\n\n**Beweislast:** Die Bank muss die ordnungsgemäße Zustellung des Titels beweisen; die Mandantin muss die Erfüllung der Hauptschuld (Zahlungsplanbestätigung KSV1870) belegen.",
+    "answer_chars": 3356,
+    "e2e_ms": 14282.67
+  },
+  {
+    "name": "hot_index_context",
+    "goal": "Retrieve top hot-index context and mini-story evidence.",
+    "mode": "llm",
+    "tools": [
+      "hot_rs_search",
+      "hot_cluster_context",
+      "hot_rs_lookup"
+    ],
+    "llm_model": "google/gemini-3-flash-preview",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 2407.79,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 10,
+        "usage": {
+          "prompt_tokens": 4339,
+          "completion_tokens": 270,
+          "total_tokens": 4609,
+          "cost": 0.0029795,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 2862.65,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 8108,
+          "completion_tokens": 147,
+          "total_tokens": 8255,
+          "cost": 0.004495,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 2381.22,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 8795,
+          "completion_tokens": 138,
+          "total_tokens": 8933,
+          "cost": 0.0048115,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 9617.63,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 9475,
+          "completion_tokens": 1158,
+          "total_tokens": 10633,
+          "cost": 0.0082115,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_wMTZ6CcZRnxLYfwnKwBd",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0000180",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.18,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0000180\", \"rechtssatz_text\": \"Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag entscheidende Exekutionsgericht (das nicht auch Titelgericht ist) sowie die dem Exekutionsgericht übergeordneten Rechtsmittelinstanzen dürfen somit die...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 14256, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob60_17w|OGH|2017-05-10\", \"gz\": \"3Ob60_17w\", \"datum\": \"2017-05-10\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit der Exekution gegen insolvenzfreies Vermögen während eines anhängigen Insolvenzverfahrens auf Basis eines Auszugs aus dem Anmeldungsverzeichnis.\"}, {\"te_stable_key\": \"3Ob189_10f|OGH|2010-12-14\", \"gz\": \"3Ob189_10f\", \"datum\": \"2010-12-14\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Einstellung einer Exekution zur Durchsetzung von rückständigem und laufendem Ehegattenunterhalt durch Pfandrechtsbegründung und Vormerkung aufgrund fehlender Vollstreckbarkeit des Titels.\"}, {\"te_stable_key\": \"5Ob174_08m|OGH|2008-09-23\", \"gz\": \"5Ob174_08m\", \"datum\": \"2008-09-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Entscheidung über den Ausschluss eines Miteigentümers aus der Wohnungseigentümergemeinschaft wegen Zahlungsrückständen als unzulässig zurück.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_eqBNrEafxnq120ZY6VXU",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0001544",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.81,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0001544\", \"rechtssatz_text\": \"Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; deshalb liegt eine irrtümliche Vollstreckbarkeitsbestätigung insbesondere dann vor, wenn der Exekutionstitel dem Titelschuldner nicht rechtswirksam...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 14294, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob66_20t|OGH|2020-06-24\", \"gz\": \"1Ob66_20t\", \"datum\": \"2020-06-24\", \"gericht\": \"OGH\", \"mini_story\": \"Amtshaftungsklage wegen unterlassener inhaltlicher Behandlung eines Antrags auf Aufhebung der Rechtskraft- und Vollstreckbarkeitsbestätigung eines Wechselzahlungsauftrags und fehlender Kausalität für entstandene Schäden.\"}, {\"te_stable_key\": \"1Ob22_14p|OGH|2014-02-27\", \"gz\": \"1Ob22_14p\", \"datum\": \"2014-02-27\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Bestätigung der Vollstreckbarkeit eines OGH-Beschlusses auf, da die 14-tägige Leistungsfrist zum Zeitpunkt der Bestätigung noch nicht abgelaufen war.\"}, {\"te_stable_key\": \"2Ob232_08v|OGH|2009-06-25\", \"gz\": \"2Ob232_08v\", \"datum\": \"2009-06-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der Senat erlaubt die analoge Anwendung von § 7 Abs 3 EO auf die Aufhebung einer irrtümlich erteilten Rechtskraftbestätigung bei gerichtlicher Kündigung eines Bestandvertrags über ein Geschäftslokal.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_j1ky9WmOS3kDrwg22QWL",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0001557",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.27,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0001557\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_cZLAPZGilS72WnxN8Y0y",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0001566",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.67,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0001566\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_1ajSdvA5dQlIDoDzsf2G",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0001582",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.43,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0001582\", \"rechtssatz_text\": \"Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch für eine (durch abändernde Rechtsmittelentscheidung) vom Rekursgericht erteilte Vollstreckbarkeitsbestätigung.\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 11893, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"2Ob14_21d|OGH|2021-03-25\", \"gz\": \"2Ob14_21d\", \"datum\": \"2021-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt den Rekursbeschluss auf, weist den Rekurs der Enkeltochter gegen Punkte 2 und 6 des Erstgerichtsbeschlusses zurück und weist den Antrag der Erbin ab, sie über Schweizer Bankguthaben allein verfügungsberechtigt zu stellen.\"}, {\"te_stable_key\": \"5Ob96_20h|OGH|2020-12-22\", \"gz\": \"5Ob96_20h\", \"datum\": \"2020-12-22\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit des außerordentlichen Revisionsrekurses gegen die Bestätigung der Rechtskraft eines Sachbeschlusses im Wohnungseigentumsverfahren.\"}, {\"te_stable_key\": \"3Ob152_15x|OGH|2015-09-17\", \"gz\": \"3Ob152_15x\", \"datum\": \"2015-09-17\", \"gericht\": \"OGH\", \"mini_story\": \"Die Bescheinigung nach Art 54 EuGVVO 2000 ist eine erweiterte Form der nationalen Vollstreckbarkeitsbestätigung und nur mit dem abgeschwächten Rechtsschutz des § 7 Abs 3 EO anfechtbar.\"}, {\"te_stable_key\": \"3Ob124_06s|OGH|2006-09-13\", \"gz\": \"3Ob124_06s\", \"datum\": \"2006-09-13\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt den Beginn des Fristlaufs gemäß § 575 Abs 2 ZPO für die Bewilligung einer Räumungsexekution bei gerichtlicher Aufkündigung unter Berücksichtigung von Rechtsmittelverfahren und Einwendungen.\"}], \"te_items_count\": 4}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_bAkYlm2mlksaol05sSLO",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0032137",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.81,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0032137\", \"rechtssatz_text\": \"Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessorität. Auch die Schuld des Beitretenden ist zwar im Zeitpunkt ihrer Entstehung davon abhängig, dass die Schuld, der er beitritt, besteht, in ihrem...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15178, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob168_23v|OGH|2023-11-21\", \"gz\": \"4Ob168_23v\", \"datum\": \"2023-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zustandekommen eines Liegenschaftskaufvertrags durch Einigung über Kaufpreis und -gegenstand sowie persönliche Haftung des Käufers bei Übertragung auf Dritten.\"}, {\"te_stable_key\": \"3Ob160_10s|OGH|2010-10-13\", \"gz\": \"3Ob160_10s\", \"datum\": \"2010-10-13\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision ist unzulässig, da die Haftung der Klägerin auf den Schuldbeitritt zur Unterhaltsverpflichtung des Exgatten beschränkt ist und die Witwenpension gemäß analoger Anwendung von § 796 ABGB einzurechnen ist, wodurch die Unterhaltspflicht erloschen ist.\"}, {\"te_stable_key\": \"3Ob17_07g|OGH|2007-03-29\", \"gz\": \"3Ob17_07g\", \"datum\": \"2007-03-29\", \"gericht\": \"OGH\", \"mini_story\": \"Ablehnung der außerordentlichen Revision einer Teilbürgin, da Teilzahlungen des Hauptschuldners zunächst auf den nicht verbürgten Teil angerechnet werden.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_LUKrUJUPDqcEQpqzbi9D",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0032169",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.86,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0032169\", \"rechtssatz_text\": \"Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 15180, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"4Ob168_23v|OGH|2023-11-21\", \"gz\": \"4Ob168_23v\", \"datum\": \"2023-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zustandekommen eines Liegenschaftskaufvertrags durch Einigung über Kaufpreis und -gegenstand sowie persönliche Haftung des Käufers bei Übertragung auf Dritten.\"}, {\"te_stable_key\": \"4Ob200_20w|OGH|2020-11-26\", \"gz\": \"4Ob200_20w\", \"datum\": \"2020-11-26\", \"gericht\": \"OGH\", \"mini_story\": \"Abgrenzung einer Garantieerklärung von einer Bürgschaft im Kontext eines Kaufvertrags über eine vermietete Liegenschaft und Anwendbarkeit der Verjährungsfrist gemäß § 1489 ABGB.\"}, {\"te_stable_key\": \"2Ob204_10d|OGH|2011-10-20\", \"gz\": \"2Ob204_10d\", \"datum\": \"2011-10-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt die Stornierbarkeit irrtümlicher innerbetrieblicher Umbuchungen vom Giro- auf das Kreditkonto einer Kreditnehmerin und deren Auswirkungen auf die Bürgschaftshaftung.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_8x21aPZ3u6ngPRfQPHjV",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0034598",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.63,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0034598\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_MAaLRiCilIbwEmxatJqi",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0058309",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.36,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0058309\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_lookup_sYPqyHt0dho8niYp45LO",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0122821",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.37,
+        "error": null,
+        "payload_preview": "{\"found\": false, \"rs_number\": \"RS0122821\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_X151qIPwsWs1qtYS0GaV",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Oppositionsklage Erlöschen der Hauptschuld Bürgschaft",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 240.05,
+        "error": null,
+        "payload_preview": "{\"query\": \"Oppositionsklage Erlöschen der Hauptschuld Bürgschaft\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_fdyMZ6ZH7QSRCTTVS0c8",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "25c KSchG Informationspflicht Kreditwürdigkeit Interzession",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 379.34,
+        "error": null,
+        "payload_preview": "{\"query\": \"25c KSchG Informationspflicht Kreditwürdigkeit Interzession\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_69HcLsw3XcN0tXryJBIL",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Abs Aufhebung Vollstreckbarkeitsbestätigung Zustellmangel",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 31.87,
+        "error": null,
+        "payload_preview": "{\"query\": \"Abs Aufhebung Vollstreckbarkeitsbestätigung Zustellmangel\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_YWQQYELUzsNLgPIVqQQZ",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Akzessorietät Bürge Insolvenz Hauptschuldner Quote",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.51,
+        "error": null,
+        "payload_preview": "{\"query\": \"Akzessorietät Bürge Insolvenz Hauptschuldner Quote\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_search_bk5XE4SbZQloPxqgQ3in",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Bürgschaft Akzessorietät Erlöschen Hauptschuld Zahlungsplan",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.3,
+        "error": null,
+        "payload_preview": "{\"query\": \"Bürgschaft Akzessorietät Erlöschen Hauptschuld Zahlungsplan\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_search_Pjw92Q2pr2bgT7F5MxTs",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Abs irrtümliche Vollstreckbarkeitsbestätigung Zustellung",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.63,
+        "error": null,
+        "payload_preview": "{\"query\": \"Abs irrtümliche Vollstreckbarkeitsbestätigung Zustellung\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_search_o20eAruoiuaJgktAedQJ",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "25c KSchG Informationspflicht Gläubiger Interzedent",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.45,
+        "error": null,
+        "payload_preview": "{\"query\": \"25c KSchG Informationspflicht Gläubiger Interzedent\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_search_gXxqsl9qM8UegWd0sb2Z",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Oppositionsklage Einwendung Erlöschen Forderung Bürge",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.02,
+        "error": null,
+        "payload_preview": "{\"query\": \"Oppositionsklage Einwendung Erlöschen Forderung Bürge\", \"count\": 0, \"results\": []}"
+      }
+    ],
+    "tool_calls_total": 18,
+    "tool_calls_ok": 18,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "Strategische anwaltliche Ersteinschätzung im Fall **CARMEN** (Toblier ./. Erste Bank):\n\n### 1. Entscheidende Rechtsfragen & Priorisierung\nDie Verteidigung muss auf drei Ebenen gleichzeitig ansetzen, wobei die **prozessuale Beseitigung der Exekutionsgrundlage** oberste Priorität hat, um den Zugriff auf das AMS-Geld kurzfristig zu stoppen.\n\n*   **Priorität 1: Beseitigung des Exekutionstitels (§ 7 Abs 3 EO)**\n    Da Carmen behauptet, den Zahlungsbefehl von 2018 nie erhalten zu haben (Zustellmangel), ist die Vollstreckbarkeitsbestätigung irrtümlich erteilt worden.\n    *   **RS0001544:** Eine Vollstreckbarkeitsbestätigung ist irrtümlich, wenn der Titel nicht rechtswirksam zugestellt wurde.\n    *   **Schritt:** Antrag auf Aufhebung der Vollstreckbarkeitsbestätigung beim Titelgericht (BG Gänserndorf). Dies entzieht der Exekution die Basis.\n\n*   **Priorität 2: Einwand des Erlöschens der Hauptschuld (§ 35 EO iVm § 1351 ABGB)**\n    Der Hauptschuldner hat 100 % der Insolvenzforderung gezahlt. Aufgrund der **Akzessorietät** (RS0032169) erlischt mit der Hauptschuld auch die Bürgschaft.\n    *   **§ 14 IO vs. Akzessorietät:** Während § 14 IO besagt, dass ein Sanierungsplan/Zahlungsplan die Haftung des Bürgen gegenüber dem Gläubiger *während* des Verfahrens nicht einschränkt, führt die **vollständige Erfüllung** (100 % Quote) zum materiellen Erlöschen der Forderung. Eine weitere Exekution gegen Carmen wäre eine unzulässige Überbefriedigung.\n    *   **Schritt:** Oppositionsklage (§ 35 EO) beim Exekutionsgericht (BG Melk), gestützt auf die Tilgung durch Wolfgang Brand.\n\n*   **Priorität 3: Konsumentenschutzrechtliche Unwirksamkeit (§ 25c KSchG)**\n    Falls der Titel hält, ist zu prüfen, ob die Bank Carmen bei Übernahme der Bürgschaft über die wirtschaftliche Lage des Hauptschuldners aufgeklärt hat.\n    *   **RS0113883:** § 25c KSchG statuiert eine strikte Informationspflicht des Gläubigers gegenüber dem Interzedenten. Bei Verletzung haftet der Bürge nicht, wenn er bei Kenntnis die Bürgschaft nicht übernommen hätte.\n    *   **Schritt:** Einwendung der Sittenwidrigkeit/Verletzung der Warnpflicht im Rahmen der Opposition oder eines Feststellungsverfahrens.\n\n### 2. Kurzfristige Maßnahmen (Quick Wins)\n1.  **Aufschiebungsantrag (§ 42 Abs 1 Z 5 EO):** Sofortiger Antrag auf Aufschiebung der Exekution (BG Melk) unter Hinweis auf den gleichzeitig einzubringenden Antrag nach § 7 Abs 3 EO (Zustellmangel) und die Oppositionsklage (Erlöschen der Schuld). Dies sichert die AMS-Leistungen vorläufig.\n2.  **Antrag auf Aufhebung der Vollstreckbarkeitsbestätigung (§ 7 Abs 3 EO):** Beim BG Gänserndorf, um den Titel \"einzufrieren\".\n3.  **Schreiben an die Gegenseite:** Aufforderung zum sofortigen Exekutionsverzicht unter Hinweis auf die 100%-Zahlung des Hauptschuldners (Gefahr der Schadenersatzpflicht der Bank).\n\n### 3. Absicherung durch Rechtssätze (RS)\n*   **RS0001544:** Definition der irrtümlichen Vollstreckbarkeitsbestätigung bei Zustellmängeln.\n*   **RS0000180:** Bindungswirkung der Vollstreckbarkeitsbestätigung (nur das Titelgericht kann sie aufheben).\n*   **RS0032169:** Bestätigung der strikten Akzessorietät jeder Bürgschaft.\n*   **RS0113883:** Unbedingte Informationspflicht der Bank gemäß § 25c KSchG.\n*   **RS0113937:** Weiter Anwendungsbereich des richterlichen Mäßigungsrechts (§ 25d KSchG).\n\n**Beweislast:**\n*   **Zustellmangel:** Carmen muss die Unrichtigkeit des Zustellvorgangs bescheinigen (z.B. Meldebestätigung, dass sie 2018 bereits in Melk wohnte).\n*   **Erlöschen der Schuld:** Carmen trägt die Beweislast für die Zahlung durch den Hauptschuldner (hier durch KSV-Auszug/Insolvenzakt leicht möglich).\n*   **§ 25c KSchG:** Die Bank muss beweisen, dass sie Carmen informiert hat (Informationspflicht).",
+    "answer_chars": 3735,
+    "e2e_ms": 18136.32
+  },
+  {
+    "name": "ogh_rs_core",
+    "goal": "Find the most relevant OGH RS + TE and capture stable references.",
+    "mode": "llm",
+    "tools": [
+      "search_ogh_rechtssaetze",
+      "search_ogh_entscheidungen",
+      "get_rechtssatz",
+      "search_by_paragraph",
+      "search_by_schlagwort"
+    ],
+    "llm_model": "google/gemini-3-flash-preview",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 2345.6,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 10,
+        "usage": {
+          "prompt_tokens": 4483,
+          "completion_tokens": 270,
+          "total_tokens": 4753,
+          "cost": 0.0030515,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 2897.04,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 6,
+        "usage": {
+          "prompt_tokens": 8298,
+          "completion_tokens": 149,
+          "total_tokens": 8447,
+          "cost": 0.004596,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 2259.85,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 12632,
+          "completion_tokens": 136,
+          "total_tokens": 12768,
+          "cost": 0.006724,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 2261.48,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 13327,
+          "completion_tokens": 129,
+          "total_tokens": 13456,
+          "cost": 0.0070505,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 5,
+        "latency_ms": 8363.17,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 14130,
+          "completion_tokens": 1131,
+          "total_tokens": 15261,
+          "cost": 0.010458,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_Bv4b2tc1Wok5sMQTY6hl",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0000180"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.85,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0000180\", \"rechtssatz\": \"Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag entscheidende Exekutionsgericht (das nicht auch Titelgericht ist) sowie die dem Exekutionsgericht übergeordneten Rechtsmittelinstanzen dürfen somit die Richtigkeit der Vollstreckbarkeitsbestätigung nicht überprüfen. Sind Titel- und Bewilligungsgericht nicht identisch, so kann das Rekursgericht die formelle Vollstreckbarkeit nicht auf Grund des Titelaktes überprüfen. Dies wäre ein Verstoß gegen das Neuerungsverbot.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Versäumungsurteil\", \"Widerspruchsfrist\", \"Abgabestelle\", \"Exekutionsbewilligung\", \"Vollstreckbarkeit\", \"Unterlassungsexekution\", \"Revisionsrekurs\", \"Exekutionsantrag\", \"Rechnungslegungspflicht\", \"Vorrang des Gemeinschaftsrechts\", \"Zwangsvollstreckung\", \"Wohnungseigentümergemeinschaft\", \"Ausschluss\", \"Zahlungsrückstand\", \"Vollstreckbarkeitsbestätigung\", \"Bindungswirkung\", \"Revisionzulässigkeit\", \"Exekutionseinstellung\", \"Ehegattenunterhalt\", \"Pfandrechtsbegründung\"], \"fachgebiete\": [\"Rekurs\", \"Unterlassung\", \"Revision\"], \"datum\": \"2010-12-14\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_iesnOy5Ukd2hRPCt6jhe",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0001544"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.96,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0001544\", \"rechtssatz\": \"Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; deshalb liegt eine irrtümliche Vollstreckbarkeitsbestätigung insbesondere dann vor, wenn der Exekutionstitel dem Titelschuldner nicht rechtswirksam zugestellt worden war und daher die Vollstreckbarkeit des Titels tatsächlich nicht eingetreten ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rechtskraftbestätigung\", \"Abwesenheit\", \"Mahnklage\", \"UGB §277\", \"Sachwalterschaft\", \"Beweiswürdigung\", \"Hinterlegungsanzeige\", \"Ausfall am Meistbot\", \"Liquidator Funktion Beendigung\", \"Bestandvertrag\", \"§ 16 Abs 2 ZustG\", \"Gutachten\", \"Firmenbuchgericht\", \"Rekurs\", \"Revisionsrekurs\", \"Inquisitionsmaxime\", \"Zustellung per Hinterlegung\", \"§35 EO\", \"Ersatzempfänger\", \"ZustG\", \"Sachwalter\", \"EO\", \"Verlassenschaft\", \"Zustellung durch Hinterlegung\", \"Zustellung\", \"Leistungsfrist\", \"§ 7 EO\", \"Hinterlegungszustellung\", \"Zahlungsbefehl\", \"Geschäftsfähigkeit\"], \"fachgebiete\": [\"Revision\", \"GmbH-Recht\", \"Nichtigkeitsbeschwerde\", \"Rekurs\", \"Vertragsrecht\"], \"datum\": \"2014-02-27\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_JHDyvwbFfZcEJpjuGWeb",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0001557"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.11,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0001557\", \"rechtssatz\": \"Das Verfahren nach § 7 Abs 3 EO ist nach den für das Titelverfahren bestehenden Vorschriften durchzuführen. In diesem Verfahren sind auch allenfalls strittige, nicht aktenkundige Tatsachen festzustellen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekutionsbewilligung\", \"Impugnationsklage\", \"Vollstreckbarkeit\", \"Versäumungsurteil\", \"Zustellung postamtliche Hinterlegung\", \"Wiedereinsetzung in den vorigen Stand\", \"Aufhebung Vollstreckbarkeit\", \"Kündigung Vollmacht\", \"Wohnungsänderung Mitteilungspflicht\", \"Revisionsrekurs\", \"Sicherungsantrag\", \"Aufteilungsverfahren\", \"Exekutionstitel\", \"Vollstreckbarkeitsbestätigung\", \"Aktenwidrigkeit\", \"Zustellung\", \"Aufhebung der Vollstreckbarkeit\", \"Unterbrechung des Verfahrens\", \"Nichtigkeitsklage\", \"Prozessfähigkeit\", \"Geschäftsfähigkeit\", \"Wechselzahlungsauftrag\", \"Aufhebung\", \"Zustellung an Handlungsunfähige\", \"Sachwalterschaft\", \"Ausfall am Meistbot\", \"Unzulässigkeit\", \"Arbeits- und Sozialrecht\"], \"fachgebiete\": [\"Revision\", \"Rekurs\"], \"datum\": \"2015-12-21\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_R4JncK6FSkCbHtxR8SIR",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0001566"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.57,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0001566\", \"rechtssatz\": \"Es kommt nach § 7 Abs 3 EO nur darauf an, ob die Vollstreckbarkeitsbestätigung gesetzwidrig oder irrtümlich erteilt worden ist, nicht aber darauf, ob und von welchem Gericht bereits eine Exekution bewilligt wurde. Nur dann, wenn eine Vollstreckbarkeitsbestätigung noch nicht erteilt worden ist und um die Exekutionbewilligung beim Titelgericht angesucht wurde, ist für ein Verfahren nach § 7 Abs 3 EO kein Raum und es kann der Exekutionsbewilligungsbeschluß nur mittels Rekurses angefochten werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"AußStrG\", \"Exekution\", \"Kindesunterhalt\", \"Revisionsrekurs\", \"Vollstreckbarkeitsbestätigung\"], \"fachgebiete\": [\"Kindesunterhalt\", \"Revision\"], \"datum\": \"1995-09-28\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_XfbWc3DWdggGjkzcPFzU",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0001582"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.84,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0001582\", \"rechtssatz\": \"Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch für eine (durch abändernde Rechtsmittelentscheidung) vom Rekursgericht erteilte Vollstreckbarkeitsbestätigung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rechtskraftbestätigung\", \"Fristbeginn § 575 Abs 2 ZPO\", \"Kostenrekurs\", \"Anfechtbarkeit\", \"GmbH\", \"UGB §277\", \"ZustG §22\", \"TP 3A RATG\", \"Notwendigkeit\", \"Europäischer Vollstreckungstitel\", \"Antragszurückziehung\", \"Vollstreckbarkeit\", \"Zwangsstrafe\", \"Ausfolgung\", \"Einspruch\", \"TP 1 RATG\", \"TP 2 RATG\", \"Zweckmäßigkeit\", \"Firmenbuchgericht\", \"Rekurs\", \"Revisionsrekurs\", \"Unzuständigkeit\", \"Versäumungsurteil\", \"Aktenausscheidung\", \"Zustellung per Hinterlegung\", \"Ersatzzustellung\", \"§35 EO\", \"Rechtsmittellegitimation\", \"Beschwerde\", \"WEG\"], \"fachgebiete\": [\"Rekurs\", \"Revision\", \"EU-Recht\"], \"datum\": \"2020-12-22\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_qsueEuBY0T5v1ycWwHiw",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0032137"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.74,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032137\", \"rechtssatz\": \"Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessorität. Auch die Schuld des Beitretenden ist zwar im Zeitpunkt ihrer Entstehung davon abhängig, dass die Schuld, der er beitritt, besteht, in ihrem Fortbestand ist sie aber als Solidarschuld eine selbständige Schuld, wogegen die Schuld des Bürgen auch in ihrem Fortbestand von der Hauptschuld abhängt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Schuldbeitritt\", \"Bürgschaft\", \"Mietvertrag\", \"Schuldübernahme\", \"Akzessorietät\", \"Verjährung\", \"Mitschuldner\", \"Regreßrecht\", \"Gutstehung\", \"Formvorschrift\", \"Mithaftung\", \"Schriftform\", \"Anwaltsgebühren\", \"Geschäftsführerhaftung\", \"Garantieerklärung\", \"Vorvertragliche Pflichten\", \"Bierlieferverträge\", \"Alleinbezugsverträge\", \"Art 81 EG\", \"Nichtigkeit\", \"Gruppenfreistellung\", \"Unterhaltsvergleich\", \"Wertsicherung\", \"Ausfallshaftung\", \"Umstandsklausel\", \"Teilbürgschaft\", \"Interzession\", \"Zuweisung\", \"Zwangsvollstreckung\", \"Scheidungsunterhalt\", \"Reallast\", \"Witwenpension\", \"Einrechnung\", \"Dauerschuldverhältnis\", \"Verzugsfolgen\", \"Zahler\", \"Vertragserfüllung\", \"Liegenschaftskaufvertrag\", \"Vertragszustandekommen\", \"Vertragsübernahme\"], \"fachgebiete\": [\"Vertragsauslegung\", \"Haftungsrecht\", \"GmbH-Recht\", \"Wettbewerbsrecht\", \"Scheidung\", \"Revision\"], \"datum\": \"2023-11-21\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_olq9Z5zUlGgrhTNphCV7",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0032169"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.49,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0032169\", \"rechtssatz\": \"Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Mitschuldner\", \"Regreßrecht\", \"Akzessorietät\", \"Kommanditgesellschaft\", \"Vertretungsbefugnis\", \"Geschäftsführer\", \"Kreditvertrag\", \"Zahlerhaftung\", \"Zurechnung von Zahlungen\", \"Kontokorrent\", \"Blankoakzept\", \"Wechselzahlungsauftrag\", \"Treuhand\", \"Ausfallsbürgschaft\", \"Vertretungsmacht\", \"Treuhandkredit\", \"Aktivlegitimation\", \"reine Stundung\", \"Bürgen und Zahler\", \"Wechselbürgschaft\", \"Konversion\", \"Formmangel\", \"Werklohn\", \"Bankbuchungen\", \"Stornierung\", \"Aufrechnung\", \"Sparguthaben\", \"Liegenschaftskaufvertrag\", \"Vertragszustandekommen\", \"Vertragsübernahme\"], \"fachgebiete\": [\"Haftungsrecht\", \"Personengesellschaften\", \"Vertragsauslegung\"], \"datum\": \"2023-11-21\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_RAEhZCHboYStyCGdxdmm",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0034598"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.13,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0034598\", \"rechtssatz\": \"Die Unterbrechung der Verjährung wirkt nur zwischen jenen Personen, zwischen denen der die Unterbrechung begründende Tatbestand gesetzt worden ist (Anschluß im Strafverfahren gegen Zugsführer der ÖBB; Schadenersatzklage gegen Republik Österreich).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kommanditgesellschaft\", \"Gesellschafterhaftung\", \"Verjährung\", \"Anerkennung ausländischer Urteile\", \"Aufrechnung\", \"Bürgschaft\", \"Akzessorietät\", \"Abgabenschulden\", \"Haftung Abschlussprüfer\", \"Verjährung § 275 UGB\", \"Treu und Glauben\"], \"fachgebiete\": [\"Personengesellschaften\", \"Haftungsrecht\"], \"datum\": \"2024-10-24\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_a9e06hf58OGdVVkOu3XK",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0058309"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.44,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0058309\", \"rechtssatz\": \"§ 7 Abs 3 EO dient dazu, durch Aufhebung der Vollstreckbarkeitsbestätigung die Bewilligung einer Exekution auf Grund einer mit dieser Bestätigung versehenen Ausfertigung des Titels durch das Exekutionsgericht zu verhindern, bzw die Einstellung einer so bewilligten Exekution gemäß § 39 Abs 1 Z 9 EO zu ermöglichen. Für Fälle einer gemäß § 4 Abs 2 EO vom Exekutionsgericht bewilligten Exekution kann aus § 7 Abs 6 EO erschlossen werden, daß mit Rekurs gegen die Exekutionsbewilligung das Fehlen der Voraussetzungen der Vollstreckbarkeit nicht geltend gemacht werden kann, zumal dies wegen des Neuerungsverbotes in der Regel auch gar nicht möglich sein wird. Das Verfahren nach § 7 Abs 3 EO setzt aber voraus, daß die Voraussetzungen des § 4 Abs 2 EO gegeben sind.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kindesunterhalt\", \"Aufhebung\", \"Ersatzzustellung\", \"Einantwortung\", \"GmbH\", \"Gerichtskundigkeit\", \"EO §7\", \"ZustG §22\", \"ZustG §13\", \"Rechtsnachfolge\", \"AußStrG\", \"Vollstreckbarkeit\", \"Zustellung\", \"Fristversäumnis\", \"Nachlass\", \"Einspruch\", \"Zwangsversteigerung\", \"Exekution\", \"Zahlungsbefehl\", \"Rekurs\", \"Revisionsrekurs\", \"Vollstreckbarkeitsbestätigung\"], \"fachgebiete\": [\"Rekurs\", \"Revision\", \"Kindesunterhalt\"], \"datum\": \"2019-11-19\"}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_get_rechtssatz_aLquNpKZh1wiouKfZcil",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0122821"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.05,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0122821\", \"rechtssatz\": \"Der Geltendmachung eines Oppositionsgrundes in einem zweiten Verfahren nach § 35 EO steht die Rechtskraft der Vorentscheidung entgegen, wenn im zweiten Verfahren der betriebene Anspruch und der Oppositionsgrund schon Gegenstand des früheren, klageabweisenden Oppositionsurteils war, selbst wenn der Oppositionsgrund im vorangehenden Verfahren wegen des Verstoßes gegen die Eventualmaxime des §35 Abs3 EO nicht berücksichtigt wurde. War der im zweiten Oppositionsstreit relevierte Oppositionsgrund noch nicht Gegenstand des ersten Oppositionsverfahrens, kommt es für die Zulässigkeit der Einwendung darauf an, ob der Verpflichtete zum Zeitpunkt der Erhebung der ersten Klage schon imstande war, die Einwendung zu erheben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Oppositionsklage\", \"Unterhalt\", \"Eventualmaxime\", \"Kapitaleinkünfte\", \"Exekution\"], \"fachgebiete\": [\"Rekurs\"], \"datum\": \"2007-10-23\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_by_paragraph_z3KObHjc8FwgP9JmQQhu",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 25c KSchG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 275.55,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 25c KSchG\", \"results\": [{\"rs_number\": \"RS0120255\", \"kernaussage\": \"Eine Aufklärungsobliegenheit im Sinn des § 25c KSchG besteht dann nicht, wenn der Interzedent selbst die Kreditverhandlungen für den Hauptschuldner eigenverantwortlich führt und über dessen Finanzlage zur Gänze unterrichtet ist.\", \"schlagworte\": [\"Bürgschaft\", \"Interzedent\", \"Verbrauchereigenschaft\", \"KSchG\", \"Aufklärungsobliegenheit\", \"Leasingvertrag\", \"Interzedentin\", \"Aufklärungspflicht\", \"Fahrzeugmängel\", \"Schadenersatz\", \"Warnpflicht\", \"Mäßigung\", \"ungarisches Insolvenzrecht\", \"GmbH-Gesellschafter\", \"Unternehmerqualifikation\", \"Einlagenrückgewähr\", \"§ 82 GmbHG\", \"Akzessorietät\", \"Garantiehaftung\", \"Bonitätsprüfung\", \"Kreditwürdigkeit\", \"Solidarschuldner\"]}, {\"rs_number\": \"RS0112839\", \"kernaussage\": \"Ob ein Kreditgeber (= Bank) dem Interzedenten (hier: Bürge und Zahler) ausreichende Informationen über die wirtschaftliche Lage des Schuldners im Sinne des § 25c KSchG gegeben hat, ist von der Beurteilung ganz konkreter Individualumstände abhängig. Dabei kommt im vorliegenden Fall dem Umstand...\", \"schlagworte\": [\"Bürgschaft\", \"Interzedent\", \"KSchG\", \"Mäßigung\", \"Rechtsrüge\", \"unrichtige Rechtsanwendung\", \"§ 25c KSchG\", \"Aufklärungspflicht\", \"Interzession\", \"Kreditvertrag\", \"Revision\", \"außerordentliche Revision\", \"wirtschaftliche Notlage\", \"kaufmännische Sorgfalt\", \"Eigeninteresse\", \"Ein-Mann-GmbH\", \"Informationspflicht\", \"Mäßigung der Verbindlichkeit\", \"Feststellungsklage\", \"Rechtliches Interesse\", \"Bonitätsprüfung\", \"Höchstbetragshypothek\", \"Verbrauchergeschäft\", \"Prüfpflicht\", \"Konsumentenkredit\", \"Bankgarantie\"]}, {\"rs_number\": \"RS0113883\", \"kernaussage\": \"§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbarkeit.\", \"schlagworte\": [\"Bürgschaft\", \"Interzession\", \"Sittenwidrigkeit\", \"Informationspflicht\", \"Warnpflicht\"]}, {\"rs_number\": \"RS0119014\", \"kernaussage\": \"Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftung für Rechnung eines anderen und im fremden Interesse) beitreten. Personen, die gemeinsam und im gemeinsamen Interesse eine Verbindlichkeit als...\", \"schlagworte\": [\"Kreditwürdigkeit\", \"Elternhaftung\", \"persönliche Haftung\", \"Anrechnung von Teilzahlungen\", \"Ausbildungs"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_by_paragraph_SHUY60M3Uwwslpsb7Uom",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 25d KSchG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 378.68,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 25d KSchG\", \"results\": [{\"rs_number\": \"RS0113936\", \"kernaussage\": \"§ 25d KSchG ist auch im Verhältnis zwischen einer juristischen Person öffentlichen Rechts und einem Verbraucher in Ansehung eines zwischen ihnen geschlossenen privatrechtlichen Vertrages anzuwenden.\", \"schlagworte\": [\"Bürgschaft\", \"Sittenwidrigkeit\", \"Interzession\", \"KSchG\", \"Pflegegebühren\", \"Verpflichtungserklärung\", \"Unabweisbarkeit\", \"WrKAG\"]}, {\"rs_number\": \"RS0113937\", \"kernaussage\": \"Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen, ermöglicht daher ein richterliches Mäßigungsrecht unter den dort genannten Voraussetzungen auch für Verbindlichkeiten gegenüber anderen Rechtsträgern, somit auch...\", \"schlagworte\": [\"Bürgschaft\", \"Sittenwidrigkeit\", \"Interzession\", \"KSchG\", \"Leasingvertrag\", \"Mithaftung\", \"§ 879 ABGB\", \"Solidarhaftung\", \"Firmenkreditkarte\", \"AGB-Kontrolle\", \"Pflegegebühren\", \"Verpflichtungserklärung\", \"Unabweisbarkeit\", \"WrKAG\"]}, {\"rs_number\": \"RS0112840\", \"kernaussage\": \"Das Vorliegen eines unbilligen Missverhältnisses im Sinne des § 25d KSchG, hängt von den Umständen des jeweiligen Einzelfalles ab.\", \"schlagworte\": [\"Bürgschaft\", \"Interzedent\", \"KSchG\", \"Mäßigung\", \"Interzession\", \"Sittenwidrigkeit\", \"verdünnte Willensfreiheit\", \"Mäßigung der Haftung\", \"§ 25d KSchG\", \"Aufklärungsobliegenheit\", \"Kreditschuldner\", \"Vergleich\", \"Kontokorrentkredit\", \"Kommanditist\", \"Verbraucher\", \"Pflegegebühren\", \"Verpflichtungserklärung\", \"Unabweisbarkeit\", \"WrKAG\", \"unbilliges Missverhältnis\", \"Bonitätsprüfung\"]}, {\"rs_number\": \"RS0113934\", \"kernaussage\": \"a) Die zur Inhaltskontrolle von Interzessionsgeschäfteneinkommens- und vermögensschwacher Familienangehöriger für Verbindlichkeiten des Hauptschuldners entwickelten Grundsätze gelten auch für Interzessionsgeschäfte zur Besicherung von Forderungen eines Sozialversicherungsträgers. b) § 25d KSchG...\", \"schlagworte\": [\"Bürgschaft\", \"Sittenwidrigkeit\", \"Interzession\", \"KSchG\", \"Leasingvertrag\", \"Mithaftung\", \"§ 879 ABGB\", \"Interzedent\", \"Verbrauchereigenschaft\", \"Aufklärungsobliegenheit\", \"Mäßigung\", \"Eigeninteresse\", \"Sozialversicherungsbeiträge\", \"Geschäftsführerhaftung\", \"Feststellungsklage\", \"Informationspflicht\", \"Rechtliches Interesse\", \"Pflegegebühren\", \"Verpflichtungserklärung\", \"Unabweisbarkeit\", \"WrKAG\", \"GmbH-Gesellschafter\", \"Unter"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_by_paragraph_kwoKG1c5g5BPsRm6PcRd",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 35 EO",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 39.62,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 35 EO\", \"results\": [{\"rs_number\": \"RS0120705\", \"kernaussage\": \"Einwendungen gegen den Anspruch nach § 35 EO unterfallen bei Titeln nach § 1 Z 11 EO nicht dem Regime des § 35 Abs 2 letzterSatz EO, sondern dem des § 35 Abs 2 erster Satz EO.\", \"schlagworte\": [\"Ausgleichszulage\", \"Sozialhilfe\", \"Ersatzanspruch\", \"Aufrechnung\", \"Oppositionsklage\", \"Exekutionstitel\", \"Bescheidpflicht\"]}, {\"rs_number\": \"RS0120706\", \"kernaussage\": \"Der Versicherungsträger kann gegen einen Ausgleichszulagenbezieher, der aufgrund eines rechtskräftigen Bescheids des Versicherungsträgers Exekution führt, im Oppositionsprozess (§ 35 EO) nur dann die Aufrechnung mit einer Forderung nach § 324 ASVG geltend machen, wenn auch über die Aufrechnung ein...\", \"schlagworte\": [\"Ausgleichszulage\", \"Sozialhilfe\", \"Ersatzanspruch\", \"Aufrechnung\", \"Oppositionsklage\", \"Exekutionstitel\", \"Bescheidpflicht\"]}, {\"rs_number\": \"RS0122815\", \"kernaussage\": \"Die Erfüllung einer titelmäßigen Verpflichtung ist mittels Oppositionsklage nach § 35 EO geltend zu machen. Im Stadium der Bewilligung des Exekutionsantrags oder Strafantrags ist die Behauptung des Verpflichteten, er habe erfüllt, schon wegen des Neuerungsverbots im Rechtsmittelverfahren unbeachtlic...\", \"schlagworte\": [\"Exekution\", \"Geldstrafe\", \"Revisionsrekurs\", \"Rechnungslegungspflicht\", \"Markenschutz\", \"Oppositionsklage\", \"Impugnationsklage\", \"Rechnungslegung\", \"Titelverstoß\", \"Exekutionstitel\", \"Erfüllung\", \"und zwar\", \"teilweise Erfüllung\"]}, {\"rs_number\": \"RS0122821\", \"kernaussage\": \"Der Geltendmachung eines Oppositionsgrundes in einem zweiten Verfahren nach § 35 EO steht die Rechtskraft der Vorentscheidung entgegen, wenn im zweiten Verfahren der betriebene Anspruch und der Oppositionsgrund schon Gegenstand des früheren, klageabweisenden Oppositionsurteils war, selbst wenn der...\", \"schlagworte\": [\"Oppositionsklage\", \"Unterhalt\", \"Eventualmaxime\", \"Kapitaleinkünfte\", \"Exekution\"]}, {\"rs_number\": \"RS0000588\", \"kernaussage\": \"Eine Verurteilung des Beklagten zur Leistung der bis zum Schluss der Verhandlung in I. Instanz aufgelaufenen Unterhaltsbeträge \\\"abzüglich allfälliger Zahlungen\\\" entspricht nicht den Erfordernissen des § 7 EO. Der Beklagte hat im Hinblick auf die Bestimmungen des § 35 EO einen Anspruch darauf, zu...\", \"schlagworte\": [\"Vaterschaftsanerkennung\", \"Kindesunterhalt\", \"Vorleistungen\", \"Untersuchungsgrundsatz\", \"Unterh"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_by_paragraph_Y4d9lHqaqrelA45NTWcB",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 40 EO",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 292.28,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 40 EO\", \"results\": [{\"rs_number\": \"RSA0000056\", \"kernaussage\": \"Der Einwand des Verpflichteten, dass die betriebene Forderung verjährt sei, kann nicht als Oppositionsgesuch (§ 40 EO) gewertet werden und stellt auch keinen Grund für eine amtswegige Einstellung oder Einschränkung des Exekutionsverfahrens dar.\", \"schlagworte\": []}, {\"rs_number\": \"RS0000326\", \"kernaussage\": \"Die entgeltliche Abtretung der Forderung des betreibenden Gläubigers bildet keinen Grund zur Einstellung der Exekution nach § 40 EO; der Verpflichtete kann seine Einwendungen nur durch Klage gemäß § 35 EO geltend machen.\", \"schlagworte\": [\"Zession\", \"Exekution\", \"Oppositionsklage\", \"Zwangsversteigerung\", \"Inkassomandat\", \"Exekutionsverfahren\", \"Parteiwechsel\", \"Rechtsnachfolge\", \"§ 9 EO\"]}, {\"rs_number\": \"RS0001126\", \"kernaussage\": \"Ein nach Entstehung des Exekutionstitels gegen einen persönlich haftenden Gesellschafter einer OHG gerichtlich bestätigter Ausgleich im Ausgleichsverfahren der OHG kann im Exekutionsverfahren gegen den Gesellschafter nicht nach § 40 EO, sondern nur im Wege der Klage nach § 35 EO geltend gemacht...\", \"schlagworte\": [\"Ausgleichsverfahren\", \"Exekutionseinstellung\", \"oHG\", \"OHG\", \"GesbR\", \"Zwangsausgleich\", \"persönlich haftende Gesellschafter\", \"Konkurs\", \"Exekution\", \"Schuldbefreiung\", \"EuInsVO\", \"Oppositionsklage\", \"Insolvenzerkennung\", \"Unterhaltsanspruch\", \"Scheidungsvergleich\", \"Insolvenzverfahren\"]}, {\"rs_number\": \"RS0001355\", \"kernaussage\": \"Bei einem Oppositions - Impugnationsgesuch nach § 40 EO müssen die Voraussetzungen einer Klage nach den §§ 35 und 36 gegeben sein; ein Gesuch nach § 40 EO ist darüber hinaus nur aus den im Gesetz angeführten Gründen der Befriedigung des betreibenden Gläubigers, der Anspruchsstundung oder Exekutionss...\", \"schlagworte\": []}, {\"rs_number\": \"RS0001376\", \"kernaussage\": \"Im Antrag nach § 40 EO ist die bereits vollzogene Aufrechnung zu behaupten.\", \"schlagworte\": []}], \"count\": 5}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_by_paragraph_graSVJXn0uUcaHhjFaym",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 14 IO",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 380.9,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 14 IO\", \"results\": [], \"count\": 0}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_cheZLypkrZXDWWtAksMR",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Zahlungsplan Erfüllung Bürge Akzessorietät",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.26,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Zahlungsplan Erfüllung Bürge Akzessorietät\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_wOg8e5HCreW6kI5b1qsH",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Zahlungsplan Erfüllung Bürge Erlöschen",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.25,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Zahlungsplan Erfüllung Bürge Erlöschen\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_uqlH6sekJXsBKj7ttMA9",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "156 Bürge Akzessorietät",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.39,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"156 Bürge Akzessorietät\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_Rltg2xLLzbZzLWy624h3",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Zustellung Zahlungsbefehl nicht wohnhaft Aufhebung Vollstreckbarkeit",
+          "limit": 10
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.89,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Zustellung Zahlungsbefehl nicht wohnhaft Aufhebung Vollstreckbarkeit\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_by_paragraph_RGCQSe65wVRouFeqArUR",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 156 IO",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 390.66,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 156 IO\", \"results\": [], \"count\": 0}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_6JLtQ3wVUmizdkMmWv1v",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Bürge Zahlungsplan Hauptschuldner Erlöschen",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.44,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Bürge Zahlungsplan Hauptschuldner Erlöschen\"}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_HkVngXVkdyUaIYF1mbpG",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Abs Zustellung Zahlungsbefehl",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.78,
+        "error": null,
+        "payload_preview": "{\"results\": [{\"rs_number\": \"RS0119619\", \"rechtssatz\": \"Eine Heilung der gemäß § 11 Abs 2 ZustG gesetzwidrig erfolgten direkten Zustellung eines mit Zwangsfolgen verbundenen Zahlungsbefehles an eine internationale Organisation ist nur bei ausdrücklichem Verzicht auf die Immunität möglich.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Immunität internationale Organisation\", \"Zustellung an privilegierte Personen\", \"Amtssitzabkommen\", \"Heilung der Zustellung\"], \"relevance\": 0.194}, {\"rs_number\": \"RS0044770\", \"rechtssatz\": \"Eine Nichtigkeitsklage gemäß § 529 Abs 1 Z 2 ZPO ist unzulässig, wenn diese lediglich darauf gestützt wird, daß die Zustellung der Aufkündigung im Bestandverfahren, des Zahlungsbefehles im Mahnverfahren nicht ordnungsgemäß im Sinne der ZPO erfolgt ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.094}], \"count\": 2, \"query\": \"Abs Zustellung Zahlungsbefehl\"}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_6pGKvxH5J2UePaP64UcL",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "25c KSchG Beweislast Bank",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.88,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"25c KSchG Beweislast Bank\"}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_roc5eO6T1Hnrxn6o8PjB",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Akzessorietät Bürgschaft Insolvenz Hauptschuldner",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.86,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Akzessorietät Bürgschaft Insolvenz Hauptschuldner\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0122815",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0122815"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.65,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0122815\", \"rechtssatz\": \"Die Erfüllung einer titelmäßigen Verpflichtung ist mittels Oppositionsklage nach § 35 EO geltend zu machen. Im Stadium der Bewilligung des Exekutionsantrags oder Strafantrags ist die Behauptung des Verpflichteten, er habe erfüllt, schon wegen des Neuerungsverbots im Rechtsmittelverfahren unbeachtlich.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Exekution\", \"Geldstrafe\", \"Revisionsrekurs\", \"Rechnungslegungspflicht\", \"Markenschutz\", \"Oppositionsklage\", \"Impugnationsklage\", \"Rechnungslegung\", \"Titelverstoß\", \"Exekutionstitel\", \"Erfüllung\", \"und zwar\", \"teilweise Erfüllung\"], \"fachgebiete\": [\"Markenrecht\", \"Rekurs\", \"Revision\"], \"datum\": \"2025-07-23\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0120706",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0120706"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.68,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0120706\", \"rechtssatz\": \"Der Versicherungsträger kann gegen einen Ausgleichszulagenbezieher, der aufgrund eines rechtskräftigen Bescheids des Versicherungsträgers Exekution führt, im Oppositionsprozess (§ 35 EO) nur dann die Aufrechnung mit einer Forderung nach § 324 ASVG geltend machen, wenn auch über die Aufrechnung ein rechtskräftiger Bescheid vorliegt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ausgleichszulage\", \"Sozialhilfe\", \"Ersatzanspruch\", \"Aufrechnung\", \"Oppositionsklage\", \"Exekutionstitel\", \"Bescheidpflicht\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2006-03-29\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0120705",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0120705"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.66,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0120705\", \"rechtssatz\": \"Einwendungen gegen den Anspruch nach § 35 EO unterfallen bei Titeln nach § 1 Z 11 EO nicht dem Regime des § 35 Abs 2 letzterSatz EO, sondern dem des § 35 Abs 2 erster Satz EO.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Ausgleichszulage\", \"Sozialhilfe\", \"Ersatzanspruch\", \"Aufrechnung\", \"Oppositionsklage\", \"Exekutionstitel\", \"Bescheidpflicht\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2006-03-29\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0120255",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0120255"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.35,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0120255\", \"rechtssatz\": \"Eine Aufklärungsobliegenheit im Sinn des § 25c KSchG besteht dann nicht, wenn der Interzedent selbst die Kreditverhandlungen für den Hauptschuldner eigenverantwortlich führt und über dessen Finanzlage zur Gänze unterrichtet ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Interzedent\", \"Verbrauchereigenschaft\", \"KSchG\", \"Aufklärungsobliegenheit\", \"Leasingvertrag\", \"Interzedentin\", \"Aufklärungspflicht\", \"Fahrzeugmängel\", \"Schadenersatz\", \"Warnpflicht\", \"Mäßigung\", \"ungarisches Insolvenzrecht\", \"GmbH-Gesellschafter\", \"Unternehmerqualifikation\", \"Einlagenrückgewähr\", \"§ 82 GmbHG\", \"Akzessorietät\", \"Garantiehaftung\", \"Bonitätsprüfung\", \"Kreditwürdigkeit\", \"Solidarschuldner\"], \"fachgebiete\": [\"Haftungsrecht\", \"Vertragsauslegung\", \"GmbH-Recht\"], \"datum\": \"2021-06-23\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0119619",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0119619"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.74,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0119619\", \"rechtssatz\": \"Eine Heilung der gemäß § 11 Abs 2 ZustG gesetzwidrig erfolgten direkten Zustellung eines mit Zwangsfolgen verbundenen Zahlungsbefehles an eine internationale Organisation ist nur bei ausdrücklichem Verzicht auf die Immunität möglich.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Immunität internationale Organisation\", \"Zustellung an privilegierte Personen\", \"Amtssitzabkommen\", \"Heilung der Zustellung\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2004-12-14\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0119014",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0119014"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 6.27,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0119014\", \"rechtssatz\": \"Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftung für Rechnung eines anderen und im fremden Interesse) beitreten. Personen, die gemeinsam und im gemeinsamen Interesse eine Verbindlichkeit als echte Mitschuld eingehen, sind nicht erfasst. In wessen Interesse die Übernahme einer Verbindlichkeit liegt, ist aus der Sicht des Schuldners zu beurteilen. Kommt die Kreditaufnahme auch dem Mithaftenden zugute, liegt keine fremde Verbindlichkeit im Sinne des § 25c KSchG vor.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Kreditwürdigkeit\", \"Elternhaftung\", \"persönliche Haftung\", \"Anrechnung von Teilzahlungen\", \"Ausbildungskosten\", \"§ 82 GmbHG\", \"Akzessorietät\", \"außerordentliche Revision\", \"Interzedentenhaftung\", \"Vordruck-Unterschrift\", \"Alleingesellschafter\", \"gescannte Unterschrift\", \"Zahlungsplan\", \"Unternehmer\", \"Sittenwidrigkeit\", \"AufklärungsPflicht\", \"Konsumentenschutz\", \"Kontoübertragung\", \"Geschäftsführerhaftung\", \"Interzedent\", \"Warn- und Aufklärungspflicht\", \"Interzedentin\", \"IPR Slowenien\", \"Garantiehaftung\", \"Parteiwillen\", \"Schuldbeitritt\", \"Verpflichtungserklärung\", \"Wucher\", \"Konsumentenkredit\", \"Selbsterhaltungsfähigkeit\"], \"fachgebiete\": [\"Haftungsrecht\", \"Vertragsauslegung\", \"GmbH-Recht\", \"Revision\"], \"datum\": \"2021-06-23\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0113937",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0113937"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.04,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0113937\", \"rechtssatz\": \"Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen, ermöglicht daher ein richterliches Mäßigungsrecht unter den dort genannten Voraussetzungen auch für Verbindlichkeiten gegenüber anderen Rechtsträgern, somit auch gegenüber einem Sozialversicherungsträger.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Sittenwidrigkeit\", \"Interzession\", \"KSchG\", \"Leasingvertrag\", \"Mithaftung\", \"§ 879 ABGB\", \"Solidarhaftung\", \"Firmenkreditkarte\", \"AGB-Kontrolle\", \"Pflegegebühren\", \"Verpflichtungserklärung\", \"Unabweisbarkeit\", \"WrKAG\"], \"fachgebiete\": [\"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2011-01-18\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0113936",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0113936"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.71,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0113936\", \"rechtssatz\": \"§ 25d KSchG ist auch im Verhältnis zwischen einer juristischen Person öffentlichen Rechts und einem Verbraucher in Ansehung eines zwischen ihnen geschlossenen privatrechtlichen Vertrages anzuwenden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bürgschaft\", \"Sittenwidrigkeit\", \"Interzession\", \"KSchG\", \"Pflegegebühren\", \"Verpflichtungserklärung\", \"Unabweisbarkeit\", \"WrKAG\"], \"fachgebiete\": [\"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2011-01-18\"}"
+      }
+    ],
+    "tool_calls_total": 32,
+    "tool_calls_ok": 32,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "Strategische Ersteinschätzung im Fall **CARMEN** (Carmen Renate Toblier):\n\n### 1. Entscheidende Rechtsfragen (Priorisierung)\n\n1.  **Titelbekämpfung (§ 7 Abs 3 EO iVm ZustG):** Die wichtigste Vorfrage ist die Wirksamkeit des Exekutionstitels. Da Carmen zum Zeitpunkt der Zustellung des Zahlungsbefehls (2018) nicht mehr an der Abgabestelle wohnhaft war, liegt eine **unwirksame Zustellung** vor. Die Vollstreckbarkeitsbestätigung wurde somit \"irrtümlich\" erteilt.\n2.  **Erlöschen der Hauptschuld (Akzessorietät):** Da der Hauptschuldner Wolfgang Brand die Insolvenzforderung zu **100 % erfüllt** hat, ist die Hauptschuld erloschen. Aufgrund der Akzessorietät der Bürgschaft (§ 1351 ABGB) kann Carmen nicht mehr in Anspruch genommen werden. Die Bank betreibt hier eine bereits getilgte Forderung (Gefahr der Überbefriedigung).\n3.  **Interzessionsschutz (§ 25c KSchG):** Falls der Titel hält, ist zu prüfen, ob die Bank Carmen vor Übernahme der Bürgschaft über die (offensichtlich schlechte) wirtschaftliche Lage des Hauptschuldners aufgeklärt hat.\n\n### 2. Priorisierung der Rechtsbehelfe\n\n*   **Prio 1: Antrag auf Aufhebung der Vollstreckbarkeitsbestätigung (§ 7 Abs 3 EO)** beim Titelgericht (BG Gänserndorf). Dies ist der \"Königsweg\", da bei Erfolg die Exekutionsbewilligung ex lege wegfällt und das Verfahren gemäß **§ 39 Abs 1 Z 9 EO** einzustellen ist (**RS0058309**).\n*   **Prio 2: Oppositionsklage (§ 35 EO):** Da die Hauptschuld durch die 100%-Zahlung des Hauptschuldners nach Entstehung des Titels erloschen ist, liegt ein klassischer Oppositionsgrund vor. Ein bloßer Einstellungsantrag nach § 40 EO reicht bei bestrittener Erfüllung oft nicht aus (**RS0001126**).\n*   **Prio 3: Aufschiebung der Exekution (§ 42 Abs 1 Z 1 iVm Z 5 EO):** Um die Gehaltsexekution (AMS) sofort zu stoppen, muss parallel zum § 7 Abs 3 Antrag und zur Oppositionsklage die Aufschiebung beantragt werden.\n\n### 3. Kurzfristig nützlichste Schritte\n\n1.  **Sofortiger Antrag nach § 7 Abs 3 EO** beim BG Gänserndorf unter Hinweis auf die Fehlzustellung (Meldebestätigung/ZMR-Historie beilegen).\n2.  **Eventualiter Oppositionsklage (§ 35 EO)** verbunden mit einem **Aufschiebungsantrag (§ 42 EO)**, um den Zugriff auf die AMS-Leistungen zu unterbinden.\n3.  **Schreiben an die Erste Bank / Sattlegger:** Aufforderung zum sofortigen Exekutionsverzicht unter Hinweis auf die 100%-Quote des Hauptschuldners (Androhung einer Schadenersatzklage wegen schikanöser Exekution).\n\n### 4. Absicherung durch RS/TE\n\n| Thema | RS-Nummer | Kernaussage |\n| :--- | :--- | :--- |\n| **Fehlzustellung** | **RS0001544** | Vollstreckbarkeit tritt nicht ein, wenn der Titel nicht rechtswirksam zugestellt wurde (irrtümliche Bestätigung). |\n| **Verfahren § 7 (3)** | **RS0001557** | Tatsachen über die Zustellung (Wohnsitz) sind im Verfahren nach § 7 Abs 3 EO zu klären. |\n| **Einstellung** | **RS0058309** | Aufhebung der Vollstreckbarkeit führt zur Einstellung nach § 39 Abs 1 Z 9 EO. |\n| **Akzessorietät** | **RS0032169** | Jede Bürgschaft ist gegenüber der Hauptschuld akzessorisch (Erlöschen der Hauptschuld = Ende der Bürgenhaftung). |\n| **Beweislast KSchG** | **RS0120256** | Die Bank trägt die volle Beweislast, dass sie ihrer Aufklärungspflicht nach § 25c KSchG nachgekommen ist. |\n\n**Beweislast-Hinweis:** Für die mangelnde Zustellung trägt Carmen die Behauptungslast (ZMR-Auszug). Für die Erfüllung der Hauptschuld trägt Carmen die Beweislast (KSV-Auszug/Zahlungsbelege Wolfgang). Für die ordnungsgemäße Warnung nach § 25c KSchG trägt die **Bank** die Beweislast.",
+    "answer_chars": 3526,
+    "e2e_ms": 20190.75
+  }
+]

@@ -1,0 +1,1039 @@
+[
+  {
+    "name": "grounding_expert",
+    "goal": "Get cluster-level grounding context and expert analysis for the legal question.",
+    "mode": "llm",
+    "tools": [
+      "build_grounding_context",
+      "detect_clusters",
+      "ask_gemini_zivilrecht",
+      "search_kommentar_paragraph",
+      "search_kommentar_keyword"
+    ],
+    "llm_model": "google/gemini-3-flash-preview",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 1511.92,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 91,
+          "total_tokens": 2745,
+          "cost": 0.0016,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 1876.78,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 3,
+        "usage": {
+          "prompt_tokens": 3269,
+          "completion_tokens": 104,
+          "total_tokens": 3373,
+          "cost": 0.0019465,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 2029.25,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 1,
+        "usage": {
+          "prompt_tokens": 3664,
+          "completion_tokens": 155,
+          "total_tokens": 3819,
+          "cost": 0.002297,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 1667.83,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 3864,
+          "completion_tokens": 124,
+          "total_tokens": 3988,
+          "cost": 0.002304,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 5,
+        "latency_ms": 7504.45,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 4522,
+          "completion_tokens": 1016,
+          "total_tokens": 5538,
+          "cost": 0.005309,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_kommentar_paragraph_U31SDLrCWtF9tMTcHuUs",
+        "tool": "search_kommentar_paragraph",
+        "args": {
+          "paragraph": "255",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 28.3,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"255\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_kommentar_paragraph_gkW9YYyhehOA7NMPkQNL",
+        "tool": "search_kommentar_paragraph",
+        "args": {
+          "paragraph": "143a",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 17.13,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"143a\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_kommentar_keyword_XPMaIxDIfkol5RY9nWqJ",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Berufsschutz ASVG",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.34,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Berufsschutz ASVG\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_kommentar_keyword_2V7UbknKDv1IdsH3bHNR",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Verweisbarkeit Invaliditätspension",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.13,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Verweisbarkeit Invaliditätspension\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_detect_clusters_nQ0zJWBKmYH5vR8j6bAt",
+        "tool": "detect_clusters",
+        "args": {
+          "topic": "schuldrecht_bt",
+          "query": "Invaliditätspension Berufsschutz Verweisbarkeit Rehabilitationsgeld § 255 ASVG § 143a ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.51,
+        "error": null,
+        "payload_preview": "\"Unknown tool: detect_clusters\""
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_kommentar_keyword_24SIWMhLaWGIyqa1pxbO",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Invaliditätspension Berufsschutz",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 14.02,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Invaliditätspension Berufsschutz\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_kommentar_keyword_l9FV9KeAB7FB4PJs8XdS",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Rehabilitationsgeld 143a",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.77,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Rehabilitationsgeld 143a\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_ask_gemini_zivilrecht_0HXFzvCPS1kHh9NXq0yO",
+        "tool": "ask_gemini_zivilrecht",
+        "args": {
+          "question": "Erstelle eine anwaltliche Ersteinschätzung zum Fall ULLRICH (Invaliditätspension). Gehe auf folgende Punkte ein: 1. Berufsschutz nach § 255 Abs 1 und 2 ASVG (erlernter Beruf, 90 Pflichtversicherungsmonate in den letzten 15 Jahren). 2. Verweisbarkeit nach § 255 Abs 3 ASVG (Lohnhälfte-Maßstab). 3. Rehabilitationsgeld nach § 143a ASVG bei vorübergehender Invalidität. Nenne die wichtigsten RS/TE zum Berufsschutz und zur Verweisbarkeit."
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 11.59,
+        "error": null,
+        "payload_preview": "\"Authentication error for Vertex AI. Details: google-auth package is missing.. Set application default credentials or VERTEX_ACCESS_TOKEN.\""
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_kommentar_paragraph_ppbr0DsFIA8l3tT2n3Ue",
+        "tool": "search_kommentar_paragraph",
+        "args": {
+          "paragraph": "255",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 17.14,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"255\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_kommentar_paragraph_QuJ5Bj0Y6GB8CdEkl2qN",
+        "tool": "search_kommentar_paragraph",
+        "args": {
+          "paragraph": "143a",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.0,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"143a\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_kommentar_keyword_PmyW1gvl1eV70n9tL40q",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Invaliditätspension Berufsschutz",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.59,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Invaliditätspension Berufsschutz\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_kommentar_keyword_Qr1EBkfwtD4LuyIXj4W1",
+        "tool": "search_kommentar_keyword",
+        "args": {
+          "keyword": "Rehabilitationsgeld 143a ASVG",
+          "limit": 5,
+          "law": "ASVG"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.84,
+        "error": null,
+        "payload_preview": "{\"keyword\": \"Rehabilitationsgeld 143a ASVG\", \"law\": \"ASVG\", \"count\": 0, \"results\": []}"
+      }
+    ],
+    "tool_calls_total": 12,
+    "tool_calls_ok": 12,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "Die rechtliche Beurteilung des Falls ULLRICH hinsichtlich des Anspruchs auf Invaliditätspension bzw. Rehabilitationsgeld nach dem ASVG gliedert sich in folgende Kernbereiche:\n\n### 1. Berufsschutz (§ 255 Abs 1 und 2 ASVG)\nDer Berufsschutz bewahrt Versicherte davor, auf Tätigkeiten verwiesen zu werden, die weit unter ihrem Qualifikationsniveau liegen.\n*   **Erlernter Beruf (§ 255 Abs 1):** Als invalid gilt ein Versicherter, dessen Arbeitsfähigkeit infolge seines körperlichen oder geistigen Zustandes auf weniger als die Hälfte derjenigen eines körperlich und geistig gesunden Versicherten von ähnlicher Ausbildung und gleichwertigen Kenntnissen und Fähigkeiten herabgesunken ist.\n*   **Qualifizierter Berufsschutz (§ 255 Abs 2):** Dieser setzt voraus, dass der Versicherte in den letzten 15 Jahren vor dem Stichtag in mindestens **90 Pflichtversicherungsmonaten** eine qualifizierte Tätigkeit (erlernter Beruf oder durch Übung erworbene Kenntnisse) ausgeübt hat.\n*   **Wichtige Rechtssätze:**\n    *   **RS0084884:** Der Berufsschutz nach § 255 Abs 1 ASVG setzt voraus, dass der Versicherte überwiegend in einem oder mehreren Berufen tätig war, für die eine entsprechende Ausbildung oder gleichwertige Kenntnisse erforderlich sind.\n    *   **RS0084914:** Die 90 Monate müssen nicht im selben Beruf, aber in Berufen mit vergleichbarem Qualifikationsniveau erworben worden sein.\n\n### 2. Verweisbarkeit und Lohnhälfte-Maßstab (§ 255 Abs 3 ASVG)\nLiegt kein Berufsschutz vor (z.B. bei Hilfsarbeitern oder Nichterfüllung der 90-Monate-Frist), erfolgt die Prüfung nach dem allgemeinen Arbeitsmarkt.\n*   **Verweisbarkeit:** Der Versicherte ist auf alle Tätigkeiten verweisbar, die am Arbeitsmarkt noch in nennenswertem Umfang vorhanden sind und die er trotz seiner Einschränkungen noch ausüben kann.\n*   **Lohnhälfte-Maßstab:** Invalidität liegt vor, wenn der Versicherte nicht mehr in der Lage ist, durch eine Tätigkeit, die ihm unter Berücksichtigung seiner Fähigkeiten und der bisherigen Tätigkeit zugemutet werden kann, wenigstens die **Hälfte des Entgelts** zu erwerben, das ein gesunder Versicherter in derselben Region erzielt.\n*   **Wichtige Rechtssätze:**\n    *   **RS0054049:** Bestätigt die Verfassungsmäßigkeit der Differenzierung zwischen qualifiziertem Berufsschutz (§ 255 Abs 1) und der allgemeinen Invalidität (§ 255 Abs 3).\n    *   **RS0085140:** Bei der Verweisung nach Abs 3 ist nicht auf den konkreten Arbeitsplatz, sondern auf die abstrakte Einsatzfähigkeit am Arbeitsmarkt abzustellen.\n\n### 3. Rehabilitationsgeld (§ 143a ASVG)\nWenn Invalidität vorliegt, diese aber voraussichtlich **nicht dauerhaft** ist (mindestens 6 Monate, aber keine dauerhafte Invalidität), besteht Anspruch auf Rehabilitationsgeld anstelle einer befristeten Invaliditätspension.\n*   **Voraussetzung:** Es muss vorübergehende Invalidität im Ausmaß von mindestens 6 Monaten vorliegen und berufliche Rehabilitation darf nicht zweckmäßig oder zumutbar sein.\n*   **RS0131281:** Das Rehabilitationsgeld ist eine Geldleistung bei Krankheit, die den Lebensunterhalt während der Arbeitsunfähigkeit sichern soll.\n\n### 4. Anrechnung Krankengeld (§ 255 Abs 4 ASVG)\nDie Bestimmung regelt das Zusammentreffen von Pensionsleistungen und Krankengeld, wobei die Invaliditätspension erst nach Erschöpfung des Krankengeldanspruchs (max. 24 Monate) bzw. bei dauerhafter Invalidität gezahlt wird.\n\n**Zusammenfassung für die Ersteinschätzung:**\nIm Fall ULLRICH ist primär zu prüfen, ob die **90-Monate-Hürde** für den qualifizierten Berufsschutz erreicht wird. Ist dies der Fall, ist die Verweisbarkeit stark eingeschränkt (nur auf ähnliche Berufe). Fehlt der Berufsschutz, ist Herr Ullrich auf den gesamten Arbeitsmarkt verweisbar, sofern er dort noch die Hälfte eines Vergleichseinkommens erzielen kann. Bei einer günstigen Prognose hinsichtlich der Wiederherstellung der Arbeitsfähigkeit ist das **Rehabilitationsgeld** die primäre Leistung.",
+    "answer_chars": 3912,
+    "e2e_ms": 14931.81
+  },
+  {
+    "name": "hot_index_context",
+    "goal": "Retrieve top hot-index context and mini-story evidence.",
+    "mode": "llm",
+    "tools": [
+      "hot_rs_search",
+      "hot_cluster_context",
+      "hot_rs_lookup"
+    ],
+    "llm_model": "google/gemini-3-flash-preview",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 2073.18,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 2330,
+          "completion_tokens": 152,
+          "total_tokens": 2482,
+          "cost": 0.001621,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 1699.81,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 3148,
+          "completion_tokens": 110,
+          "total_tokens": 3258,
+          "cost": 0.001904,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 2246.16,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 5,
+        "usage": {
+          "prompt_tokens": 4435,
+          "completion_tokens": 157,
+          "total_tokens": 4592,
+          "cost": 0.0026885,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 7246.7,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 7556,
+          "completion_tokens": 1028,
+          "total_tokens": 8584,
+          "cost": 0.00505345,
+          "cached_tokens": 4019,
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_search_9YNlPUS2RTz3JsnhpuH3",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "255 ASVG Berufsschutz erlernter Beruf qualifizierte Pflichtversicherungsmonate",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 103.79,
+        "error": null,
+        "payload_preview": "{\"query\": \"255 ASVG Berufsschutz erlernter Beruf qualifizierte Pflichtversicherungsmonate\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_search_wiqPg3lXdE2is6OSxRzM",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "255 Abs ASVG Verweisbarkeit Lohnhälfte Maßstab zumutbare Tätigkeit",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 30.79,
+        "error": null,
+        "payload_preview": "{\"query\": \"255 Abs ASVG Verweisbarkeit Lohnhälfte Maßstab zumutbare Tätigkeit\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_search_SRo9XUlnRlqF4bM3uN8f",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "143a ASVG Rehabilitationsgeld vorübergehende Invalidität Voraussetzungen",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 77.69,
+        "error": null,
+        "payload_preview": "{\"query\": \"143a ASVG Rehabilitationsgeld vorübergehende Invalidität Voraussetzungen\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_hot_rs_search_N6AWSBGcPFvxy6L64SVe",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "255 Abs ASVG Anrechnung Krankengeld Monate",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.65,
+        "error": null,
+        "payload_preview": "{\"query\": \"255 Abs ASVG Anrechnung Krankengeld Monate\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_Y4aW7ZEekHzLN9BExf23",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Berufsschutz 255 ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 22.99,
+        "error": null,
+        "payload_preview": "{\"query\": \"Berufsschutz 255 ASVG\", \"count\": 5, \"results\": [{\"rs_number\": \"RS0127651\", \"rechtssatz_text\": \"Genießt eine versicherte Person Berufsschutz nach § 273 Abs 1 ASVG, kann sich die Frage einer \\\"entsprechenden Geltung\\\" (§ 273 Abs 3 ASVG) des § 255 Abs 3a und 3b ASVG gar nicht stellen. Bei Angestellten kann daher die Verweisungsbeschränkung des § 255 Abs 3a, 3b ASVG nur dann bedeutsam werden, wenn...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 17598, \"selection_tier\": 3, \"relevance\": 0.3461}, {\"rs_number\": \"RS0108306\", \"rechtssatz_text\": \"Bei einem Pensionswerber, dessen Verweisungsfeld mangels Berufsschutzes nach § 255 Abs 3 ASVG zu beurteilen ist, reicht - wie grundsätzlich auch für solche nach Abs 1 und 2 leg cit - bereits ein einziger nach dem medizinischen Leistungskalkül möglicher Verweisungsberuf aus (10 ObS 178/97t).\", \"te_count\": 25, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 2039, \"selection_tier\": 2, \"relevance\": 0.2547}, {\"rs_number\": \"RS0129361\", \"rechtssatz_text\": \"Für die Frage des Erhalts des Berufsschutzes nach § 255 Abs 2 ASVG ist gemessen am Konzept des Gesetzgebers und zur Vermeidung einer dem Gleichheitssatz widersprechenden Rechtslage das Vorliegen einer planwidrigen Gesetzeslücke bei der Frage der Erstreckung der Rahmenfrist anzunehmen, die im...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 7643, \"selection_tier\": 2, \"relevance\": 0.2547}, {\"rs_number\": \"RS0129026\", \"rechtssatz_text\": \"Für die Erlangung des Berufsschutzes nach § 255 Abs 1 und 2 ASVG sind nur qualifizierte Tätigkeiten als gelernte oder angelernte Arbeiter sowie Angestelltentätigkeiten zu berücksichtigen, während Zeiten einer selbständigen Tätigkeit nach dem GSVG für die Frage des Berufsschutzes nach jener Gesetzess...\", \"te_count\": 7, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 8740, \"selection_tier\": 2, \"relevance\": 0.233}, {\"rs_number\": \"RS0114289\", \"rechtssatz_text\": \"War der Kläger im Beobachtungszeitraum des § 255 Abs 2 ASVG überwiegend in Slowenien tätig, ist für die Frage, ob ihm Berufsschutz zukommt, ab 1.Jänner 1997 entscheidend, ob es sich bei der dort von ihm verrichteten Arbeit um eine solche handelte, die im Sinne des § 255 Abs 2 ASVG qualifiziert war.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 17114, \"selection_tier\": 3, \"relevance\": 0"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_vhTBAcm22piguS48GuNp",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Rehabilitationsgeld 143a ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.64,
+        "error": null,
+        "payload_preview": "{\"query\": \"Rehabilitationsgeld 143a ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_sLPJOiEYOMty90eFjwFJ",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Verweisbarkeit Lohnhälfte ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 6.09,
+        "error": null,
+        "payload_preview": "{\"query\": \"Verweisbarkeit Lohnhälfte ASVG\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_hot_rs_search_4TmaGOIhwor7Ybs8ZRNw",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Invaliditätspension Monate Jahre",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.32,
+        "error": null,
+        "payload_preview": "{\"query\": \"Invaliditätspension Monate Jahre\", \"count\": 0, \"results\": []}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_lookup_hXQcIAxao9aRG3GXbGor",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0129361",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 45.45,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0129361\", \"rechtssatz_text\": \"Für die Frage des Erhalts des Berufsschutzes nach § 255 Abs 2 ASVG ist gemessen am Konzept des Gesetzgebers und zur Vermeidung einer dem Gleichheitssatz widersprechenden Rechtslage das Vorliegen einer planwidrigen Gesetzeslücke bei der Frage der Erstreckung der Rahmenfrist anzunehmen, die im...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7643, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS71_22x|OGH|2022-07-28\", \"gz\": \"10ObS71_22x\", \"datum\": \"2022-07-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision gegen die Ablehnung einer Berufsunfähigkeitspension ab, da keine Rechtsfrage von erheblicher Bedeutung vorliegt und der Berufsschutz nach § 255 ASVG fehlt.\"}, {\"te_stable_key\": \"10ObS31_19k|OGH|2019-07-30\", \"gz\": \"10ObS31_19k\", \"datum\": \"2019-07-30\", \"gericht\": \"OGH\", \"mini_story\": \"Die Entscheidung klärt die Zulässigkeit einer außerordentlichen Revision zur Frage der Rahmenfristerstreckung für den Berufsschutz bei Invaliditätspension gemäß § 255 ASVG.\"}, {\"te_stable_key\": \"10ObS54_19t|OGH|2019-07-30\", \"gz\": \"10ObS54_19t\", \"datum\": \"2019-07-30\", \"gericht\": \"OGH\", \"mini_story\": \"Die außerordentliche Revision zur Verlängerung des Rahmenzeitraums gemäß § 273 Abs 1 ASVG um Zeiten der Arbeitslosigkeit für den Berufsschutz bei Berufsunfähigkeitspension ist mangels erheblicher Rechtsfrage nicht zulässig.\"}, {\"te_stable_key\": \"10ObS75_19f|OGH|2019-06-25\", \"gz\": \"10ObS75_19f\", \"datum\": \"2019-06-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH lehnt die analoge Verlängerung des Rahmenzeitraums für den Berufsschutz um Zeiten des Bezugs von Pensionsvorschüssen nach § 23 AlVG ab.\"}, {\"te_stable_key\": \"10ObS2_18v|OGH|2018-01-23\", \"gz\": \"10ObS2_18v\", \"datum\": \"2018-01-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da keine Rechtsfrage von erheblicher Bedeutung vorliegt bezüglich der Erfüllung der Mindestversicherungszeit für den Berufsschutz bei Invaliditätspension gemäß § 255 ASVG.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_lookup_JzAafv3OK27RYObHPata",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0108306",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 113.73,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0108306\", \"rechtssatz_text\": \"Bei einem Pensionswerber, dessen Verweisungsfeld mangels Berufsschutzes nach § 255 Abs 3 ASVG zu beurteilen ist, reicht - wie grundsätzlich auch für solche nach Abs 1 und 2 leg cit - bereits ein einziger nach dem medizinischen Leistungskalkül möglicher Verweisungsberuf aus (10 ObS 178/97t).\", \"te_count\": 25, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2039, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS89_07x|OGH|2007-07-26\", \"gz\": \"10ObS89_07x\", \"datum\": \"2007-07-26\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung des Berufsschutzes als angelernter Maurer und der Invalidität gemäß ASVG.\"}, {\"te_stable_key\": \"10ObS118_05h|OGH|2005-12-22\", \"gz\": \"10ObS118_05h\", \"datum\": \"2005-12-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit und Beurteilung der außerordentlichen Revision in einer Sozialrechtssache betreffend Verweisungsfeld und Verweisbarkeit.\"}, {\"te_stable_key\": \"10ObS45_05y|OGH|2005-08-09\", \"gz\": \"10ObS45_05y\", \"datum\": \"2005-08-09\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Vorinstanzentscheidungen auf, da bei der Prüfung der Invalidität nach § 255 Abs 3 ASVG die Bewertbarkeit des Berufs der Tagportierin unter Berücksichtigung des medizinischen Leistungskalküls der Klägerin nicht ausreichend festgestellt wurde.\"}, {\"te_stable_key\": \"10ObS6_05p|OGH|2005-01-25\", \"gz\": \"10ObS6_05p\", \"datum\": \"2005-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der außerordentlichen Revision bezüglich Invalidität gemäß § 255 Abs 4 ASVG.\"}, {\"te_stable_key\": \"10ObS254_03f|OGH|2003-12-02\", \"gz\": \"10ObS254_03f\", \"datum\": \"2003-12-02\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision gegen die Ablehnung einer Invaliditätspension aufgrund vorhandener zumutbarer Tätigkeiten auf dem Arbeitsmarkt gemäß § 255 Abs 3 ASVG.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_lookup_OWPC2lPyczNrH65FI4kx",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0129026",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 380.67,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0129026\", \"rechtssatz_text\": \"Für die Erlangung des Berufsschutzes nach § 255 Abs 1 und 2 ASVG sind nur qualifizierte Tätigkeiten als gelernte oder angelernte Arbeiter sowie Angestelltentätigkeiten zu berücksichtigen, während Zeiten einer selbständigen Tätigkeit nach dem GSVG für die Frage des Berufsschutzes nach jener Gesetzess...\", \"te_count\": 7, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 8740, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS81_24w|OGH|2024-09-10\", \"gz\": \"10ObS81_24w\", \"datum\": \"2024-09-10\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Voraussetzungen für den Berufsschutz nach § 255 ASVG, insbesondere Ausschluss selbständiger Tätigkeiten.\"}, {\"te_stable_key\": \"10ObS70_23a|OGH|2023-08-22\", \"gz\": \"10ObS70_23a\", \"datum\": \"2023-08-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision gegen die Ablehnung einer Berufsunfähigkeitspension mangels Berufsschutz und fehlender Rechtsfrage.\"}, {\"te_stable_key\": \"10ObS163_19x|OGH|2020-04-16\", \"gz\": \"10ObS163_19x\", \"datum\": \"2020-04-16\", \"gericht\": \"OGH\", \"mini_story\": \"Berufsschutz für Taxilenker nach § 255 ASVG unter Berücksichtigung nur unselbständiger Tätigkeiten.\"}, {\"te_stable_key\": \"10ObS55_15h|OGH|2015-06-30\", \"gz\": \"10ObS55_15h\", \"datum\": \"2015-06-30\", \"gericht\": \"OGH\", \"mini_story\": \"Ausschluss von Beitragsmonaten nach GSVG bei der Erlangung des Berufsschutzes nach §§ 273 Abs 1, 255 Abs 1 und 2 ASVG.\"}, {\"te_stable_key\": \"10ObS27_15s|OGH|2015-04-28\", \"gz\": \"10ObS27_15s\", \"datum\": \"2015-04-28\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer außerordentlichen Revision in einer Sozialversicherungssache mangels erheblicher Rechtsfrage.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_search_NB43aSyARTogV2MGhgGZ",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Lohnhälfte 255 Abs ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 16.46,
+        "error": null,
+        "payload_preview": "{\"query\": \"Lohnhälfte 255 Abs ASVG\", \"count\": 2, \"results\": [{\"rs_number\": \"RS0084408\", \"rechtssatz_text\": \"Der im § 255 Abs 3 ASVG ausdrücklich vorgeschriebene Maßstab der Lohnhälfte ist auch nach Abs 1 der zitierten Gesetzesstelle und nach § 273 Abs 1 leg cit anzulegen. Alle aus den Versicherungsfällen der geminderten Arbeitsfähigkeit zu leistenden Pensionen haben Lohnersatzfunktion (Gehaltsersatzfunkti...\", \"te_count\": 14, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 4096, \"selection_tier\": 2, \"relevance\": 0.5264}, {\"rs_number\": \"RS0106511\", \"rechtssatz_text\": \"Die Umstrukturierung des Betriebes eines Versicherten, etwa durch Betriebsverkleinerung, darf nicht zu einer Verschlechterung der wirtschaftlichen Grundlage des Betriebes führen. So wie aber einem Unselbständigen unter Umständen (§ 255 Abs 3 ASVG) ein Herabsinken seines Einkommens bis zur \\\"Lohnhälft...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 7473, \"selection_tier\": 2, \"relevance\": 0.3833}]}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_hot_rs_search_ZG4RqilhzwRryxrCsnlp",
+        "tool": "hot_rs_search",
+        "args": {
+          "query": "Rehabilitationsgeld vorübergehende Invalidität",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.81,
+        "error": null,
+        "payload_preview": "{\"query\": \"Rehabilitationsgeld vorübergehende Invalidität\", \"count\": 2, \"results\": [{\"rs_number\": \"RS0130706\", \"rechtssatz_text\": \"Rehabilitationsgeld gebührt bereits ab Vorliegen der vorübergehenden Invalidität (Berufsunfähigkeit), ohne dass dabei auf das in der Pensionsversicherung geltende Stichtagsprinzip Bedacht zu nehmen wäre.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 17698, \"selection_tier\": 3, \"relevance\": 0.2387}, {\"rs_number\": \"RS0133202\", \"rechtssatz_text\": \"Die (materielle) Rechtskraft des Bescheids über die Zuerkennung von Rehabilitationsgeld steht im Fall einer irrtümlichen Annahme des Vorliegens vorübergehender Invalidität gemäß § 255b ASVG bei der Gewährung dieser Leistung einer späteren Entziehung gemäß § 99 Abs 1 iVm Abs 3 Z 1 lit b sublit aa...\", \"te_count\": 9, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"hot_rank\": 6817, \"selection_tier\": 2, \"relevance\": 0.1797}]}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0133202",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0133202",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 23.66,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0133202\", \"rechtssatz_text\": \"Die (materielle) Rechtskraft des Bescheids über die Zuerkennung von Rehabilitationsgeld steht im Fall einer irrtümlichen Annahme des Vorliegens vorübergehender Invalidität gemäß § 255b ASVG bei der Gewährung dieser Leistung einer späteren Entziehung gemäß § 99 Abs 1 iVm Abs 3 Z 1 lit b sublit aa...\", \"te_count\": 9, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 6817, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS102/25k|OGH|2025-10-21\", \"gz\": \"10ObS102/25k\", \"datum\": \"2025-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit der außerordentlichen Revision gegen die Entziehung von Rehabilitationsgeld bei Verbesserung des Gesundheitszustands.\"}, {\"te_stable_key\": \"10ObS102_25k|OGH|2025-10-21\", \"gz\": \"10ObS102_25k\", \"datum\": \"2025-10-21\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit der außerordentlichen Revision gegen die Entziehung von Rehabilitationsgeld bei Verbesserung des Gesundheitszustands.\"}, {\"te_stable_key\": \"10ObS30_25x|OGH|2025-04-24\", \"gz\": \"10ObS30_25x\", \"datum\": \"2025-04-24\", \"gericht\": \"OGH\", \"mini_story\": \"Zulässigkeit der außerordentlichen Revision gegen die Entziehung des Rehabilitationsgeldes aufgrund angeblicher Verbesserung des Gesundheitszustands.\"}, {\"te_stable_key\": \"10ObS7_25i|OGH|2025-02-11\", \"gz\": \"10ObS7_25i\", \"datum\": \"2025-02-11\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Entziehung des Rehabilitationsgeldes wegen Verbesserung des Gesundheitszustands ist mangels Rechtsfrage von erheblicher Bedeutung nicht zulässig.\"}, {\"te_stable_key\": \"10ObS112_24d|OGH|2024-11-19\", \"gz\": \"10ObS112_24d\", \"datum\": \"2024-11-19\", \"gericht\": \"OGH\", \"mini_story\": \"Die außerordentliche Revision gegen die Feststellung des Anspruchs auf Rehabilitationsgeld über den 30. April 2023 hinaus ist mangels Rechtsfrage von erheblicher Bedeutung nicht zulässig.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0130706",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0130706",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 21.37,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0130706\", \"rechtssatz_text\": \"Rehabilitationsgeld gebührt bereits ab Vorliegen der vorübergehenden Invalidität (Berufsunfähigkeit), ohne dass dabei auf das in der Pensionsversicherung geltende Stichtagsprinzip Bedacht zu nehmen wäre.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17698, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS31_18h|OGH|2018-04-17\", \"gz\": \"10ObS31_18h\", \"datum\": \"2018-04-17\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit der außerordentlichen Revision wegen fehlender Rechtsfrage von erheblicher Bedeutung bei Begrenzung des Anspruchs auf Rehabilitationsgeld auf die Dauer der vorübergehenden Berufsunfähigkeit.\"}, {\"te_stable_key\": \"10ObS160_16a|OGH|2017-03-21\", \"gz\": \"10ObS160_16a\", \"datum\": \"2017-03-21\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung des Anfallszeitpunkts von Rehabilitationsgeld bei vorübergehender Invalidität vor Antragstellung.\"}, {\"te_stable_key\": \"10ObS116_16f|OGH|2016-09-13\", \"gz\": \"10ObS116_16f\", \"datum\": \"2016-09-13\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den Rekurs gegen die Zurückweisung eines Klagebegehrens auf Zuerkennung einer Invaliditätspension als unzulässig zurück, da kein entsprechender Bescheid des Pensionsversicherungsträgers vorliegt.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0127651",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0127651",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.8,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0127651\", \"rechtssatz_text\": \"Genießt eine versicherte Person Berufsschutz nach § 273 Abs 1 ASVG, kann sich die Frage einer \\\"entsprechenden Geltung\\\" (§ 273 Abs 3 ASVG) des § 255 Abs 3a und 3b ASVG gar nicht stellen. Bei Angestellten kann daher die Verweisungsbeschränkung des § 255 Abs 3a, 3b ASVG nur dann bedeutsam werden, wenn...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17598, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS28_14m|OGH|2014-03-25\", \"gz\": \"10ObS28_14m\", \"datum\": \"2014-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Zulassungsbeschwerde gegen die Ablehnung der Invaliditätsrente unter Berufung auf die Härtefallregelung des § 255 Abs 3a ASVG.\"}, {\"te_stable_key\": \"10ObS174_12d|OGH|2013-01-29\", \"gz\": \"10ObS174_12d\", \"datum\": \"2013-01-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision gegen die Ablehnung einer Berufsunfähigkeitsleistung zurück, da Verfahrensmängel erster Instanz nicht mehr überprüfbar sind und keine relevante Rechtsfrage vorliegt.\"}, {\"te_stable_key\": \"10ObS71_12g|OGH|2012-06-05\", \"gz\": \"10ObS71_12g\", \"datum\": \"2012-06-05\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision in einem Pensionsstreit zurück, da keine Rechtsfrage von erheblicher Bedeutung vorliegt und verfassungsrechtliche Bedenken gegen die Härtefallregelung fehlen.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0114289",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0114289",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.54,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0114289\", \"rechtssatz_text\": \"War der Kläger im Beobachtungszeitraum des § 255 Abs 2 ASVG überwiegend in Slowenien tätig, ist für die Frage, ob ihm Berufsschutz zukommt, ab 1.Jänner 1997 entscheidend, ob es sich bei der dort von ihm verrichteten Arbeit um eine solche handelte, die im Sinne des § 255 Abs 2 ASVG qualifiziert war.\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 17114, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS93_18a|OGH|2018-09-13\", \"gz\": \"10ObS93_18a\", \"datum\": \"2018-09-13\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung, ob die Klägerin in einem angelernten Beruf tätig war und dadurch Berufsschutz im Sinne des § 255 Abs 2 ASVG erworben hat.\"}, {\"te_stable_key\": \"10ObS37_12g|OGH|2012-06-05\", \"gz\": \"10ObS37_12g\", \"datum\": \"2012-06-05\", \"gericht\": \"OGH\", \"mini_story\": \"Anerkennung der Tätigkeit als Eisenbieger/-flechter als angelernter Beruf i.S.d. § 255 Abs. 2 ASVG für den Berufsschutz bei Invaliditätspension.\"}, {\"te_stable_key\": \"10ObS53_11h|OGH|2011-10-04\", \"gz\": \"10ObS53_11h\", \"datum\": \"2011-10-04\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Berufsunfähigkeit eines Personenschützers unter Berücksichtigung der Unterscheidung zwischen Angestellten- und Arbeitertätigkeiten gemäß ASVG.\"}], \"te_items_count\": 3}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0106511",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0106511",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.1,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0106511\", \"rechtssatz_text\": \"Die Umstrukturierung des Betriebes eines Versicherten, etwa durch Betriebsverkleinerung, darf nicht zu einer Verschlechterung der wirtschaftlichen Grundlage des Betriebes führen. So wie aber einem Unselbständigen unter Umständen (§ 255 Abs 3 ASVG) ein Herabsinken seines Einkommens bis zur \\\"Lohnhälft...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7473, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS204_09m|OGH|2010-01-19\", \"gz\": \"10ObS204_09m\", \"datum\": \"2010-01-19\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Ablehnung einer Erwerbsunfähigkeitspension für einen selbständigen Tankstellenpächter gemäß § 133 Abs 2 GSVG wurde mangels erheblicher Rechtsfrage zurückgewiesen.\"}, {\"te_stable_key\": \"10ObS163_04z|OGH|2005-03-08\", \"gz\": \"10ObS163_04z\", \"datum\": \"2005-03-08\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung der Voraussetzungen für Erwerbsunfähigkeitspension eines Geschäftsführers gemäß § 133 GSVG unter Berücksichtigung der Notwendigkeit persönlicher Arbeitsleistung zur Aufrechterhaltung des Betriebs.\"}, {\"te_stable_key\": \"10ObS169_04g|OGH|2004-11-23\", \"gz\": \"10ObS169_04g\", \"datum\": \"2004-11-23\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Erwerbsunfähigkeit eines Landwirtes unter Berücksichtigung der Zumutbarkeit einer Umorganisation des Betriebs durch Einstellung einer Ersatzkraft.\"}, {\"te_stable_key\": \"10ObS114_04v|OGH|2004-11-09\", \"gz\": \"10ObS114_04v\", \"datum\": \"2004-11-09\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Erwerbsunfähigkeit eines selbständigen Karossiers in einem Gesamtbetrieb aus Karosseriebau und Kfz-Handel gemäß § 133 Abs 3 GSVG unter Berücksichtigung der maßgebenden Tätigkeit und Zumutbarkeit von Umorganisationsmaßnahmen.\"}, {\"te_stable_key\": \"10ObS15_04k|OGH|2004-03-30\", \"gz\": \"10ObS15_04k\", \"datum\": \"2004-03-30\", \"gericht\": \"OGH\", \"mini_story\": \"Die Revision gegen die Feststellung, dass ein selbständiger Textilvertreter nicht erwerbsunfähig i.S.d. § 133 Abs 3 GSVG ist, da er durch zumutbare Umorganisationsmaßnahmen kalkülsüberschreitende Tätigkeiten vermeiden kann, ist unbegründet.\"}], \"te_items_count\": 5}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0084408",
+        "tool": "hot_rs_lookup",
+        "args": {
+          "rs_number": "RS0084408",
+          "te_limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.07,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0084408\", \"rechtssatz_text\": \"Der im § 255 Abs 3 ASVG ausdrücklich vorgeschriebene Maßstab der Lohnhälfte ist auch nach Abs 1 der zitierten Gesetzesstelle und nach § 273 Abs 1 leg cit anzulegen. Alle aus den Versicherungsfällen der geminderten Arbeitsfähigkeit zu leistenden Pensionen haben Lohnersatzfunktion (Gehaltsersatzfunkti...\", \"te_count\": 14, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 4096, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS13_25x|OGH|2025-04-24\", \"gz\": \"10ObS13_25x\", \"datum\": \"2025-04-24\", \"gericht\": \"OGH\", \"mini_story\": \"Teilweise Berechtigung einer außerordentlichen Revision gegen die Abweisung eines Antrags auf Berufsunfähigkeitspension aufgrund angeblicher Verletzung der Mitwirkungspflicht im Leistungsverfahren.\"}, {\"te_stable_key\": \"10ObS180_21z|OGH|2022-04-20\", \"gz\": \"10ObS180_21z\", \"datum\": \"2022-04-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH lehnt den Berufsschutz gemäß § 273 Abs 1 ASVG ab, da der Klägerin die volle 15-Jahres-Frist zur Erwerbung der Mindestversicherungszeit zur Verfügung stand, die Hälfteregelung des § 255 Abs 2 Satz 3 ASVG daher nicht anwendbar ist.\"}, {\"te_stable_key\": \"10ObS88_20v|OGH|2020-09-01\", \"gz\": \"10ObS88_20v\", \"datum\": \"2020-09-01\", \"gericht\": \"OGH\", \"mini_story\": \"Beurteilung der Invalidität gemäß § 255 Abs 3 ASVG hinsichtlich Verweisungstätigkeiten und Erzielbarkeit der gesetzlichen Lohnhälfte.\"}, {\"te_stable_key\": \"10ObS29_19s|OGH|2019-03-26\", \"gz\": \"10ObS29_19s\", \"datum\": \"2019-03-26\", \"gericht\": \"OGH\", \"mini_story\": \"Bei der Prüfung der Erreichbarkeit der Lohnhälfte im Sinn des § 255 Abs 3 ASVG ist der durchschnittliche Verdienst als Vergleichsmaßstab heranzuziehen.\"}, {\"te_stable_key\": \"10ObS58_17b|OGH|2017-05-18\", \"gz\": \"10ObS58_17b\", \"datum\": \"2017-05-18\", \"gericht\": \"OGH\", \"mini_story\": \"Die außerordentliche Revision weist keine Rechtsfrage von erheblicher Bedeutung auf und wird abgewiesen.\"}], \"te_items_count\": 5}"
+      }
+    ],
+    "tool_calls_total": 19,
+    "tool_calls_ok": 19,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "Basierend auf der aktuellen Rechtsprechung des OGH (insb. 10 ObS) ergibt sich für den Fall ULLRICH folgende Ersteinschätzung zur Invaliditätspension und zum Rehabilitationsgeld:\n\n### 1. Berufsschutz (§ 255 Abs 1 und 2 ASVG)\nDer Berufsschutz bewahrt den Versicherten davor, auf jede beliebige Tätigkeit des Arbeitsmarktes verwiesen zu werden.\n*   **Qualifizierte Tätigkeit (§ 255 Abs 1):** Voraussetzung ist die Ausübung eines erlernten (Lehrabschluss) oder angelernten Berufs. Für den Berufsschutz nach Abs 1 und 2 sind nur **unselbständige Tätigkeiten** (Arbeiter/Angestellte) maßgeblich; Zeiten einer selbständigen Tätigkeit nach dem GSVG begründen keinen Berufsschutz nach dem ASVG (**RS0129026**).\n*   **90-Monate-Regel (§ 255 Abs 2):** Der Versicherte muss in den letzten 15 Jahren vor dem Stichtag in mindestens 90 Monaten eine qualifizierte Tätigkeit ausgeübt haben. \n*   **Rahmenfristerstreckung:** Der 15-Jahres-Rahmen kann sich unter bestimmten Voraussetzungen verlängern. Der OGH erkennt hier eine planwidrige Gesetzeslücke an, um den Gleichheitssatz zu wahren (**RS0129361**). Eine analoge Verlängerung um Zeiten des Pensionsvorschussbezugs wird jedoch abgelehnt (**10 ObS 75/19f**).\n\n### 2. Verweisbarkeit und Lohnhälfte-Maßstab (§ 255 Abs 3 ASVG)\nFehlt der Berufsschutz (z.B. bei Hilfsarbeitern oder Nichterreichen der 90 Monate), ist die Invalidität nach Abs 3 zu prüfen:\n*   **Lohnhälfte-Maßstab:** Invalidität liegt vor, wenn die Arbeitsfähigkeit infolge des Gesundheitszustands auf weniger als die Hälfte eines gesunden Versicherten mit ähnlicher Ausbildung gesunken ist. Dieser Maßstab ist laut OGH auch bei Vorliegen von Berufsschutz sinngemäß anzuwenden (**RS0084408**).\n*   **Verweisungsfeld:** Ohne Berufsschutz ist der Versicherte auf **alle Tätigkeiten** des allgemeinen Arbeitsmarktes verweisbar, die er nach seinem medizinischen Leistungskalkül noch verrichten kann. Es genügt bereits ein einziger möglicher Verweisungsberuf (**RS0108306**).\n\n### 3. Rehabilitationsgeld (§ 143a ASVG)\nWenn die Invalidität (oder Berufsunfähigkeit) voraussichtlich **mindestens sechs Monate** andauern wird, aber **nicht dauerhaft** ist (vorübergehende Invalidität), besteht Anspruch auf Rehabilitationsgeld.\n*   **Stichtagsprinzip:** Im Gegensatz zur Invaliditätspension gebührt das Rehabilitationsgeld bereits ab Vorliegen der vorübergehenden Invalidität, ohne dass auf das Stichtagsprinzip der Pensionsversicherung Bedacht zu nehmen ist (**RS0130706**).\n*   **Entziehung:** Eine irrtümliche Annahme vorübergehender Invalidität kann trotz Rechtskraft des Zuerkennungsbescheids zu einer späteren Entziehung führen, wenn sich herausstellt, dass die Voraussetzungen nie vorlagen (**RS0133202**).\n\n### 4. Anrechnung Krankengeld (§ 255 Abs 4 ASVG)\n*   Invalidität gilt auch dann als erfüllt, wenn der Versicherte die Voraussetzungen für den Berufsschutz erfüllt, aber infolge seines Zustands die zumutbare Tätigkeit nicht mehr ausüben kann und die Erbringung von Maßnahmen der beruflichen Rehabilitation nicht zweckmäßig oder zumutbar ist.\n*   Der Bezug von Krankengeld kann für maximal 24 Monate auf die Wartezeit angerechnet werden, sofern die Invalidität bereits vorliegt.\n\n**Zusammenfassende Empfehlung:**\nPrüfen Sie primär, ob die **90 qualifizierten Pflichtversicherungsmonate** im 15-Jahres-Rahmen erreicht werden. Falls ja, ist Herr Ullrich nur auf Berufe seiner Gruppe (z.B. gelernte Schlosser auf andere Metallberufe) verweisbar. Falls nein, erfolgt die Verweisung auf den allgemeinen Arbeitsmarkt (z.B. Portier, einfacher Bürohilfsdienst), sofern er dort noch mindestens die **Hälfte des üblichen Lohns** verdienen kann. Bei nur vorübergehender Einschränkung ist der Antrag auf **Rehabilitationsgeld** (§ 143a ASVG) vorrangig.",
+    "answer_chars": 3742,
+    "e2e_ms": 14362.86
+  },
+  {
+    "name": "ogh_rs_core",
+    "goal": "Find the most relevant OGH RS + TE and capture stable references.",
+    "mode": "llm",
+    "tools": [
+      "search_ogh_rechtssaetze",
+      "search_ogh_entscheidungen",
+      "get_rechtssatz",
+      "search_by_paragraph",
+      "search_by_schlagwort"
+    ],
+    "llm_model": "google/gemini-3-flash-preview",
+    "llm_calls": [
+      {
+        "step": 1,
+        "latency_ms": 1938.33,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 2474,
+          "completion_tokens": 98,
+          "total_tokens": 2572,
+          "cost": 0.001531,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 2,
+        "latency_ms": 1887.26,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 6327,
+          "completion_tokens": 132,
+          "total_tokens": 6459,
+          "cost": 0.0035595,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 3,
+        "latency_ms": 2024.88,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 8995,
+          "completion_tokens": 105,
+          "total_tokens": 9100,
+          "cost": 0.0048125,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 4,
+        "latency_ms": 2843.87,
+        "finish_reason": "tool_calls",
+        "tool_calls_count": 4,
+        "usage": {
+          "prompt_tokens": 12131,
+          "completion_tokens": 131,
+          "total_tokens": 12262,
+          "cost": 0.0064585,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "step": 5,
+        "latency_ms": 10838.28,
+        "finish_reason": "stop",
+        "tool_calls_count": 0,
+        "usage": {
+          "prompt_tokens": 13967,
+          "completion_tokens": 1276,
+          "total_tokens": 15243,
+          "cost": 0.0108115,
+          "cached_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "tool_calls": [
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_by_paragraph_XyBNnN5IVJZHtabjAty8",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 255 ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 259.2,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 255 ASVG\", \"results\": [{\"rs_number\": \"RS0085134\", \"kernaussage\": \"Der Anspruch auf Weitergewährung der Invaliditätspension hängt davon ab, ob der Versicherte nach Ablauf der Frist, für die sie zuerkannt wurde, (noch, erstmals oder wieder) als invalid im Sinne des § 255 ASVG gilt. Ein Vergleich zu den Verhältnissen zur Zeit der Zuerkennung ist nicht anzustellen.\", \"schlagworte\": [\"OGH-Rechtsprechung\", \"Arbeitsmarktausschluß\", \"§ 255 ASVG\", \"befristete Leistung\", \"Erwerbsunfähigkeitspension\", \"Verweisung\", \"Sachverständigengutachten\", \"BPGG\", \"Befristete Leistung\", \"Versicherungsfall\", \"Anmarschweg\", \"ASVG\", \"außerordentliche Revision\", \"Verweisungsberuf\", \"öffentliches Verkehrsmittel\", \"Mangelhaftigkeit des Berufungsverfahrens\", \"Lehrer\", \"WPGG\", \"Leistungsentzug\", \"Kellner\", \"zeitlich begrenzte Leistung\", \"ASVG § 255\", \"Gehbehinderung\", \"Berufsunfähigkeitspension\", \"500-Meter-Regel\", \"Revisionsgründe\", \"Annexleistung\", \"ASVG § 255 Abs. 4\", \"Weitergewährung\", \"Berufsschutz\"]}, {\"rs_number\": \"RS0103003\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 255 ASVG A Allgemeines B Berufsschutz (erlernte, angelernte Berufe) a) Allgemeines b) einzelne Berufe C Erwerbsfähigkeit (Arbeitsfähigkeit) a) Invalidität b) Herabsinken der Arbeitsfähigkeit D Verweisbarkeit a) Allgemeines (Arbeitsmarkt, Leistungskalkül) b)...\", \"schlagworte\": []}, {\"rs_number\": \"RS0111370\", \"kernaussage\": \"Während § 255 ASVG auf die während der letzten 15 Jahre vor dem Stichtag ausgeübten Berufstätigkeiten abstellt, kommt es nach § 273 Abs 1 ASVG auf einen solchen Prüfungszeitraum nicht an.\", \"schlagworte\": [\"zuletzt ausgeübter Beruf\", \"Berufsunfähigkeitspension\", \"Rehabilitationsgeld\", \"Verweisungsfeld\", \"ASVG § 99\", \"Berufsunfähigkeit\", \"Krisenintervention\", \"Berufsschutz\", \"Leistungskalkül\", \"Sozialpädagoge\", \"ASVG\", \"ASVG § 273\", \"Bauleiterin\", \"technische Angestellte\", \"vorübergehende Tätigkeit\", \"Alternative Tätigkeiten\", \"Pensionsversicherungsanstalt\", \"§ 273 ASVG\", \"Long-Covid-Syndrom\", \"Beweisrüge\", \"Berufskundliches Gutachten\", \"Angestelltentätigkeit\"]}, {\"rs_number\": \"RS0115065\", \"kernaussage\": \"Ob die Verweisbarkeit des Versicherten inhaltlich nach § 273 ASVG oder § 255 ASVG zu beurteilen ist und ob der Versicherte Berufsschutz im Sinn des § 255 Abs 1 ASVG genießt, ist jeweils eine Rechtsfrage.\", \"schlagworte\": [\"funktionelle Einäugigkeit\", \"nicht vorübergehend\", \""
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_by_schlagwort_gkXTBAc3sCeJ3pc1UlVg",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Berufsschutz",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 30.44,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Berufsschutz\", \"results\": [{\"rs_number\": \"RS0105151\", \"kernaussage\": \"Zum Invaliditätsbegriff gehören nicht nur der geistige und körperliche Zustand, sondern auch die übrigen in § 255 ASVG genannten Anspruchsvoraussetzungen wie beispielsweise die überwiegende Ausübung eines erlernten oder angelernten Berufes. Auch der Berufsschutz ist bei Gewährung einer befristeten...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufsunfähigkeitspension\", \"Weitergewährung\", \"Berufsschutz\", \"Invalidität\", \"ASVG\"]}, {\"rs_number\": \"RS0135396\", \"kernaussage\": \"Die Minderung der Arbeitsfähigkeit wird auf der Verweisungsebene auch im Anwendungsbereich des § 273 ASVG grundsätzlich nicht konkret, sondern abstrakt ermittelt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"geminderte Arbeitsfähigkeit\", \"Berufsschutz\", \"Gesundheitsberuferegister\", \"Rehabilitationsgeld\", \"gesundheitliche Eignung\"]}, {\"rs_number\": \"RS0135394\", \"kernaussage\": \"Eine Teileintragung in das Gesundheitsberuferegister oder eine teilweise Berufsberechtigung ist weder im GuKG noch im GBRG vorgesehen. Wer nicht gesund genug für alle Tätigkeiten des GuKG ist, darf demnach auch keine Teilbereiche dieser Tätigkeit ausüben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"geminderte Arbeitsfähigkeit\", \"Berufsschutz\", \"Gesundheitsberuferegister\", \"Rehabilitationsgeld\", \"gesundheitliche Eignung\"]}, {\"rs_number\": \"JFR_20221129_21G00261_01\", \"kernaussage\": \"Gestaltungsspielraum bei Berufsschutz im ASVG\", \"rechtsgebiet\": \"Verfassungsrecht\", \"schlagworte\": [\"Gestaltungsspielraum\", \"Gesetzgeber\", \"§ 255 ASVG\", \"Pflichtversicherungsmonate\", \"qualifizierte Tätigkeiten\", \"Berufsschutz\", \"Lehrberuf\", \"Arbeiter\", \"Angestellter\"]}, {\"rs_number\": \"JFR_20220618_22G00051_01\", \"kernaussage\": \"Schutz von Berufsgruppen und Gleichheitssatz\", \"rechtsgebiet\": \"Grundrechte\", \"schlagworte\": [\"Gleichheitssatz\", \"Berufsschutz\", \"Gesundheitsberufe\", \"Geistig abnorme Rechtsbrecher\", \"rechtspolitischer Gestaltungsspielraum\", \"öffentliches Interesse\", \"§ 83 StGB\", \"§ 21 StGB\", \"Gesetzgeber\"]}], \"count\": 5}"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_by_schlagwort_vkZRr3vl80BBQAmvRuiy",
+        "tool": "search_by_schlagwort",
+        "args": {
+          "schlagwort": "Verweisbarkeit",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 78.34,
+        "error": null,
+        "payload_preview": "{\"schlagwort\": \"Verweisbarkeit\", \"results\": [{\"rs_number\": \"RS0084994\", \"kernaussage\": \"Ist dem Versicherten nur Tagespendeln, nicht aber auch Wochenpendeln und Übersiedeln möglich, sind Feststellungen darüber erforderlich, ob im Umkreis der dem Kläger möglichen Gehstrecke oder in dem durch die Benützbarkeit eines Massenverkehrsmittels erweiterten Umkreis, eine entsprechende Zahl von...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufsschutz\", \"Pendelkosten\", \"Privat-PKW\", \"regionaler Arbeitsmarkt\", \"Weitergewährung\", \"Pendeln\", \"Erreichbarkeit Arbeitsplatz\", \"öffentliche Verkehrsmittel\", \"Anreisezeit\", \"ASVG\", \"Nachschulung\", \"Verweisbarkeit\", \"Arbeitsmarktregion\", \"Kfz-Mechaniker\", \"Invaliditätspension\", \"Massenverkehrsmittel\", \"Arbeitsplatzverweisung\", \"Pendlerverhalten\", \"Invalidität\", \"Teilzeitbeschäftigung\", \"Wochenpendeln\", \"privates Kraftfahrzeug\", \"Zumutbarkeit\", \"Zumutbarkeit privater Pkw\", \"§ 255 Abs 3 ASVG\", \"Fahrzeugverfügbarkeit\", \"Zumutbarkeit PKW\", \"behinderungsgerechtes Verkehrsmittel\", \"Arbeitsmarkt\"]}, {\"rs_number\": \"RS0085034\", \"kernaussage\": \"Beherrscht ein Versicherter zwar eine andere Sprache und Schrift, nicht aber die deutsche Sprache und die Lateinschrift, so ist für die Beurteilung seiner Invalidität nicht entscheidend, ob er fähig ist, die deutsche Sprache und die Lateinschrift zu erlernen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Invaliditätspension\", \"§ 255 ASVG\", \"Sprachkenntnisse\", \"Ausländer\", \"Portier\", \"Invalidität\", \"ASVG\", \"Analphabetismus\", \"Arbeitsunfall\", \"Wartezeit\", \"Unfallkausalität\", \"Verweisungstätigkeit\", \"Unkenntnis der deutschen Sprache\", \"Parkgaragenkassier\", \"Minderung der Erwerbsfähigkeit\", \"deutsche Sprachkenntnisse\", \"ärztliches Gutachten\", \"Unfallversicherung\", \"Sachverständigengutachten\", \"Revision\", \"geminderte Arbeitsfähigkeit\", \"Invalität\", \"Arbeitsfähigkeit\", \"ASGG\", \"Arbeitsmarkt\", \"Berufsschutz\", \"Verweisbarkeit\", \"Maurer\", \"Fachmarktberater\", \"Berufungsverfahren\", \"Auslandsentscheidung\", \"Beschäftigungsbewilligung\", \"Verweisungsberuf\", \"Auslandstätigkeit\", \"Sozialversicherungsabkommen\", \"ASVG § 255\", \"Heimarbeit\", \"Verweisungsfeld\", \"Vermeidungsverhalten\", \"Deutschkenntnisse\", \"Diskriminierung\", \"Portierin\", \"medizinisches Leistungskalkül\", \"Verfahrensmangel\", \"Dolmetscher\", \"Rehabilitation\"]}, {\"rs_number\": \"RS0085727\", \"kernaussage\": \"Kein unzumutbarer sozialer Abstieg vom einfachen Vertreter im Außen"
+      },
+      {
+        "step": 1,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_FByHAyVRYBngRncXm8nk",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "255 ASVG Lohn hälfte",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.35,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"255 ASVG Lohn hälfte\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_S4PEUbr7vexr6YepHCdW",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "255 Abs ASVG Lohn hälfte",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 14.18,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"255 Abs ASVG Lohn hälfte\"}"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_fssXUcrYBnSKpngvyr94",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "255 Abs ASVG erlernter Beruf",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 17.75,
+        "error": null,
+        "payload_preview": "{\"results\": [{\"rs_number\": \"RS0084513\", \"rechtssatz\": \"Ein erlernter Beruf im Sinn des § 255 Abs 1 ASVG ist ein Beruf, für den ein bestimmter Ausbildungsgang vorgeschrieben ist, dessen erfolgreicher Abschluss Voraussetzung für die Ausübung eines Berufes ist. Sieht man von der Berufstätigkeit jener Person ab, die durch besondere Vorschriften Dienstnehmern gleichgestellt sind (vgl § 4 Abs 3 ASVG), muss es sich um eine unselbständige Erwerbstätigkeit handeln (vgl vor allem § 1 und § 3 Abs 1 ASVG). (Hier: Konzessionsprüfung für das Gastgewerbe kann eine Berufstätigkeit die über jene einer Serviererin nicht hinausgeht) nicht zur Tätigkeit in einem erlernten Beruf im Sinn des § 255 Abs 1 ASVG machen, weil sie Voraussetzung für die Ausübung einer selbständigen Erwerbstätigkeit ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gastgewerbe\", \"erlerter Beruf\", \"Schleifer\", \"angelernt Beruf\", \"erlernt Beruf\", \"Berufsunfähigkeitspension\", \"Verweisungstätigkeiten\", \"Rehabilitationsgeld\", \"§ 255 ASVG\", \"Behindertenbetreuer\", \"Metallschleifer\", \"erlernten Beruf\", \"Alten- und Pflegehelferin\", \"ASGG\", \"Berufsschutz\", \"Invaliditätspension\", \"ASVG\", \"Altenfachbetreuerin\", \"Kellnerin\", \"Pension\", \"Prosekturgehilfe\", \"Portier\", \"Maurer\", \"Ausbildung\", \"ungelernter Beruf\", \"Fach-Sozialbetreuung Altenarbeit A\", \"Lehrberuf\", \"Pflegehelferin\", \"ASVG § 255\"], \"relevance\": 0.699}, {\"rs_number\": \"RS0084358\", \"rechtssatz\": \"\\\"Beruf\\\" ist nicht etwa im Sinn eines erlernten Berufes (§ 255 Abs 1 ASVG) zu verstehen, sondern hier ist jede Erwerbstätigkeit, auch wenn es sich nicht um einen Lehrberuf handelt, umfaßt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufskrankheit\", \"Hauterkrankung\", \"Versehrtenrente\", \"Minderung der Erwerbsfähigkeit\", \"Aufgabe schädigender Erwerbsarbeit\"], \"relevance\": 0.691}, {\"rs_number\": \"RS0084447\", \"rechtssatz\": \"Eine nur bei besonderem Entgegenkommen des Arbeitgebers mögliche Tätigkeit kann nicht als eine Tätigkeit im erlernten Beruf im Sinn des § 255 Abs 1 ASVG angesehen werden. Ein Versicherter, der aus medizinischen Gründen seinem erlernten Beruf als Maurer unter üblichen Bedingungen nicht mehr nachgehen konnte, konnte den Berufsschutz als Maurer durch diese Tätigkeit auch nicht wahren.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufsschutz\", \"Tätigkeitsschutz\", \"Neuerungsverbot\", \"Maurerberuf\", \"Eingebrachter Zustand\", \"geminderte Arbeitsfähigkeit\", \"Schlosser\", \"ASGG"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_7yzoqNVdynlWjyeSdwSm",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "255 Abs ASVG Monate",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 13.41,
+        "error": null,
+        "payload_preview": "{\"results\": [{\"rs_number\": \"RS0133205\", \"rechtssatz\": \"Personen, für die bescheidmäßig festgestellt wurde, dass vorübergehende Invalidität im Sinn des § 255 Abs 1 und 2 oder 3 ASVG im Ausmaß von zumindest sechs Monaten vorliegt, haben gemäß § 253f ASVG so lange Rechtsanspruch auf die in § 302 Abs 1 ASVG genannten medizinischen Maßnahmen der Rehabilitation gegenüber dem Pensionsversicherungsträger, als vorübergehende Invalidität vorliegt, wenn dies zur Wiederherstellung der Arbeitsfähigkeit notwendig und infolge des Gesundheitszustands zweckmäßig ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufung im Sozialrecht\", \"Rehabilitationsgeld\", \"§ 255 ASVG\", \"Invaliditätspension\", \"Pensionsversicherung\", \"Beweiswürdigung\", \"Case Management\", \"Krankenstandsprognose\", \"vorübergehende Invalidität\", \"Berufungsumfang\", \"Bescheidpflicht\", \"Gesundheitsverbesserung\", \"Verweisungstätigkeiten\", \"Arbeitsunfall\", \"Berufsschutz\", \"Leistungskalkül\", \"§ 253f ASVG\", \"Lohnhälfte\", \"medizinische Maßnahmen der Rehabilitation\", \"medizinische Rehabilitation\", \"Arbeitsmarkverweisbarkeit\", \"§ 367 ASVG\"], \"relevance\": 0.486}, {\"rs_number\": \"RS0085011\", \"rechtssatz\": \"Epileptische Anfälle ca alle vier bis fünf Monate führen zu keiner Invalidität nach § 255 Abs 3 ASVG.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"relevance\": 0.392}, {\"rs_number\": \"RS0134372\", \"rechtssatz\": \"Im Anwendungsbereich des § 255 Abs 4 ASVG können Beitragsmonate der freiwilligen Versicherung (hier: der Selbstversicherung gemäß § 19a ASVG), die nicht die Pflichtversicherung nach dem ASVG begründen, nicht als Monate gewertet werden, in denen die versicherte Person eine „Tätigkeit\\\" im Sinn des § 255 Abs 4 Satz 1 ASVG ausgeübt hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufsunfähigkeitspension\", \"Berufsschutz\", \"Tätigkeitszeiten\", \"geringfügige Beschäftigung\", \"Selbstversicherung\", \"§ 255 Abs 4 ASVG\", \"Invaliditätspension\", \"Tätigkeitsschutz\", \"Pflichtversicherung\", \"Gesamttätigkeit\"], \"relevance\": 0.371}, {\"rs_number\": \"RS0127738\", \"rechtssatz\": \"Auch nach der Novellierung der Voraussetzungen des besonderen Tätigkeitsschutzes gemäß § 255 Abs 4 Z 2 ASVG (bezüglich der für die Ausübung „einer“ Tätigkeit maßgebenden Zeiten) soll nicht jeder, sondern nur ein solcher Bezug von Krankengeld (durch maximal 24 Monate) angerechnet werden, der einer entsprechenden „Erwerbstätigkeit“ zuzuordnen ist; käme es doch andernfalls auch zu"
+      },
+      {
+        "step": 2,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_h4WnB5p6bn8cRLGN45ZH",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "143a ASVG Rehabilitationsgeld vorübergehend",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 9.58,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"143a ASVG Rehabilitationsgeld vorübergehend\"}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_by_paragraph_46OttfU6BnWbh7DTZQZ2",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 255 Abs 3 ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 65.1,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 255 Abs 3 ASVG\", \"results\": [{\"rs_number\": \"RS0084962\", \"kernaussage\": \"Eine Stationsgehilfin in einem Pflegeheim übt keine Angestelltentätigkeit aus. Ihre geminderte Arbeitsfähigkeit ist ungeachtet ihrer Versicherung in der Pensionsversicherung der Angestellten nach der analog anzuwendenden Bestimmung des § 255 Abs 3 ASVG zu beurteilen.\", \"schlagworte\": [\"Ausbildungszeit\", \"OGH-Rechtsprechung\", \"Rehabilitationsgeld\", \"§ 255 ASVG\", \"sozialer Abstieg\", \"erlernten Beruf\", \"Invaliditätspension\", \"ASVG\", \"Altenfachbetreuerin\", \"Verweisungsberuf\", \"KrPflG\", \"Ausbildungsdauer\", \"Stationsgehilfin\", \"Pflegeassistentin\", \"Angestelltentätigkeit\", \"Ausbildung\", \"Stationsgehilfe\", \"Pflegehelferin\", \"ASVG § 255\", \"angelernt Beruf\", \"Berufsunfähigkeitspension\", \"Pflegehelfer\", \"Berufsschutz\", \"Leistungskalkül\", \"SanG\", \"Berufungsschriftsatz\", \"AngG\", \"Pflegeassistenz\", \"Arbeitsplatz Erreichbarkeit\", \"Invalidität\"]}, {\"rs_number\": \"RS0106511\", \"kernaussage\": \"Die Umstrukturierung des Betriebes eines Versicherten, etwa durch Betriebsverkleinerung, darf nicht zu einer Verschlechterung der wirtschaftlichen Grundlage des Betriebes führen. So wie aber einem Unselbständigen unter Umständen (§ 255 Abs 3 ASVG) ein Herabsinken seines Einkommens bis zur \\\"Lohnhälft...\", \"schlagworte\": [\"Gastgewerbe\", \"Tabaktrafikant\", \"Selbständige Erwerbstätigkeit\", \"Verweisungsfeld\", \"Aufgabenverteilung\", \"Erwerbsunfähigkeitspension\", \"Handelsagent\", \"Selbständige Tätigkeit\", \"vorzeitige Alterspension\", \"GSVG § 133 Abs 2\", \"§ 133 Abs 2 GSVG\", \"Verweisungsberuf\", \"Fremdarbeitskraft\", \"Umorganisation des Betriebs\", \"Tankstellenpächter\", \"Tätigkeitsverweisung\", \"Neuerungsverbot\", \"Feststellungsmangel\", \"Verweisungstätigkeit\", \"Selbständiger\", \"persönliche Mitarbeit\", \"Erwerbsunfähigkeit Selbständige\", \"Betriebsumorganisation\", \"Berufsschutz\", \"betriebliche Umorganisation\", \"Leistungskalkül\", \"Tätigkeitsschutz\", \"Karosseriebetrieb\", \"persönliche Arbeitsleistung\", \"Landwirtschaftsbetrieb\"]}, {\"rs_number\": \"RS0084413\", \"kernaussage\": \"Bei Prüfung eines Pensionsanspruches wegen geminderter Arbeitsfähigkeit ist insbesondere in Fällen des § 255 Abs 3 ASVG vorerst ein medizinisches Leistungskalkül zu erheben. Sodann ist unter Bedachtnahme auf die Ergebnisse dieses Leistungskalküls das Verweisungsfeld zu prüfen und es sind die damit...\", \"schlagworte\": [\"Hilfsberuf\", \"Kollektivvertrag\", \"Ver"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_by_paragraph_AyuZzqXNmqQ9unTOpjPP",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 255 Abs 4 ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 109.7,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 255 Abs 4 ASVG\", \"results\": [{\"rs_number\": \"RS0122455\", \"kernaussage\": \"Dass der Gesetzgeber im § 255 Abs 4 ASVG beim erforderlichen Beschäftigungsausmaß auf „Kalendermonate\\\" (und nicht auf „Beitragsmonate\\\") abstellt, ist kein Redaktionsversehen.\", \"schlagworte\": []}, {\"rs_number\": \"RS0134372\", \"kernaussage\": \"Im Anwendungsbereich des § 255 Abs 4 ASVG können Beitragsmonate der freiwilligen Versicherung (hier: der Selbstversicherung gemäß § 19a ASVG), die nicht die Pflichtversicherung nach dem ASVG begründen, nicht als Monate gewertet werden, in denen die versicherte Person eine „Tätigkeit\\\" im Sinn des §...\", \"schlagworte\": [\"Berufsunfähigkeitspension\", \"Berufsschutz\", \"Tätigkeitszeiten\", \"geringfügige Beschäftigung\", \"Selbstversicherung\", \"§ 255 Abs 4 ASVG\", \"Invaliditätspension\", \"Tätigkeitsschutz\", \"Pflichtversicherung\", \"Gesamttätigkeit\"]}, {\"rs_number\": \"RS0118621\", \"kernaussage\": \"Der Begriff \\\"Kalendermonat\\\" ist nicht mit dem Begriff \\\"Beitragsmonat\\\" gleichzusetzen. Die Regel des § 133 Abs 2 letzter Satz GSVG ist im Fall des § 255 Abs 4 ASVG analog anzuwenden, d.h. einzelne Kalendertage sollen nicht verloren gehen, sondern in entsprechender Anzahl zu einem Kalendermonat...\", \"schlagworte\": [\"Invaliditätspension\", \"Berufsschutz\", \"Kalendermonate\", \"ASVG\", \"Beitragsmonate\", \"§ 255 Abs 4 ASVG\", \"Ausübung der Tätigkeit\", \"Entgeltfortzahlung\", \"Erwerbstätigkeitsdauer\", \"Krankengeldbezug\", \"außerordentliche Revision\", \"Berufsunfähigkeitspension\", \"Tätigkeitsschutz\", \"GSVG\", \"Versicherungszeiten\", \"Tai-Chi Lehrer\", \"Wartezeit\", \"Versicherungsfall geminderte Arbeitsfähigkeit\", \"Rahmenzeitraum\", \"neutrale Monate\", \"Urlaubsersatzleistung\", \"Kalendermonat\", \"Berechnung\", \"ASVG § 255 Abs 4\", \"Urlaubsabfindung\", \"Pflichtversicherungsmonate\", \"Versicherungsmonat\", \"Beitragsmonat\", \"Tätigkeitszeiten\", \"geringfügige Beschäftigung\", \"Selbstversicherung\"]}, {\"rs_number\": \"RS0125929\", \"kernaussage\": \"Auch dann, wenn mehrere Tätigkeiten parallel ausgeübt werden, ist für die Charakterisierung der „einen Tätigkeit“ iSd § 255 Abs 4 ASVG die Gesamttätigkeit maßgeblich.\", \"schlagworte\": [\"Invaliditätspension\", \"Tätigkeitsschutz\", \"Berufsschutz\", \"Hausbesorger\", \"Nebenbeschäftigung\", \"Urlaubsabfindung\", \"Pflichtversicherungsmonate\", \"geringfügige Beschäftigung\", \"Pflichtversicherung\", \"Gesamttätigkeit\"]}, {\"rs_number\": \"RS0117594\", \"kernaussage\": \"Die Best"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_by_paragraph_TILKcnXAsRZ1kdxWlB5i",
+        "tool": "search_by_paragraph",
+        "args": {
+          "paragraph": "§ 143a ASVG",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 381.11,
+        "error": null,
+        "payload_preview": "{\"paragraph\": \"§ 143a ASVG\", \"results\": [{\"rs_number\": \"RS0134864\", \"kernaussage\": \"Eine kollektivvertragliche Lohnerhöhung ist beim Rehabilitationsgeld (§ 143a ASVG) gemäß § 125 Abs 1 letzter Satz ASVG nur dann zu berücksichtigen, wenn sie im Bemessungszeitraum - nicht jedoch während des laufenden Bezugs - eintritt.\", \"schlagworte\": [\"Rehabilitationsgeld\", \"Bemessungsgrundlage\", \"§ 125 ASVG\", \"Kollektivvertrag\"]}, {\"rs_number\": \"RS0131281\", \"kernaussage\": \"Das Rehabilitationsgeld nach § 143a ASVG ist eine Geldleistung iSd Art 1 Abs 1 Z 9 bzw Art 5 des Abkommens zwischen der Republik Österreich und Bosnien und Herzegowina über soziale Sicherheit. Art 13 des Abkommens steht der sich aus Art 5 ergebenden Exportverpflichtung nicht entgegen. Im Hinblick...\", \"schlagworte\": [\"Rehabilitationsgeld\", \"Exportierbarkeit\", \"Sozialversicherungsabkommen\", \"Bosnien und Herzegowina\", \"Invaliditätspension\", \"AbkSozSi-Bosnien\", \"zuständiger Träger\"]}, {\"rs_number\": \"RS0131769\", \"kernaussage\": \"Übersteigt das Rehabilitationsgeld den Richtsatz, bleibt es – zum Unterschied zu den jährlich valorisierten Pensionen – mangels einer gesetzlichen Anordnung unverändert, auch wenn es mehrere Jahre bezogen werden sollte. Das gilt nicht nur für das nach § 143a ASVG bemessene Rehabilitationsgeld, ...\", \"schlagworte\": [\"Rehabilitationsgeld\", \"Ausgleichszulage\", \"Anpassung\", \"Übergangsbestimmung\", \"§ 669 Abs 6a ASVG\", \"Bemessungsgrundlage\", \"§ 125 ASVG\", \"Kollektivvertrag\"]}], \"count\": 3}"
+      },
+      {
+        "step": 3,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_22SWdCO8HCH4W6P7mqE6",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Lohnhälfte Verweisbarkeit",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 12.05,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lohnhälfte Verweisbarkeit\"}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_3P3ii10XsVfyuY5DMxnB",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "Lohnhälfte Verweisungstätigkeit",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 4.6,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Lohnhälfte Verweisungstätigkeit\"}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_IQKWQPpg0JGOgJsEI6JE",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "255 Abs ASVG Lohnhälfte",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 7.51,
+        "error": null,
+        "payload_preview": "{\"results\": [{\"rs_number\": \"RS0084408\", \"rechtssatz\": \"Der im § 255 Abs 3 ASVG ausdrücklich vorgeschriebene Maßstab der Lohnhälfte ist auch nach Abs 1 der zitierten Gesetzesstelle und nach § 273 Abs 1 leg cit anzulegen. Alle aus den Versicherungsfällen der geminderten Arbeitsfähigkeit zu leistenden Pensionen haben Lohnersatzfunktion (Gehaltsersatzfunktion). Diese Leistungen sollen aber erst erbracht werden, wenn der (die) Versicherte aus gesundheitlichen Gründen nicht mehr imstande ist, wenigstens die in seiner (ihrer) Berufsgruppe (Facharbeiter und Angestellte) oder auf dem allgemeinen Arbeitsmarkt (Hilfsarbeiter) für gesunde Versicherte regelmäßig erzielbare Lohnhälfte (Gehaltshälfte) zu erwerben. Dabei ist der durchschnittliche Verdienst als Vergleichsmaßstab heranzuziehen. Soweit der durchschnittliche Verdienst zB in Kollektivverträgen fes\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"GuKG\", \"Help-Desk\", \"Verweisbarkeit\", \"Anfall der Leistungen\", \"Rehabilitationsgeld\", \"§ 255 ASVG\", \"sozialer Abstieg\", \"zumutbares Entgelt\", \"Normalarbeitszeit\", \"ASVG\", \"ASVG § 273\", \"geminderte Arbeitsfähigkeit\", \"außerordentliche Revision\", \"Verweisungsberuf\", \"Existenzminimum\", \"Portierin\", \"Verweisungsberufe\", \"Mangelhaftigkeit des Verfahrens\", \"Portier\", \"Kollektivvertrag der Handelsangestellten\", \"Verweisungstätigkeit\", \"Gleichwertigkeit\", \"Verweisungstätigkeiten\", \"Support-Tätigkeit\", \"Berufsunfähigkeitspension\", \"Berufsunfähigkeit\", \"Berufsschutz\", \"Leistungskalkül\", \"Aufgabe der Tätigkeit\", \"§ 366 ASVG\"], \"relevance\": 0.526}, {\"rs_number\": \"RS0106511\", \"rechtssatz\": \"Die Umstrukturierung des Betriebes eines Versicherten, etwa durch Betriebsverkleinerung, darf nicht zu einer Verschlechterung der wirtschaftlichen Grundlage des Betriebes führen. So wie aber einem Unselbständigen unter Umständen (§ 255 Abs 3 ASVG) ein Herabsinken seines Einkommens bis zur \\\"Lohnhälfte\\\" vom Gesetzgeber zugemutet wird, muss auch bei einem selbständig Erwerbstätigen jedenfalls eine gewisse Verschmälerung seiner Einkommenssituation vor Erfüllung der Anspruchsvoraussetzungen zur Erwerbsunfähigkeitspension billigerweise in Kauf genommen werden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Gastgewerbe\", \"Tabaktrafikant\", \"Selbständige Erwerbstätigkeit\", \"Verweisungsfeld\", \"Aufgabenverteilung\", \"Erwerbsunfähigkeitspension\", \"Handelsagent\", \"Selbständige Tätigkeit\", \"vorzeitige Alterspension\", \"GSVG § 13"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_9mykudxxj1f2uMRagNtP",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "255 Abs ASVG Pflichtversicherungsmonate",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.73,
+        "error": null,
+        "payload_preview": "{\"results\": [{\"rs_number\": \"RS0130074\", \"rechtssatz\": \"Zeiten einer Selbstversicherung bei geringfügiger Beschäftigung sind nicht als Pflichtversicherungsmonate iSd § 255 Abs 2 ASVG idF BGBl I 2010/111 zu werten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Revision\", \"Sozialrecht\", \"Berufsschutz\", \"ASVG\", \"Neuerungsverbot\", \"Nichtigkeitsberufung\"], \"relevance\": 0.452}, {\"rs_number\": \"RS0128674\", \"rechtssatz\": \"Es ist daran festzuhalten, dass für den Berufsschutz des § 273 Abs 1 ASVG idF BGBl I 2010/111 nur solche Pflichtversicherungsmonate zählen, während derer unselbständige Tätigkeiten, also Angestelltentätigkeiten oder solche nach § 255 Abs 1 ASVG, ausgeübt wurden. Zeiten einer selbständigen Tätigkeit nach dem GSVG haben daher für den Berufsschutz außer Betracht zu bleiben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Selbständige Erwerbstätigkeit\", \"Rehabilitationsgeld\", \"Wanderversicherung\", \"Tagespendeln\", \"Invaliditätspension\", \"Pensionsversicherung\", \"ASVG\", \"ASVG § 273\", \"geminderte Arbeitsfähigkeit\", \"außerordentliche Revision\", \"Taxilenker\", \"Diabetes\", \"Krankenstandsprognose\", \"Verweisungsberufe\", \"Neuerungsverbot\", \"regionaler Arbeitsmarkt\", \"ASVG § 255\", \"Pflichtversicherungsmonate\", \"Rückverweisung\", \"Berufsunfähigkeitspension\", \"Nichtigkeitsberufung\", \"systemische Therapie\", \"atopische Dermatitis\", \"Berufsunfähigkeit\", \"Berufsschutz\", \"Leistungskalkül\", \"selbständige Tätigkeit\", \"vorübergehende Berufsunfähigkeit\", \"Sozialrecht\", \"GSVG\"], \"relevance\": 0.45}], \"count\": 2, \"query\": \"255 Abs ASVG Pflichtversicherungsmonate\"}"
+      },
+      {
+        "step": 4,
+        "tool_call_id": "tool_search_ogh_rechtssaetze_qfLL0ULUaqKKBd8Jl9Mo",
+        "tool": "search_ogh_rechtssaetze",
+        "args": {
+          "query": "143a ASVG vorübergehende Invalidität",
+          "limit": 5
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.48,
+        "error": null,
+        "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"143a ASVG vorübergehende Invalidität\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0135396",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0135396"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 15.53,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0135396\", \"rechtssatz\": \"Die Minderung der Arbeitsfähigkeit wird auf der Verweisungsebene auch im Anwendungsbereich des § 273 ASVG grundsätzlich nicht konkret, sondern abstrakt ermittelt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"geminderte Arbeitsfähigkeit\", \"Berufsschutz\", \"Gesundheitsberuferegister\", \"Rehabilitationsgeld\", \"gesundheitliche Eignung\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2025-04-24\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0135394",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0135394"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 8.72,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0135394\", \"rechtssatz\": \"Eine Teileintragung in das Gesundheitsberuferegister oder eine teilweise Berufsberechtigung ist weder im GuKG noch im GBRG vorgesehen. Wer nicht gesund genug für alle Tätigkeiten des GuKG ist, darf demnach auch keine Teilbereiche dieser Tätigkeit ausüben.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"geminderte Arbeitsfähigkeit\", \"Berufsschutz\", \"Gesundheitsberuferegister\", \"Rehabilitationsgeld\", \"gesundheitliche Eignung\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2025-04-24\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0134864",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0134864"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.69,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0134864\", \"rechtssatz\": \"Eine kollektivvertragliche Lohnerhöhung ist beim Rehabilitationsgeld (§ 143a ASVG) gemäß § 125 Abs 1 letzter Satz ASVG nur dann zu berücksichtigen, wenn sie im Bemessungszeitraum - nicht jedoch während des laufenden Bezugs - eintritt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rehabilitationsgeld\", \"Bemessungsgrundlage\", \"§ 125 ASVG\", \"Kollektivvertrag\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2024-06-04\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0134372",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0134372"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.13,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0134372\", \"rechtssatz\": \"Im Anwendungsbereich des § 255 Abs 4 ASVG können Beitragsmonate der freiwilligen Versicherung (hier: der Selbstversicherung gemäß § 19a ASVG), die nicht die Pflichtversicherung nach dem ASVG begründen, nicht als Monate gewertet werden, in denen die versicherte Person eine „Tätigkeit\\\" im Sinn des § 255 Abs 4 Satz 1 ASVG ausgeübt hat.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufsunfähigkeitspension\", \"Berufsschutz\", \"Tätigkeitszeiten\", \"geringfügige Beschäftigung\", \"Selbstversicherung\", \"§ 255 Abs 4 ASVG\", \"Invaliditätspension\", \"Tätigkeitsschutz\", \"Pflichtversicherung\", \"Gesamttätigkeit\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2024-09-10\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0133205",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0133205"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 5.44,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0133205\", \"rechtssatz\": \"Personen, für die bescheidmäßig festgestellt wurde, dass vorübergehende Invalidität im Sinn des § 255 Abs 1 und 2 oder 3 ASVG im Ausmaß von zumindest sechs Monaten vorliegt, haben gemäß § 253f ASVG so lange Rechtsanspruch auf die in § 302 Abs 1 ASVG genannten medizinischen Maßnahmen der Rehabilitation gegenüber dem Pensionsversicherungsträger, als vorübergehende Invalidität vorliegt, wenn dies zur Wiederherstellung der Arbeitsfähigkeit notwendig und infolge des Gesundheitszustands zweckmäßig ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berufung im Sozialrecht\", \"Rehabilitationsgeld\", \"§ 255 ASVG\", \"Invaliditätspension\", \"Pensionsversicherung\", \"Beweiswürdigung\", \"Case Management\", \"Krankenstandsprognose\", \"vorübergehende Invalidität\", \"Berufungsumfang\", \"Bescheidpflicht\", \"Gesundheitsverbesserung\", \"Verweisungstätigkeiten\", \"Arbeitsunfall\", \"Berufsschutz\", \"Leistungskalkül\", \"§ 253f ASVG\", \"Lohnhälfte\", \"medizinische Maßnahmen der Rehabilitation\", \"medizinische Rehabilitation\", \"Arbeitsmarkverweisbarkeit\", \"§ 367 ASVG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2020-06-24\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0131769",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0131769"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.43,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0131769\", \"rechtssatz\": \"Übersteigt das Rehabilitationsgeld den Richtsatz, bleibt es – zum Unterschied zu den jährlich valorisierten Pensionen – mangels einer gesetzlichen Anordnung unverändert, auch wenn es mehrere Jahre bezogen werden sollte. Das gilt nicht nur für das nach § 143a ASVG bemessene Rehabilitationsgeld, sondern auch für jene (Übergangs‑)Fälle, in denen sich dessen Höhe aus § 669 Abs 6a ASVG bestimmt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rehabilitationsgeld\", \"Ausgleichszulage\", \"Anpassung\", \"Übergangsbestimmung\", \"§ 669 Abs 6a ASVG\", \"Bemessungsgrundlage\", \"§ 125 ASVG\", \"Kollektivvertrag\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2024-06-04\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0131281",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0131281"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 3.64,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0131281\", \"rechtssatz\": \"Das Rehabilitationsgeld nach § 143a ASVG ist eine Geldleistung iSd Art 1 Abs 1 Z 9 bzw Art 5 des Abkommens zwischen der Republik Österreich und Bosnien und Herzegowina über soziale Sicherheit. Art 13 des Abkommens steht der sich aus Art 5 ergebenden Exportverpflichtung nicht entgegen. Im Hinblick auf die für Rehabilitationsgeldbezieher gegebene Teilversicherung in der Krankenversicherung nach § 8 Abs 1 Z 1 lit d ASVG ist die aufrechte Krankenversicherung nicht als Anspruchsvoraussetzung für das Rehabilitationsgeld, sondern als Rechtsfolge des Rehabilitationsgeldbezugs zu sehen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rehabilitationsgeld\", \"Exportierbarkeit\", \"Sozialversicherungsabkommen\", \"Bosnien und Herzegowina\", \"Invaliditätspension\", \"AbkSozSi-Bosnien\", \"zuständiger Träger\"], \"fachgebiete\": [\"EU-Recht\", \"Revision\"], \"datum\": \"2022-09-13\"}"
+      },
+      {
+        "step": "deep_dive",
+        "tool_call_id": "deep_RS0130074",
+        "tool": "get_rechtssatz",
+        "args": {
+          "rs_number": "RS0130074"
+        },
+        "ok": true,
+        "status": 200,
+        "latency_ms": 2.96,
+        "error": null,
+        "payload_preview": "{\"found\": true, \"rs_number\": \"RS0130074\", \"rechtssatz\": \"Zeiten einer Selbstversicherung bei geringfügiger Beschäftigung sind nicht als Pflichtversicherungsmonate iSd § 255 Abs 2 ASVG idF BGBl I 2010/111 zu werten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Revision\", \"Sozialrecht\", \"Berufsschutz\", \"ASVG\", \"Neuerungsverbot\", \"Nichtigkeitsberufung\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2015-04-28\"}"
+      }
+    ],
+    "tool_calls_total": 24,
+    "tool_calls_ok": 24,
+    "tool_calls_ok_rate": 1.0,
+    "llm_error": null,
+    "answer": "Diese Ersteinschätzung basiert auf der aktuellen Rechtsprechung des OGH zu den Voraussetzungen der Invaliditätspension (§ 255 ASVG) und des Rehabilitationsgeldes (§ 143a ASVG).\n\n### 1. Berufsschutz (§ 255 Abs. 1 und 2 ASVG)\nDer Berufsschutz bewirkt, dass ein Versicherter nicht auf jede beliebige Tätigkeit am Arbeitsmarkt verwiesen werden kann, sondern nur auf solche, die seinem bisherigen Qualifikationsniveau entsprechen.\n\n*   **Erlernter Beruf (§ 255 Abs. 1):** Ein erlerntes Berufsbild setzt einen vorgeschriebenen Ausbildungsgang voraus (z. B. Lehrabschluss). Der OGH betont, dass eine Tätigkeit nur dann als \"erlernt\" gilt, wenn sie unselbstständig ausgeübt wurde (**RS0084513**).\n*   **Qualifizierte Monate (§ 255 Abs. 2):** Der Berufsschutz greift nur, wenn in den letzten 15 Jahren vor dem Stichtag mindestens **90 Pflichtversicherungsmonate** in einer entsprechenden qualifizierten Tätigkeit (erlernt/angelernt) vorliegen.\n    *   **Wichtig:** Zeiten einer Selbstversicherung bei geringfügiger Beschäftigung zählen **nicht** als Pflichtversicherungsmonate für den Berufsschutz (**RS0130074**).\n    *   Zeiten einer selbstständigen Tätigkeit nach dem GSVG bleiben für den Berufsschutz nach ASVG ebenfalls außer Betracht (**RS0128674**).\n\n### 2. Verweisbarkeit und Lohnhälfte-Maßstab (§ 255 Abs. 3 ASVG)\nLiegt kein Berufsschutz vor (oder ist der Versicherte auch im Verweisungsfeld invalid), erfolgt die Prüfung nach Abs. 3 (allgemeiner Arbeitsmarkt).\n\n*   **Lohnhälfte-Maßstab:** Invalidität liegt vor, wenn die Arbeitsfähigkeit auf weniger als die Hälfte eines körperlich und geistig gesunden Versicherten mit ähnlicher Ausbildung herabgesunken ist.\n*   **Rechtsprechung:** Der Maßstab der Lohnhälfte ist laut OGH auch bei Versicherten mit Berufsschutz (Abs. 1) und Angestellten (§ 273 ASVG) anzuwenden (**RS0084408**). Es findet ein Vergleich mit dem regelmäßig erzielbaren Entgelt gesunder Versicherter in der jeweiligen Berufsgruppe statt.\n*   **Zumutbarkeit:** Ohne Berufsschutz ist die Verweisbarkeit weit: Sie erstreckt sich auf den gesamten Arbeitsmarkt, sofern die Tätigkeit medizinisch möglich ist (**RS0086401**). Ein \"sozialer Abstieg\" ist hier (im Gegensatz zum Berufsschutz) grundsätzlich hinzunehmen (**RS0085727**).\n\n### 3. Besonderer Tätigkeitsschutz und Anrechnung (§ 255 Abs. 4 ASVG)\nFür Personen, die das 50. Lebensjahr vollendet haben, gibt es unter bestimmten Bedingungen einen erweiterten Schutz.\n\n*   **Anrechnung Krankengeld:** Nach § 255 Abs. 4 Z 2 ASVG können bis zu **24 Monate Krankengeldbezug** auf die erforderlichen Tätigkeitszeiten angerechnet werden.\n*   **Einschränkung:** Dies gilt jedoch nur, wenn der Krankengeldbezug einer entsprechenden Erwerbstätigkeit zuzuordnen ist; eine Besserstellung von kranken gegenüber gesunden Arbeitslosen soll vermieden werden (**RS0127738**).\n*   **Kalendermonate:** Der Gesetzgeber stellt hier auf \"Kalendermonate\" und nicht auf \"Beitragsmonate\" ab (**RS0122455**, **RS0118621**).\n\n### 4. Rehabilitationsgeld (§ 143a ASVG)\nWenn die Invalidität nicht dauerhaft, sondern nur **vorübergehend** (mindestens 6 Monate) vorliegt, besteht Anspruch auf Rehabilitationsgeld statt einer Pension.\n\n*   **Zweck:** Es dient der Absicherung während medizinischer Rehabilitationsmaßnahmen zur Wiederherstellung der Arbeitsfähigkeit (**RS0133205**).\n*   **Bemessung:** Das Rehabilitationsgeld bleibt – anders als Pensionen – während des Bezugs grundsätzlich unverändert und wird nicht jährlich valorisiert, es sei denn, eine kollektivvertragliche Erhöhung fällt direkt in den Bemessungszeitraum (**RS0131769**, **RS0134864**).\n\n### Zusammenfassung der wichtigsten Referenzen\n| Thema | Rechtssatz (RS) | Kernaussage |\n| :--- | :--- | :--- |\n| **Berufsschutz Definition** | **RS0084513** | Erlernter Beruf erfordert vorgeschriebene Ausbildung. |\n| **Pflichtmonate** | **RS0130074** | Geringfügige Selbstversicherung zählt nicht für 90-Monate-Regel. |\n| **Lohnhälfte** | **RS0084408** | Maßstab gilt für alle Pensionsarten (Lohnersatzfunktion). |\n| **Krankengeld** | **RS0127738** | Anrechnung nur bei Zuordnung zu einer Erwerbstätigkeit. |\n| **Reha-Geld** | **RS0133205** | Anspruch bei vorübergehender Invalidität (mind. 6 Monate). |\n\n**Beweislast:** Der Versicherte trägt die Beweislast für das Vorliegen der Invalidität und die Erfüllung der qualifizierten Monate für den Berufsschutz. Der Versicherungsträger muss hingegen konkret zumutbare Verweisungstätigkeiten benennen, wenn das medizinische Kalkül eingeschränkt ist.",
+    "answer_chars": 4488,
+    "e2e_ms": 20780.43
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "workstreams": [
+    {
+      "name": "ogh_rs_core",
+      "goal": "Find the most relevant OGH RS + TE and capture stable references.",
+      "tools": [
+        "search_ogh_rechtssaetze",
+        "search_ogh_entscheidungen",
+        "get_rechtssatz",
+        "search_by_paragraph",
+        "search_by_schlagwort"
+      ]
+    },
+    {
+      "name": "hot_index_context",
+      "goal": "Retrieve top hot-index context and mini-story evidence.",
+      "tools": [
+        "hot_rs_search",
+        "hot_cluster_context",
+        "hot_rs_lookup"
+      ]
+    },
+    {
+      "name": "grounding_expert",
+      "goal": "Get cluster-level grounding context and expert analysis for the legal question.",
+      "tools": [
+        "build_grounding_context",
+        "detect_clusters",
+        "ask_gemini_zivilrecht",
+        "search_kommentar_paragraph",
+        "search_kommentar_keyword"
+      ]
+    }
+  ],
+  "synthesis_focus": "Answer the legal question with concrete RS and commentary grounding."
+}

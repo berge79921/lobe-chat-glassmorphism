@@ -1,0 +1,53 @@
+{
+  "deadlines": [
+    {
+      "date": "28.02.2026",
+      "type": "Sofortige Einreichung Antrag § 7 Abs 3 EO",
+      "source": "§ 7 Abs 3 EO (fristlos, aber bei laufender Exekution dringend)",
+      "days_remaining": 0
+    }
+  ],
+  "urgency": "HIGH",
+  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i) auf AMS-Leistungen seit 23.12.2025; verbotene Überbefriedigung nach 100% Tilgung Hauptschuld; unwirksame Zustellung des Zahlungsbefehls bewiesen",
+  "silent_risks": [
+    {
+      "risk": "Untätigkeit bei Einreichung § 7 Abs 3 EO Antrag",
+      "consequence": "Vollstreckbarkeitsbestätigung bleibt wirksam, Exekution fortgesetzt, Pfändung AMS-Leistungen, Zinsen/Kostenakkumulation"
+    },
+    {
+      "risk": "Versäumnis Interzessionsantrag § 42 EO",
+      "consequence": "Keine Rückforderung der Überbefriedigung, Verlust von EUR 3.599,44, Rechtskraft der Exekution"
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Priorisierung der Anträge: § 7 Abs 3 EO vs. Interzession § 42 EO / § 14 IO?",
+      "options": [
+        "Zuerst § 7 Abs 3 EO (unwirksame Zustellung, fristlos, stoppt Exekution)",
+        "Dann Interzession (§ 42 EO wegen Akzessorietät / Überbefriedigung § 25c KSchG)"
+      ]
+    },
+    {
+      "question": "Kombinierter Antrag oder separiert?",
+      "options": [
+        "Kombinierter Antrag (§ 7 Abs 3 + § 42 EO) für maximale Absicherung",
+        "Separiert, um § 7 Abs 3 EO zu beschleunigen"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "§ 7 Abs 3 EO Antrag erfolgreich (unwirksame Zustellung via ZMR-Auszug bewiesen)",
+      "then": "Aufhebung Vollstreckbarkeitsbestätigung, Exekution endet, Voraussetzung für Interzession geschaffen"
+    },
+    {
+      "if": "Hauptschuld 100% getilgt (KSV1870-Bestätigung), Akzessorietät § 14 IO greift",
+      "then": "Interzessionsantrag § 42 EO / § 35 EO erfolgreich, Löschung Exekution, Rückzahlung Überbefriedigung"
+    },
+    {
+      "if": "Anträge abgewiesen (z.B. Zustellung als wirksam erachtet)",
+      "then": "Rechtsbehelf § 40 EO (Hemmung), Beschwerde, parallele Klage auf Feststellungs § 25c KSchG"
+    }
+  ],
+  "response_type_hint": "recommendation"
+}

@@ -2910,6 +2910,8 @@ def synthesize_answer(
     postgres_only: bool,
     file_context: str = "",
     file_context_meta: dict[str, Any] | None = None,
+    triage_context: str = "",
+    max_tokens: int = 4500,
 ) -> tuple[str, dict[str, Any] | None]:
     if dry_run:
         lines = []
@@ -2986,6 +2988,19 @@ def synthesize_answer(
         )
     if synth_ctx:
         sys_prompt += "\n\n" + synth_ctx
+    if triage_context:
+        # Compact injection: urgency hint only, avoid attention dilution
+        try:
+            _tc = json.loads(triage_context) if isinstance(triage_context, str) else triage_context
+        except Exception:
+            _tc = {}
+        _urg = _tc.get("urgency", "MEDIUM") if isinstance(_tc, dict) else "MEDIUM"
+        _urg_reason = (_tc.get("urgency_reason", "") if isinstance(_tc, dict) else "")[:120]
+        sys_prompt += (
+            f"\n\nTRIAGE: Dringlichkeit {_urg}"
+            + (f" ({_urg_reason})" if _urg_reason else "")
+            + "."
+        )
     # --- Extract facts from file context and inject into sys_prompt ---
     _extracted_facts: list[str] = []
     file_block = ""
@@ -3052,7 +3067,7 @@ def synthesize_answer(
         raw_resp, latency_ms = openrouter_chat(
             model=synth_model,
             messages=messages,
-            max_tokens=4500,
+            max_tokens=max_tokens,
             temperature=0.0,
             tools=None,
             tool_choice=None,
@@ -3063,7 +3078,7 @@ def synthesize_answer(
         )
         msg = ((raw_resp.get("choices") or [{}])[0] or {}).get("message") or {}
         answer = message_text(msg).strip()
-        vlog(f"  SYNTHESIS DONE {latency_ms:.0f}ms answer_chars={len(answer)}")
+        vlog(f"  SYNTHESIS DONE {latency_ms:.0f}ms answer_chars={len(answer)} max_tokens={max_tokens}")
         return answer, {
             "latency_ms": round(latency_ms, 2),
             "model": synth_model,
@@ -4129,6 +4144,615 @@ def write_output_file(output_path: str, answer: str, query: str, mode: str) -> d
     return {"output_file": str(p), "existed": existed, "ext": ext, "chars_written": len(answer)}
 
 
+# ────────────────────────────────────────────────────────────────────────────
+# AGENT MODE: 3-phase chain (Triage → Deep Analysis → Strategic Response)
+# ────────────────────────────────────────────────────────────────────────────
+
+_TRIAGE_SYSTEM_PROMPT = """\
+Du bist juristischer Triage-Analyst. Extrahiere aus dem Sachverhalt:
+1. FRISTEN: Alle Deadlines mit Datum, Rechtsgrundlage, verbleibende Tage (ab heute {today})
+2. DRINGLICHKEIT: HIGH/MEDIUM/LOW mit Begründung
+3. STILLE RISIKEN: Was passiert bei UNTÄTIGKEIT? (Fristversäumnis, Rechtskrafteintritt, etc.)
+4. ENTSCHEIDUNGSPUNKTE: Welche strategischen Weichenstellungen stehen an?
+5. SZENARIEN: If/Then Verzweigungen
+
+Antworte NUR als JSON mit exakt diesen Keys:
+{{
+  "deadlines": [{{"date": "DD.MM.YYYY", "type": "...", "source": "§...", "days_remaining": N}}],
+  "urgency": "HIGH|MEDIUM|LOW",
+  "urgency_reason": "...",
+  "silent_risks": [{{"risk": "...", "consequence": "..."}}],
+  "decision_points": [{{"question": "...", "options": ["...", "..."]}}],
+  "scenario_branches": [{{"if": "...", "then": "..."}}],
+  "response_type_hint": "recommendation|client_letter|scenario_table|combined"
+}}
+Kein Freitext. Nur JSON."""
+
+
+def run_triage_phase(
+    query: str,
+    file_context: str,
+    file_context_meta: dict[str, Any] | None,
+    synth_model: str,
+    dry_run: bool,
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    """Phase 0: Extract deadlines, urgency, silent risks from query + file context."""
+    if dry_run:
+        return {
+            "deadlines": [], "urgency": "MEDIUM", "urgency_reason": "dry-run",
+            "silent_risks": [], "decision_points": [], "scenario_branches": [],
+            "response_type_hint": "combined",
+        }, None
+
+    today = dt.date.today().strftime("%d.%m.%Y")
+    sys_prompt = _TRIAGE_SYSTEM_PROMPT.format(today=today)
+
+    user_parts = [f"FRAGE: {query}"]
+    if file_context:
+        # Truncate file context to ~4000 chars for triage (just enough for fact extraction)
+        fc_trunc = file_context[:4000]
+        if len(file_context) > 4000:
+            fc_trunc += "\n[... gekürzt ...]"
+        user_parts.append(f"\nAKTENKONTEXT:\n{fc_trunc}")
+    # Inject pre-extracted facts if available
+    ef = (file_context_meta or {}).get("extracted_facts", {})
+    if ef.get("deadlines"):
+        user_parts.append("BEKANNTE FRISTEN: " + "; ".join(ef["deadlines"]))
+    if ef.get("costs"):
+        user_parts.append("BEKANNTE KOSTEN: " + "; ".join(ef["costs"]))
+    if ef.get("case_nums"):
+        user_parts.append("VERFAHRENSZAHLEN: " + "; ".join(ef["case_nums"]))
+
+    resp, elapsed = openrouter_chat(
+        model=synth_model,
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": "\n".join(user_parts)},
+        ],
+        max_tokens=1500,
+        temperature=0.0,
+        title="legalchat-agent-triage",
+    )
+    msg = ((resp.get("choices") or [{}])[0] or {}).get("message") or {}
+    text = message_text(msg)
+    parsed = extract_json_object(text)
+
+    usage = resp.get("usage")
+    meta = {"model": synth_model, "elapsed_s": elapsed, "usage": usage}
+
+    if isinstance(parsed, dict):
+        # Validate / defaults
+        for key in ("deadlines", "silent_risks", "decision_points", "scenario_branches"):
+            if not isinstance(parsed.get(key), list):
+                parsed[key] = []
+        parsed.setdefault("urgency", "MEDIUM")
+        parsed.setdefault("urgency_reason", "")
+        parsed.setdefault("response_type_hint", "combined")
+        return parsed, meta
+
+    # Fallback: could not parse JSON
+    return {
+        "deadlines": [], "urgency": "MEDIUM",
+        "urgency_reason": "Triage-LLM returned non-JSON",
+        "silent_risks": [], "decision_points": [], "scenario_branches": [],
+        "response_type_hint": "combined", "_raw_text": text[:500],
+    }, meta
+
+
+_RESPONSE_PROMPTS: dict[str, str] = {
+    "recommendation": """\
+Erstelle eine strukturierte EMPFEHLUNG:
+## EMPFEHLUNG
+- Hauptbegehren mit Erfolgsaussicht (%)
+- Eventualbegehren (priorisiert)
+- SOFORT-MASSNAHMEN (was JETZT passieren muss)
+
+## NÄCHSTE SCHRITTE (nummeriert, mit Fristen)
+1. ...
+
+## STILLE RISIKEN
+- Was passiert bei Untätigkeit?
+
+Ton: {tone}""",
+
+    "client_letter": """\
+Erstelle einen MANDANTENBRIEF:
+
+Sehr geehrte(r) [Mandant],
+
+[Sachverhaltszusammenfassung in 2-3 Sätzen]
+
+[Rechtliche Einschätzung: Haupt- und Eventualbegehren mit Erfolgsaussichten]
+
+[Empfohlene nächste Schritte mit Fristen]
+
+[Kostenhinweis falls aus Akten ableitbar]
+
+[Risikohinweis bei Untätigkeit]
+
+Mit freundlichen Grüßen,
+[Kanzlei]
+
+Ton: {tone}""",
+
+    "scenario_table": """\
+Erstelle eine SZENARIO-ANALYSE:
+
+## SZENARIEN
+| # | Szenario | Wahrscheinlichkeit | Nächster Schritt | Kosten | Zeitrahmen |
+|---|----------|-------------------|------------------|--------|------------|
+| 1 | ... | ...% | ... | ... | ... |
+
+## BEST CASE
+...
+
+## WORST CASE
+...
+
+## ENTSCHEIDUNGSMATRIX
+| Aktion | Pro | Contra | Empfehlung |
+|--------|-----|--------|------------|
+
+Ton: {tone}""",
+
+    "combined": """\
+Erstelle eine VOLLSTÄNDIGE STRATEGISCHE ANALYSE:
+
+## EMPFEHLUNG
+- Hauptbegehren mit Erfolgsaussicht (%)
+- Eventualbegehren (priorisiert)
+- SOFORT-MASSNAHMEN (was JETZT passieren muss)
+
+## SZENARIEN
+| # | Szenario | Wahrscheinlichkeit | Nächster Schritt | Kosten |
+|---|----------|-------------------|------------------|--------|
+| 1 | ... | ...% | ... | ... |
+
+## STILLE RISIKEN
+- Was passiert bei Untätigkeit?
+
+## NÄCHSTE SCHRITTE (nummeriert, mit Fristen)
+1. ...
+
+Ton: {tone}""",
+}
+
+
+def build_phase_context(
+    query: str,
+    file_context: str,
+    triage_result: dict[str, Any],
+    analysis_text: str,
+    max_chars: int = 16000,
+) -> str:
+    """Build accumulated context for Phase 2 with intelligent truncation."""
+    parts: list[str] = []
+    # Query: always full
+    parts.append(f"FRAGE:\n{query}\n")
+    # File context: max 4000 chars summary
+    if file_context:
+        fc = file_context[:4000]
+        if len(file_context) > 4000:
+            fc += "\n[... gekürzt ...]"
+        parts.append(f"AKTENKONTEXT:\n{fc}\n")
+    # Triage: always full (compact JSON, ~500 chars)
+    triage_compact = json.dumps(triage_result, ensure_ascii=False, separators=(",", ":"))
+    parts.append(f"TRIAGE:\n{triage_compact}\n")
+    # Analysis: truncate to fill remaining budget
+    used = sum(len(p) for p in parts)
+    analysis_budget = max(2000, max_chars - used)
+    if len(analysis_text) > analysis_budget:
+        analysis_trunc = analysis_text[:analysis_budget] + "\n[... gekürzt ...]"
+    else:
+        analysis_trunc = analysis_text
+    parts.append(f"RECHTLICHE ANALYSE:\n{analysis_trunc}")
+    return "\n".join(parts)
+
+
+def run_response_phase(
+    query: str,
+    file_context: str,
+    triage_result: dict[str, Any],
+    analysis_text: str,
+    response_type: str,
+    response_tone: str,
+    synth_model: str,
+    dry_run: bool,
+) -> tuple[str, dict[str, Any] | None]:
+    """Phase 2: Generate strategic response artefact from triage + analysis."""
+    if dry_run:
+        return "Dry-run response phase", None
+
+    template = _RESPONSE_PROMPTS.get(response_type, _RESPONSE_PROMPTS["combined"])
+    instruction = template.format(tone=response_tone)
+
+    phase_ctx = build_phase_context(query, file_context, triage_result, analysis_text)
+
+    sys_prompt = (
+        "Du bist juristischer Strategieberater für österreichisches Recht. "
+        "Basierend auf der vollständigen Analyse (Triage + Gutachten), erstelle ein handlungsorientiertes Artefakt. "
+        "Verwende konkrete Daten, EUR-Beträge und Fristen aus dem Kontext. "
+        "Nenne RS-Nummern und §§ nur wenn sie in der Analyse vorkommen."
+    )
+
+    resp, elapsed = openrouter_chat(
+        model=synth_model,
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": f"{phase_ctx}\n\n---\nAUFGABE:\n{instruction}"},
+        ],
+        max_tokens=4000,
+        temperature=0.2,
+        title="legalchat-agent-response",
+    )
+    msg = ((resp.get("choices") or [{}])[0] or {}).get("message") or {}
+    text = message_text(msg)
+    usage = resp.get("usage")
+    meta = {"model": synth_model, "elapsed_s": elapsed, "usage": usage, "response_type": response_type}
+    return text, meta
+
+
+def build_agent_bundle(
+    query: str,
+    triage_result: dict[str, Any],
+    analysis_text: str,
+    response_text: str,
+) -> str:
+    """Build combined AGENT_RESULT.md from all phases."""
+    today = dt.date.today().strftime("%d.%m.%Y")
+    urgency = triage_result.get("urgency", "MEDIUM")
+
+    parts: list[str] = []
+    parts.append(f"# Fallanalyse")
+    parts.append(f"**Datum:** {today} | **Dringlichkeit:** {urgency} | **Modus:** Agent\n")
+
+    # Section: Fristen & Risiken
+    parts.append("## FRISTEN & RISIKEN\n")
+    deadlines = triage_result.get("deadlines", [])
+    if deadlines:
+        parts.append("| Frist | Typ | Rechtsgrundlage | Verbleibend |")
+        parts.append("|-------|-----|-----------------|-------------|")
+        for dl in deadlines:
+            parts.append(f"| {dl.get('date', '?')} | {dl.get('type', '?')} | {dl.get('source', '?')} | {dl.get('days_remaining', '?')} Tage |")
+        parts.append("")
+    else:
+        parts.append("Keine konkreten Fristen erkannt.\n")
+
+    urgency_reason = triage_result.get("urgency_reason", "")
+    if urgency_reason:
+        parts.append(f"**Dringlichkeit:** {urgency} — {urgency_reason}\n")
+
+    silent_risks = triage_result.get("silent_risks", [])
+    if silent_risks:
+        parts.append("**Stille Risiken:**")
+        for sr in silent_risks:
+            parts.append(f"- {sr.get('risk', '?')} → {sr.get('consequence', '?')}")
+        parts.append("")
+
+    decision_points = triage_result.get("decision_points", [])
+    if decision_points:
+        parts.append("**Entscheidungspunkte:**")
+        for dp in decision_points:
+            opts = ", ".join(dp.get("options", []))
+            parts.append(f"- {dp.get('question', '?')} [{opts}]")
+        parts.append("")
+
+    # Section: Rechtliche Analyse (Phase 1 output)
+    parts.append("## RECHTLICHE ANALYSE\n")
+    parts.append(analysis_text)
+    parts.append("")
+
+    # Section: Strategische Empfehlung (Phase 2 output)
+    parts.append("## STRATEGISCHE EMPFEHLUNG\n")
+    parts.append(response_text)
+
+    return "\n".join(parts)
+
+
+def run_agent_mode(
+    query: str,
+    file_context: str,
+    file_context_meta: dict[str, Any] | None,
+    args: Any,
+    organizer_model: str,
+    worker_model: str,
+    synth_model: str,
+    classifier_model: str,
+    config_dir: Path,
+    config_meta: dict[str, Any] | None,
+    mcp_start_meta: dict[str, Any] | None,
+    started_at: float,
+) -> tuple[Path, dict[str, Any]]:
+    """3-phase agent orchestrator: Triage → Deep Analysis → Strategic Response."""
+    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+    if args.agent_out_dir:
+        out_dir = Path(args.agent_out_dir).expanduser().resolve()
+    else:
+        out_dir = REPORT_ROOT / f"legalchat_agent_{stamp}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Phase 0: TRIAGE ──
+    vlog("AGENT Phase 0: TRIAGE start")
+    t0 = time.perf_counter()
+    triage_result, triage_meta = run_triage_phase(
+        query=query,
+        file_context=file_context,
+        file_context_meta=file_context_meta,
+        synth_model=synth_model,
+        dry_run=bool(args.dry_run),
+    )
+    # Sofort auf Disk
+    (out_dir / "triage.json").write_text(
+        json.dumps(triage_result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    triage_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+    vlog(f"AGENT Phase 0: TRIAGE done in {triage_ms}ms — urgency={triage_result.get('urgency')}")
+
+    # ── Phase 1: DEEP ANALYSIS (existing pipeline) ──
+    vlog("AGENT Phase 1: DEEP ANALYSIS start")
+    t1 = time.perf_counter()
+
+    plan, organizer_meta = build_plan_with_organizer(
+        query=query,
+        organizer_model=organizer_model,
+        max_workstreams=max(1, min(args.max_workstreams, 4)),
+        dry_run=bool(args.dry_run),
+        organizer_backend=args.organizer_backend,
+        opencode_sidecar_cmd=args.opencode_sidecar_cmd,
+        opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
+        classifier_model=classifier_model,
+        file_context=file_context,
+    )
+
+    streams = plan.get("workstreams") or []
+    stream_results: list[dict[str, Any]] = []
+    run_fn = run_subagent_dry if args.dry_run else run_subagent_llm
+
+    classification = (organizer_meta or {}).get("classification") or classify_domain(query)
+    pre_search_evidence = ""
+    if not args.dry_run:
+        expanded = _expand_queries_with_llm(query, classification, classifier_model)
+        # Inject triage-extracted §§ into pre-search for broader RS coverage
+        _triage_paragraphs: list[str] = []
+        for dl in triage_result.get("deadlines", []):
+            src = dl.get("source", "")
+            if "§" in src:
+                _triage_paragraphs.append(src)
+        for dp in triage_result.get("decision_points", []):
+            for m in re.findall(r"§\s*\d+[a-z]?\s*(?:Abs\s*\d+\s*)?(?:Z\s*\d+\s*)?(?:ABGB|EO|IO|KSchG|ZPO|UGB|ZustG|PHG|VersVG)", dp.get("question", "")):
+                _triage_paragraphs.append(m)
+        if _triage_paragraphs:
+            existing_paras = expanded.get("paragraphs", [])
+            for tp in _triage_paragraphs:
+                if tp not in existing_paras:
+                    existing_paras.append(tp)
+            expanded["paragraphs"] = existing_paras[:8]
+        pre_search_evidence = run_pre_search_scatter(
+            expanded=expanded,
+            mcp_mode=args.mcp_mode,
+            mcp_base=args.mcp_base.rstrip("/"),
+            remote_ssh=args.remote_ssh,
+            remote_mcp_container=args.remote_mcp_container,
+            query=query,
+            classification=classification,
+        )
+
+    max_parallel = max(1, min(args.parallelism, len(streams) or 1))
+    with cf.ThreadPoolExecutor(max_workers=max_parallel) as pool:
+        futures = []
+        for stream in streams:
+            if args.dry_run:
+                fut = pool.submit(
+                    run_fn, stream, query,
+                    args.mcp_mode, args.mcp_base.rstrip("/"),
+                    args.remote_ssh, args.remote_mcp_container, args.probe_limit,
+                )
+            else:
+                _all_names = [s.get("name", "") for s in streams]
+                fut = pool.submit(
+                    run_fn, stream, query, worker_model,
+                    args.mcp_mode, args.mcp_base.rstrip("/"),
+                    args.remote_ssh, args.remote_mcp_container,
+                    args.max_steps, pre_search_evidence, _all_names,
+                    classification, file_context,
+                )
+            futures.append(fut)
+        for fut in cf.as_completed(futures):
+            try:
+                stream_results.append(fut.result())
+            except Exception as e:
+                stream_results.append({
+                    "name": "unknown_stream", "goal": "", "mode": "error",
+                    "tools": [], "llm_error": str(e), "tool_calls": [],
+                    "tool_calls_total": 0, "tool_calls_ok": 0,
+                    "tool_calls_ok_rate": None,
+                    "answer": f"Stream execution failed: {e}",
+                    "answer_chars": len(f"Stream execution failed: {e}"),
+                    "e2e_ms": None,
+                })
+
+    stream_results.sort(key=lambda x: str(x.get("name")))
+
+    # Inject triage context into synthesis
+    triage_ctx_str = json.dumps(triage_result, ensure_ascii=False, indent=2)[:800]
+
+    _AGENT_SYNTH_TOKENS = 6000
+
+    def _synth_quality_score(text: str) -> float:
+        """Score synthesis quality: RS count × sqrt(line count)."""
+        rs_count = len(set(re.findall(r"RS\d{7}", text)))
+        lines = len(text.splitlines())
+        return rs_count * (lines ** 0.5)
+
+    # Best-of-2 synthesis to mitigate stochastic variance
+    _synth_common = dict(
+        query=query, synth_model=synth_model, plan=plan,
+        subagent_results=stream_results,
+        postgres_only=(args.grounding_policy == "postgres_only"),
+        file_context=file_context, file_context_meta=file_context_meta,
+        triage_context=triage_ctx_str, max_tokens=_AGENT_SYNTH_TOKENS,
+    )
+
+    final_answer, synth_meta = synthesize_answer(dry_run=bool(args.dry_run), **_synth_common)
+
+    if not args.dry_run:
+        score_a = _synth_quality_score(final_answer)
+        # Collect worker RS for boosted retry
+        _worker_rs: set[str] = set()
+        for sr in stream_results:
+            _worker_rs.update(re.findall(r"RS\d{7}", sr.get("answer", "")))
+        _found_rs = set(re.findall(r"RS\d{7}", final_answer))
+        _missing_rs = sorted(_worker_rs - _found_rs)[:8]
+        _boosted_triage = triage_ctx_str
+        if _missing_rs:
+            _boosted_triage += (
+                f"\n\nWICHTIG: Verwende MINDESTENS diese RS in deiner Analyse: "
+                + ", ".join(_missing_rs) + "."
+            )
+        answer_b, meta_b = synthesize_answer(
+            dry_run=False, **{**_synth_common, "triage_context": _boosted_triage},
+        )
+        score_b = _synth_quality_score(answer_b)
+        _rs_b = set(re.findall(r"RS\d{7}", answer_b))
+        vlog(f"AGENT best-of-2: A={score_a:.1f} ({len(_found_rs)} RS) B={score_b:.1f} ({len(_rs_b)} RS)")
+        if score_b > score_a:
+            final_answer, synth_meta = answer_b, meta_b
+            vlog("AGENT best-of-2: picked B")
+
+        # Deterministic RS enrichment: inject worker-found RS missing from synthesis
+        _synth_rs = set(re.findall(r"RS\d{7}", final_answer))
+        _rs_ctx: dict[str, str] = {}
+        for sr in stream_results:
+            for m in re.finditer(r"(RS\d{7})[:\s]+([^\n]{10,120})", sr.get("answer", "")):
+                if m.group(1) not in _rs_ctx:
+                    _rs_ctx[m.group(1)] = m.group(2).strip().rstrip(".")
+        _inject_rs = sorted(set(_rs_ctx.keys()) - _synth_rs)
+        if _inject_rs and "### 4." in final_answer:
+            _extra = "\n".join(f"- **{rs}**: {_rs_ctx.get(rs, 'relevant')}." for rs in _inject_rs)
+            final_answer = final_answer.replace("### 4.", _extra + "\n\n### 4.")
+            vlog(f"AGENT RS enrichment: injected {len(_inject_rs)} RS -> {_inject_rs}")
+
+    citation_gate = apply_hard_citation_gate(
+        answer=final_answer,
+        query=query,
+        subagent_results=stream_results,
+        citation_gate_mode=args.citation_gate_mode,
+        repair_model=(args.citation_gate_repair_model.strip() or synth_model),
+        mcp_mode=args.mcp_mode,
+        mcp_base=args.mcp_base.rstrip("/"),
+        remote_ssh=args.remote_ssh,
+        remote_mcp_container=args.remote_mcp_container,
+        postgres_only=(args.grounding_policy == "postgres_only"),
+        file_context=file_context,
+    )
+    final_answer = citation_gate.get("answer") or final_answer
+
+    # Sofort auf Disk
+    (out_dir / "analysis.md").write_text(final_answer + "\n", encoding="utf-8")
+    (out_dir / "plan.json").write_text(
+        json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    (out_dir / "subagents.json").write_text(
+        json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    analysis_ms = round((time.perf_counter() - t1) * 1000.0, 2)
+    vlog(f"AGENT Phase 1: DEEP ANALYSIS done in {analysis_ms}ms")
+
+    # ── Phase 2: STRATEGIC RESPONSE ──
+    vlog("AGENT Phase 2: STRATEGIC RESPONSE start")
+    t2 = time.perf_counter()
+    response_text, response_meta = run_response_phase(
+        query=query,
+        file_context=file_context,
+        triage_result=triage_result,
+        analysis_text=final_answer,
+        response_type=args.response_type,
+        response_tone=args.response_tone,
+        synth_model=synth_model,
+        dry_run=bool(args.dry_run),
+    )
+    # Sofort auf Disk
+    (out_dir / "response.md").write_text(response_text + "\n", encoding="utf-8")
+    response_ms = round((time.perf_counter() - t2) * 1000.0, 2)
+    vlog(f"AGENT Phase 2: RESPONSE done in {response_ms}ms")
+
+    # ── Bundle ──
+    bundle = build_agent_bundle(query, triage_result, final_answer, response_text)
+    (out_dir / "AGENT_RESULT.md").write_text(bundle, encoding="utf-8")
+
+    elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+
+    # Meta
+    meta_result = {
+        "ok": True,
+        "started_at_utc": utc_now(),
+        "mode": "agent",
+        "config": {
+            "config_dir": str(config_dir),
+            "query": query,
+            "mode": "agent",
+            "response_type": args.response_type,
+            "response_tone": args.response_tone,
+            "model_profile": args.model_profile,
+            "organizer_model": organizer_model,
+            "worker_model": worker_model,
+            "synth_model": synth_model,
+            "mcp_mode": args.mcp_mode,
+            "citation_gate_mode": args.citation_gate_mode,
+            "grounding_policy": args.grounding_policy,
+            "dry_run": bool(args.dry_run),
+        },
+        "runtime_config": config_meta,
+        "mcp_startup": mcp_start_meta,
+        "phases": {
+            "triage": {"elapsed_ms": triage_ms, "meta": triage_meta, "result": triage_result},
+            "analysis": {"elapsed_ms": analysis_ms, "synth_meta": synth_meta, "citation_gate": citation_gate},
+            "response": {"elapsed_ms": response_ms, "meta": response_meta},
+        },
+        "classification": classification,
+        "pre_search_evidence_chars": len(pre_search_evidence),
+        "file_context_meta": file_context_meta,
+        "plan": plan,
+        "organizer_meta": organizer_meta,
+        "streams": stream_results,
+        "final_answer": final_answer,
+        "response_text": response_text,
+        "elapsed_ms": elapsed_ms,
+    }
+    (out_dir / "result.json").write_text(
+        json.dumps(meta_result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    # Summary
+    summary = render_summary(
+        query=query,
+        organizer_model=organizer_model,
+        worker_model=worker_model,
+        synth_model=synth_model,
+        model_profile=args.model_profile,
+        organizer_backend=args.organizer_backend,
+        mcp_mode=args.mcp_mode,
+        plan=plan,
+        organizer_meta=organizer_meta,
+        synth_meta=synth_meta,
+        citation_gate=citation_gate,
+        subagent_results=stream_results,
+        dry_run=bool(args.dry_run),
+        mode="agent",
+        classification=classification,
+        pre_search_evidence_chars=len(pre_search_evidence),
+        elapsed_ms=elapsed_ms,
+        file_context_meta=file_context_meta,
+    )
+    (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+    # Optional output file
+    if args.output:
+        write_output_file(args.output, bundle, query, "agent")
+
+    return out_dir, meta_result
+
+
 def main() -> int:
     raw_argv = sys.argv[1:]
     config_dir = discover_config_dir(raw_argv)
@@ -4144,8 +4768,13 @@ def main() -> int:
     )
     ap.add_argument("--config-dir", default=str(config_dir), help="Directory with agent_profiles.yaml + mcp_registry.yaml")
     ap.add_argument("--query", required=True, help="Legal question to process")
-    ap.add_argument("--mode", choices=["deep", "quick"], default="deep",
-        help="deep = full multi-agent pipeline; quick = single-call strategic memo")
+    ap.add_argument("--mode", choices=["deep", "quick", "agent"], default="deep",
+        help="deep = full multi-agent pipeline; quick = single-call strategic memo; agent = triage→deep→response chain")
+    ap.add_argument("--response-type", choices=["recommendation", "client_letter", "scenario_table", "combined"], default="combined",
+        help="Agent mode: response artefact type")
+    ap.add_argument("--response-tone", choices=["formal", "empathisch", "direkt"], default="formal",
+        help="Agent mode: tone for response phase")
+    ap.add_argument("--agent-out-dir", default="", help="Agent mode: custom output directory")
     ap.add_argument("--model-profile", choices=sorted(MODEL_PROFILES.keys()), default="default")
     ap.add_argument("--organizer-model", default="")
     ap.add_argument("--worker-model", default="")
@@ -4324,6 +4953,25 @@ def main() -> int:
             file_context_meta=file_context_meta,
         )
         (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+    elif args.mode == "agent":
+        # --- AGENT PATH: triage → deep analysis → strategic response ---
+        out_dir, meta_result = run_agent_mode(
+            query=args.query,
+            file_context=file_context,
+            file_context_meta=file_context_meta,
+            args=args,
+            organizer_model=organizer_model,
+            worker_model=worker_model,
+            synth_model=synth_model,
+            classifier_model=classifier_model,
+            config_dir=config_dir,
+            config_meta=config_meta,
+            mcp_start_meta=mcp_start_meta,
+            started_at=started_at,
+        )
+        elapsed_ms = meta_result.get("elapsed_ms", 0)
+        output_file_meta = None  # handled inside run_agent_mode
 
     else:
         # --- DEEP PATH (existing pipeline, unchanged) ---
