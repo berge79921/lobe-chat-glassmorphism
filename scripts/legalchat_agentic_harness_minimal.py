@@ -3778,6 +3778,20 @@ def apply_hard_citation_gate(
         report["repair"] = repair_meta
         report["after"] = after
         report["answer"] = repaired
+        # RS Recovery: if repair LLM destroyed RS, fall back to original + deterministic norm-strip
+        before_valid_rs = before.get("rs", {}).get("valid") or []
+        if (not after.get("has_judicature_citation")) and before.get("has_judicature_citation") and before_valid_rs:
+            norm_only_fixed = _strip_disallowed_norm_citations(answer, before_norm_issues)
+            norm_only_eval = _evaluate(norm_only_fixed)
+            if norm_only_eval.get("has_judicature_citation"):
+                repaired = norm_only_fixed
+                after = norm_only_eval
+                report["applied"] = True
+                report["answer"] = norm_only_fixed
+                report["after"] = norm_only_eval
+                if isinstance(report.get("repair"), dict):
+                    report["repair"]["rs_recovery"] = "fallback_norm_strip_only"
+                    report["repair"]["rs_recovery_reason"] = f"repair LLM destroyed {len(before_valid_rs)} valid RS"
         after_norm_issues = list((after.get("norms") or {}).get("ungrounded") or []) + list((after.get("norms") or {}).get("unknown_law_code") or [])
         if after_norm_issues and bool(postgres_only):
             current_answer = report["answer"]
