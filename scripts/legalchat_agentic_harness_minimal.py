@@ -182,7 +182,7 @@ RECHTSGEBIET_PATTERNS: dict[str, list[str]] = {
 
 DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
     "schadenersatz": ["§ 1295 ABGB", "§ 1299 ABGB", "§ 1298 ABGB", "§ 1313a ABGB", "§ 1325 ABGB"],
-    "vertragsrecht": ["§ 871 ABGB", "§ 872 ABGB", "§ 874 ABGB", "§ 877 ABGB", "§ 879 ABGB", "§ 922 ABGB", "§ 932 ABGB", "§ 934 ABGB"],
+    "vertragsrecht": ["§ 871 ABGB", "§ 872 ABGB", "§ 874 ABGB", "§ 877 ABGB", "§ 879 ABGB", "§ 922 ABGB", "§ 932 ABGB", "§ 934 ABGB", "§ 935 ABGB"],
     "interzession": ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB", "§ 1346 ABGB"],
     "exekution": ["§ 35 EO", "§ 36 EO", "§ 40 EO", "§ 42 EO"],
     "erbrecht": ["§ 762 ABGB", "§ 774 ABGB", "§ 780 ABGB", "§ 781 ABGB"],
@@ -206,6 +206,27 @@ SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
                          ["§ 17 ZustG", "§ 2 ZustG", "§ 7 ZustG", "§ 8 ZustG", "§ 12 ZustG"]),
     "hinterlegung_abgabestelle": ("zustellrecht", [r"\bHinterlegung\b", r"\bAbgabestelle\b", r"\babgemeldet\b", r"\bOrtsabwes", r"\bwohn.*nicht\s*mehr", r"\bumgezogen\b"],
                                   ["§ 17 ZustG", "§ 2 ZustG", "§ 8 ZustG"]),
+    "laesio_enormis": ("vertragsrecht", [r"\blaesio\b", r"\bVerkürzung.*Hälfte", r"\b934\b.*ABGB", r"\b935\b.*ABGB", r"\benormi"],
+                       ["§ 934 ABGB", "§ 935 ABGB", "§ 305 ABGB", "§ 1487 ABGB"]),
+}
+
+SUBDOMAIN_SCHLAGWORT_MAP: dict[str, list[str]] = {
+    "schadenersatz": ["Schadenersatz", "Schmerzensgeld", "Kausalität", "Mitverschulden", "Beweislastumkehr"],
+    "vertragsrecht": ["Gewährleistung", "Vertragsauslegung", "Anfechtung", "Irrtum", "Sittenwidrigkeit"],
+    "laesio_enormis": ["Laesio enormis", "Verkürzung über die Hälfte", "§ 934 ABGB", "besondere Vorliebe"],
+    "arzthaftung": ["Arzthaftung", "Behandlungsfehler", "Aufklärungspflicht", "Kunstfehler"],
+    "interzession": ["Interzession", "Bürgschaft", "Angehörigenbürgschaft", "Mithaftung"],
+    "immobilienkauf": ["Kaufvertrag", "Gewährleistung", "Laesio enormis", "Irrtum"],
+    "bereicherungsrecht": ["Bereicherungsrecht", "Leistungskondiktion", "Verwendungsanspruch", "Condictio indebiti"],
+    "erbrecht": ["Erbrecht", "Testament", "Erbfolge", "Vermächtnis", "Pflichtteil"],
+    "pflichtteilsrecht": ["Pflichtteil", "Noterbe", "Enterbung", "Anrechnung", "Schenkungsanrechnung"],
+    "sachenrecht": ["Eigentum", "Besitz", "Grundbuch", "Pfandrecht", "Ersitzung", "Servitut"],
+    "familienrecht": ["Ehegattenunterhalt", "Obsorge", "Kindesunterhalt", "Scheidung", "Aufteilung"],
+    "allgemeiner_teil": ["Stellvertretung", "Vollmacht", "Verjährung", "Rechtsgeschäft", "Willenserklärung"],
+    "vertraege": ["Verzug", "Rücktritt", "Gewährleistung", "Leistungsstörung", "Unmöglichkeit"],
+    "schuldrecht_bt": ["Mietrecht", "Werkvertrag", "Bürgschaft", "Darlehen", "Bestandvertrag"],
+    "internationale_bezuege": ["IPR", "CISG", "Brüssel Ia-VO", "Rom I-VO", "Rom II-VO"],
+    "mehrpersonal": ["Gesamtschuld", "Solidarschuld", "Regress", "Zession", "Schuldbeitritt"],
 }
 
 _PARAGRAPH_RX = re.compile(r"§\s*(\d+[a-z]?)\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöü]{1,15})")
@@ -222,7 +243,10 @@ def classify_domain(query: str) -> dict[str, Any]:
     paragraphs = [f"§ {m.group(1)} {m.group(2)}" for m in _PARAGRAPH_RX.finditer(text)]
     keywords = []
     for domain, score in sorted(scores.items(), key=lambda x: -x[1])[:3]:
-        keywords.append(domain.replace("_", " ").title())
+        if domain in SUBDOMAIN_SCHLAGWORT_MAP:
+            keywords.extend(SUBDOMAIN_SCHLAGWORT_MAP[domain][:3])
+        else:
+            keywords.append(domain.replace("_", " ").title())
     best = max(scores, key=scores.get) if scores else ""
     confidence = scores.get(best, 0.0) if best else 0.0
     # Inject mandatory paragraphs and sub-domain detection
@@ -232,6 +256,9 @@ def classify_domain(query: str) -> dict[str, Any]:
         if parent == best and any(re.search(p, text, re.I) for p in sd_patterns):
             subdomain = sd_name
             mandatory = list(dict.fromkeys(sd_pars + mandatory))  # dedup, sd_pars first
+            # Prepend subdomain-specific Schlagworte
+            if sd_name in SUBDOMAIN_SCHLAGWORT_MAP:
+                keywords = SUBDOMAIN_SCHLAGWORT_MAP[sd_name][:4] + keywords
             break
     all_paragraphs = list(dict.fromkeys(mandatory + paragraphs))
     return {
@@ -240,7 +267,7 @@ def classify_domain(query: str) -> dict[str, Any]:
         "confidence": round(confidence, 3),
         "paragraphs": all_paragraphs[:12],
         "mandatory_paragraphs": mandatory,
-        "keywords": keywords[:5],
+        "keywords": list(dict.fromkeys(keywords))[:8],
         "all_scores": {k: round(v, 3) for k, v in sorted(scores.items(), key=lambda x: -x[1])[:5]},
     }
 
@@ -400,6 +427,22 @@ BUILTIN_TOOL_SPECS: dict[str, dict[str, Any]] = {
             },
         },
     },
+    "search_lehrbuch": {
+        "type": "function",
+        "function": {
+            "name": "search_lehrbuch",
+            "description": "Search civil law textbooks (PSK, Riedler, Zankl) via FTS. Returns chapters, excerpts, paragraph refs.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"},
+                    "rechtsgebiet": {"type": "string"},
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 20},
+                },
+                "required": ["query"],
+            },
+        },
+    },
     "search_by_paragraph": {
         "type": "function",
         "function": {
@@ -519,7 +562,7 @@ BUILTIN_DEFAULT_WORKSTREAMS = [
     {
         "name": "grounding_expert",
         "goal": "Get cluster-level grounding context and expert analysis for the legal question.",
-        "tools": ["build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht", "search_kommentar_paragraph", "search_kommentar_keyword"],
+        "tools": ["build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht", "search_kommentar_paragraph", "search_kommentar_keyword", "search_lehrbuch"],
     },
 ]
 
@@ -1625,8 +1668,35 @@ def run_pre_search_scatter(
     if topic and "build_grounding_context" in TOOL_SPECS:
         compact_q = _compact_search_query(query, max_terms=12) if query else ""
         if compact_q:
-            tasks.append(("build_grounding_context", {"topic": topic, "query": compact_q, "max_clusters": 2, "max_tokens": 500}))
+            tasks.append(("build_grounding_context", {"topic": topic, "query": compact_q, "max_clusters": 2, "max_tokens": 1200}))
             tasks.append(("detect_clusters", {"topic": topic, "query": compact_q}))
+    # Auto-add lehrbuch search (always fires — topic filter optional)
+    if "search_lehrbuch" in TOOL_SPECS:
+        lb_rg = _TOPIC_TO_LEHRBUCH_RG.get(topic, "") if topic else ""
+        lb_q = _lehrbuch_search_query(query, classification)
+        if lb_q:
+            lb_args: dict[str, Any] = {"query": lb_q, "limit": 5}
+            if lb_rg:
+                lb_args["rechtsgebiet"] = lb_rg
+            tasks.append(("search_lehrbuch", lb_args))
+    # Fallback A: Extract §§ directly from query text → add paragraph searches
+    # This catches cases where classifier fails but query explicitly mentions §§
+    if query and "search_by_paragraph" in TOOL_SPECS:
+        _existing_pars = {a.get("paragraph", "") for _, a in tasks if _ == "search_by_paragraph"}
+        for norm in extract_norm_citations(query)[:6]:
+            if norm not in _existing_pars:
+                tasks.append(("search_by_paragraph", {"paragraph": norm[:120], "limit": 8}))
+                _existing_pars.add(norm)
+    # Fallback B: if classification gave no keyword_queries, extract legal terms from query
+    # and add search_ogh_rechtssaetze to ensure we always search for relevant RS
+    if not expanded.get("keyword_queries") and query and "search_ogh_rechtssaetze" in TOOL_SPECS:
+        lb_q = _lehrbuch_search_query(query, classification)
+        if lb_q:
+            tasks.append(("search_ogh_rechtssaetze", {"query": lb_q, "limit": 10}))
+        # Also add a broader compact-query RS search for diversity
+        cq = _compact_search_query(query, max_terms=6)
+        if cq and cq != lb_q:
+            tasks.append(("search_ogh_rechtssaetze", {"query": cq, "limit": 8}))
     if not tasks:
         return ""
     results: list[str] = []
@@ -1655,7 +1725,7 @@ def run_pre_search_scatter(
             except Exception:
                 pass
     # Deduplicate: prioritize high-value tools, skip lines with only already-seen RS
-    _HIGH_VALUE = {"build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht"}
+    _HIGH_VALUE = {"build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht", "search_lehrbuch"}
     _seen_rs: set[str] = set()
     deduped: list[str] = []
     # High-value tools first
@@ -1935,6 +2005,88 @@ _TOPIC_PATTERNS: list[tuple[str, list[str]]] = [
     ("pflichtteilsrecht", ["pflichtteil", "noterbe", "enterbung", "§ 762", "§ 763", "§ 764", "§ 765", "§ 766", "§ 780", "§ 781", "§ 782", "anrechnung"]),
 ]
 
+_LEHRBUCH_LEGAL_TERMS: set[str] = {
+    "schadenersatz", "schadensminderung", "zumutbarkeit", "naturalrestitution",
+    "wertersatz", "werkvertrag", "werklohn", "gewährleistung", "mangel",
+    "bereicherung", "condictio", "leistung", "nichtleistung", "aufwandersatz",
+    "sachenrecht", "eigentum", "besitz", "pfandrecht", "grundbuch", "ersitzung",
+    "erbrecht", "pflichtteil", "testament", "vermächtnis", "schenkung",
+    "bürgschaft", "interzession", "schuldbeitritt", "solidarschuld", "regress",
+    "vergleich", "widerruf", "irrtumsanfechtung", "anfechtung", "wandlung",
+    "minderung", "verbesserung", "rücktritt", "verzug", "erfüllung",
+    "vertrag", "verschulden", "kausalität", "rechtswidrigkeit", "haftung",
+    "delikt", "gefährdungshaftung", "zurechnung", "mitverschulden",
+    "verjährung", "frist", "mahnung", "unterhalt", "obsorge", "ehescheidung",
+    "zession", "abtretung", "aufrechnung", "stundung", "novation",
+    "werkvertrag", "honorar", "entgelt", "deckung", "versicherung",
+    "exekution", "einstellung", "oppositionsklage", "vollstreckung",
+    "zustellung", "rekurs", "berufung", "wiedereinsetzung",
+    # International law / Zustellrecht
+    "hinterlegung", "abgabestelle", "ortsabwesenheit", "rückschein",
+    "haager", "übereinkommen", "übersetzung", "rechtshilfe",
+    "insolvenz", "akzessorietät", "tilgung", "zahlungsplan",
+    "invalidität", "pension", "dienstunfähigkeit", "berufsunfähigkeit",
+    "mietvertrag", "pachtvertrag", "bestandvertrag", "mietzins",
+    "amtshaftung", "organhaftung", "staatshaftung",
+    # IO/Insolvenz
+    "konkurs", "insolvenzordnung", "masseforderung", "absonderung", "aussonderung",
+    "anfechtungsklage", "gläubigerbenachteiligung",
+    # KSchG/Verbraucher
+    "verbraucher", "konsument", "konsumentenschutz", "warnpflicht",
+    # VersVG/Versicherung
+    "deckungszusage", "rechtsschutzversicherung", "obliegenheit",
+    "bevollmächtigung", "mandatsvertrag", "anwaltsvertrag",
+    # Prozessrecht erweitert
+    "nichtigkeit", "gehörsverletzung", "säumnis", "versäumung",
+    "berufungsfrist", "rekursfrist", "zustellmangel",
+}
+
+
+def _lehrbuch_search_query(query: str, classification: dict[str, Any] | None = None) -> str:
+    """Extract legal-topic terms for lehrbuch FTS via substring matching."""
+    cls = classification or {}
+    seen: set[str] = set()
+    seeds: list[str] = []
+
+    def _add(t: str) -> None:
+        t = t.strip()
+        if len(t) <= 2 or t.lower() in SEARCH_STOPWORDS or t.lower() in seen:
+            return
+        seen.add(t.lower())
+        seeds.append(t)
+
+    # 1) Classification keywords + paragraphs
+    for kw in cls.get("keywords") or []:
+        _add(str(kw))
+    for par in cls.get("mandatory_paragraphs") or []:
+        _add(str(par))
+    if cls.get("domain"):
+        _add(str(cls["domain"]))
+    # 2) Substring-match legal terms in query (handles compounds like "Werklohnanspruch")
+    q_low = (query or "").lower()
+    for term in sorted(_LEHRBUCH_LEGAL_TERMS, key=len, reverse=True):
+        if term in q_low:
+            _add(term)
+    if not seeds:
+        return ""
+    # Max 2 terms — plainto_tsquery does AND, fewer terms = more results
+    return " ".join(seeds[:2])[:120]
+
+
+_TOPIC_TO_LEHRBUCH_RG: dict[str, str] = {
+    "schadenersatz": "SCHADENERSATZ", "bereicherungsrecht": "BEREICHERUNGSRECHT",
+    "allgemeiner_teil": "SCHULDRECHT_AT", "vertraege": "VERTRAEGE",
+    "sachenrecht": "SACHENRECHT", "familienrecht": "FAMILIENRECHT",
+    "schuldrecht_bt": "SCHULDRECHT_BT", "internationale_bezuege": "INTERNATIONALE_BEZUEGE",
+    "mehrpersonal": "MEHRPERSONAL", "pflichtteilsrecht": "ERBRECHT",
+    "erbrecht": "ERBRECHT", "laesio_enormis": "SCHULDRECHT_BT",
+    # Extended domains for real cases (exekution, zustellrecht, werklohn etc.)
+    "exekution": "SCHULDRECHT_BT", "zustellrecht": "SCHULDRECHT_AT",
+    "wohnungseigentum": "SACHENRECHT", "versicherungsrecht": "SCHADENERSATZ",
+    "werkvertrag": "SCHULDRECHT_BT", "mietrecht": "SCHULDRECHT_BT",
+    "honorar": "SCHULDRECHT_BT", "prozessrecht": "SCHULDRECHT_AT",
+}
+
 
 def _topic_hint(query: str, hints: dict[str, str]) -> str | None:
     """Detect the most likely zivil-pruefung topic for a query."""
@@ -2002,7 +2154,7 @@ def build_tool_args(tool_name: str, query: str, probe_limit: int) -> dict[str, A
     if tool_name == "build_grounding_context":
         topic = _topic_hint(query, hints)
         if topic:
-            return {"topic": topic, "query": _compact_search_query(query, max_terms=12), "max_clusters": 1, "max_tokens": 500}
+            return {"topic": topic, "query": _compact_search_query(query, max_terms=12), "max_clusters": 1, "max_tokens": 1200}
         return None
     if tool_name == "detect_clusters":
         topic = _topic_hint(query, hints)
@@ -2011,6 +2163,17 @@ def build_tool_args(tool_name: str, query: str, probe_limit: int) -> dict[str, A
         return None
     if tool_name == "ask_gemini_zivilrecht":
         return {"question": _compact_search_query(query, max_terms=15)}
+    if tool_name == "search_lehrbuch":
+        compact_q = _compact_search_query(query, max_terms=8)
+        if not compact_q:
+            return None
+        topic = _topic_hint(query, hints)
+        out: dict[str, Any] = {"query": compact_q, "limit": limit}
+        if topic:
+            rg = _TOPIC_TO_LEHRBUCH_RG.get(topic, "")
+            if rg:
+                out["rechtsgebiet"] = rg
+        return out
     return None
 
 
@@ -2136,7 +2299,7 @@ def sanitize_tool_args(tool_name: str, raw_args: dict[str, Any], query: str, pro
         if not q:
             q = _compact_search_query(query, max_terms=12)
         max_cl = max(1, min(int(args.get("max_clusters", 1) or 1), 3))
-        max_tk = max(100, min(int(args.get("max_tokens", 500) or 500), 1000))
+        max_tk = max(100, min(int(args.get("max_tokens", 1200) or 1200), 2000))
         return {"topic": topic, "query": q[:300], "max_clusters": max_cl, "max_tokens": max_tk}
 
     if tool_name == "detect_clusters":
@@ -2161,6 +2324,23 @@ def sanitize_tool_args(tool_name: str, raw_args: dict[str, Any], query: str, pro
         out: dict[str, Any] = {"question": question[:500]}
         if ctx:
             out["context"] = ctx[:500]
+        return out
+
+    if tool_name == "search_lehrbuch":
+        q = str(args.get("query") or "").strip()
+        if (not q) or (len(q) > max_query_length) or ("\n" in q):
+            if not fallback:
+                return None
+            q = str(fallback.get("query") or "").strip()
+        if not q:
+            return None
+        q = _compact_search_query(q, max_terms=8)
+        rg = str(args.get("rechtsgebiet") or "").strip().upper()
+        if not rg and fallback:
+            rg = str(fallback.get("rechtsgebiet") or "").strip().upper()
+        out: dict[str, Any] = {"query": q[:max_query_length], "limit": limit}
+        if rg:
+            out["rechtsgebiet"] = rg
         return out
 
     return fallback
@@ -2254,8 +2434,9 @@ def run_subagent_llm(
         "Use ONLY allowed tools. Gather high-signal evidence with explicit RS/GZ references. "
         "Do not invent case facts.\n\n"
         "WORK IN PHASES:\n"
-        "PHASE 1 - TARGETED SEARCH (2-3 calls):\n"
+        "PHASE 1 - TARGETED SEARCH (3-4 calls):\n"
         "  - For EVERY § in the classification: call search_by_paragraph\n"
+        "  - For key §§: also call search_kommentar_paragraph to get doctrinal commentary (Kommentar)\n"
         "  - search_by_schlagwort for OGH taxonomy keywords\n"
         "  - search_ogh_rechtssaetze for broader keyword search\n\n"
         "PHASE 2 - DEEPEN (2-3 calls):\n"
@@ -2278,7 +2459,13 @@ def run_subagent_llm(
         "AND vertraglich (§1299/§1313a).\n"
         "- Interzession/Bürgschaft: Search §25c KSchG AND §879 ABGB (Sittenwidrigkeit) "
         "as SEPARATE regimes. If Exekution mentioned, also search §35 EO (Oppositionsklage).\n"
-        "- Gewährleistung: Search §§922/932 AND §870/§874 ABGB (Arglist/Irreführung) separately."
+        "- Gewährleistung: Search §§922/932 AND §870/§874 ABGB (Arglist/Irreführung) separately.\n"
+        "- Laesio enormis: Search §934 ABGB (Anfechtung) AND §935 ABGB (Ausschlussgründe) as SEPARATE searches. "
+        "Check ALL 5 taxative Ausschlussgründe des §935: (1) besondere Vorliebe, (2) Kenntnis des wahren Werts, "
+        "(3) gemischte Schenkung, (4) Glücksvertrag/aleatorisches Element (RS0106040), "
+        "(5) gerichtliche Zwangsversteigerung (RS0122377, NUR Zwangsversteigerung, nicht freiwillig). "
+        "Verjährung: §1487 ABGB (3 Jahre), Fristbeginn = Vertragsschluss (NICHT Kenntnis — hM). "
+        "Rechtsfolge: Aufhebung + facultas alternativa (Ergänzung auf gemeinen Wert)."
     )
     if worker_ctx:
         sys_prompt += "\n\n" + worker_ctx
@@ -2482,7 +2669,7 @@ def run_subagent_llm(
                     "status": call.get("status"),
                     "latency_ms": call.get("latency_ms"),
                     "error": call.get("error"),
-                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:2400 if fn in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 1600] if payload is not None else ""),
+                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:3000 if fn in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 2400] if payload is not None else ""),
                 }
                 tool_traces.append(trace)
                 tool_payload_for_llm = payload if payload is not None else {"ok": False, "error": call.get("error")}
@@ -2536,7 +2723,7 @@ def run_subagent_llm(
                     _looked_up_rs.add(rs_arg)
             prev = tt.get("payload_preview") or ""
             _found_rs.update(extract_rs_numbers(prev))
-        _unlooked = sorted(_found_rs - _looked_up_rs, reverse=True)[:5]
+        _unlooked = sorted(_found_rs - _looked_up_rs, reverse=True)[:8]
         for rs in _unlooked:
             _deep_tool = "hot_rs_lookup" if "hot_rs_lookup" in allowed else ("get_rechtssatz" if "get_rechtssatz" in allowed else "")
             if not _deep_tool:
@@ -2653,7 +2840,7 @@ def run_subagent_llm(
                     "status": call.get("status"),
                     "latency_ms": call.get("latency_ms"),
                     "error": call.get("error"),
-                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:2400 if tool in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 1600] if payload is not None else ""),
+                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:3000 if tool in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 2400] if payload is not None else ""),
                 }
             )
 
@@ -2743,10 +2930,15 @@ def synthesize_answer(
     structured_format = (
         "\n\nStructure your answer in these sections:\n"
         "1. KERNFRAGEN — 2-3 zentrale Rechtsfragen, jeweils mit kurzer Einordnung\n"
-        "2. RECHTSGRUNDLAGEN — konkrete §§ mit Gesetzen. Bei mehreren Anspruchsgrundlagen: Stufenbau/Doppelgleisigkeit darstellen\n"
+        "2. RECHTSGRUNDLAGEN — konkrete §§ mit Gesetzen. Bei mehreren Anspruchsgrundlagen: Stufenbau/Doppelgleisigkeit darstellen. "
+        "IMMER Rechtsfolgen (zB Aufhebung, Schadenersatz, facultas alternativa) und Verjährung angeben. "
+        "Bei Verjährung: Fristbeginn IMMER nennen (zB ab Vertragsschluss, ab Kenntnis, ab Zustellung)\n"
         "3. RELEVANTE JUDIKATUR — RS-Nummern mit 1-Satz-Zusammenfassung und Relevanz für den Fall\n"
-        "4. SUBSUMTION — Anwendung auf den konkreten Fall, GETRENNT nach Anspruchsgrundlagen\n"
-        "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen?\n"
+        "4. SUBSUMTION — NUMMERIERTE Tatbestandsprüfung (1., 2., 3., ...) mit (+) erfüllt oder (-) nicht erfüllt je Merkmal. "
+        "GETRENNT nach Anspruchsgrundlagen. Jedes Tatbestandsmerkmal einzeln prüfen, nicht nur das Ergebnis. "
+        "Bei Ausschlussgründen: ALLE taxativen Gründe einzeln durchgehen und mit +/- bewerten\n"
+        "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen? "
+        "Praxishinweis: Welche Beweismittel beantragen (zB Sachverständigengutachten, Urkundenvorlage)?\n"
         "6. PROZESSSTRATEGIE — Haupt- und Eventualbegehren, priorisiert nach Erfolgsaussicht\n"
         "7. RISIKEN / GEGENARGUMENTE — mind. 4 mit konkreten Repliken/Entkräftungen (RS-gestützt)\n"
         "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n"
@@ -2760,11 +2952,16 @@ def synthesize_answer(
         "- Bei mehreren Anspruchsgrundlagen: IMMER Haupt- und Eventualbegehren ordnen\n"
         "- Konkurrierende Ansprüche (zB Wandlung UND Preisminderung) als Stufen darstellen\n"
         "- Beweislast EXPLIZIT für jede strittige Tatsache angeben\n"
-        "- Mind. 4 Risiken, jedes mit RS-Nummer und konkreter Replik. KEINE Füll-Risiken ohne Fallbezug\n"
+        "- Mind. 4 Risiken, jedes mit RS-Nummer und konkreter Replik. KEINE Füll-Risiken ohne Fallbezug. "
+        "Verjährung IMMER als eigenständiges Risiko prüfen\n"
         "- Arzthaftung: IMMER Doppelgleisigkeit prüfen (Delikt §1295/§1325 + Vertrag §1299/§1313a), "
         "Behandlungsfehler UND Aufklärungsfehler getrennt subsumieren\n"
         "- Interzession: IMMER §25c KSchG + §879 ABGB als getrennte Anspruchsgrundlagen prüfen, "
         "bei Exekution auch §35 EO (Oppositionsklage) berücksichtigen\n"
+        "- Laesio enormis (§934/935 ABGB): In Sec 4 IMMER ALLE 5 taxativen Ausschlussgründe des §935 durchgehen: "
+        "(1) besondere Vorliebe, (2) Kenntnis des wahren Werts, (3) gemischte Schenkung (bewusster doppelter Vertragswille), "
+        "(4) Glücksvertrag/aleatorisches Element, (5) gerichtliche Zwangsversteigerung (NUR Zwangsversteigerung, nicht freiwillig). "
+        "Verjährung: §1487 ABGB (3J), Fristbeginn = Vertragsschluss (hM, NICHT ab Kenntnis)\n"
         "- Section 9 is MANDATORY when Aktenkontext is provided. Use EXACT dates and amounts from the context."
     )
     if postgres_only:
@@ -3963,7 +4160,7 @@ def main() -> int:
     ap.add_argument("--max-workstreams", type=int, default=3)
     ap.add_argument("--max-steps", type=int, default=8)
     ap.add_argument("--parallelism", type=int, default=max_parallel)
-    ap.add_argument("--citation-gate-mode", choices=["off", "warn", "repair", "enforce"], default="enforce")
+    ap.add_argument("--citation-gate-mode", choices=["off", "warn", "repair", "enforce"], default="repair")
     ap.add_argument("--citation-gate-repair-model", default="", help="Override model for citation repair (defaults to synth model)")
     ap.add_argument(
         "--grounding-policy",
