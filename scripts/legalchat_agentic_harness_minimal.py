@@ -178,6 +178,15 @@ RECHTSGEBIET_PATTERNS: dict[str, list[str]] = {
         r"\bZPO\b", r"\bKlage\b", r"\bBerufung\b", r"\bRevision\b",
         r"\bStreitwert\b", r"\b§\s*\d+\s*ZPO\b",
     ],
+    "mietrecht": [
+        r"\bMRG\b", r"\bMiet(?:recht|vertrag|zins|er|objekt)\b",
+        r"\bBestandvertrag\b", r"\bUntermiete\b", r"\bKaution\b",
+        r"\bRichtwert\b", r"\bBefristungsabschlag\b",
+        r"\bRäumung\b", r"\bKündigung.*Miet\b", r"\bMiet.*Kündigung\b",
+        r"\b§\s*\d+\s*MRG\b", r"\b§\s*1118\s*ABGB\b", r"\b§\s*1090\s*ABGB\b",
+        r"\bAusmalen\b", r"\bBetriebskosten\b", r"\bHauptmiete?\b",
+        r"\bVermieter\b", r"\bPacht\b", r"\bBestandgeber\b",
+    ],
 }
 
 DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
@@ -191,6 +200,7 @@ DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
     "konsumentenschutz": ["§ 6 KSchG", "§ 9 KSchG", "§ 25c KSchG", "§ 25d KSchG"],
     "wohnungseigentum": ["§ 2 WEG", "§ 3 WEG", "§ 16 WEG", "§ 20 WEG", "§ 28 WEG", "§ 30 WEG", "§ 32 WEG", "§ 52 WEG"],
     "zustellrecht": ["§ 2 ZustG", "§ 7 ZustG", "§ 8 ZustG", "§ 12 ZustG", "§ 17 ZustG", "§ 22 ZustG"],
+    "mietrecht": ["§ 1090 ABGB", "§ 1118 ABGB", "§ 1117 ABGB", "§ 16 MRG", "§ 29 MRG", "§ 30 MRG", "§ 11 MRG", "§ 21 MRG"],
 }
 
 SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
@@ -2027,6 +2037,11 @@ _LEHRBUCH_LEGAL_TERMS: set[str] = {
     "insolvenz", "akzessorietät", "tilgung", "zahlungsplan",
     "invalidität", "pension", "dienstunfähigkeit", "berufsunfähigkeit",
     "mietvertrag", "pachtvertrag", "bestandvertrag", "mietzins",
+    # Mietrecht / MRG
+    "mietrecht", "mieter", "vermieter", "hauptmieter", "untermieter",
+    "richtwert", "befristungsabschlag", "betriebskosten", "räumung",
+    "ausmalen", "ausmalverpflichtung", "kaution", "mietrückstand",
+    "kündigungsgrund", "untervermietung", "bestandnehmer", "bestandgeber",
     "amtshaftung", "organhaftung", "staatshaftung",
     # IO/Insolvenz
     "konkurs", "insolvenzordnung", "masseforderung", "absonderung", "aussonderung",
@@ -2430,7 +2445,8 @@ def run_subagent_llm(
     worker_ctx = role_skill_context("worker")
     # Phase-aware worker system prompt
     sys_prompt = (
-        "You are a specialist legal subagent for Austrian law. "
+        "You are a specialist legal subagent for AUSTRIAN law (ABGB, MRG, KSchG, EO, ZPO, IO). "
+        "NEVER reference German law (BGB, HGB-DE). All citations must be Austrian sources. "
         "Use ONLY allowed tools. Gather high-signal evidence with explicit RS/GZ references. "
         "Do not invent case facts.\n\n"
         "WORK IN PHASES:\n"
@@ -2976,7 +2992,8 @@ def synthesize_answer(
     )
     if postgres_only:
         sys_prompt = (
-            "You are the final legal synthesizer for Austrian law. "
+            "You are the final legal synthesizer for AUSTRIAN law (ABGB, MRG, KSchG, EO, ZPO, IO). "
+            "NEVER use German law (BGB). All legal references must be Austrian. "
             "Use ONLY provided tool evidence from PostgreSQL-backed MCP calls. "
             "Do not use model memory or external legal knowledge for RS/TE. "
             "Do not invent citations. Use only citations in allowed citation lists. "
@@ -2987,11 +3004,11 @@ def synthesize_answer(
         )
     else:
         sys_prompt = (
-            "You are the final legal synthesizer for Austrian law. "
+            "You are the final legal synthesizer for AUSTRIAN law (ABGB, MRG, KSchG, EO, ZPO, IO). "
+            "NEVER use German law (BGB). All legal references must be Austrian. "
             "Build one coherent answer grounded in stream evidence. "
             "Use explicit references (RS numbers, paragraph markers) when present. "
-            "Do not invent citations. Use only citations from allowed lists. "
-            "Prefer Austrian legal framing."
+            "Do not invent citations. Use only citations from allowed lists."
             + structured_format
         )
     if synth_ctx:
@@ -4171,7 +4188,9 @@ def write_output_file(output_path: str, answer: str, query: str, mode: str) -> d
 # ────────────────────────────────────────────────────────────────────────────
 
 _TRIAGE_SYSTEM_PROMPT = """\
-Du bist juristischer Triage-Analyst. Extrahiere aus dem Sachverhalt:
+Du bist juristischer Triage-Analyst für ÖSTERREICHISCHES Recht (ABGB, MRG, KSchG, EO, ZPO, IO). \
+Verwende AUSSCHLIESSLICH österreichische Rechtsquellen. NIEMALS deutsches Recht (BGB, ZPO-DE) zitieren. \
+Extrahiere aus dem Sachverhalt:
 1. FRISTEN: Alle Deadlines mit Datum, Rechtsgrundlage, verbleibende Tage (ab heute {today})
 2. DRINGLICHKEIT: HIGH/MEDIUM/LOW mit Begründung
 3. STILLE RISIKEN: Was passiert bei UNTÄTIGKEIT? (Fristversäumnis, Rechtskrafteintritt, etc.)
@@ -4391,7 +4410,8 @@ def run_response_phase(
     phase_ctx = build_phase_context(query, file_context, triage_result, analysis_text)
 
     sys_prompt = (
-        "Du bist juristischer Strategieberater für österreichisches Recht. "
+        "Du bist juristischer Strategieberater für ÖSTERREICHISCHES Recht (ABGB, MRG, KSchG, EO, ZPO, IO). "
+        "NIEMALS deutsches Recht (BGB) verwenden. Alle Rechtsquellen müssen österreichisch sein. "
         "Basierend auf der vollständigen Analyse (Triage + Gutachten), erstelle ein handlungsorientiertes Artefakt. "
         "Verwende konkrete Daten, EUR-Beträge und Fristen aus dem Kontext. "
         "Nenne RS-Nummern und §§ nur wenn sie in der Analyse vorkommen."
