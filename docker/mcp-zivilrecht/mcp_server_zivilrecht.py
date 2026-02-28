@@ -368,7 +368,34 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["keyword"]
             }
-        )
+        ),
+        Tool(
+            name="search_lehrbuch",
+            description="Durchsucht Lehrbuch-Inhalte (PSK Perner/Spitzer/Kodek + Riedler Schuldrecht) via Volltextsuche. Liefert Kapitel, Abschnitt, §-Referenzen und Textauszug.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Suchbegriff(e) für die Volltextsuche, z.B. 'Gutgläubiger Erwerb', 'Bereicherung Kondiktionstypen'"
+                    },
+                    "rechtsgebiet": {
+                        "type": "string",
+                        "description": "Optional: Filter nach Rechtsgebiet (SCHADENERSATZ, SACHENRECHT, BEREICHERUNGSRECHT, VERTRAEGE, SCHULDRECHT_AT, MEHRPERSONAL, FAMILIENRECHT, INTERNATIONALE_BEZUEGE, GOA, SCHULDRECHT_BT)"
+                    },
+                    "werk": {
+                        "type": "string",
+                        "description": "Optional: Filter nach Werk (PSK oder RIEDLER)"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximale Anzahl der Ergebnisse (default: 5, max: 20)",
+                        "default": 5
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
     ]
 
 
@@ -438,6 +465,15 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             arguments.get("keyword", ""),
             arguments.get("law", ""),
             arguments.get("limit", 10),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_lehrbuch":
+        result = search_lehrbuch(
+            arguments.get("query", ""),
+            arguments.get("rechtsgebiet", ""),
+            arguments.get("werk", ""),
+            arguments.get("limit", 5),
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
@@ -1089,6 +1125,63 @@ def search_kommentar_keyword(keyword: str, law: str = "", limit: int = 10) -> di
             for r in rows
         ]
         return {"keyword": keyword, "law": law or None, "count": len(results), "results": results}
+    finally:
+        cursor.close()
+
+
+# ============================================================================
+# LEHRBUCH SEARCH
+# ============================================================================
+
+def search_lehrbuch(query: str, rechtsgebiet: str = "", werk: str = "", limit: int = 5) -> dict:
+    """Search lehrbuch sections via FTS, return kapitel, titel, excerpt, §-refs."""
+    query = clamp_query(query)
+    limit = clamp_limit(limit, 5, 20)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        where_clauses = ["fts_vector @@ plainto_tsquery('german', %s)"]
+        params: list = [query]
+        if rechtsgebiet:
+            where_clauses.append("rechtsgebiet = %s")
+            params.append(rechtsgebiet.upper())
+        if werk:
+            where_clauses.append("werk = %s")
+            params.append(werk.upper())
+        where = " AND ".join(where_clauses)
+        params.append(limit)
+
+        cursor.execute(f"""
+            SELECT id, werk, kapitel, rechtsgebiet, abschnitt_nr, titel,
+                   seite_von, seite_bis, paragraph_refs, char_count,
+                   ts_rank(fts_vector, plainto_tsquery('german', %s)) as rank,
+                   ts_headline('german', text, plainto_tsquery('german', %s),
+                               'StartSel=**,StopSel=**,MaxWords=60,MinWords=20') as excerpt
+            FROM lehrbuch.abschnitt
+            WHERE {where}
+            ORDER BY rank DESC
+            LIMIT %s
+        """, [query, query] + params)
+
+        results = []
+        for row in cursor.fetchall():
+            results.append({
+                "id": row[0],
+                "werk": row[1],
+                "kapitel": row[2],
+                "rechtsgebiet": row[3],
+                "abschnitt_nr": row[4],
+                "titel": row[5],
+                "seite_von": row[6],
+                "seite_bis": row[7],
+                "paragraph_refs": row[8],
+                "char_count": row[9],
+                "rank": round(row[10], 4),
+                "excerpt": row[11],
+            })
+
+        return {"query": query, "rechtsgebiet": rechtsgebiet or None, "werk": werk or None,
+                "count": len(results), "results": results}
     finally:
         cursor.close()
 

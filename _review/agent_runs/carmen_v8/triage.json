@@ -1,0 +1,53 @@
+{
+  "deadlines": [],
+  "urgency": "HIGH",
+  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i seit 23.12.2025) auf AMS-Leistungen der Mandantin; unmittelbare Bedrohung des Lebensunterhalts; Anträge (§7 Abs3 EO, §40/42 EO) kürzlich (26.02.2026) gestellt, aber Abhängigkeit von BG-Reaktion.",
+  "silent_risks": [
+    {
+      "risk": "Untätigkeit/Fristversäumnis bei Beschwerde/Aufhebungsantrag (§35/§7 Abs3 EO)",
+      "consequence": "Rechtskraft der Exekutionsbewilligung/Vollstreckbarkeitsbestätigung; fortgesetzte Pfändung von AMS-Leistungen."
+    },
+    {
+      "risk": "Nicht-Anerkennung unwirksamer Zustellung oder Überbefriedigung",
+      "consequence": "Verbotene Überbefriedigung (§40 EO) trotz erloschener Hauptschuld; dauerhafte Mithaftung trotz §14 IO Akzessorietät."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Priorisierung: Aufhebung VB (§7 Abs3 EO) vs. Einstellung wegen Befriedigung (§40 EO)?",
+      "options": [
+        "Priorisiert §7 Abs3 EO (unwirkame Zustellung via ZMR-Beweis)",
+        "Parallel §40 EO (100% Insolvenzerfüllung Hauptschuld)"
+      ]
+    },
+    {
+      "question": "Interzession (§25c KSchG) gegen AMS als Drittschuldner einleiten?",
+      "options": [
+        "Ja, nach Aufschub (§42 EO)",
+        "Nein, bis Exekution eingestellt"
+      ]
+    },
+    {
+      "question": "Akzessorietät (§14 IO) vs. Praeklusion argumentieren?",
+      "options": [
+        "§14 IO priorisieren (Hauptschuld erloschen)",
+        "§7 Abs3 EO als Praeklusionskiller (VB unwirksam)"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "BG akzeptiert ZMR-Beweis und hebt VB auf (§7 Abs3 EO)",
+      "then": "Automatische Einstellung Exekution (§39 Abs1 Z9 EO); Weiterleitung BG Gänserndorf; Rückforderung gezahlter Beträge."
+    },
+    {
+      "if": "Bank bestreitet Erlöschen Hauptschuld/Überbefriedigung",
+      "then": "Interzessionsverfahren (§25c KSchG); Nachweis via KSV/Insolvenzakte; ggf. §35 EO Beschwerde."
+    },
+    {
+      "if": "Exekution vorläufig ausgesetzt (§42 EO)",
+      "then": "Zeitgewinn für vollständigen Nachweis; AMS entlastet temporär."
+    }
+  ],
+  "response_type_hint": "recommendation"
+}

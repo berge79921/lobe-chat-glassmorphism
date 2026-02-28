@@ -1,0 +1,218 @@
+[15:09:46.833] === VERBOSE TRACE START === mode=agent query='Analysiere den Fall KOLAR gegen PFEFFER aus Sicht der betreibenden Partei (Kolar): Wirksamkeit der Hinterlegungszustellu'
+[15:09:46.833]   mcp_mode=local_http model_profile=default
+[15:09:46.833]   context_files=['/Users/reinhardberger/HCS/_TEST CASES Super Ris/KOLAR .:. PFEFFER/FALLUEBERSICHT.md', '/Users/reinhardberger/HCS/_TEST CASES Super Ris/KOLAR .:. PFEFFER/CASE_DATA.json']
+[15:09:46.834] AGENT Phase 0: TRIAGE start
+[15:09:46.835] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=1500 title=legalchat-agent-triage
+[15:10:08.196] <<< API x-ai/grok-4.1-fast 21361ms finish=stop tool_calls=0 text='{\n  "deadlines": [],\n  "urgency": "HIGH",\n  "urgency_reason": "Laufende Exekution (gestellt 28.01.2026) gefährdet durch erwarteten Wiedereinsetzungsantrag der Beklagten (§146 ZPO); schnelle Vorbereitung von Abwehrargumenten erforderlich",\n  "silent_risks": [\n    {\n      "risk": "Untätigkeit bei Wied'
+[15:10:08.199] AGENT Phase 0: TRIAGE done in 21365.33ms — urgency=HIGH
+[15:10:08.199] AGENT Phase 1: DEEP ANALYSIS start
+[15:10:08.217] 
+============================================================
+ORGANIZER: model=qwen/qwen3-coder-next query='Analysiere den Fall KOLAR gegen PFEFFER aus Sicht der betreibenden Partei (Kolar): Wirksamkeit der Hinterlegungszustellu'
+[15:10:08.217]   sys_prompt chars=720 usr_prompt chars=4414
+[15:10:08.369] >>> API qwen/qwen3-coder-next msgs=2 tools=0 max_tok=800 title=legalchat-agentic-organizer
+[15:10:14.458] <<< API qwen/qwen3-coder-next 6088ms finish=stop tool_calls=0 text='{\n  "workstreams": [\n    {\n      "name": "Hinterlegungszustellung gem. §17 ZustG – Wirksamkeit prüfen",\n      "goal": "Klärung, ob die RSb-Hinterlegung am 12.12.2025 (retourniert 30.12.2025) wirksam war, insb. unter Berücksichtigung der Altersstruktur der Beklagten (geb. 1940) und Ortsabwesenheit",\n'
+[15:10:14.477]     MCP >>> search_by_paragraph({"paragraph": "§ 17 ZustG", "limit": 8})
+[15:10:14.477]     MCP >>> search_by_paragraph({"paragraph": "§ 2 ZustG", "limit": 8})
+[15:10:14.477]     MCP >>> search_by_paragraph({"paragraph": "§ 8 ZustG", "limit": 8})
+[15:10:14.478]     MCP >>> search_by_paragraph({"paragraph": "§ 7 ZustG", "limit": 8})
+[15:10:14.480]     MCP >>> search_by_paragraph({"paragraph": "§ 12 ZustG", "limit": 8})
+[15:10:14.481]     MCP >>> search_by_schlagwort({"schlagwort": "Zivilprozess", "limit": 8})
+[15:10:14.481]     MCP >>> search_by_schlagwort({"schlagwort": "Schadenersatz", "limit": 8})
+[15:10:14.480]     MCP >>> search_by_schlagwort({"schlagwort": "Zustellrecht", "limit": 8})
+[15:10:14.482]     MCP >>> search_by_schlagwort({"schlagwort": "Schmerzensgeld", "limit": 8})
+[15:10:14.483]     MCP >>> search_ogh_rechtssaetze({"query": "Analysiere den KOLAR gegen PFEFFER aus", "limit": 8})
+[15:10:15.106]     MCP <<< search_by_paragraph ok=True 627.99ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 2 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:10:15.107]     MCP >>> build_grounding_context({"topic": "schadenersatz", "query": "Analysiere den KOLAR gegen PFEFFER aus Sicht der betreibenden Partei Wirksamkeit Hinterlegungszustellung", "max_clusters": 2, "max_tokens": 1200})
+[15:10:15.287]     MCP <<< search_by_paragraph ok=True 807.27ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 7 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1987120043_19880418X07",\\n      "kernaussage": "Zurücksendung beseitigt Zustellungswirksamkeit nicht (§ 7 ZustG)",\\n      "schlagworte": [\\n        "Zustellung'
+[15:10:15.287]     MCP >>> detect_clusters({"topic": "schadenersatz", "query": "Analysiere den KOLAR gegen PFEFFER aus Sicht der betreibenden Partei Wirksamkeit Hinterlegungszustellung"})
+[15:10:15.642]     MCP <<< search_by_paragraph ok=True 1163.91ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1994090248_19950119X02",\\n      "kernaussage": "Abgrenzung vorübergehender Abwesenheit bei Zustellung § 17 ZustG",\\n      "schlagworte": [\\n        "Zustellun'
+[15:10:15.642]     MCP >>> search_lehrbuch({"query": "Zustellrecht Zivilprozess", "limit": 5, "rechtsgebiet": "SCHADENERSATZ"})
+[15:10:16.223]     MCP <<< search_by_paragraph ok=True 1743.74ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 8 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2023180466_20231222L03",\\n      "kernaussage": "Mitteilungspflicht bei Änderung/Aufgabe der Abgabestelle (§ 8 ZustG)",\\n      "schlagworte": [\\n        "Abgabe'
+[15:10:16.223]     MCP >>> search_by_paragraph({"paragraph": "§17 ZustG", "limit": 8})
+[15:10:16.312]     MCP <<< search_by_paragraph ok=True 1830.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 12 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:10:16.313]     MCP >>> search_by_paragraph({"paragraph": "§292 ZPO", "limit": 8})
+[15:10:16.321]     MCP <<< search_by_schlagwort ok=True 1837.14ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Schadenersatz",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1968000871_19681108X01",\\n      "kernaussage": "Gutschriften für Garantieleistungen als umst.pflichtiges Entgelt",\\n      "rechtsgebiet": "Verwaltungsrech'
+[15:10:16.321]     MCP >>> search_by_paragraph({"paragraph": "§146 ZPO", "limit": 8})
+[15:10:16.694]     MCP <<< search_by_schlagwort ok=True 2209.82ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Zustellrecht",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2010050165_20110315X01",\\n      "kernaussage": "§ 8 ZustG ohne vorherige Zustellung an Abgabestelle",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "sc'
+[15:10:17.407]     MCP <<< search_by_schlagwort ok=True 2924.16ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Zivilprozess",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1987140089_19870929X01",\\n      "kernaussage": "Gutachten kein Urheberwerk: § 38 Abs 4 EStG nicht anwendbar",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n '
+[15:10:17.408]     MCP <<< search_ogh_rechtssaetze ok=True 2923.36ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Analysiere den KOLAR gegen PFEFFER aus"\\n}\'}], \'isError\': False}}'
+[15:10:17.416]     MCP <<< search_by_schlagwort ok=True 2931.14ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Schmerzensgeld",\\n  "results": [\\n    {\\n      "rs_number": "RS0031254",\\n      "kernaussage": "Schmerzengeldanspruch eines Säuglings wegen Strahlungsschäden.",\\n      "rechtsgebiet": "",\\n      "schlagworte": [\\n     '
+[15:10:17.417]     MCP <<< detect_clusters ok=True 2129.27ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Unknown tool: detect_clusters'}], 'isError': False}}"
+[15:10:17.417]     MCP <<< build_grounding_context ok=True 2310.6ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Unknown tool: build_grounding_context'}], 'isError': False}}"
+[15:10:17.418]     MCP <<< search_lehrbuch ok=True 1775.79ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellrecht Zivilprozess",\\n  "rechtsgebiet": "SCHADENERSATZ",\\n  "werk": null,\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:10:17.418]     MCP <<< search_by_paragraph ok=True 1194.96ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2009210003_20091124X01",\\n      "kernaussage": ">2 Monate Aufenthalt Frankreich = hindernde Abwesenheit §17 ZustG",\\n      "schlagworte": [\\n        "Zustellun'
+[15:10:17.419]     MCP <<< search_by_paragraph ok=True 1106.11ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§292 ZPO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:10:17.422]     MCP <<< search_by_paragraph ok=True 1100.93ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§146 ZPO",\\n  "results": [\\n    {\\n      "rs_number": "JFR_10199771_77B00424_01",\\n      "kernaussage": "Wiedereinsetzung gem. §35 VfGG iVm §146 ZPO",\\n      "schlagworte": [\\n        "Wiedereinsetzung",\\n        "VfGG '
+[15:10:17.424] 
+============================================================
+WORKER START: Hinterlegungszustellung gem. §17 ZustG – Wirksamkeit prüfen tools=['hot_cluster_context', 'search_by_paragraph', 'search_by_schlagwort', 'search_ogh_rechtssaetze', 'get_rechtssatz', 'hot_rs_lookup']
+[15:10:17.424]   WORKER Hinterlegungszustellung gem. §17 ZustG – Wirksamkeit prüfen step=1/8
+[15:10:17.425] 
+============================================================
+WORKER START: Beweiskraft des Zustellscheins als öffentliche Urkunde (§292 ZPO) tools=['hot_rs_search', 'hot_cluster_context', 'hot_rs_lookup', 'search_by_paragraph', 'search_by_schlagwort', 'search_ogh_rechtssaetze', 'get_rechtssatz']
+[15:10:17.431]   WORKER Beweiskraft des Zustellscheins als öffentliche Urkunde (§292 ZPO) step=1/8
+[15:10:17.431] 
+============================================================
+WORKER START: Abwehr von Wiedereinsetzungsantrag gem. §146 ZPO – Verschulden & auffallende Sorglosigkeit tools=['build_grounding_context', 'detect_clusters', 'ask_gemini_zivilrecht', 'search_kommentar_paragraph', 'search_kommentar_keyword', 'search_by_paragraph', 'search_by_schlagwort', 'search_ogh_rechtssaetze', 'get_rechtssatz', 'hot_rs_lookup']
+[15:10:17.435]   WORKER Abwehr von Wiedereinsetzungsantrag gem. §146 ZPO – Verschulden & auffallende Sorglosigkeit step=1/8
+[15:10:17.662] >>> API google/gemini-3-flash-preview msgs=2 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Abwehr von Wiedereinsetzungsantrag gem. 146 ZPO  Verschulden & auffallende Sorglosigkeit
+[15:10:17.663] >>> API google/gemini-3-flash-preview msgs=2 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Hinterlegungszustellung gem. 17 ZustG  Wirksamkeit prfen
+[15:10:17.665] >>> API google/gemini-3-flash-preview msgs=2 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Beweiskraft des Zustellscheins als ffentliche Urkunde (292 ZPO)
+[15:10:19.197] <<< API google/gemini-3-flash-preview 1523ms finish=tool_calls tool_calls=4 text=''
+[15:10:19.201]     MCP >>> search_by_paragraph({"paragraph": "§ 292 ZPO", "limit": 5})
+[15:10:19.372] <<< API google/gemini-3-flash-preview 1702ms finish=tool_calls tool_calls=6 text=''
+[15:10:19.372]     MCP >>> search_by_paragraph({"paragraph": "§ 17 ZustG", "limit": 5})
+[15:10:19.682] <<< API google/gemini-3-flash-preview 2018ms finish=tool_calls tool_calls=4 text=''
+[15:10:19.682]     MCP >>> search_by_paragraph({"paragraph": "§ 146 ZPO", "limit": 5})
+[15:10:19.823]     MCP <<< search_by_paragraph ok=True 620.99ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 292 ZPO",\\n  "results": [\\n    {\\n      "rs_number": "RS0130497",\\n      "kernaussage": "Der Prüfbericht der Österreichischen Nationalbank ist keine öffentliche Urkunde iSd § 292 ZPO.  Dieser dient als (etwa nach Part'
+[15:10:19.823]     MCP >>> search_by_paragraph({"paragraph": "§ 17 ZustG", "limit": 5})
+[15:10:20.013]     MCP <<< search_by_paragraph ok=True 640.24ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1988110048_19880531X03",\\n      "kernaussage": "Primat § 13 Abs 4 ZustG vor § 17 ZustG bei Kanzleizustellung",\\n      "schlagworte": [\\n        "Zustellung",\\'
+[15:10:20.013]     MCP >>> search_by_paragraph({"paragraph": "§ 2 ZustG", "limit": 5})
+[15:10:20.192]     MCP <<< search_by_paragraph ok=True 510.04ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 146 ZPO",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1972001646_19730510X01",\\n      "kernaussage": "Unterschiedlicher normativer Gehalt § 167 FinStrG u. § 146 ZPO",\\n      "schlagworte": [\\n        "normativer G'
+[15:10:20.193]     MCP >>> search_ogh_rechtssaetze({"query": "Wiedereinsetzung auffallende Sorglosigkeit Pensionist", "limit": 5})
+[15:10:20.561]     MCP <<< search_by_paragraph ok=True 737.91ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1988110048_19880531X03",\\n      "kernaussage": "Primat § 13 Abs 4 ZustG vor § 17 ZustG bei Kanzleizustellung",\\n      "schlagworte": [\\n        "Zustellung",\\'
+[15:10:20.562]     MCP >>> search_by_schlagwort({"schlagwort": "Zustellschein", "limit": 5})
+[15:10:20.563]     MCP <<< search_by_paragraph ok=True 549.67ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 2 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:10:20.563]     MCP <<< search_ogh_rechtssaetze ok=True 369.69ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Wiedereinsetzung auffallende Sorglosigkeit Pensionist"\\n}\'}], \'isError\': False}}'
+[15:10:20.563]     MCP >>> search_by_paragraph({"paragraph": "§ 8 ZustG", "limit": 5})
+[15:10:20.564]     MCP >>> search_kommentar_paragraph({"paragraph": "146", "limit": 5, "law": "ZPO"})
+[15:10:20.650]     MCP <<< search_by_schlagwort ok=True 87.74ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Zustellschein",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1989030043_19890621X01",\\n      "kernaussage": "Zustellung an mehrere ASt via Zustellschein hindert nicht Beschwerde",\\n      "rechtsgebiet": "Verwaltungs'
+[15:10:20.651]     MCP >>> search_ogh_rechtssaetze({"query": "Beweiskraft Rückschein öffentliche Urkunde", "limit": 5})
+[15:10:20.657]     MCP <<< search_by_paragraph ok=True 92.32ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 8 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2002200229_20020912X02",\\n      "kernaussage": "Ermittlungspflicht bei Widerspruch zur Abgabestelle (§ 8 ZustG)",\\n      "schlagworte": [\\n        "Zustellung"'
+[15:10:20.657]     MCP >>> search_by_paragraph({"paragraph": "§ 7 ZustG", "limit": 5})
+[15:10:20.657]     MCP <<< search_kommentar_paragraph ok=True 92.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "146",\\n  "law": "ZPO",\\n  "count": 1,\\n  "results": [\\n    {\\n      "artikel_id": 45,\\n      "werk_id": 2,\\n      "paragraph_ref": "§ 146 ZPO",\\n      "keyword": null,\\n      "title": null,\\n      "law": "ZPO",\\n      "'
+[15:10:20.657]     MCP >>> search_by_paragraph({"paragraph": "§ 17 ZustG", "limit": 5})
+[15:10:20.658]     MCP <<< search_ogh_rechtssaetze ok=True 6.92ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Beweiskraft Rückschein öffentliche Urkunde"\\n}\'}], \'isError\': False}}'
+[15:10:20.658]   WORKER Beweiskraft des Zustellscheins als öffentliche Urkunde (§292 ZPO) step=2/8
+[15:10:20.658] >>> API google/gemini-3-flash-preview msgs=8 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Beweiskraft des Zustellscheins als ffentliche Urkunde (292 ZPO)
+[15:10:20.796]     MCP <<< search_by_paragraph ok=True 139.5ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 7 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1999020112_20000526X02",\\n      "kernaussage": "Prüfung Ersatzzustellung bei Bestreitung und Heilung § 7 ZustG",\\n      "schlagworte": [\\n        "Ersatzzustel'
+[15:10:20.797]     MCP >>> search_by_paragraph({"paragraph": "§ 12 ZustG", "limit": 5})
+[15:10:20.802]     MCP <<< search_by_paragraph ok=True 144.22ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2004130093_20070626X01",\\n      "kernaussage": "Rechtswirksame Hinterlegung erfordert 2-Wochen-Abholfrist § 17 ZustG",\\n      "schlagworte": [\\n        "Zuste'
+[15:10:20.802]   WORKER Abwehr von Wiedereinsetzungsantrag gem. §146 ZPO – Verschulden & auffallende Sorglosigkeit step=2/8
+[15:10:20.803] >>> API google/gemini-3-flash-preview msgs=8 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Abwehr von Wiedereinsetzungsantrag gem. 146 ZPO  Verschulden & auffallende Sorglosigkeit
+[15:10:21.162]     MCP <<< search_by_paragraph ok=True 364.5ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 12 ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[15:10:21.163]     MCP >>> search_by_paragraph({"paragraph": "§ 22 ZustG", "limit": 5})
+[15:10:21.530]     MCP <<< search_by_paragraph ok=True 366.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 22 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "RW0001052",\\n      "kernaussage": "Wenn ein Zustellnachweis im Sinne des § 22 ZustG fehlt, kann eine wirksame Zustellung auch auf andere Weise bewiesen werden. De'
+[15:10:21.530]   WORKER Hinterlegungszustellung gem. §17 ZustG – Wirksamkeit prüfen step=2/8
+[15:10:21.530] >>> API google/gemini-3-flash-preview msgs=11 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Hinterlegungszustellung gem. 17 ZustG  Wirksamkeit prfen
+[15:10:22.414] <<< API google/gemini-3-flash-preview 1756ms finish=tool_calls tool_calls=4 text=''
+[15:10:22.415]     MCP >>> hot_rs_search({"query": "Zustellschein öffentliche Urkunde 292 ZPO Beweiskraft", "limit": 5})
+[15:10:22.437]     MCP <<< hot_rs_search ok=True 21.09ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellschein öffentliche Urkunde 292 ZPO Beweiskraft",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[15:10:22.437]     MCP >>> search_by_paragraph({"paragraph": "§ 22 ZustG", "limit": 5})
+[15:10:22.464] <<< API google/gemini-3-flash-preview 1661ms finish=tool_calls tool_calls=4 text=''
+[15:10:22.464]     MCP >>> search_ogh_rechtssaetze({"query": "Wiedereinsetzung auffallende Sorglosigkeit Krankheit Alter", "limit": 5})
+[15:10:22.778]     MCP <<< search_by_paragraph ok=True 340.53ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 22 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2024030132_20250130L01",\\n      "kernaussage": "Fehlen Zustellnachweises § 22 ZustG macht Zustellung nicht unwirksam",\\n      "schlagworte": [\\n        "Zuste'
+[15:10:22.779]     MCP >>> search_ogh_rechtssaetze({"query": "Gegenbeweis Zustellschein öffentliche Urkunde", "limit": 5})
+[15:10:22.779]     MCP <<< search_ogh_rechtssaetze ok=True 314.21ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Wiedereinsetzung auffallende Sorglosigkeit Krankheit Alter"\\n}\'}], \'isError\': False}}'
+[15:10:22.779]     MCP >>> search_by_schlagwort({"schlagwort": "Wiedereinsetzung in den vorigen Stand", "limit": 5})
+[15:10:22.790]     MCP <<< search_ogh_rechtssaetze ok=True 11.3ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [\\n    {\\n      "rs_number": "JWR_2024090088_20250312L02",\\n      "rechtssatz": "Zustellschein als öffentliche Urkunde; Gegenbeweis mit konkreten Darlegungen",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "schlagworte'
+[15:10:22.791]     MCP >>> hot_rs_lookup({"rs_number": "RS0040429", "te_limit": 5})
+[15:10:22.794]     MCP <<< search_by_schlagwort ok=True 14.99ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Wiedereinsetzung in den vorigen Stand",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1990160163_19901025X02",\\n      "kernaussage": "Nicht übenspannte Anforderungen an Wiedereinsetzung (AVG § 71)",\\n      "rechtsgeb'
+[15:10:22.795]     MCP >>> search_by_paragraph({"paragraph": "§ 292 ZPO", "limit": 5})
+[15:10:23.157]     MCP <<< hot_rs_lookup ok=True 366.7ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0040429"\\n}\'}], \'isError\': False}}'
+[15:10:23.158]   WORKER Beweiskraft des Zustellscheins als öffentliche Urkunde (§292 ZPO) step=3/8
+[15:10:23.159] >>> API google/gemini-3-flash-preview msgs=15 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Beweiskraft des Zustellscheins als ffentliche Urkunde (292 ZPO)
+[15:10:23.170]     MCP <<< search_by_paragraph ok=True 375.08ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 292 ZPO",\\n  "results": [\\n    {\\n      "rs_number": "RS0130497",\\n      "kernaussage": "Der Prüfbericht der Österreichischen Nationalbank ist keine öffentliche Urkunde iSd § 292 ZPO.  Dieser dient als (etwa nach Part'
+[15:10:23.171]     MCP >>> get_rechtssatz({"rs_number": "RS0044202"})
+[15:10:23.179]     MCP <<< get_rechtssatz ok=True 7.77ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0044202",\\n  "rechtssatz": "Es liegt eine abändernde Entscheidung vor, wenn das Erstgericht den Wiedereinsetzungsantrag mangels der Voraussetzungen des § 146 ZPO abwies und das Rekursgericht den Besc'
+[15:10:23.179]   WORKER Abwehr von Wiedereinsetzungsantrag gem. §146 ZPO – Verschulden & auffallende Sorglosigkeit step=3/8
+[15:10:23.179] >>> API google/gemini-3-flash-preview msgs=14 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Abwehr von Wiedereinsetzungsantrag gem. 146 ZPO  Verschulden & auffallende Sorglosigkeit
+[15:10:23.505] <<< API google/gemini-3-flash-preview 1974ms finish=tool_calls tool_calls=4 text=''
+[15:10:23.506]     MCP >>> search_ogh_rechtssaetze({"query": "Hinterlegung ZustG Ortsabwesenheit Beweislast", "limit": 5})
+[15:10:23.520]     MCP <<< search_ogh_rechtssaetze ok=True 13.51ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Hinterlegung ZustG Ortsabwesenheit Beweislast"\\n}\'}], \'isError\': False}}'
+[15:10:23.520]     MCP >>> search_ogh_rechtssaetze({"query": "Zustellschein öffentliche Urkunde 292 ZPO Gegenbeweis", "limit": 5})
+[15:10:23.528]     MCP <<< search_ogh_rechtssaetze ok=True 8.24ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Zustellschein öffentliche Urkunde 292 ZPO Gegenbeweis"\\n}\'}], \'isError\': False}}'
+[15:10:23.529]     MCP >>> search_ogh_rechtssaetze({"query": "Hinterlegung ZustG Pensionist Alter Ortsabwesenheit", "limit": 5})
+[15:10:23.537]     MCP <<< search_ogh_rechtssaetze ok=True 7.92ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Hinterlegung ZustG Pensionist Alter Ortsabwesenheit"\\n}\'}], \'isError\': False}}'
+[15:10:23.537]     MCP >>> hot_rs_lookup({"rs_number": "RS0037089", "te_limit": 5})
+[15:10:23.553]     MCP <<< hot_rs_lookup ok=True 15.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0037089",\\n    "rechtssatz_text": "Die Inhaltskontrolle gemäß § 879 ABGB geht der Geltungskontrolle nach § 864a ABGB nach.",\\n    "te_count": 52,\\n    "gericht": "OGH",\\n    "is_cluster_'
+[15:10:23.554]   WORKER Hinterlegungszustellung gem. §17 ZustG – Wirksamkeit prüfen step=3/8
+[15:10:23.555] >>> API google/gemini-3-flash-preview msgs=19 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Hinterlegungszustellung gem. 17 ZustG  Wirksamkeit prfen
+[15:10:25.127] <<< API google/gemini-3-flash-preview 1948ms finish=tool_calls tool_calls=4 text=''
+[15:10:25.127]     MCP >>> search_ogh_rechtssaetze({"query": "Wiedereinsetzung auffallende Sorglosigkeit Definition", "limit": 5})
+[15:10:25.133]     MCP <<< search_ogh_rechtssaetze ok=True 6.14ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Wiedereinsetzung auffallende Sorglosigkeit Definition"\\n}\'}], \'isError\': False}}'
+[15:10:25.134]     MCP >>> search_ogh_rechtssaetze({"query": "Zustellschein Beweiskraft Gegenbeweis", "limit": 5})
+[15:10:25.138]     MCP <<< search_ogh_rechtssaetze ok=True 4.18ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Zustellschein Beweiskraft Gegenbeweis"\\n}\'}], \'isError\': False}}'
+[15:10:25.138]     MCP >>> search_by_schlagwort({"schlagwort": "Hinterlegung", "limit": 5})
+[15:10:25.148]     MCP <<< search_by_schlagwort ok=True 10.19ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Hinterlegung",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2009020269_20100423X01",\\n      "kernaussage": "Hinterlegungspflicht Bescheinigung nur bei § 45 Abs. 1 Z 4 KFG-Probefahrt",\\n      "rechtsgebiet": "Verwalt'
+[15:10:25.149]     MCP >>> search_by_schlagwort({"schlagwort": "Ortsabwesenheit", "limit": 5})
+[15:10:25.168]     MCP <<< search_by_schlagwort ok=True 19.3ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Ortsabwesenheit",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2012060094_20121219X01",\\n      "kernaussage": "Beweiskraft des Zustellnachweises und Gegenbeweis",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "s'
+[15:10:25.169]   WORKER Abwehr von Wiedereinsetzungsantrag gem. §146 ZPO – Verschulden & auffallende Sorglosigkeit step=4/8
+[15:10:25.169] >>> API google/gemini-3-flash-preview msgs=21 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Abwehr von Wiedereinsetzungsantrag gem. 146 ZPO  Verschulden & auffallende Sorglosigkeit
+[15:10:25.452] <<< API google/gemini-3-flash-preview 2293ms finish=tool_calls tool_calls=4 text=''
+[15:10:25.453]     MCP >>> hot_rs_lookup({"rs_number": "RS0036458", "te_limit": 10})
+[15:10:25.473]     MCP <<< hot_rs_lookup ok=True 19.99ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0036458",\\n    "rechtssatz_text": "Zustellung der Ladung zur ersten Tagsatzung. Zustellschein als öffentliche Urkunde - Beweislast für den Gegenbeweis.",\\n    "te_count": 4,\\n    "gerich'
+[15:10:25.474]     MCP >>> get_rechtssatz({"rs_number": "RS0134642"})
+[15:10:25.484]     MCP <<< get_rechtssatz ok=True 9.57ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134642",\\n  "rechtssatz": "Wenn eine Partei ein Verfahren selbst einleitet und dabei eine oder mehrere Adresse(n) angibt, die von vornherein keine geeignete(n) Abgabestelle(n) im Sinn des Zustellges'
+[15:10:25.484]     MCP >>> search_by_schlagwort({"schlagwort": "Hinterlegung", "limit": 5})
+[15:10:25.501]     MCP <<< search_by_schlagwort ok=True 16.82ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Hinterlegung",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2005200480_20061123X01",\\n      "kernaussage": "Änderung der Abgabestelle durch Inhaftierung? Voraussetzungen Hinterlegung § 8 Abs. 2 ZustG",\\n      "recht'
+[15:10:25.502]     MCP >>> search_ogh_rechtssaetze({"query": "Hinterlegung Zustellung Ortsabwesenheit Beweislast", "limit": 5})
+[15:10:25.508]     MCP <<< search_ogh_rechtssaetze ok=True 6.27ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Hinterlegung Zustellung Ortsabwesenheit Beweislast"\\n}\'}], \'isError\': False}}'
+[15:10:25.508]   WORKER Beweiskraft des Zustellscheins als öffentliche Urkunde (§292 ZPO) step=4/8
+[15:10:25.509] >>> API google/gemini-3-flash-preview msgs=21 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Beweiskraft des Zustellscheins als ffentliche Urkunde (292 ZPO)
+[15:10:33.811] <<< API google/gemini-3-flash-preview 8641ms finish=stop tool_calls=0 text='In der Analyse des Falls **KOLAR gegen PFEFFER** aus Sicht der betreibenden Partei (Kolar) ergeben sich zur Abwehr eines Wiedereinsetzungsantrags und zur Wirksamkeit der Zustellung folgende zentrale rechtliche Anhaltspunkte:\n\n### 1. Beweiskraft des Zustellscheins (§ 292 ZPO)\nDer Zustellnachweis (Rüc'
+[15:10:33.811]   WORKER Abwehr von Wiedereinsetzungsantrag gem. §146 ZPO – Verschulden & auffallende Sorglosigkeit DONE steps=4 answer='In der Analyse des Falls **KOLAR gegen PFEFFER** aus Sicht der betreibenden Partei (Kolar) ergeben sich zur Abwehr eines Wiedereinsetzungsantrags und zur Wirksamkeit der Zustellung folgende zentrale r'
+[15:10:33.811]     MCP >>> hot_rs_lookup({"rs_number": "RS0130497", "te_limit": 5})
+[15:10:33.815]     MCP <<< hot_rs_lookup ok=True 3.57ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0130497"\\n}\'}], \'isError\': False}}'
+[15:10:33.815]     MCP >>> hot_rs_lookup({"rs_number": "RS0040429", "te_limit": 5})
+[15:10:33.817]     MCP <<< hot_rs_lookup ok=True 2.24ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0040429"\\n}\'}], \'isError\': False}}'
+[15:10:34.511] <<< API google/gemini-3-flash-preview 9002ms finish=stop tool_calls=0 text='Die Analyse der Rechtslage zur Beweiskraft des Zustellscheins (Rückschein) und zur Wirksamkeit der Hinterlegungszustellung im Fall Kolar gegen Pfeffer ergibt folgende Ergebnisse:\n\n### 1. Beweiskraft des Zustellscheins (§ 292 ZPO, § 22 ZustG)\nDer Zustellnachweis (Rückschein) ist eine **öffentliche Ur'
+[15:10:34.511]   WORKER Beweiskraft des Zustellscheins als öffentliche Urkunde (§292 ZPO) DONE steps=4 answer='Die Analyse der Rechtslage zur Beweiskraft des Zustellscheins (Rückschein) und zur Wirksamkeit der Hinterlegungszustellung im Fall Kolar gegen Pfeffer ergibt folgende Ergebnisse:\n\n### 1. Beweiskraft d'
+[15:10:34.513]     MCP >>> hot_rs_lookup({"rs_number": "RS0130497", "te_limit": 5})
+[15:10:34.524]     MCP <<< hot_rs_lookup ok=True 11.42ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0130497"\\n}\'}], \'isError\': False}}'
+[15:10:34.622] <<< API google/gemini-3-flash-preview 11067ms finish=stop tool_calls=0 text='In der Analyse des Falls **KOLAR gegen PFEFFER** aus Sicht der betreibenden Partei (Kolar) ergeben sich zur Wirksamkeit der Zustellung und zur Beweislage folgende zentrale Punkte:\n\n### 1. Wirksamkeit der Hinterlegungszustellung (§ 17 ZustG)\nDie Hinterlegung am 12.12.2025 gilt als Zustellung, sofern '
+[15:10:34.622]   WORKER Hinterlegungszustellung gem. §17 ZustG – Wirksamkeit prüfen DONE steps=3 answer='In der Analyse des Falls **KOLAR gegen PFEFFER** aus Sicht der betreibenden Partei (Kolar) ergeben sich zur Wirksamkeit der Zustellung und zur Beweislage folgende zentrale Punkte:\n\n### 1. Wirksamkeit '
+[15:10:34.623]     MCP >>> hot_rs_lookup({"rs_number": "RS0134642", "te_limit": 5})
+[15:10:34.632]     MCP <<< hot_rs_lookup ok=True 8.79ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0134642"\\n}\'}], \'isError\': False}}'
+[15:10:34.635] 
+============================================================
+SYNTHESIS: model=x-ai/grok-4.1-fast sys_chars=3726 usr_chars=52216 evidence_chunks=3
+[15:10:34.777] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=6000 title=legalchat-agentic-synthesis
+[15:11:13.653] <<< API x-ai/grok-4.1-fast 38876ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Hinterlegungszustellung (§ 17 ZustG)**: Die RSb-Hinterlegung am 12.12.2025 (retourniert 30.12.2025) löst die Einspruchsfrist aus, da Abholfrist ablief und keine Ortsabwesenheit der pensionierten Beklagten (geb. 07.01.1940) die Voraussetzungen des § 17 ZustG aus'
+[15:11:13.654]   SYNTHESIS DONE 38876ms answer_chars=7059 max_tokens=6000
+[15:11:13.666] 
+============================================================
+SYNTHESIS: model=x-ai/grok-4.1-fast sys_chars=3726 usr_chars=52216 evidence_chunks=3
+[15:11:13.668] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=6000 title=legalchat-agentic-synthesis
+[15:11:43.763] <<< API x-ai/grok-4.1-fast 30095ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Hinterlegungszustellung (§ 17 ZustG)**: Die RSb-Hinterlegung am 12.12.2025 (retourniert 30.12.2025) löst die Einspruchsfrist aus, da Abholfrist ablief und keine Ortsabwesenheit der pensionierten Beklagten (geb. 07.01.1940) die Voraussetzungen des § 17 Abs 3 Zus'
+[15:11:43.763]   SYNTHESIS DONE 30095ms answer_chars=6661 max_tokens=6000
+[15:11:43.763] AGENT best-of-2: A=23.2 (3 RS) B=24.2 (3 RS)
+[15:11:43.763] AGENT best-of-2: picked B
+[15:11:43.763] AGENT RS enrichment: injected 1 RS -> ['RS0037089']
+[15:11:43.763] 
+============================================================
+CITATION GATE: mode=repair answer_chars=6801
+[15:11:43.776]     MCP >>> get_rechtssatz({"rs_number": "RS0036458"})
+[15:11:43.784]     MCP <<< get_rechtssatz ok=True 7.36ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0036458",\\n  "rechtssatz": "Zustellung der Ladung zur ersten Tagsatzung. Zustellschein als öffentliche Urkunde - Beweislast für den Gegenbeweis.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Hin'
+[15:11:43.784]     MCP >>> get_rechtssatz({"rs_number": "RS0037089"})
+[15:11:43.789]     MCP <<< get_rechtssatz ok=True 5.55ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0037089",\\n  "rechtssatz": "Die Inhaltskontrolle gemäß § 879 ABGB geht der Geltungskontrolle nach § 864a ABGB nach.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Veröffentlichung",\\n    "Allgeme'
+[15:11:43.790]     MCP >>> get_rechtssatz({"rs_number": "RS0044202"})
+[15:11:43.795]     MCP <<< get_rechtssatz ok=True 5.63ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0044202",\\n  "rechtssatz": "Es liegt eine abändernde Entscheidung vor, wenn das Erstgericht den Wiedereinsetzungsantrag mangels der Voraussetzungen des § 146 ZPO abwies und das Rekursgericht den Besc'
+[15:11:43.795]     MCP >>> get_rechtssatz({"rs_number": "RS0134642"})
+[15:11:43.800]     MCP <<< get_rechtssatz ok=True 4.52ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134642",\\n  "rechtssatz": "Wenn eine Partei ein Verfahren selbst einleitet und dabei eine oder mehrere Adresse(n) angibt, die von vornherein keine geeignete(n) Abgabestelle(n) im Sinn des Zustellges'
+[15:11:43.803] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=4500 title=legalchat-agentic-citation-repair
+[15:12:16.049] <<< API x-ai/grok-4.1-fast 32246ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Hinterlegungszustellung (§ 17 ZustG)**: Die RSb-Hinterlegung am 12.12.2025 (retourniert 30.12.2025) löst die Einspruchsfrist aus, da Abholfrist ablief und keine Ortsabwesenheit der pensionierten Beklagten (geb. 07.01.1940) die Voraussetzungen des § 17 Abs 3 Zus'
+[15:12:16.050]     MCP >>> get_rechtssatz({"rs_number": "RS0036458"})
+[15:12:16.055]     MCP <<< get_rechtssatz ok=True 5.24ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0036458",\\n  "rechtssatz": "Zustellung der Ladung zur ersten Tagsatzung. Zustellschein als öffentliche Urkunde - Beweislast für den Gegenbeweis.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Hin'
+[15:12:16.056]     MCP >>> get_rechtssatz({"rs_number": "RS0037089"})
+[15:12:16.060]     MCP <<< get_rechtssatz ok=True 4.17ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0037089",\\n  "rechtssatz": "Die Inhaltskontrolle gemäß § 879 ABGB geht der Geltungskontrolle nach § 864a ABGB nach.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Veröffentlichung",\\n    "Allgeme'
+[15:12:16.060]     MCP >>> get_rechtssatz({"rs_number": "RS0044202"})
+[15:12:16.065]     MCP <<< get_rechtssatz ok=True 4.51ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0044202",\\n  "rechtssatz": "Es liegt eine abändernde Entscheidung vor, wenn das Erstgericht den Wiedereinsetzungsantrag mangels der Voraussetzungen des § 146 ZPO abwies und das Rekursgericht den Besc'
+[15:12:16.065]     MCP >>> get_rechtssatz({"rs_number": "RS0134642"})
+[15:12:16.069]     MCP <<< get_rechtssatz ok=True 3.91ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134642",\\n  "rechtssatz": "Wenn eine Partei ein Verfahren selbst einleitet und dabei eine oder mehrere Adresse(n) angibt, die von vornherein keine geeignete(n) Abgabestelle(n) im Sinn des Zustellges'
+[15:12:16.073]     MCP >>> get_rechtssatz({"rs_number": "RS0036458"})
+[15:12:16.077]     MCP <<< get_rechtssatz ok=True 3.81ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0036458",\\n  "rechtssatz": "Zustellung der Ladung zur ersten Tagsatzung. Zustellschein als öffentliche Urkunde - Beweislast für den Gegenbeweis.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Hin'
+[15:12:16.077]     MCP >>> get_rechtssatz({"rs_number": "RS0037089"})
+[15:12:16.081]     MCP <<< get_rechtssatz ok=True 4.1ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0037089",\\n  "rechtssatz": "Die Inhaltskontrolle gemäß § 879 ABGB geht der Geltungskontrolle nach § 864a ABGB nach.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Veröffentlichung",\\n    "Allgeme'
+[15:12:16.081]     MCP >>> get_rechtssatz({"rs_number": "RS0044202"})
+[15:12:16.085]     MCP <<< get_rechtssatz ok=True 3.98ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0044202",\\n  "rechtssatz": "Es liegt eine abändernde Entscheidung vor, wenn das Erstgericht den Wiedereinsetzungsantrag mangels der Voraussetzungen des § 146 ZPO abwies und das Rekursgericht den Besc'
+[15:12:16.085]     MCP >>> get_rechtssatz({"rs_number": "RS0134642"})
+[15:12:16.089]     MCP <<< get_rechtssatz ok=True 3.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0134642",\\n  "rechtssatz": "Wenn eine Partei ein Verfahren selbst einleitet und dabei eine oder mehrere Adresse(n) angibt, die von vornherein keine geeignete(n) Abgabestelle(n) im Sinn des Zustellges'
+[15:12:16.091]   CITATION GATE result: applied=True answer_chars=5329
+[15:12:16.093] AGENT Phase 1: DEEP ANALYSIS done in 127895.13ms
+[15:12:16.093] AGENT Phase 2: STRATEGIC RESPONSE start
+[15:12:16.093] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=4000 title=legalchat-agent-response
+[15:12:41.802] <<< API x-ai/grok-4.1-fast 25708ms finish=stop tool_calls=0 text='# STRATEGISCHE ANALYSE: FALL KOLAR GEGEN PFEFFER (GZ 3 Cg 165/25v)\n\n**Aus Sicht der betreibenden Partei (Peter Kolar)** | **Stand: 28.01.2026** | **Vollstreckbarer Titel: Zahlungsbefehl EUR 25.000,00 s.A. + Zinsen 4% p.a. seit 01.04.2025 + Kosten EUR 3.586,08** | **Exekution: Bewilligt 28.01.2026 (F'
+[15:12:41.804] AGENT Phase 2: RESPONSE done in 25711.18ms
+[15:12:43.392] === VERBOSE TRACE END === elapsed_ms=174973.36

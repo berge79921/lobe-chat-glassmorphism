@@ -1,0 +1,60 @@
+{
+  "deadlines": [
+    {
+      "date": "06.05.2026",
+      "type": "Klageerhebungsfrist gegen Bescheid",
+      "source": "§ 60 ASGG",
+      "days_remaining": 68
+    }
+  ],
+  "urgency": "HIGH",
+  "urgency_reason": "Frisch eingebrachte Klage gegen Ablehnung Invaliditätspension und Rehabilitationsgeld; dringende Prüfung von Berufsschutz (§ 255 ASVG), Verweisbarkeit und qualifizierten Monaten vor Klageerwiderung oder Gerichtstermin.",
+  "silent_risks": [
+    {
+      "risk": "Untätigkeit im Klageverfahren",
+      "consequence": "Abweisung der Klage, Rechtskraft des Bescheids, dauerhafter Verlust des Anspruchs auf Invaliditätspension und Rehabilitationsgeld."
+    },
+    {
+      "risk": "Versäumnis der Prüfung von Versicherungsdaten",
+      "consequence": "Fehlende Nachweis qualifizierter Monate, Verlust Berufsschutzes, Anerkennung Verweisbarkeit."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Überwiegen qualifizierte Pflichtversicherungsmonate (90 Monate in 15-Jahres-Rahmen)?",
+      "options": [
+        "Ja: Berufsschutz nach § 255 Abs. 2 ASVG greift",
+        "Nein: Fällt unter § 255 Abs. 1 ASVG, Verweisbarkeit prüfen"
+      ]
+    },
+    {
+      "question": "Zumutbare Verweisung in ähnliches Umfeld möglich?",
+      "options": [
+        "Ja: Keine Invalidität (Lohnhälfte-Massstab § 255 Abs. 3)",
+        "Nein: Invalidität vorliegend"
+      ]
+    },
+    {
+      "question": "Anrechnung Krankengeld oder Rehabilitationsgeld?",
+      "options": [
+        "Berufliche Kausalität: Max. 24 Monate anrechnen § 255 Abs. 4",
+        "Vorübergehende Invalidität: Reha-Geld § 143a ASVG"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "Qualifizierte Monate (post-Lehrzeit) überwiegen",
+      "then": "Berufsschutz strikt, Verweisung nur bei identischen Teilfähigkeiten (RS: VwGH/RS 2005/04/0010 zu § 255 Abs. 2)"
+    },
+    {
+      "if": "Unqualifizierte Monate überwiegen",
+      "then": "Verweisbarkeit auf Lohnhälfte, ähnliches Umfeld erforderlich (TE: OGH 10ObS123/18k zu § 255 Abs. 3)"
+    },
+    {
+      "if": "Vorübergehende Invalidität nachgewiesen",
+      "then": "Rehabilitationsgeld möglich, kein Stichtag (RS: VwGH 2019/04/0152 zu § 143a ASVG)"
+    }
+  ],
+  "response_type_hint": "recommendation"
+}

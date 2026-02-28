@@ -1,0 +1,358 @@
+[14:44:46.294] === VERBOSE TRACE START === mode=agent query='Fasse den Fall CARMEN als strategische anwaltliche Ersteinschaetzung zusammen: welche 2-3 Rechtsfragen sind entscheidend'
+[14:44:46.294]   mcp_mode=local_http model_profile=default
+[14:44:46.294]   context_files=['/Users/reinhardberger/HCS/_TEST CASES Super Ris/CARMEN/FALLUEBERSICHT.md', '/Users/reinhardberger/HCS/_TEST CASES Super Ris/CARMEN/CASE_DATA.json']
+[14:44:46.294] AGENT Phase 0: TRIAGE start
+[14:44:46.295] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=1500 title=legalchat-agent-triage
+[14:45:12.334] <<< API x-ai/grok-4.1-fast 26039ms finish=stop tool_calls=0 text='{\n  "deadlines": [],\n  "urgency": "HIGH",\n  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i) gegen AMS-Leistungen ab 23.12.2025; Anträge (§7 Abs3, §40, §42 EO) erst kürzlich eingebracht (26.02.2026), drohender Vollzug trotz unwirksamer Zustellung und Überbefriedigung.",\n  "silent'
+[14:45:12.334] AGENT Phase 0: TRIAGE done in 26040.5ms — urgency=HIGH
+[14:45:12.335] AGENT Phase 1: DEEP ANALYSIS start
+[14:45:12.340] 
+============================================================
+ORGANIZER: model=qwen/qwen3-coder-next query='Fasse den Fall CARMEN als strategische anwaltliche Ersteinschaetzung zusammen: welche 2-3 Rechtsfragen sind entscheidend'
+[14:45:12.340]   sys_prompt chars=720 usr_prompt chars=4360
+[14:45:12.492] >>> API qwen/qwen3-coder-next msgs=2 tools=0 max_tok=800 title=legalchat-agentic-organizer
+[14:45:24.430] <<< API qwen/qwen3-coder-next 11938ms finish=stop tool_calls=0 text='{\n  "workstreams": [\n    {\n      "name": "Strategische Rechtsfragen & Akzessorietät in Insolvenz",\n      "goal": "Klärung, ob die Bürgschaft mit Erlöschen der Hauptschuld (§ 14 IO) erloschen ist und ob die spätere Exekution gegen die Bürgschaftswährin widersrechtlich ist (§ 7 Abs 3 EO, § 40 EO, § 42'
+[14:45:24.436]     MCP >>> search_by_paragraph({"paragraph": "§ 6 KSchG", "limit": 8})
+[14:45:24.436]     MCP >>> search_by_paragraph({"paragraph": "§ 9 KSchG", "limit": 8})
+[14:45:24.437]     MCP >>> search_by_paragraph({"paragraph": "§ 25c KSchG", "limit": 8})
+[14:45:24.437]     MCP >>> search_by_paragraph({"paragraph": "§ 25d KSchG", "limit": 8})
+[14:45:24.437]     MCP >>> search_by_paragraph({"paragraph": "§ 14 IO", "limit": 8})
+[14:45:24.438]     MCP >>> search_by_schlagwort({"schlagwort": "Konsumentenschutz", "limit": 8})
+[14:45:24.438]     MCP >>> search_by_schlagwort({"schlagwort": "Insolvenzrecht", "limit": 8})
+[14:45:24.438]     MCP >>> search_by_schlagwort({"schlagwort": "Exekution", "limit": 8})
+[14:45:24.438]     MCP >>> search_ogh_rechtssaetze({"query": "Fasse den CARMEN als strategische anwaltliche", "limit": 8})
+[14:45:24.439]     MCP >>> build_grounding_context({"topic": "mehrpersonal", "query": "Fasse den CARMEN als strategische anwaltliche Ersteinschätzung zusammen welche Rechtsfragen sind entscheidend", "max_clusters": 2, "max_tokens": 1200})
+[14:45:24.908]     MCP <<< search_by_schlagwort ok=True 469.99ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Konsumentenschutz",\\n  "results": [\\n    {\\n      "rs_number": "RS0048335",\\n      "kernaussage": "Beim Kaufvertrag entstammt die Pflicht zur Aufklärung über mögliche Gefahren der schon vor Vertragsabschluss bestehende'
+[14:45:24.908]     MCP >>> detect_clusters({"topic": "mehrpersonal", "query": "Fasse den CARMEN als strategische anwaltliche Ersteinschätzung zusammen welche Rechtsfragen sind entscheidend"})
+[14:45:25.410]     MCP <<< search_by_paragraph ok=True 973.47ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 6 KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0110990",\\n      "kernaussage": "Die §§ 28, 29 KSchG begründen einen materiellrechtlichen Anspruch auf Unterlassung der Verwendung von gesetzwidrigen oder sitten'
+[14:45:25.410]     MCP >>> search_lehrbuch({"query": "Konsumentenschutz Insolvenzrecht", "limit": 5, "rechtsgebiet": "MEHRPERSONAL"})
+[14:45:25.724]     MCP <<< search_by_schlagwort ok=True 1285.42ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Insolvenzrecht",\\n  "results": [\\n    {\\n      "rs_number": "RS0106407",\\n      "kernaussage": "Nicht nur bei Leistungsklagen, sondern auch bei positiven und negativen Feststellungsklagen sowie auch bei Rechtsgestaltun'
+[14:45:25.724]     MCP >>> search_by_paragraph({"paragraph": "§14 IO", "limit": 8})
+[14:45:26.471]     MCP <<< search_by_paragraph ok=True 2033.5ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25d KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0113936",\\n      "kernaussage": "§ 25d KSchG ist auch im Verhältnis zwischen einer juristischen Person öffentlichen Rechts und einem Verbraucher in Ansehung ei'
+[14:45:26.471]     MCP >>> search_by_paragraph({"paragraph": "§7 Abs 3 EO", "limit": 8})
+[14:45:26.476]     MCP <<< search_by_paragraph ok=True 2039.63ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25c KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0120255",\\n      "kernaussage": "Eine Aufklärungsobliegenheit im Sinn des § 25c KSchG besteht dann nicht, wenn der Interzedent selbst die Kreditverhandlungen f'
+[14:45:26.477]     MCP >>> search_by_paragraph({"paragraph": "§25c KSchG", "limit": 8})
+[14:45:26.477]     MCP <<< search_by_paragraph ok=True 2039.35ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 14 IO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:26.477]     MCP >>> search_by_paragraph({"paragraph": "§40 EO", "limit": 8})
+[14:45:26.861]     MCP <<< search_by_paragraph ok=True 2424.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 9 KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0134869",\\n      "kernaussage": "Nur beim Kauf vom gewerblichen Kraftfahrzeughändler ist die Verkehrs- und Betriebssicherheit im Regelfall auch schlüssig zugesic'
+[14:45:26.862]     MCP >>> search_by_paragraph({"paragraph": "§35 EO", "limit": 8})
+[14:45:27.613]     MCP <<< search_by_schlagwort ok=True 3174.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "schlagwort": "Exekution",\\n  "results": [\\n    {\\n      "rs_number": "RS0125576",\\n      "kernaussage": "Das aus Art 12 EG (Art 18 AEUV) resultierende Diskriminierungsverbot ist als Teil des Gemeinschaftsrechts, das als Rechtsordnun'
+[14:45:27.614]     MCP >>> search_by_paragraph({"paragraph": "§42 EO", "limit": 8})
+[14:45:28.316]     MCP <<< search_ogh_rechtssaetze ok=True 3877.65ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Fasse den CARMEN als strategische anwaltliche"\\n}\'}], \'isError\': False}}'
+[14:45:28.670]     MCP <<< build_grounding_context ok=True 4231.22ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Unknown tool: build_grounding_context'}], 'isError': False}}"
+[14:45:28.672]     MCP <<< detect_clusters ok=True 3763.04ms preview="{'ok': True, 'result': {'content': [{'type': 'text', 'text': 'Unknown tool: detect_clusters'}], 'isError': False}}"
+[14:45:28.675]     MCP <<< search_lehrbuch ok=True 3264.88ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Konsumentenschutz Insolvenzrecht",\\n  "rechtsgebiet": "MEHRPERSONAL",\\n  "werk": null,\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:28.678]     MCP <<< search_by_paragraph ok=True 2953.04ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§14 IO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:28.678]     MCP <<< search_by_paragraph ok=True 2207.51ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§7 Abs 3 EO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:28.680]     MCP <<< search_by_paragraph ok=True 2202.62ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§40 EO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:28.681]     MCP <<< search_by_paragraph ok=True 2203.92ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§25c KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0116696",\\n      "kernaussage": "Gegenüber dem Komplementär und Geschäftsführer einer Kommanditgesellschaft besteht anlässlich dessen Bürgschaftserklärung für S'
+[14:45:28.683]     MCP <<< search_by_paragraph ok=True 1820.91ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§35 EO",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1987070030_19880323X04",\\n      "kernaussage": "Einwendungen §35 EO auf Tatsachen vor Titel bei fehlender Gelegenheit",\\n      "schlagworte": [\\n        "Einwendu'
+[14:45:28.683]     MCP <<< search_by_paragraph ok=True 1069.58ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§42 EO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:28.685] 
+============================================================
+WORKER START: Strategische Rechtsfragen & Akzessorietät in Insolvenz tools=['search_ogh_rechtssaetze', 'search_ogh_entscheidungen', 'get_rechtssatz', 'search_by_paragraph', 'search_by_schlagwort', 'hot_rs_lookup']
+[14:45:28.685]   WORKER Strategische Rechtsfragen & Akzessorietät in Insolvenz step=1/8
+[14:45:28.694] 
+============================================================
+WORKER START: Präklusion & Zustellungsfehler als Exekutionshindernis tools=['hot_rs_search', 'hot_cluster_context', 'hot_rs_lookup', 'search_by_paragraph', 'search_by_schlagwort', 'search_ogh_rechtssaetze', 'get_rechtssatz']
+[14:45:28.694] 
+============================================================
+WORKER START: Interzession & Überbefriedigung im Insolvenzkontext tools=['build_grounding_context', 'detect_clusters', 'ask_gemini_zivilrecht', 'search_kommentar_paragraph', 'search_kommentar_keyword', 'search_by_paragraph', 'search_by_schlagwort', 'search_ogh_rechtssaetze', 'get_rechtssatz', 'hot_rs_lookup']
+[14:45:28.694]   WORKER Präklusion & Zustellungsfehler als Exekutionshindernis step=1/8
+[14:45:28.694]   WORKER Interzession & Überbefriedigung im Insolvenzkontext step=1/8
+[14:45:28.863] >>> API google/gemini-3-flash-preview msgs=2 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Interzession & berbefriedigung im Insolvenzkontext
+[14:45:28.876] >>> API google/gemini-3-flash-preview msgs=2 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Prklusion & Zustellungsfehler als Exekutionshindernis
+[14:45:28.885] >>> API google/gemini-3-flash-preview msgs=2 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Strategische Rechtsfragen & Akzessoriett in Insolvenz
+[14:45:31.388] <<< API google/gemini-3-flash-preview 2502ms finish=tool_calls tool_calls=10 text=''
+[14:45:31.388]     MCP >>> get_rechtssatz({"rs_number": "RS0000180"})
+[14:45:31.392]     MCP <<< get_rechtssatz ok=True 4.04ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0000180",\\n  "rechtssatz": "Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag entscheidende Exekutio'
+[14:45:31.392]     MCP >>> get_rechtssatz({"rs_number": "RS0001544"})
+[14:45:31.396]     MCP <<< get_rechtssatz ok=True 3.34ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001544",\\n  "rechtssatz": "Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; deshalb liegt eine irrt'
+[14:45:31.396]     MCP >>> get_rechtssatz({"rs_number": "RS0001557"})
+[14:45:31.399]     MCP <<< get_rechtssatz ok=True 3.47ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001557",\\n  "rechtssatz": "Das Verfahren nach § 7 Abs 3 EO ist nach den für das Titelverfahren bestehenden Vorschriften durchzuführen. In diesem Verfahren sind auch allenfalls strittige, nicht akten'
+[14:45:31.399]     MCP >>> get_rechtssatz({"rs_number": "RS0001566"})
+[14:45:31.403]     MCP <<< get_rechtssatz ok=True 3.12ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001566",\\n  "rechtssatz": "Es kommt nach § 7 Abs 3 EO nur darauf an, ob die Vollstreckbarkeitsbestätigung gesetzwidrig oder irrtümlich erteilt worden ist, nicht aber darauf, ob und von welchem Geric'
+[14:45:31.403]     MCP >>> get_rechtssatz({"rs_number": "RS0001582"})
+[14:45:31.406]     MCP <<< get_rechtssatz ok=True 3.02ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001582",\\n  "rechtssatz": "Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch für eine (durch abä'
+[14:45:31.406]     MCP >>> get_rechtssatz({"rs_number": "RS0032137"})
+[14:45:31.409]     MCP <<< get_rechtssatz ok=True 3.38ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032137",\\n  "rechtssatz": "Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessorität. Auch die Schuld'
+[14:45:31.409]     MCP >>> get_rechtssatz({"rs_number": "RS0032169"})
+[14:45:31.411] <<< API google/gemini-3-flash-preview 2535ms finish=tool_calls tool_calls=10 text=''
+[14:45:31.411]     MCP >>> get_rechtssatz({"rs_number": "RS0000180"})
+[14:45:31.414]     MCP <<< get_rechtssatz ok=True 4.48ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032169",\\n  "rechtssatz": "Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Bürgschaft",'
+[14:45:31.414]     MCP >>> get_rechtssatz({"rs_number": "RS0034598"})
+[14:45:31.415]     MCP <<< get_rechtssatz ok=True 4.28ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0000180",\\n  "rechtssatz": "Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag entscheidende Exekutio'
+[14:45:31.415]     MCP >>> get_rechtssatz({"rs_number": "RS0001544"})
+[14:45:31.418]     MCP <<< get_rechtssatz ok=True 4.23ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0034598",\\n  "rechtssatz": "Die Unterbrechung der Verjährung wirkt nur zwischen jenen Personen, zwischen denen der die Unterbrechung begründende Tatbestand gesetzt worden ist (Anschluß im Strafverfah'
+[14:45:31.418]     MCP >>> get_rechtssatz({"rs_number": "RS0058309"})
+[14:45:31.419]     MCP <<< get_rechtssatz ok=True 4.15ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001544",\\n  "rechtssatz": "Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; deshalb liegt eine irrt'
+[14:45:31.420]     MCP >>> get_rechtssatz({"rs_number": "RS0001557"})
+[14:45:31.423]     MCP <<< get_rechtssatz ok=True 4.41ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0058309",\\n  "rechtssatz": "§ 7 Abs 3 EO dient dazu, durch Aufhebung der Vollstreckbarkeitsbestätigung die Bewilligung einer Exekution auf Grund einer mit dieser Bestätigung versehenen Ausfertigung d'
+[14:45:31.423]     MCP >>> get_rechtssatz({"rs_number": "RS0121054"})
+[14:45:31.424]     MCP <<< get_rechtssatz ok=True 4.34ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001557",\\n  "rechtssatz": "Das Verfahren nach § 7 Abs 3 EO ist nach den für das Titelverfahren bestehenden Vorschriften durchzuführen. In diesem Verfahren sind auch allenfalls strittige, nicht akten'
+[14:45:31.424]     MCP >>> get_rechtssatz({"rs_number": "RS0001566"})
+[14:45:31.427]     MCP <<< get_rechtssatz ok=True 3.86ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0121054",\\n  "rechtssatz": "Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung b'
+[14:45:31.427]   WORKER Strategische Rechtsfragen & Akzessorietät in Insolvenz step=2/8
+[14:45:31.427] >>> API google/gemini-3-flash-preview msgs=13 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Strategische Rechtsfragen & Akzessoriett in Insolvenz
+[14:45:31.431]     MCP <<< get_rechtssatz ok=True 6.84ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001566",\\n  "rechtssatz": "Es kommt nach § 7 Abs 3 EO nur darauf an, ob die Vollstreckbarkeitsbestätigung gesetzwidrig oder irrtümlich erteilt worden ist, nicht aber darauf, ob und von welchem Geric'
+[14:45:31.431]     MCP >>> get_rechtssatz({"rs_number": "RS0001582"})
+[14:45:31.435]     MCP <<< get_rechtssatz ok=True 3.58ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001582",\\n  "rechtssatz": "Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch für eine (durch abä'
+[14:45:31.435]     MCP >>> get_rechtssatz({"rs_number": "RS0032137"})
+[14:45:31.438]     MCP <<< get_rechtssatz ok=True 3.56ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032137",\\n  "rechtssatz": "Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessorität. Auch die Schuld'
+[14:45:31.438]     MCP >>> get_rechtssatz({"rs_number": "RS0032169"})
+[14:45:31.441]     MCP <<< get_rechtssatz ok=True 2.88ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032169",\\n  "rechtssatz": "Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Bürgschaft",'
+[14:45:31.442]     MCP >>> get_rechtssatz({"rs_number": "RS0034598"})
+[14:45:31.445]     MCP <<< get_rechtssatz ok=True 3.04ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0034598",\\n  "rechtssatz": "Die Unterbrechung der Verjährung wirkt nur zwischen jenen Personen, zwischen denen der die Unterbrechung begründende Tatbestand gesetzt worden ist (Anschluß im Strafverfah'
+[14:45:31.445]     MCP >>> get_rechtssatz({"rs_number": "RS0058309"})
+[14:45:31.448]     MCP <<< get_rechtssatz ok=True 3.35ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0058309",\\n  "rechtssatz": "§ 7 Abs 3 EO dient dazu, durch Aufhebung der Vollstreckbarkeitsbestätigung die Bewilligung einer Exekution auf Grund einer mit dieser Bestätigung versehenen Ausfertigung d'
+[14:45:31.448]     MCP >>> get_rechtssatz({"rs_number": "RS0121054"})
+[14:45:31.451]     MCP <<< get_rechtssatz ok=True 2.78ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0121054",\\n  "rechtssatz": "Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung b'
+[14:45:31.451]   WORKER Präklusion & Zustellungsfehler als Exekutionshindernis step=2/8
+[14:45:31.451] >>> API google/gemini-3-flash-preview msgs=13 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Prklusion & Zustellungsfehler als Exekutionshindernis
+[14:45:31.665] <<< API google/gemini-3-flash-preview 2801ms finish=tool_calls tool_calls=10 text=''
+[14:45:31.666]     MCP >>> hot_rs_lookup({"rs_number": "RS0000180", "te_limit": 5})
+[14:45:31.686]     MCP <<< hot_rs_lookup ok=True 20.43ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0000180",\\n    "rechtssatz_text": "Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag en'
+[14:45:31.687]     MCP >>> hot_rs_lookup({"rs_number": "RS0001544", "te_limit": 5})
+[14:45:31.697]     MCP <<< hot_rs_lookup ok=True 9.71ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0001544",\\n    "rechtssatz_text": "Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; des'
+[14:45:31.697]     MCP >>> hot_rs_lookup({"rs_number": "RS0001557", "te_limit": 5})
+[14:45:31.702]     MCP <<< hot_rs_lookup ok=True 4.88ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0001557"\\n}\'}], \'isError\': False}}'
+[14:45:31.702]     MCP >>> hot_rs_lookup({"rs_number": "RS0001566", "te_limit": 5})
+[14:45:31.707]     MCP <<< hot_rs_lookup ok=True 4.5ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0001566"\\n}\'}], \'isError\': False}}'
+[14:45:31.707]     MCP >>> hot_rs_lookup({"rs_number": "RS0001582", "te_limit": 5})
+[14:45:31.715]     MCP <<< hot_rs_lookup ok=True 7.63ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0001582",\\n    "rechtssatz_text": "Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch'
+[14:45:31.715]     MCP >>> hot_rs_lookup({"rs_number": "RS0032137", "te_limit": 5})
+[14:45:31.722]     MCP <<< hot_rs_lookup ok=True 7.01ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0032137",\\n    "rechtssatz_text": "Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessori'
+[14:45:31.723]     MCP >>> hot_rs_lookup({"rs_number": "RS0032169", "te_limit": 5})
+[14:45:31.729]     MCP <<< hot_rs_lookup ok=True 6.46ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0032169",\\n    "rechtssatz_text": "Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.",\\n    "te_count": 3,\\n    "gericht": "OGH"'
+[14:45:31.730]     MCP >>> hot_rs_lookup({"rs_number": "RS0034598", "te_limit": 5})
+[14:45:31.733]     MCP <<< hot_rs_lookup ok=True 3.9ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0034598"\\n}\'}], \'isError\': False}}'
+[14:45:31.734]     MCP >>> hot_rs_lookup({"rs_number": "RS0058309", "te_limit": 5})
+[14:45:31.737]     MCP <<< hot_rs_lookup ok=True 3.61ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0058309"\\n}\'}], \'isError\': False}}'
+[14:45:31.738]     MCP >>> hot_rs_lookup({"rs_number": "RS0121054", "te_limit": 5})
+[14:45:31.743]     MCP <<< hot_rs_lookup ok=True 5.13ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0121054",\\n    "rechtssatz_text": "Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgesta'
+[14:45:31.743]   WORKER Interzession & Überbefriedigung im Insolvenzkontext step=2/8
+[14:45:31.744] >>> API google/gemini-3-flash-preview msgs=17 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Interzession & berbefriedigung im Insolvenzkontext
+[14:45:33.603] <<< API google/gemini-3-flash-preview 2175ms finish=tool_calls tool_calls=6 text=''
+[14:45:33.604]     MCP >>> search_by_paragraph({"paragraph": "§ 14 IO", "limit": 5})
+[14:45:33.733] <<< API google/gemini-3-flash-preview 2281ms finish=tool_calls tool_calls=7 text=''
+[14:45:33.734]     MCP >>> search_by_paragraph({"paragraph": "§ 17 ZustG", "limit": 5})
+[14:45:34.052]     MCP <<< search_by_paragraph ok=True 447.34ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 14 IO",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:34.053]     MCP >>> search_by_paragraph({"paragraph": "§ 35 EO", "limit": 5})
+[14:45:34.058]     MCP <<< search_by_paragraph ok=True 323.71ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 17 ZustG",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1994090248_19950119X02",\\n      "kernaussage": "Abgrenzung vorübergehender Abwesenheit bei Zustellung § 17 ZustG",\\n      "schlagworte": [\\n        "Zustellun'
+[14:45:34.058]     MCP >>> search_by_paragraph({"paragraph": "§ 18c ZustG", "limit": 5})
+[14:45:34.405] <<< API google/gemini-3-flash-preview 2661ms finish=tool_calls tool_calls=7 text=''
+[14:45:34.405]     MCP >>> search_by_paragraph({"paragraph": "§ 35 EO", "limit": 5})
+[14:45:34.509]     MCP <<< search_by_paragraph ok=True 455.98ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 35 EO",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1992100442_19930426X02",\\n      "kernaussage": "Exekutionsbewilligung erlischt nicht durch aufsch. Wirkung; keine § 35 EO-Einwendung",\\n      "schlagworte": [\\n '
+[14:45:34.509]     MCP >>> search_by_paragraph({"paragraph": "§ 40 EO", "limit": 5})
+[14:45:34.592]     MCP <<< search_by_paragraph ok=True 533.34ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 18c ZustG",\\n  "results": [],\\n  "count": 0\\n}\'}], \'isError\': False}}'
+[14:45:34.592]     MCP >>> search_by_paragraph({"paragraph": "§ 35 EO", "limit": 5})
+[14:45:34.713]     MCP <<< search_by_paragraph ok=True 307.97ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 35 EO",\\n  "results": [\\n    {\\n      "rs_number": "JWR_2003070124_20041118X08",\\n      "kernaussage": "Einwendungen § 35 EO auf vor Titel entstandene Tatsachen bei fehlender Möglichkeit",\\n      "schlagworte": [\\n   '
+[14:45:34.714]     MCP >>> search_by_paragraph({"paragraph": "§ 7 EO", "limit": 5})
+[14:45:34.722]     MCP <<< search_by_paragraph ok=True 212.4ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 40 EO",\\n  "results": [\\n    {\\n      "rs_number": "RSA0000056",\\n      "kernaussage": "Der Einwand des Verpflichteten, dass die betriebene Forderung verjährt sei, kann nicht als Oppositionsgesuch (§ 40 EO) gewertet w'
+[14:45:34.723]     MCP >>> search_by_paragraph({"paragraph": "§ 42 EO", "limit": 5})
+[14:45:34.809]     MCP <<< search_by_paragraph ok=True 216.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 35 EO",\\n  "results": [\\n    {\\n      "rs_number": "RS0001368",\\n      "kernaussage": "Der Nichteintritt einer auflösenden Bedingung, an die der Bestand der vollstreckbaren Forderung geknüpft ist, ist nicht iS des § 7'
+[14:45:34.810]     MCP >>> search_by_paragraph({"paragraph": "§ 40 EO", "limit": 5})
+[14:45:35.157]     MCP <<< search_by_paragraph ok=True 442.58ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 7 EO",\\n  "results": [\\n    {\\n      "rs_number": "RS0001452",\\n      "kernaussage": "Wer einen Anspruch auf eine Rente in der Höhe des Reinertrages einer bestimmten Liegenschaft hat, kann nicht den gemäß § 7 EO erfor'
+[14:45:35.157]     MCP >>> search_by_paragraph({"paragraph": "§ 25c KSchG", "limit": 5})
+[14:45:35.158]     MCP <<< search_by_paragraph ok=True 435.45ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 42 EO",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1993170093_19960806X06",\\n      "kernaussage": "Zuständigkeit Aufschub Exekution: ExekG, nicht Titelbehörde (§ 42 EO)",\\n      "schlagworte": [\\n        "Zuständ'
+[14:45:35.158]     MCP >>> search_by_paragraph({"paragraph": "§ 25c KSchG", "limit": 5})
+[14:45:35.159]     MCP <<< search_by_paragraph ok=True 348.8ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 40 EO",\\n  "results": [\\n    {\\n      "rs_number": "RS0001376",\\n      "kernaussage": "Im Antrag nach § 40 EO ist die bereits vollzogene Aufrechnung zu behaupten.",\\n      "schlagworte": []\\n    },\\n    {\\n      "rs_n'
+[14:45:35.159]     MCP >>> search_by_paragraph({"paragraph": "§ 42 EO", "limit": 5})
+[14:45:35.497]     MCP <<< search_by_paragraph ok=True 339.22ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25c KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0113883",\\n      "kernaussage": "§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vo'
+[14:45:35.497]     MCP >>> search_by_paragraph({"paragraph": "§ 25d KSchG", "limit": 5})
+[14:45:35.562]     MCP <<< search_by_paragraph ok=True 402.65ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 42 EO",\\n  "results": [\\n    {\\n      "rs_number": "JWR_1993170093_19960806X06",\\n      "kernaussage": "Zuständigkeit Aufschub Exekution: ExekG, nicht Titelbehörde (§ 42 EO)",\\n      "schlagworte": [\\n        "Zuständ'
+[14:45:35.563]     MCP >>> search_by_paragraph({"paragraph": "§ 25c KSchG", "limit": 5})
+[14:45:35.928]     MCP <<< search_by_paragraph ok=True 769.06ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25c KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0113883",\\n      "kernaussage": "§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vo'
+[14:45:35.929]     MCP >>> search_by_paragraph({"paragraph": "§ 7 EO", "limit": 5})
+[14:45:35.937]     MCP <<< search_by_paragraph ok=True 439.5ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25d KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0113936",\\n      "kernaussage": "§ 25d KSchG ist auch im Verhältnis zwischen einer juristischen Person öffentlichen Rechts und einem Verbraucher in Ansehung ei'
+[14:45:35.939]     MCP >>> search_kommentar_paragraph({"paragraph": "35", "limit": 5, "law": "EO"})
+[14:45:35.945]     MCP <<< search_by_paragraph ok=True 381.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25c KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0119014",\\n      "kernaussage": "Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichke'
+[14:45:35.945]     MCP >>> search_by_paragraph({"paragraph": "§ 25d KSchG", "limit": 5})
+[14:45:36.251]     MCP <<< search_by_paragraph ok=True 322.49ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 7 EO",\\n  "results": [\\n    {\\n      "rs_number": "RS0000588",\\n      "kernaussage": "Eine Verurteilung des Beklagten zur Leistung der bis zum Schluss der Verhandlung in I. Instanz aufgelaufenen Unterhaltsbeträge \\\\"a'
+[14:45:36.252]   WORKER Strategische Rechtsfragen & Akzessorietät in Insolvenz step=3/8
+[14:45:36.252] >>> API google/gemini-3-flash-preview msgs=21 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Strategische Rechtsfragen & Akzessoriett in Insolvenz
+[14:45:36.528]     MCP <<< search_kommentar_paragraph ok=True 588.91ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "35",\\n  "law": "EO",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:36.529]     MCP >>> search_kommentar_paragraph({"paragraph": "25c", "limit": 5, "law": "KSCHG"})
+[14:45:36.536]     MCP <<< search_by_paragraph ok=True 590.3ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 25d KSchG",\\n  "results": [\\n    {\\n      "rs_number": "RS0113935",\\n      "kernaussage": "Die Regelung des § 25d KSchG schließt es nicht aus, Interzessionen im Einzelfall bei Vorliegen der in der Rechtsprechung entwi'
+[14:45:36.536]   WORKER Präklusion & Zustellungsfehler als Exekutionshindernis step=3/8
+[14:45:36.537] >>> API google/gemini-3-flash-preview msgs=22 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Prklusion & Zustellungsfehler als Exekutionshindernis
+[14:45:36.546]     MCP <<< search_kommentar_paragraph ok=True 16.7ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "25c",\\n  "law": "KSCHG",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:36.546]     MCP >>> search_ogh_rechtssaetze({"query": "Bürgschaft Akzessorietät Zahlung Hauptschuldner Erlöschen", "limit": 5})
+[14:45:36.550]     MCP <<< search_ogh_rechtssaetze ok=True 3.43ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Bürgschaft Akzessorietät Zahlung Hauptschuldner Erlöschen"\\n}\'}], \'isError\': False}}'
+[14:45:36.550]   WORKER Interzession & Überbefriedigung im Insolvenzkontext step=3/8
+[14:45:36.550] >>> API google/gemini-3-flash-preview msgs=28 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Interzession & berbefriedigung im Insolvenzkontext
+[14:45:38.716] <<< API google/gemini-3-flash-preview 2464ms finish=tool_calls tool_calls=4 text=''
+[14:45:38.717]     MCP >>> search_ogh_rechtssaetze({"query": "Bürgschaft Akzessorietät Insolvenz Hauptschuldner Zahlungsplan Erfüllung", "limit": 5})
+[14:45:38.735]     MCP <<< search_ogh_rechtssaetze ok=True 17.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Bürgschaft Akzessorietät Insolvenz Hauptschuldner Zahlungsplan Erfüllung"\\n}\'}], \'isError\': False}}'
+[14:45:38.736]     MCP >>> search_ogh_rechtssaetze({"query": "Bürge Haftung Erlöschen Hauptschuld", "limit": 5})
+[14:45:38.744]     MCP <<< search_ogh_rechtssaetze ok=True 8.57ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Bürge Haftung Erlöschen Hauptschuld"\\n}\'}], \'isError\': False}}'
+[14:45:38.745]     MCP >>> search_ogh_rechtssaetze({"query": "25c KSchG Aufklärungspflicht Beweislast Bank", "limit": 5})
+[14:45:38.754]     MCP <<< search_ogh_rechtssaetze ok=True 9.25ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "25c KSchG Aufklärungspflicht Beweislast Bank"\\n}\'}], \'isError\': False}}'
+[14:45:38.755]     MCP >>> search_ogh_rechtssaetze({"query": "Zustellung Zahlungsbefehl unbekannt verzogen Vollstreckbarkeit Aufhebung Abs", "limit": 5})
+[14:45:38.763]     MCP <<< search_ogh_rechtssaetze ok=True 8.54ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Zustellung Zahlungsbefehl unbekannt verzogen Vollstreckbarkeit Aufhebung Abs"\\n}\'}], \'isError\': False}}'
+[14:45:38.763]   WORKER Strategische Rechtsfragen & Akzessorietät in Insolvenz step=4/8
+[14:45:38.764] >>> API google/gemini-3-flash-preview msgs=30 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Strategische Rechtsfragen & Akzessoriett in Insolvenz
+[14:45:39.455] <<< API google/gemini-3-flash-preview 2918ms finish=tool_calls tool_calls=4 text=''
+[14:45:39.455]     MCP >>> hot_rs_search({"query": "Zustellung ZustG vorübergehende Abwesenheit Beweislast", "limit": 5})
+[14:45:39.487]     MCP <<< hot_rs_search ok=True 31.48ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellung ZustG vorübergehende Abwesenheit Beweislast",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:39.487]     MCP >>> hot_rs_search({"query": "Abs Aufhebung Vollstreckbarkeit Zahlungsbefehl Zustellung", "limit": 5})
+[14:45:39.493]     MCP <<< hot_rs_search ok=True 5.12ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Abs Aufhebung Vollstreckbarkeit Zahlungsbefehl Zustellung",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:39.493]     MCP >>> hot_rs_search({"query": "Oppositionsklage Erlöschen der Hauptschuld Bürgschaft Insolvenz Zahlungsplan", "limit": 5})
+[14:45:39.498]     MCP <<< hot_rs_search ok=True 5.07ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Oppositionsklage Erlöschen der Hauptschuld Bürgschaft Insolvenz Zahlungsplan",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:39.499]     MCP >>> hot_rs_search({"query": "25c KSchG Präklusion Exekutionsverfahren Einwendung", "limit": 5})
+[14:45:39.505]     MCP <<< hot_rs_search ok=True 6.22ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "25c KSchG Präklusion Exekutionsverfahren Einwendung",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:39.505]   WORKER Präklusion & Zustellungsfehler als Exekutionshindernis step=4/8
+[14:45:39.506] >>> API google/gemini-3-flash-preview msgs=31 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Prklusion & Zustellungsfehler als Exekutionshindernis
+[14:45:40.154] <<< API google/gemini-3-flash-preview 3603ms finish=tool_calls tool_calls=10 text=''
+[14:45:40.155]     MCP >>> search_kommentar_keyword({"keyword": "Oppositionsklage Zahlung Hauptschuldner Bürge", "limit": 5, "law": "EO"})
+[14:45:40.171]     MCP <<< search_kommentar_keyword ok=True 15.37ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "keyword": "Oppositionsklage Zahlung Hauptschuldner Bürge",\\n  "law": "EO",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:40.172]     MCP >>> search_kommentar_keyword({"keyword": "Aufklärungspflicht Kreditwürdigkeit Interzedent", "limit": 5, "law": "KSCHG"})
+[14:45:40.190]     MCP <<< search_kommentar_keyword ok=True 17.35ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "keyword": "Aufklärungspflicht Kreditwürdigkeit Interzedent",\\n  "law": "KSCHG",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:40.190]     MCP >>> search_ogh_rechtssaetze({"query": "Bürgschaft Erlöschen Zahlung Hauptschuldner Akzessorietät", "limit": 5})
+[14:45:40.197]     MCP <<< search_ogh_rechtssaetze ok=True 7.26ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Bürgschaft Erlöschen Zahlung Hauptschuldner Akzessorietät"\\n}\'}], \'isError\': False}}'
+[14:45:40.198]     MCP >>> search_ogh_rechtssaetze({"query": "25c KSchG Beweislast Aufklärung", "limit": 5})
+[14:45:40.205]     MCP <<< search_ogh_rechtssaetze ok=True 6.98ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "25c KSchG Beweislast Aufklärung"\\n}\'}], \'isError\': False}}'
+[14:45:40.205]     MCP >>> search_by_paragraph({"paragraph": "§ 40 EO", "limit": 5})
+[14:45:40.359]     MCP <<< search_by_paragraph ok=True 153.41ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 40 EO",\\n  "results": [\\n    {\\n      "rs_number": "RSA0000056",\\n      "kernaussage": "Der Einwand des Verpflichteten, dass die betriebene Forderung verjährt sei, kann nicht als Oppositionsgesuch (§ 40 EO) gewertet w'
+[14:45:40.359]     MCP >>> search_by_paragraph({"paragraph": "§ 42 EO", "limit": 5})
+[14:45:40.392]     MCP <<< search_by_paragraph ok=True 32.6ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "paragraph": "§ 42 EO",\\n  "results": [\\n    {\\n      "rs_number": "RS0001420",\\n      "kernaussage": "Eine Aktion, die auch bei vollständigem Erfolg nicht unmittelbar zur Exekutionseinstellung führen kann, stellt nach stets einheitl'
+[14:45:40.392]     MCP >>> get_rechtssatz({"rs_number": "RS0001557"})
+[14:45:40.394]     MCP <<< get_rechtssatz ok=True 2.65ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001557",\\n  "rechtssatz": "Das Verfahren nach § 7 Abs 3 EO ist nach den für das Titelverfahren bestehenden Vorschriften durchzuführen. In diesem Verfahren sind auch allenfalls strittige, nicht akten'
+[14:45:40.395]     MCP >>> get_rechtssatz({"rs_number": "RS0001566"})
+[14:45:40.397]     MCP <<< get_rechtssatz ok=True 2.23ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001566",\\n  "rechtssatz": "Es kommt nach § 7 Abs 3 EO nur darauf an, ob die Vollstreckbarkeitsbestätigung gesetzwidrig oder irrtümlich erteilt worden ist, nicht aber darauf, ob und von welchem Geric'
+[14:45:40.397]     MCP >>> get_rechtssatz({"rs_number": "RS0034598"})
+[14:45:40.399]     MCP <<< get_rechtssatz ok=True 2.16ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0034598",\\n  "rechtssatz": "Die Unterbrechung der Verjährung wirkt nur zwischen jenen Personen, zwischen denen der die Unterbrechung begründende Tatbestand gesetzt worden ist (Anschluß im Strafverfah'
+[14:45:40.399]     MCP >>> get_rechtssatz({"rs_number": "RS0058309"})
+[14:45:40.402]     MCP <<< get_rechtssatz ok=True 2.4ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0058309",\\n  "rechtssatz": "§ 7 Abs 3 EO dient dazu, durch Aufhebung der Vollstreckbarkeitsbestätigung die Bewilligung einer Exekution auf Grund einer mit dieser Bestätigung versehenen Ausfertigung d'
+[14:45:40.402]   WORKER Interzession & Überbefriedigung im Insolvenzkontext step=4/8
+[14:45:40.402] >>> API google/gemini-3-flash-preview msgs=43 tools=10 max_tok=1600 title=legalchat-agentic-subagent-Interzession & berbefriedigung im Insolvenzkontext
+[14:45:41.549] <<< API google/gemini-3-flash-preview 2785ms finish=tool_calls tool_calls=4 text=''
+[14:45:41.550]     MCP >>> search_ogh_rechtssaetze({"query": "Zahlungsplan Bürge Akzessorietät", "limit": 5})
+[14:45:41.559]     MCP <<< search_ogh_rechtssaetze ok=True 8.74ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Zahlungsplan Bürge Akzessorietät"\\n}\'}], \'isError\': False}}'
+[14:45:41.560]     MCP >>> search_ogh_rechtssaetze({"query": "Bürgschaft Haftung", "limit": 5})
+[14:45:41.571]     MCP <<< search_ogh_rechtssaetze ok=True 10.84ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [\\n    {\\n      "rs_number": "JWR_2004130021_20040331X06",\\n      "rechtssatz": "Haftung für Bürgschaft trotz GF-Niederlegung und Anteilsabtretung",\\n      "rechtsgebiet": "Verwaltungsrecht",\\n      "schlagworte": [\\n     '
+[14:45:41.571]     MCP >>> search_ogh_rechtssaetze({"query": "25c KSchG Beweislast Aufklärung", "limit": 5})
+[14:45:41.577]     MCP <<< search_ogh_rechtssaetze ok=True 5.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "25c KSchG Beweislast Aufklärung"\\n}\'}], \'isError\': False}}'
+[14:45:41.577]     MCP >>> search_ogh_rechtssaetze({"query": "Zustellung unbekannt verzogen Vollstreckbarkeit", "limit": 5})
+[14:45:41.584]     MCP <<< search_ogh_rechtssaetze ok=True 6.45ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "results": [],\\n  "count": 0,\\n  "query": "Zustellung unbekannt verzogen Vollstreckbarkeit"\\n}\'}], \'isError\': False}}'
+[14:45:41.584]   WORKER Strategische Rechtsfragen & Akzessorietät in Insolvenz step=5/8
+[14:45:41.585] >>> API google/gemini-3-flash-preview msgs=38 tools=6 max_tok=1600 title=legalchat-agentic-subagent-Strategische Rechtsfragen & Akzessoriett in Insolvenz
+[14:45:41.887] <<< API google/gemini-3-flash-preview 2380ms finish=tool_calls tool_calls=4 text=''
+[14:45:41.888]     MCP >>> hot_rs_search({"query": "Zustellung Abwesenheit Beweislast", "limit": 10})
+[14:45:41.900]     MCP <<< hot_rs_search ok=True 11.96ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Zustellung Abwesenheit Beweislast",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:41.900]     MCP >>> hot_rs_search({"query": "Vollstreckbarkeit Aufhebung Zustellungsmangel", "limit": 10})
+[14:45:41.906]     MCP <<< hot_rs_search ok=True 5.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Vollstreckbarkeit Aufhebung Zustellungsmangel",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:41.906]     MCP >>> hot_rs_search({"query": "Oppositionsklage Zahlung Hauptschuldner Bürge", "limit": 10})
+[14:45:41.912]     MCP <<< hot_rs_search ok=True 5.3ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "Oppositionsklage Zahlung Hauptschuldner Bürge",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:41.912]     MCP >>> hot_rs_search({"query": "25c KSchG Einwendung Exekution", "limit": 10})
+[14:45:41.918]     MCP <<< hot_rs_search ok=True 6.07ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "query": "25c KSchG Einwendung Exekution",\\n  "count": 0,\\n  "results": []\\n}\'}], \'isError\': False}}'
+[14:45:41.918]   WORKER Präklusion & Zustellungsfehler als Exekutionshindernis step=5/8
+[14:45:41.920] >>> API google/gemini-3-flash-preview msgs=40 tools=7 max_tok=1600 title=legalchat-agentic-subagent-Prklusion & Zustellungsfehler als Exekutionshindernis
+[14:45:49.307] <<< API google/gemini-3-flash-preview 8905ms finish=stop tool_calls=0 text='Strategische anwaltliche Ersteinschätzung für den Fall **CARMEN** (Fokus: Konsumentenschutz & Exekutionsabwehr):\n\n### 1. Entscheidende Rechtsfragen (Priorisierung)\n1.  **Erlöschen der Hauptschuld (Akzessorietät):** Hat die 100%-Zahlung des Hauptschuldners Wolfgang Brand im Insolvenzverfahren (§ 156 '
+[14:45:49.308]   WORKER Interzession & Überbefriedigung im Insolvenzkontext DONE steps=4 answer='Strategische anwaltliche Ersteinschätzung für den Fall **CARMEN** (Fokus: Konsumentenschutz & Exekutionsabwehr):\n\n### 1. Entscheidende Rechtsfragen (Priorisierung)\n1.  **Erlöschen der Hauptschuld (Akz'
+[14:45:49.308]     MCP >>> hot_rs_lookup({"rs_number": "RS0120460", "te_limit": 5})
+[14:45:49.340]     MCP <<< hot_rs_lookup ok=True 31.66ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0120460",\\n    "rechtssatz_text": "Die bloß formularmäßige Erklärung, dass der Bürge anlässlich des Abschlusses des Bürgschaftsvertrages über die wirtschaftliche Situation des Kreditnehm'
+[14:45:49.340]     MCP >>> hot_rs_lookup({"rs_number": "RS0120256", "te_limit": 5})
+[14:45:49.346]     MCP <<< hot_rs_lookup ok=True 5.96ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0120256",\\n    "rechtssatz_text": "Den Kreditgeber trifft bei Vorliegen der vom Interzedenten zu behauptenden und zu beweisenden Informationspflichten im Sinne des § 25c KSchG erster Sat'
+[14:45:49.346]     MCP >>> hot_rs_lookup({"rs_number": "RS0119014", "te_limit": 5})
+[14:45:49.358]     MCP <<< hot_rs_lookup ok=True 11.58ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0119014",\\n    "rechtssatz_text": "Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftu'
+[14:45:49.358]     MCP >>> hot_rs_lookup({"rs_number": "RS0113937", "te_limit": 5})
+[14:45:49.374]     MCP <<< hot_rs_lookup ok=True 15.75ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0113937",\\n    "rechtssatz_text": "Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen, ermöglicht daher ein '
+[14:45:49.374]     MCP >>> hot_rs_lookup({"rs_number": "RS0113936", "te_limit": 5})
+[14:45:49.381]     MCP <<< hot_rs_lookup ok=True 6.76ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0113936"\\n}\'}], \'isError\': False}}'
+[14:45:49.381]     MCP >>> hot_rs_lookup({"rs_number": "RS0113934", "te_limit": 5})
+[14:45:49.396]     MCP <<< hot_rs_lookup ok=True 14.93ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0113934",\\n    "rechtssatz_text": "a) Die zur Inhaltskontrolle von Interzessionsgeschäfteneinkommens- und vermögensschwacher Familienangehöriger für Verbindlichkeiten des Hauptschuldners'
+[14:45:49.396]     MCP >>> hot_rs_lookup({"rs_number": "RS0113883", "te_limit": 5})
+[14:45:49.399]     MCP <<< hot_rs_lookup ok=True 2.95ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0113883",\\n    "rechtssatz_text": "§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbark'
+[14:45:49.399]     MCP >>> hot_rs_lookup({"rs_number": "RS0112840", "te_limit": 5})
+[14:45:49.403]     MCP <<< hot_rs_lookup ok=True 3.66ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0112840",\\n    "rechtssatz_text": "Das Vorliegen eines unbilligen Missverhältnisses im Sinne des § 25d KSchG, hängt von den Umständen des jeweiligen Einzelfalles ab.",\\n    "te_count": 7'
+[14:45:49.871] <<< API google/gemini-3-flash-preview 7951ms finish=stop tool_calls=0 text='Strategische anwaltliche Ersteinschätzung für den Fall **CARMEN** (Fokus: Zustellung, Präklusion & KSchG):\n\n### 1. Entscheidende Rechtsfragen (Priorisierung)\n1.  **Existenz des Exekutionstitels (§ 7 Abs 3 EO iVm § 17 ZustG):** Ist der Zahlungsbefehl mangels rechtswirksamer Zustellung (behauptete Abw'
+[14:45:49.872]   WORKER Präklusion & Zustellungsfehler als Exekutionshindernis DONE steps=5 answer='Strategische anwaltliche Ersteinschätzung für den Fall **CARMEN** (Fokus: Zustellung, Präklusion & KSchG):\n\n### 1. Entscheidende Rechtsfragen (Priorisierung)\n1.  **Existenz des Exekutionstitels (§ 7 A'
+[14:45:49.874]     MCP >>> hot_rs_lookup({"rs_number": "RS0124822", "te_limit": 5})
+[14:45:49.896]     MCP <<< hot_rs_lookup ok=True 22.14ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0124822",\\n    "rechtssatz_text": "1. Ob eine Interzession im Sinne des § 25c KSchG oder eine diese ausschließende echte Mitschuld vorliegt, hängt von der Auslegung des zwischen der kred'
+[14:45:49.897]     MCP >>> hot_rs_lookup({"rs_number": "RS0120460", "te_limit": 5})
+[14:45:49.906]     MCP <<< hot_rs_lookup ok=True 9.63ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0120460",\\n    "rechtssatz_text": "Die bloß formularmäßige Erklärung, dass der Bürge anlässlich des Abschlusses des Bürgschaftsvertrages über die wirtschaftliche Situation des Kreditnehm'
+[14:45:49.907]     MCP >>> hot_rs_lookup({"rs_number": "RS0120256", "te_limit": 5})
+[14:45:49.911]     MCP <<< hot_rs_lookup ok=True 3.99ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0120256",\\n    "rechtssatz_text": "Den Kreditgeber trifft bei Vorliegen der vom Interzedenten zu behauptenden und zu beweisenden Informationspflichten im Sinne des § 25c KSchG erster Sat'
+[14:45:49.911]     MCP >>> hot_rs_lookup({"rs_number": "RS0119014", "te_limit": 5})
+[14:45:49.914]     MCP <<< hot_rs_lookup ok=True 3.69ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0119014",\\n    "rechtssatz_text": "Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftu'
+[14:45:49.914]     MCP >>> hot_rs_lookup({"rs_number": "RS0115167", "te_limit": 5})
+[14:45:49.916]     MCP <<< hot_rs_lookup ok=True 1.87ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0115167"\\n}\'}], \'isError\': False}}'
+[14:45:49.916]     MCP >>> hot_rs_lookup({"rs_number": "RS0115165", "te_limit": 5})
+[14:45:49.920]     MCP <<< hot_rs_lookup ok=True 3.51ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0115165",\\n    "rechtssatz_text": "§ 25d KSchG ermöglicht die richterliche Mäßigung der von einem Verbraucher eingegangenen Verbindlichkeit in Fällen, in denen die Sittenwidrigkeit der I'
+[14:45:49.920]     MCP >>> hot_rs_lookup({"rs_number": "RS0113937", "te_limit": 5})
+[14:45:49.923]     MCP <<< hot_rs_lookup ok=True 3.09ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0113937",\\n    "rechtssatz_text": "Der Anwendungsbereich des § 25d KSchG beschränkt sich nicht auf Interzessionen, die der Besicherung von Bankenforderungen dienen, ermöglicht daher ein '
+[14:45:49.923]     MCP >>> hot_rs_lookup({"rs_number": "RS0113936", "te_limit": 5})
+[14:45:49.925]     MCP <<< hot_rs_lookup ok=True 2.07ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0113936"\\n}\'}], \'isError\': False}}'
+[14:45:51.137] <<< API google/gemini-3-flash-preview 9551ms finish=stop tool_calls=0 text='Strategische anwaltliche Ersteinschätzung im Fall **CARMEN** (Fokus: Insolvenzrechtliche Akzessorietät und Exekutionsabwehr):\n\n### 1. Entscheidende Rechtsfragen\n*   **Erlöschen der Bürgschaft durch 100%-Zahlungsplan (§ 14 IO iVm § 1351 ABGB):** Bewirkt die vollständige Befriedigung der Hauptschuld i'
+[14:45:51.137]   WORKER Strategische Rechtsfragen & Akzessorietät in Insolvenz DONE steps=5 answer='Strategische anwaltliche Ersteinschätzung im Fall **CARMEN** (Fokus: Insolvenzrechtliche Akzessorietät und Exekutionsabwehr):\n\n### 1. Entscheidende Rechtsfragen\n*   **Erlöschen der Bürgschaft durch 10'
+[14:45:51.140]     MCP >>> hot_rs_lookup({"rs_number": "RS0120460", "te_limit": 5})
+[14:45:51.155]     MCP <<< hot_rs_lookup ok=True 14.64ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0120460",\\n    "rechtssatz_text": "Die bloß formularmäßige Erklärung, dass der Bürge anlässlich des Abschlusses des Bürgschaftsvertrages über die wirtschaftliche Situation des Kreditnehm'
+[14:45:51.155]     MCP >>> hot_rs_lookup({"rs_number": "RS0120256", "te_limit": 5})
+[14:45:51.164]     MCP <<< hot_rs_lookup ok=True 8.67ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0120256",\\n    "rechtssatz_text": "Den Kreditgeber trifft bei Vorliegen der vom Interzedenten zu behauptenden und zu beweisenden Informationspflichten im Sinne des § 25c KSchG erster Sat'
+[14:45:51.164]     MCP >>> hot_rs_lookup({"rs_number": "RS0119014", "te_limit": 5})
+[14:45:51.175]     MCP <<< hot_rs_lookup ok=True 10.18ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0119014",\\n    "rechtssatz_text": "Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftu'
+[14:45:51.175]     MCP >>> hot_rs_lookup({"rs_number": "RS0113883", "te_limit": 5})
+[14:45:51.181]     MCP <<< hot_rs_lookup ok=True 6.06ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs": {\\n    "rs_number": "RS0113883",\\n    "rechtssatz_text": "§ 25c KSchG statuiert die Verpflichtung des Gläubigers zur Information beziehungsweise Warnung des Interzedenten unabhängig vom Kriterium der Zumutbark'
+[14:45:51.181]     MCP >>> hot_rs_lookup({"rs_number": "RS0094631", "te_limit": 5})
+[14:45:51.186]     MCP <<< hot_rs_lookup ok=True 5.15ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0094631"\\n}\'}], \'isError\': False}}'
+[14:45:51.187]     MCP >>> hot_rs_lookup({"rs_number": "RS0082507", "te_limit": 5})
+[14:45:51.194]     MCP <<< hot_rs_lookup ok=True 7.37ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0082507"\\n}\'}], \'isError\': False}}'
+[14:45:51.194]     MCP >>> hot_rs_lookup({"rs_number": "RS0064915", "te_limit": 5})
+[14:45:51.198]     MCP <<< hot_rs_lookup ok=True 4.14ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0064915"\\n}\'}], \'isError\': False}}'
+[14:45:51.198]     MCP >>> hot_rs_lookup({"rs_number": "RS0032348", "te_limit": 5})
+[14:45:51.203]     MCP <<< hot_rs_lookup ok=True 4.4ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": false,\\n  "rs_number": "RS0032348"\\n}\'}], \'isError\': False}}'
+[14:45:51.212] 
+============================================================
+SYNTHESIS: model=x-ai/grok-4.1-fast sys_chars=3932 usr_chars=78547 evidence_chunks=3
+[14:45:51.344] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=6000 title=legalchat-agentic-synthesis
+[14:46:32.494] <<< API x-ai/grok-4.1-fast 41151ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Zustellung des Zahlungsbefehls (§ 7 Abs 3 EO iVm § 4 ZustG)**: Unwirksame Zustellung 12 Tage nach Abmeldung (ZMR-Auszug) führt zu irrtümlicher Vollstreckbarkeitsbestätigung; priorisiert als Säule A für sofortige Aufhebung der VB und Einstellung der Exekution.\n2'
+[14:46:32.494]   SYNTHESIS DONE 41151ms answer_chars=8375 max_tokens=6000
+[14:46:32.501] 
+============================================================
+SYNTHESIS: model=x-ai/grok-4.1-fast sys_chars=3932 usr_chars=78547 evidence_chunks=3
+[14:46:32.501] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=6000 title=legalchat-agentic-synthesis
+[14:47:06.051] <<< API x-ai/grok-4.1-fast 33550ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Zustellung des Zahlungsbefehls (§ 7 Abs 3 EO iVm § 4 ZustG)**: Abmeldung der Mandantin am 01.03.2018 vor Zustellung am 13.03.2018 macht die Vollstreckbarkeitsbestätigung irrtümlich; priorisiert als Säule A für sofortige Aufhebung und Einstellung der Exekution.\n'
+[14:47:06.052]   SYNTHESIS DONE 33550ms answer_chars=7635 max_tokens=6000
+[14:47:06.052] AGENT best-of-2: A=63.8 (7 RS) B=79.2 (8 RS)
+[14:47:06.052] AGENT best-of-2: picked B
+[14:47:06.052] 
+============================================================
+CITATION GATE: mode=repair answer_chars=7635
+[14:47:06.073]     MCP >>> get_rechtssatz({"rs_number": "RS0000180"})
+[14:47:06.077]     MCP <<< get_rechtssatz ok=True 3.6ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0000180",\\n  "rechtssatz": "Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag entscheidende Exekutio'
+[14:47:06.077]     MCP >>> get_rechtssatz({"rs_number": "RS0000326"})
+[14:47:06.080]     MCP <<< get_rechtssatz ok=True 2.58ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0000326",\\n  "rechtssatz": "Die entgeltliche Abtretung der Forderung des betreibenden Gläubigers bildet keinen Grund zur Einstellung der Exekution nach § 40 EO; der Verpflichtete kann seine Einwendun'
+[14:47:06.080]     MCP >>> get_rechtssatz({"rs_number": "RS0001544"})
+[14:47:06.083]     MCP <<< get_rechtssatz ok=True 2.77ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001544",\\n  "rechtssatz": "Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; deshalb liegt eine irrt'
+[14:47:06.083]     MCP >>> get_rechtssatz({"rs_number": "RS0001582"})
+[14:47:06.085]     MCP <<< get_rechtssatz ok=True 2.73ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001582",\\n  "rechtssatz": "Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch für eine (durch abä'
+[14:47:06.085]     MCP >>> get_rechtssatz({"rs_number": "RS0032137"})
+[14:47:06.088]     MCP <<< get_rechtssatz ok=True 2.67ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032137",\\n  "rechtssatz": "Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessorität. Auch die Schuld'
+[14:47:06.088]     MCP >>> get_rechtssatz({"rs_number": "RS0032169"})
+[14:47:06.090]     MCP <<< get_rechtssatz ok=True 2.33ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032169",\\n  "rechtssatz": "Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Bürgschaft",'
+[14:47:06.091]     MCP >>> get_rechtssatz({"rs_number": "RS0119014"})
+[14:47:06.093]     MCP <<< get_rechtssatz ok=True 2.68ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0119014",\\n  "rechtssatz": "Der Anwendungsbereich des § 25c KSchG soll sich auf solche Mitschuldner beschränken, die einer materiell fremden Verbindlichkeit (Übernahme einer Haftung für Rechnung eine'
+[14:47:06.093]     MCP >>> get_rechtssatz({"rs_number": "RS0121054"})
+[14:47:06.095]     MCP <<< get_rechtssatz ok=True 2.08ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0121054",\\n  "rechtssatz": "Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung b'
+[14:47:06.098] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=4500 title=legalchat-agentic-citation-repair
+[14:47:24.955] <<< API x-ai/grok-4.1-fast 18856ms finish=stop tool_calls=0 text='### 1. KERNFRAGEN\n1. **Wirksamkeit der Vollstreckbarkeitsbestätigung (§ 7 Abs 3 EO)**: Priorisiert als primärer EO-interner Rechtsweg zur Aufhebung irrtümlich erteilter Bestätigung.\n2. **Akzessorietät der Bürgschaft zur Hauptschuld (§ 40 EO iVm RS0032169)**: Erlöschen der Nebenforderung bei Erfüllun'
+[14:47:24.957]     MCP >>> get_rechtssatz({"rs_number": "RS0000180"})
+[14:47:24.967]     MCP <<< get_rechtssatz ok=True 9.64ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0000180",\\n  "rechtssatz": "Die Vollstreckbarkeitsbestätigung bindet alle Gerichte mit Ausnahme desjenigen, das sie erteilt hat. Das nach § 4 Abs 2 EO über den Exekutionsantrag entscheidende Exekutio'
+[14:47:24.967]     MCP >>> get_rechtssatz({"rs_number": "RS0001544"})
+[14:47:24.974]     MCP <<< get_rechtssatz ok=True 6.89ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001544",\\n  "rechtssatz": "Eine Bestätigung der Vollstreckbarkeit wird irrtümlich erteilt, wenn ihr ein der Wirklichkeit nicht entsprechender Sachverhalt zugrunde gelegt ist; deshalb liegt eine irrt'
+[14:47:24.974]     MCP >>> get_rechtssatz({"rs_number": "RS0001582"})
+[14:47:24.980]     MCP <<< get_rechtssatz ok=True 5.8ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0001582",\\n  "rechtssatz": "Gegen die Bestätigung der Vollstreckbarkeit ist nur der im § 7 Abs 3 EO vorgesehene Rechtsbehelf zulässig; ein Rekurs ist ausgeschlossen. Das gilt auch für eine (durch abä'
+[14:47:24.980]     MCP >>> get_rechtssatz({"rs_number": "RS0032137"})
+[14:47:24.986]     MCP <<< get_rechtssatz ok=True 5.96ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032137",\\n  "rechtssatz": "Der Unterschied zwischen Bürgschaft und Beitritt als Mitschuldner liegt in der für die erstgenannte Verpflichtung geltenden Subsidiarität und Akzessorität. Auch die Schuld'
+[14:47:24.986]     MCP >>> get_rechtssatz({"rs_number": "RS0032169"})
+[14:47:24.992]     MCP <<< get_rechtssatz ok=True 5.31ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0032169",\\n  "rechtssatz": "Jede Bürgschaft (auch die Verpflichtung des Bürgen und Zahlers) ist gegenüber der Hauptschuld akzessorisch.",\\n  "rechtsgebiet": "",\\n  "schlagworte": [\\n    "Bürgschaft",'
+[14:47:24.992]     MCP >>> get_rechtssatz({"rs_number": "RS0121054"})
+[14:47:24.996]     MCP <<< get_rechtssatz ok=True 4.41ms preview='{\'ok\': True, \'result\': {\'content\': [{\'type\': \'text\', \'text\': \'{\\n  "found": true,\\n  "rs_number": "RS0121054",\\n  "rechtssatz": "Rechtsfolge der Verletzung der Informationsobliegenheit des § 25c KSchG ist der Entfall der Haftung des Interzedenten; einer Anfechtung und Rechtsgestaltungsentscheidung b'
+[14:47:24.998]   CITATION GATE result: applied=True answer_chars=3382
+[14:47:25.002] AGENT Phase 1: DEEP ANALYSIS done in 132668.59ms
+[14:47:25.002] AGENT Phase 2: STRATEGIC RESPONSE start
+[14:47:25.002] >>> API x-ai/grok-4.1-fast msgs=2 tools=0 max_tok=4000 title=legalchat-agent-response
+[14:47:47.683] <<< API x-ai/grok-4.1-fast 22681ms finish=stop tool_calls=0 text='# STRATEGISCHE ANWALTLICHE ERSTEINSCHÄTZUNG: FALL CARMEN\n\n**GZ:** 060 12 C 467/18v (BG Gänserndorf) / 25 E 1939/25i (BG Melk) | **Stand:** 23.12.2025 (Exekutionsstart) / Anträge eingebracht 26.02.2026  \n**Betrag in Streit:** EUR 3.599,44 (EUR 2.081,14 Kapital + EUR 1.102,51 NF + Zinsen/Kosten per 23'
+[14:47:47.685] AGENT Phase 2: RESPONSE done in 22682.9ms
+[14:47:49.294] === VERBOSE TRACE END === elapsed_ms=181393.63

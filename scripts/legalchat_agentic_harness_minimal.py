@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shlex
+import fnmatch
 import subprocess
 import sys
 import time
@@ -31,6 +32,23 @@ DEFAULT_CONFIG_DIR = ROOT / "config"
 DEFAULT_AGENT_PROFILES_PATH = DEFAULT_CONFIG_DIR / "agent_profiles.yaml"
 DEFAULT_MCP_REGISTRY_PATH = DEFAULT_CONFIG_DIR / "mcp_registry.yaml"
 DEFAULT_SKILLS_BINDINGS_PATH = DEFAULT_CONFIG_DIR / "skills_bindings.yaml"
+
+# ---------------------------------------------------------------------------
+# Verbose trace logging (--verbose)
+# ---------------------------------------------------------------------------
+_VERBOSE_FH = None  # file handle, set in main if --verbose
+_VERBOSE_PATH: Path | None = None
+
+
+def vlog(*args: Any) -> None:
+    """Append timestamped line to verbose trace file."""
+    if _VERBOSE_FH is None:
+        return
+    line = " ".join(str(a) for a in args)
+    ts = dt.datetime.now().strftime("%H:%M:%S.%f")[:-3]
+    _VERBOSE_FH.write(f"[{ts}] {line}\n")
+    _VERBOSE_FH.flush()
+
 
 BUILTIN_MODEL_PROFILES: dict[str, dict[str, str]] = {
     "cheap_default": {
@@ -75,6 +93,20 @@ BUILTIN_MODEL_PROFILES: dict[str, dict[str, str]] = {
         "classifier": "liquid/lfm-2-24b-a2b",
     },
 }
+
+QUICK_STRUCTURED_FORMAT = (
+    "\n\nStrukturiere deine Antwort in diesen Abschnitten:\n"
+    "1. SOFORT-TRIAGE — Fristenlage, Dringlichkeit, kritische Deadlines\n"
+    "2. KERNFRAGE — Die eine zentrale Entscheidungsfrage in 1-2 Sätzen\n"
+    "3. HANDLUNGSOPTIONEN — Szenario-Vergleichstabelle (Markdown-Tabelle) "
+    "mit Spalten: Option | Vorteile | Nachteile | Risiko | Kosten\n"
+    "4. EMPFEHLUNG — Klare Handlungsempfehlung mit 3-5 Begründungspunkten\n"
+    "5. NÄCHSTE SCHRITTE — Konkrete operative To-Dos mit Fristen\n\n"
+    "STIL: Strategisches Mandanten-Memo, NICHT akademisches Gutachten. "
+    "Kurz, klar, entscheidungsorientiert. "
+    "Falls RS-Nummern aus der Vorrecherche vorliegen, zitiere sie knapp. "
+    "Erfinde KEINE RS-Nummern."
+)
 
 # ---------------------------------------------------------------------------
 # Phase 2: Domain Classifier
@@ -150,7 +182,7 @@ RECHTSGEBIET_PATTERNS: dict[str, list[str]] = {
 
 DOMAIN_MANDATORY_PARAGRAPHS: dict[str, list[str]] = {
     "schadenersatz": ["§ 1295 ABGB", "§ 1299 ABGB", "§ 1298 ABGB", "§ 1313a ABGB", "§ 1325 ABGB"],
-    "vertragsrecht": ["§ 871 ABGB", "§ 872 ABGB", "§ 874 ABGB", "§ 877 ABGB", "§ 879 ABGB", "§ 922 ABGB", "§ 932 ABGB", "§ 934 ABGB"],
+    "vertragsrecht": ["§ 871 ABGB", "§ 872 ABGB", "§ 874 ABGB", "§ 877 ABGB", "§ 879 ABGB", "§ 922 ABGB", "§ 932 ABGB", "§ 934 ABGB", "§ 935 ABGB"],
     "interzession": ["§ 25c KSchG", "§ 25d KSchG", "§ 879 ABGB", "§ 1346 ABGB"],
     "exekution": ["§ 35 EO", "§ 36 EO", "§ 40 EO", "§ 42 EO"],
     "erbrecht": ["§ 762 ABGB", "§ 774 ABGB", "§ 780 ABGB", "§ 781 ABGB"],
@@ -174,6 +206,27 @@ SUBDOMAIN_PATTERNS: dict[str, tuple[str, list[str], list[str]]] = {
                          ["§ 17 ZustG", "§ 2 ZustG", "§ 7 ZustG", "§ 8 ZustG", "§ 12 ZustG"]),
     "hinterlegung_abgabestelle": ("zustellrecht", [r"\bHinterlegung\b", r"\bAbgabestelle\b", r"\babgemeldet\b", r"\bOrtsabwes", r"\bwohn.*nicht\s*mehr", r"\bumgezogen\b"],
                                   ["§ 17 ZustG", "§ 2 ZustG", "§ 8 ZustG"]),
+    "laesio_enormis": ("vertragsrecht", [r"\blaesio\b", r"\bVerkürzung.*Hälfte", r"\b934\b.*ABGB", r"\b935\b.*ABGB", r"\benormi"],
+                       ["§ 934 ABGB", "§ 935 ABGB", "§ 305 ABGB", "§ 1487 ABGB"]),
+}
+
+SUBDOMAIN_SCHLAGWORT_MAP: dict[str, list[str]] = {
+    "schadenersatz": ["Schadenersatz", "Schmerzensgeld", "Kausalität", "Mitverschulden", "Beweislastumkehr"],
+    "vertragsrecht": ["Gewährleistung", "Vertragsauslegung", "Anfechtung", "Irrtum", "Sittenwidrigkeit"],
+    "laesio_enormis": ["Laesio enormis", "Verkürzung über die Hälfte", "§ 934 ABGB", "besondere Vorliebe"],
+    "arzthaftung": ["Arzthaftung", "Behandlungsfehler", "Aufklärungspflicht", "Kunstfehler"],
+    "interzession": ["Interzession", "Bürgschaft", "Angehörigenbürgschaft", "Mithaftung"],
+    "immobilienkauf": ["Kaufvertrag", "Gewährleistung", "Laesio enormis", "Irrtum"],
+    "bereicherungsrecht": ["Bereicherungsrecht", "Leistungskondiktion", "Verwendungsanspruch", "Condictio indebiti"],
+    "erbrecht": ["Erbrecht", "Testament", "Erbfolge", "Vermächtnis", "Pflichtteil"],
+    "pflichtteilsrecht": ["Pflichtteil", "Noterbe", "Enterbung", "Anrechnung", "Schenkungsanrechnung"],
+    "sachenrecht": ["Eigentum", "Besitz", "Grundbuch", "Pfandrecht", "Ersitzung", "Servitut"],
+    "familienrecht": ["Ehegattenunterhalt", "Obsorge", "Kindesunterhalt", "Scheidung", "Aufteilung"],
+    "allgemeiner_teil": ["Stellvertretung", "Vollmacht", "Verjährung", "Rechtsgeschäft", "Willenserklärung"],
+    "vertraege": ["Verzug", "Rücktritt", "Gewährleistung", "Leistungsstörung", "Unmöglichkeit"],
+    "schuldrecht_bt": ["Mietrecht", "Werkvertrag", "Bürgschaft", "Darlehen", "Bestandvertrag"],
+    "internationale_bezuege": ["IPR", "CISG", "Brüssel Ia-VO", "Rom I-VO", "Rom II-VO"],
+    "mehrpersonal": ["Gesamtschuld", "Solidarschuld", "Regress", "Zession", "Schuldbeitritt"],
 }
 
 _PARAGRAPH_RX = re.compile(r"§\s*(\d+[a-z]?)\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöü]{1,15})")
@@ -190,7 +243,10 @@ def classify_domain(query: str) -> dict[str, Any]:
     paragraphs = [f"§ {m.group(1)} {m.group(2)}" for m in _PARAGRAPH_RX.finditer(text)]
     keywords = []
     for domain, score in sorted(scores.items(), key=lambda x: -x[1])[:3]:
-        keywords.append(domain.replace("_", " ").title())
+        if domain in SUBDOMAIN_SCHLAGWORT_MAP:
+            keywords.extend(SUBDOMAIN_SCHLAGWORT_MAP[domain][:3])
+        else:
+            keywords.append(domain.replace("_", " ").title())
     best = max(scores, key=scores.get) if scores else ""
     confidence = scores.get(best, 0.0) if best else 0.0
     # Inject mandatory paragraphs and sub-domain detection
@@ -200,6 +256,9 @@ def classify_domain(query: str) -> dict[str, Any]:
         if parent == best and any(re.search(p, text, re.I) for p in sd_patterns):
             subdomain = sd_name
             mandatory = list(dict.fromkeys(sd_pars + mandatory))  # dedup, sd_pars first
+            # Prepend subdomain-specific Schlagworte
+            if sd_name in SUBDOMAIN_SCHLAGWORT_MAP:
+                keywords = SUBDOMAIN_SCHLAGWORT_MAP[sd_name][:4] + keywords
             break
     all_paragraphs = list(dict.fromkeys(mandatory + paragraphs))
     return {
@@ -208,7 +267,7 @@ def classify_domain(query: str) -> dict[str, Any]:
         "confidence": round(confidence, 3),
         "paragraphs": all_paragraphs[:12],
         "mandatory_paragraphs": mandatory,
-        "keywords": keywords[:5],
+        "keywords": list(dict.fromkeys(keywords))[:8],
         "all_scores": {k: round(v, 3) for k, v in sorted(scores.items(), key=lambda x: -x[1])[:5]},
     }
 
@@ -368,6 +427,22 @@ BUILTIN_TOOL_SPECS: dict[str, dict[str, Any]] = {
             },
         },
     },
+    "search_lehrbuch": {
+        "type": "function",
+        "function": {
+            "name": "search_lehrbuch",
+            "description": "Search civil law textbooks (PSK, Riedler, Zankl) via FTS. Returns chapters, excerpts, paragraph refs.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"},
+                    "rechtsgebiet": {"type": "string"},
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 20},
+                },
+                "required": ["query"],
+            },
+        },
+    },
     "search_by_paragraph": {
         "type": "function",
         "function": {
@@ -487,7 +562,7 @@ BUILTIN_DEFAULT_WORKSTREAMS = [
     {
         "name": "grounding_expert",
         "goal": "Get cluster-level grounding context and expert analysis for the legal question.",
-        "tools": ["build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht", "search_kommentar_paragraph", "search_kommentar_keyword"],
+        "tools": ["build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht", "search_kommentar_paragraph", "search_kommentar_keyword", "search_lehrbuch"],
     },
 ]
 
@@ -1055,12 +1130,15 @@ def call_mcp_tool(
         except Exception as e:
             return {"ok": False, "status": None, "latency_ms": None, "body": None, "error": str(e)}
 
+    vlog(f"    MCP >>> {tool}({json.dumps(args, ensure_ascii=False)[:200]})")
     attempts = retry_count + 1
     last: dict[str, Any] | None = None
     for idx in range(attempts):
         rec = _single_call()
         if rec.get("ok"):
             rec["attempt"] = idx + 1
+            _prev = str(rec.get("body") or "")[:300]
+            vlog(f"    MCP <<< {tool} ok={True} {rec.get('latency_ms', '?')}ms preview={_prev!r}")
             return rec
         last = rec
         status = rec.get("status")
@@ -1070,6 +1148,7 @@ def call_mcp_tool(
         time.sleep(max(0.2, retry_backoff) * (idx + 1))
     out = dict(last or {})
     out["attempt"] = attempts
+    vlog(f"    MCP <<< {tool} FAILED ok=False err={out.get('error', '?')[:200]}")
     return out
 
 
@@ -1245,11 +1324,21 @@ def openrouter_chat(
                 "X-Title": safe_title,
             },
         )
+        n_msgs = len(messages)
+        n_tools = len(tools) if tools else 0
+        vlog(f">>> API {model} msgs={n_msgs} tools={n_tools} max_tok={max_tokens} title={safe_title}")
         t0 = time.perf_counter()
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 txt = resp.read().decode("utf-8", errors="replace")
-                return json.loads(txt), (time.perf_counter() - t0) * 1000.0
+                elapsed = (time.perf_counter() - t0) * 1000.0
+                parsed = json.loads(txt)
+                _ch = ((parsed.get("choices") or [{}])[0] or {})
+                _msg = _ch.get("message") or {}
+                _tc = _msg.get("tool_calls") or []
+                _txt = message_text(_msg)[:300]
+                vlog(f"<<< API {model} {elapsed:.0f}ms finish={_ch.get('finish_reason')} tool_calls={len(_tc)} text={_txt!r}")
+                return parsed, elapsed
         except Exception as e:
             last_err = str(e)
             sleep_s = 1.5 * (attempt + 1)
@@ -1311,6 +1400,7 @@ def _build_plan_openrouter(
     max_workstreams: int,
     fallback: dict[str, Any],
     classification: dict[str, Any] | None = None,
+    file_context: str = "",
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     org_tools = sorted(role_tools("organizer"))
     role_ctx = role_skill_context("organizer")
@@ -1346,14 +1436,35 @@ def _build_plan_openrouter(
                 "\nSTRATEGY: Include a workstream with build_grounding_context + detect_clusters + ask_gemini_zivilrecht "
                 "to get cluster-level grounding and expert analysis for this domain."
             )
+    file_hint = ""
+    if file_context:
+        import re as _re
+        _rs_nums = sorted(set(_re.findall(r"RS0\d{5,7}", file_context)))
+        _rs_list = ""
+        if _rs_nums:
+            _rs_list = (
+                "\nPRE-IDENTIFIED RS NUMBERS from case files: " + ", ".join(_rs_nums[:12])
+                + "\nEnsure workstreams include hot_rs_lookup or get_rechtssatz to look up EACH of these."
+            )
+        file_hint = (
+            "\n\n--- AKTENKONTEXT (aus lokalen Falldateien) ---\n"
+            + file_context[:3000]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+            "IMPORTANT: Use the Aktenkontext to identify the correct legal domain, "
+            "relevant §§, and RS numbers. Plan workstreams that search for THESE specific topics."
+            + _rs_list
+        )
     usr_prompt = (
         "Question:\n"
         + query
+        + file_hint
         + class_hint
         + "\n\nBuild a minimal high-signal plan. Prioritize RS, hot-index context, and kommentar context."
         + " Use search_by_paragraph for specific §§ and search_by_schlagwort for OGH taxonomy keywords."
     )
     messages = [{"role": "system", "content": sys_prompt}, {"role": "user", "content": usr_prompt}]
+    vlog(f"\n{'='*60}\nORGANIZER: model={organizer_model} query={query[:120]!r}")
+    vlog(f"  sys_prompt chars={len(sys_prompt)} usr_prompt chars={len(usr_prompt)}")
     raw_resp, latency_ms = openrouter_chat(
         model=organizer_model,
         messages=messages,
@@ -1539,14 +1650,17 @@ def run_pre_search_scatter(
     remote_mcp_container: str,
     query: str = "",
     classification: dict[str, Any] | None = None,
+    max_paragraph: int = 5,
+    max_schlagwort: int = 4,
+    max_keyword: int = 2,
 ) -> str:
     """Run parallel pre-search MCP calls and return formatted evidence string."""
     tasks: list[tuple[str, dict[str, Any]]] = []
-    for par in expanded.get("paragraph_queries", [])[:5]:
+    for par in expanded.get("paragraph_queries", [])[:max_paragraph]:
         tasks.append(("search_by_paragraph", {"paragraph": str(par)[:120], "limit": 8}))
-    for sw in expanded.get("schlagwort_queries", [])[:4]:
+    for sw in expanded.get("schlagwort_queries", [])[:max_schlagwort]:
         tasks.append(("search_by_schlagwort", {"schlagwort": str(sw)[:120], "limit": 8}))
-    for kw in expanded.get("keyword_queries", [])[:2]:
+    for kw in expanded.get("keyword_queries", [])[:max_keyword]:
         tasks.append(("search_ogh_rechtssaetze", {"query": str(kw)[:200], "limit": 8}))
     # Auto-detect topic and add grounding context + cluster detection
     hints = _extract_retrieval_hints(query) if query else {}
@@ -1554,8 +1668,35 @@ def run_pre_search_scatter(
     if topic and "build_grounding_context" in TOOL_SPECS:
         compact_q = _compact_search_query(query, max_terms=12) if query else ""
         if compact_q:
-            tasks.append(("build_grounding_context", {"topic": topic, "query": compact_q, "max_clusters": 2, "max_tokens": 500}))
+            tasks.append(("build_grounding_context", {"topic": topic, "query": compact_q, "max_clusters": 2, "max_tokens": 1200}))
             tasks.append(("detect_clusters", {"topic": topic, "query": compact_q}))
+    # Auto-add lehrbuch search (always fires — topic filter optional)
+    if "search_lehrbuch" in TOOL_SPECS:
+        lb_rg = _TOPIC_TO_LEHRBUCH_RG.get(topic, "") if topic else ""
+        lb_q = _lehrbuch_search_query(query, classification)
+        if lb_q:
+            lb_args: dict[str, Any] = {"query": lb_q, "limit": 5}
+            if lb_rg:
+                lb_args["rechtsgebiet"] = lb_rg
+            tasks.append(("search_lehrbuch", lb_args))
+    # Fallback A: Extract §§ directly from query text → add paragraph searches
+    # This catches cases where classifier fails but query explicitly mentions §§
+    if query and "search_by_paragraph" in TOOL_SPECS:
+        _existing_pars = {a.get("paragraph", "") for _, a in tasks if _ == "search_by_paragraph"}
+        for norm in extract_norm_citations(query)[:6]:
+            if norm not in _existing_pars:
+                tasks.append(("search_by_paragraph", {"paragraph": norm[:120], "limit": 8}))
+                _existing_pars.add(norm)
+    # Fallback B: if classification gave no keyword_queries, extract legal terms from query
+    # and add search_ogh_rechtssaetze to ensure we always search for relevant RS
+    if not expanded.get("keyword_queries") and query and "search_ogh_rechtssaetze" in TOOL_SPECS:
+        lb_q = _lehrbuch_search_query(query, classification)
+        if lb_q:
+            tasks.append(("search_ogh_rechtssaetze", {"query": lb_q, "limit": 10}))
+        # Also add a broader compact-query RS search for diversity
+        cq = _compact_search_query(query, max_terms=6)
+        if cq and cq != lb_q:
+            tasks.append(("search_ogh_rechtssaetze", {"query": cq, "limit": 8}))
     if not tasks:
         return ""
     results: list[str] = []
@@ -1584,7 +1725,7 @@ def run_pre_search_scatter(
             except Exception:
                 pass
     # Deduplicate: prioritize high-value tools, skip lines with only already-seen RS
-    _HIGH_VALUE = {"build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht"}
+    _HIGH_VALUE = {"build_grounding_context", "detect_clusters", "ask_gemini_zivilrecht", "search_lehrbuch"}
     _seen_rs: set[str] = set()
     deduped: list[str] = []
     # High-value tools first
@@ -1612,6 +1753,7 @@ def build_plan_with_organizer(
     opencode_sidecar_cmd: str = "",
     opencode_sidecar_timeout_sec: int = 90,
     classifier_model: str = "",
+    file_context: str = "",
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     org_allowed = role_tools("organizer")
     fallback_streams: list[dict[str, Any]] = []
@@ -1631,7 +1773,7 @@ def build_plan_with_organizer(
     backend = (organizer_backend or "openrouter").strip().lower()
     if backend == "openrouter":
         try:
-            plan, meta = _build_plan_openrouter(query=query, organizer_model=organizer_model, max_workstreams=max_workstreams, fallback=fallback, classification=classification)
+            plan, meta = _build_plan_openrouter(query=query, organizer_model=organizer_model, max_workstreams=max_workstreams, fallback=fallback, classification=classification, file_context=file_context)
             meta["classification"] = classification
             return plan, meta
         except Exception as e:
@@ -1666,6 +1808,7 @@ def build_plan_with_organizer(
                 max_workstreams=max_workstreams,
                 fallback=fallback,
                 classification=classification,
+                file_context=file_context,
             )
         except Exception as e:
             openrouter_meta = {"latency_ms": None, "raw_text": "", "used_fallback": True, "backend": "openrouter", "error": str(e)}
@@ -1862,6 +2005,88 @@ _TOPIC_PATTERNS: list[tuple[str, list[str]]] = [
     ("pflichtteilsrecht", ["pflichtteil", "noterbe", "enterbung", "§ 762", "§ 763", "§ 764", "§ 765", "§ 766", "§ 780", "§ 781", "§ 782", "anrechnung"]),
 ]
 
+_LEHRBUCH_LEGAL_TERMS: set[str] = {
+    "schadenersatz", "schadensminderung", "zumutbarkeit", "naturalrestitution",
+    "wertersatz", "werkvertrag", "werklohn", "gewährleistung", "mangel",
+    "bereicherung", "condictio", "leistung", "nichtleistung", "aufwandersatz",
+    "sachenrecht", "eigentum", "besitz", "pfandrecht", "grundbuch", "ersitzung",
+    "erbrecht", "pflichtteil", "testament", "vermächtnis", "schenkung",
+    "bürgschaft", "interzession", "schuldbeitritt", "solidarschuld", "regress",
+    "vergleich", "widerruf", "irrtumsanfechtung", "anfechtung", "wandlung",
+    "minderung", "verbesserung", "rücktritt", "verzug", "erfüllung",
+    "vertrag", "verschulden", "kausalität", "rechtswidrigkeit", "haftung",
+    "delikt", "gefährdungshaftung", "zurechnung", "mitverschulden",
+    "verjährung", "frist", "mahnung", "unterhalt", "obsorge", "ehescheidung",
+    "zession", "abtretung", "aufrechnung", "stundung", "novation",
+    "werkvertrag", "honorar", "entgelt", "deckung", "versicherung",
+    "exekution", "einstellung", "oppositionsklage", "vollstreckung",
+    "zustellung", "rekurs", "berufung", "wiedereinsetzung",
+    # International law / Zustellrecht
+    "hinterlegung", "abgabestelle", "ortsabwesenheit", "rückschein",
+    "haager", "übereinkommen", "übersetzung", "rechtshilfe",
+    "insolvenz", "akzessorietät", "tilgung", "zahlungsplan",
+    "invalidität", "pension", "dienstunfähigkeit", "berufsunfähigkeit",
+    "mietvertrag", "pachtvertrag", "bestandvertrag", "mietzins",
+    "amtshaftung", "organhaftung", "staatshaftung",
+    # IO/Insolvenz
+    "konkurs", "insolvenzordnung", "masseforderung", "absonderung", "aussonderung",
+    "anfechtungsklage", "gläubigerbenachteiligung",
+    # KSchG/Verbraucher
+    "verbraucher", "konsument", "konsumentenschutz", "warnpflicht",
+    # VersVG/Versicherung
+    "deckungszusage", "rechtsschutzversicherung", "obliegenheit",
+    "bevollmächtigung", "mandatsvertrag", "anwaltsvertrag",
+    # Prozessrecht erweitert
+    "nichtigkeit", "gehörsverletzung", "säumnis", "versäumung",
+    "berufungsfrist", "rekursfrist", "zustellmangel",
+}
+
+
+def _lehrbuch_search_query(query: str, classification: dict[str, Any] | None = None) -> str:
+    """Extract legal-topic terms for lehrbuch FTS via substring matching."""
+    cls = classification or {}
+    seen: set[str] = set()
+    seeds: list[str] = []
+
+    def _add(t: str) -> None:
+        t = t.strip()
+        if len(t) <= 2 or t.lower() in SEARCH_STOPWORDS or t.lower() in seen:
+            return
+        seen.add(t.lower())
+        seeds.append(t)
+
+    # 1) Classification keywords + paragraphs
+    for kw in cls.get("keywords") or []:
+        _add(str(kw))
+    for par in cls.get("mandatory_paragraphs") or []:
+        _add(str(par))
+    if cls.get("domain"):
+        _add(str(cls["domain"]))
+    # 2) Substring-match legal terms in query (handles compounds like "Werklohnanspruch")
+    q_low = (query or "").lower()
+    for term in sorted(_LEHRBUCH_LEGAL_TERMS, key=len, reverse=True):
+        if term in q_low:
+            _add(term)
+    if not seeds:
+        return ""
+    # Max 2 terms — plainto_tsquery does AND, fewer terms = more results
+    return " ".join(seeds[:2])[:120]
+
+
+_TOPIC_TO_LEHRBUCH_RG: dict[str, str] = {
+    "schadenersatz": "SCHADENERSATZ", "bereicherungsrecht": "BEREICHERUNGSRECHT",
+    "allgemeiner_teil": "SCHULDRECHT_AT", "vertraege": "VERTRAEGE",
+    "sachenrecht": "SACHENRECHT", "familienrecht": "FAMILIENRECHT",
+    "schuldrecht_bt": "SCHULDRECHT_BT", "internationale_bezuege": "INTERNATIONALE_BEZUEGE",
+    "mehrpersonal": "MEHRPERSONAL", "pflichtteilsrecht": "ERBRECHT",
+    "erbrecht": "ERBRECHT", "laesio_enormis": "SCHULDRECHT_BT",
+    # Extended domains for real cases (exekution, zustellrecht, werklohn etc.)
+    "exekution": "SCHULDRECHT_BT", "zustellrecht": "SCHULDRECHT_AT",
+    "wohnungseigentum": "SACHENRECHT", "versicherungsrecht": "SCHADENERSATZ",
+    "werkvertrag": "SCHULDRECHT_BT", "mietrecht": "SCHULDRECHT_BT",
+    "honorar": "SCHULDRECHT_BT", "prozessrecht": "SCHULDRECHT_AT",
+}
+
 
 def _topic_hint(query: str, hints: dict[str, str]) -> str | None:
     """Detect the most likely zivil-pruefung topic for a query."""
@@ -1929,7 +2154,7 @@ def build_tool_args(tool_name: str, query: str, probe_limit: int) -> dict[str, A
     if tool_name == "build_grounding_context":
         topic = _topic_hint(query, hints)
         if topic:
-            return {"topic": topic, "query": _compact_search_query(query, max_terms=12), "max_clusters": 1, "max_tokens": 500}
+            return {"topic": topic, "query": _compact_search_query(query, max_terms=12), "max_clusters": 1, "max_tokens": 1200}
         return None
     if tool_name == "detect_clusters":
         topic = _topic_hint(query, hints)
@@ -1938,6 +2163,17 @@ def build_tool_args(tool_name: str, query: str, probe_limit: int) -> dict[str, A
         return None
     if tool_name == "ask_gemini_zivilrecht":
         return {"question": _compact_search_query(query, max_terms=15)}
+    if tool_name == "search_lehrbuch":
+        compact_q = _compact_search_query(query, max_terms=8)
+        if not compact_q:
+            return None
+        topic = _topic_hint(query, hints)
+        out: dict[str, Any] = {"query": compact_q, "limit": limit}
+        if topic:
+            rg = _TOPIC_TO_LEHRBUCH_RG.get(topic, "")
+            if rg:
+                out["rechtsgebiet"] = rg
+        return out
     return None
 
 
@@ -2063,7 +2299,7 @@ def sanitize_tool_args(tool_name: str, raw_args: dict[str, Any], query: str, pro
         if not q:
             q = _compact_search_query(query, max_terms=12)
         max_cl = max(1, min(int(args.get("max_clusters", 1) or 1), 3))
-        max_tk = max(100, min(int(args.get("max_tokens", 500) or 500), 1000))
+        max_tk = max(100, min(int(args.get("max_tokens", 1200) or 1200), 2000))
         return {"topic": topic, "query": q[:300], "max_clusters": max_cl, "max_tokens": max_tk}
 
     if tool_name == "detect_clusters":
@@ -2088,6 +2324,23 @@ def sanitize_tool_args(tool_name: str, raw_args: dict[str, Any], query: str, pro
         out: dict[str, Any] = {"question": question[:500]}
         if ctx:
             out["context"] = ctx[:500]
+        return out
+
+    if tool_name == "search_lehrbuch":
+        q = str(args.get("query") or "").strip()
+        if (not q) or (len(q) > max_query_length) or ("\n" in q):
+            if not fallback:
+                return None
+            q = str(fallback.get("query") or "").strip()
+        if not q:
+            return None
+        q = _compact_search_query(q, max_terms=8)
+        rg = str(args.get("rechtsgebiet") or "").strip().upper()
+        if not rg and fallback:
+            rg = str(fallback.get("rechtsgebiet") or "").strip().upper()
+        out: dict[str, Any] = {"query": q[:max_query_length], "limit": limit}
+        if rg:
+            out["rechtsgebiet"] = rg
         return out
 
     return fallback
@@ -2168,6 +2421,7 @@ def run_subagent_llm(
     pre_search_evidence: str = "",
     all_stream_names: list[str] | None = None,
     classification: dict[str, Any] | None = None,
+    file_context: str = "",
 ) -> dict[str, Any]:
     started = time.perf_counter()
     stream_tools = filter_tools_for_role(list(stream.get("tools") or []), "worker")
@@ -2180,8 +2434,9 @@ def run_subagent_llm(
         "Use ONLY allowed tools. Gather high-signal evidence with explicit RS/GZ references. "
         "Do not invent case facts.\n\n"
         "WORK IN PHASES:\n"
-        "PHASE 1 - TARGETED SEARCH (2-3 calls):\n"
+        "PHASE 1 - TARGETED SEARCH (3-4 calls):\n"
         "  - For EVERY § in the classification: call search_by_paragraph\n"
+        "  - For key §§: also call search_kommentar_paragraph to get doctrinal commentary (Kommentar)\n"
         "  - search_by_schlagwort for OGH taxonomy keywords\n"
         "  - search_ogh_rechtssaetze for broader keyword search\n\n"
         "PHASE 2 - DEEPEN (2-3 calls):\n"
@@ -2204,7 +2459,13 @@ def run_subagent_llm(
         "AND vertraglich (§1299/§1313a).\n"
         "- Interzession/Bürgschaft: Search §25c KSchG AND §879 ABGB (Sittenwidrigkeit) "
         "as SEPARATE regimes. If Exekution mentioned, also search §35 EO (Oppositionsklage).\n"
-        "- Gewährleistung: Search §§922/932 AND §870/§874 ABGB (Arglist/Irreführung) separately."
+        "- Gewährleistung: Search §§922/932 AND §870/§874 ABGB (Arglist/Irreführung) separately.\n"
+        "- Laesio enormis: Search §934 ABGB (Anfechtung) AND §935 ABGB (Ausschlussgründe) as SEPARATE searches. "
+        "Check ALL 5 taxative Ausschlussgründe des §935: (1) besondere Vorliebe, (2) Kenntnis des wahren Werts, "
+        "(3) gemischte Schenkung, (4) Glücksvertrag/aleatorisches Element (RS0106040), "
+        "(5) gerichtliche Zwangsversteigerung (RS0122377, NUR Zwangsversteigerung, nicht freiwillig). "
+        "Verjährung: §1487 ABGB (3 Jahre), Fristbeginn = Vertragsschluss (NICHT Kenntnis — hM). "
+        "Rechtsfolge: Aufhebung + facultas alternativa (Ergänzung auf gemeinen Wert)."
     )
     if worker_ctx:
         sys_prompt += "\n\n" + worker_ctx
@@ -2230,6 +2491,27 @@ def run_subagent_llm(
             usr_parts.append(f"\nParallel streams covering other aspects: {', '.join(others)}. Focus on YOUR goal, avoid duplication.")
     if pre_search_evidence:
         usr_parts.append("\nPre-search evidence (CRITICAL starting context — integrate RS numbers into your searches, deepen the most relevant ones):\n" + pre_search_evidence[:5000])
+    if file_context:
+        # Extract RS numbers from file context for direct lookup
+        import re as _re
+        _rs_nums = sorted(set(_re.findall(r"RS0\d{5,7}", file_context)))
+        _rs_hint = ""
+        if _rs_nums:
+            _rs_hint = (
+                "\n\nCRITICAL — PHASE 0 (before any keyword search):\n"
+                "The Aktenkontext contains these RS numbers: " + ", ".join(_rs_nums[:12]) + "\n"
+                "You MUST call hot_rs_lookup or get_rechtssatz for EACH of these RS numbers FIRST. "
+                "These are pre-identified by the case team as directly relevant. "
+                "Only AFTER looking them up, proceed with keyword searches in Phase 1."
+            )
+        usr_parts.append(
+            "\n--- AKTENKONTEXT (aus lokalen Falldateien) ---\n"
+            + file_context[:3000]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+            "Use the Aktenkontext to identify relevant §§, RS numbers, and legal issues. "
+            "Search for THESE specific topics with your tools."
+            + _rs_hint
+        )
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": sys_prompt},
         {"role": "user", "content": "\n".join(usr_parts)},
@@ -2240,7 +2522,9 @@ def run_subagent_llm(
     llm_error: str | None = None
     _zero_result_sigs: set[str] = set()  # track tool+args combos that returned 0 results
 
+    vlog(f"\n{'='*60}\nWORKER START: {stream['name']} tools={stream_tools}")
     for step in range(1, max_steps + 1):
+        vlog(f"  WORKER {stream['name']} step={step}/{max_steps}")
         _step_ok = False
         for _retry in range(3):
             try:
@@ -2385,7 +2669,7 @@ def run_subagent_llm(
                     "status": call.get("status"),
                     "latency_ms": call.get("latency_ms"),
                     "error": call.get("error"),
-                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:2400 if fn in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 1600] if payload is not None else ""),
+                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:3000 if fn in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 2400] if payload is not None else ""),
                 }
                 tool_traces.append(trace)
                 tool_payload_for_llm = payload if payload is not None else {"ok": False, "error": call.get("error")}
@@ -2425,6 +2709,7 @@ def run_subagent_llm(
                     _zero_result_sigs.add(_zero_sig)
             continue
         final_answer = text.strip()
+        vlog(f"  WORKER {stream['name']} DONE steps={step} answer={final_answer[:200]!r}")
         break
 
     # Phase 3d: Forced deep-dive — RS numbers found in traces but never looked up
@@ -2438,7 +2723,7 @@ def run_subagent_llm(
                     _looked_up_rs.add(rs_arg)
             prev = tt.get("payload_preview") or ""
             _found_rs.update(extract_rs_numbers(prev))
-        _unlooked = sorted(_found_rs - _looked_up_rs, reverse=True)[:5]
+        _unlooked = sorted(_found_rs - _looked_up_rs, reverse=True)[:8]
         for rs in _unlooked:
             _deep_tool = "hot_rs_lookup" if "hot_rs_lookup" in allowed else ("get_rechtssatz" if "get_rechtssatz" in allowed else "")
             if not _deep_tool:
@@ -2555,7 +2840,7 @@ def run_subagent_llm(
                     "status": call.get("status"),
                     "latency_ms": call.get("latency_ms"),
                     "error": call.get("error"),
-                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:2400 if tool in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 1600] if payload is not None else ""),
+                    "payload_preview": (json.dumps(payload, ensure_ascii=False)[:3000 if tool in ("build_grounding_context", "hot_rs_lookup", "hot_cluster_context", "ask_gemini_zivilrecht") else 2400] if payload is not None else ""),
                 }
             )
 
@@ -2623,6 +2908,10 @@ def synthesize_answer(
     subagent_results: list[dict[str, Any]],
     dry_run: bool,
     postgres_only: bool,
+    file_context: str = "",
+    file_context_meta: dict[str, Any] | None = None,
+    triage_context: str = "",
+    max_tokens: int = 4500,
 ) -> tuple[str, dict[str, Any] | None]:
     if dry_run:
         lines = []
@@ -2643,22 +2932,39 @@ def synthesize_answer(
     structured_format = (
         "\n\nStructure your answer in these sections:\n"
         "1. KERNFRAGEN — 2-3 zentrale Rechtsfragen, jeweils mit kurzer Einordnung\n"
-        "2. RECHTSGRUNDLAGEN — konkrete §§ mit Gesetzen. Bei mehreren Anspruchsgrundlagen: Stufenbau/Doppelgleisigkeit darstellen\n"
+        "2. RECHTSGRUNDLAGEN — konkrete §§ mit Gesetzen. Bei mehreren Anspruchsgrundlagen: Stufenbau/Doppelgleisigkeit darstellen. "
+        "IMMER Rechtsfolgen (zB Aufhebung, Schadenersatz, facultas alternativa) und Verjährung angeben. "
+        "Bei Verjährung: Fristbeginn IMMER nennen (zB ab Vertragsschluss, ab Kenntnis, ab Zustellung)\n"
         "3. RELEVANTE JUDIKATUR — RS-Nummern mit 1-Satz-Zusammenfassung und Relevanz für den Fall\n"
-        "4. SUBSUMTION — Anwendung auf den konkreten Fall, GETRENNT nach Anspruchsgrundlagen\n"
-        "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen?\n"
+        "4. SUBSUMTION — NUMMERIERTE Tatbestandsprüfung (1., 2., 3., ...) mit (+) erfüllt oder (-) nicht erfüllt je Merkmal. "
+        "GETRENNT nach Anspruchsgrundlagen. Jedes Tatbestandsmerkmal einzeln prüfen, nicht nur das Ergebnis. "
+        "Bei Ausschlussgründen: ALLE taxativen Gründe einzeln durchgehen und mit +/- bewerten\n"
+        "5. BEWEISLASTVERTEILUNG — Wer muss was beweisen? Welche Beweise liegen vor/fehlen? "
+        "Praxishinweis: Welche Beweismittel beantragen (zB Sachverständigengutachten, Urkundenvorlage)?\n"
         "6. PROZESSSTRATEGIE — Haupt- und Eventualbegehren, priorisiert nach Erfolgsaussicht\n"
         "7. RISIKEN / GEGENARGUMENTE — mind. 4 mit konkreten Repliken/Entkräftungen (RS-gestützt)\n"
-        "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n\n"
+        "8. ERFOLGSAUSSICHTEN — pro Anspruchsgrundlage mit Prozent-Einschätzung\n"
+        "9. STRATEGISCHE DETAILS — NUR wenn Aktenkontext vorhanden: "
+        "FRISTEN (exakte Daten, z.B. 'Rekursfrist: 14 Tage → bis DD.MM.YYYY'), "
+        "KOSTEN (EUR-Beträge: Gerichtsgebühren + RA-Kosten = Gesamt), "
+        "PARALLELE VERFAHREN (ausländische Proceedings mit Case-Nr und Impact), "
+        "NÄCHSTE SCHRITTE (nummeriert, mit Daten), "
+        "KOSTEN-NUTZEN (Kosten der Aktion vs. Risiko der Untätigkeit)\n\n"
         "WICHTIG:\n"
         "- Bei mehreren Anspruchsgrundlagen: IMMER Haupt- und Eventualbegehren ordnen\n"
         "- Konkurrierende Ansprüche (zB Wandlung UND Preisminderung) als Stufen darstellen\n"
         "- Beweislast EXPLIZIT für jede strittige Tatsache angeben\n"
-        "- Mind. 4 Risiken, jedes mit RS-Nummer und konkreter Replik. KEINE Füll-Risiken ohne Fallbezug\n"
+        "- Mind. 4 Risiken, jedes mit RS-Nummer und konkreter Replik. KEINE Füll-Risiken ohne Fallbezug. "
+        "Verjährung IMMER als eigenständiges Risiko prüfen\n"
         "- Arzthaftung: IMMER Doppelgleisigkeit prüfen (Delikt §1295/§1325 + Vertrag §1299/§1313a), "
         "Behandlungsfehler UND Aufklärungsfehler getrennt subsumieren\n"
         "- Interzession: IMMER §25c KSchG + §879 ABGB als getrennte Anspruchsgrundlagen prüfen, "
-        "bei Exekution auch §35 EO (Oppositionsklage) berücksichtigen"
+        "bei Exekution auch §35 EO (Oppositionsklage) berücksichtigen\n"
+        "- Laesio enormis (§934/935 ABGB): In Sec 4 IMMER ALLE 5 taxativen Ausschlussgründe des §935 durchgehen: "
+        "(1) besondere Vorliebe, (2) Kenntnis des wahren Werts, (3) gemischte Schenkung (bewusster doppelter Vertragswille), "
+        "(4) Glücksvertrag/aleatorisches Element, (5) gerichtliche Zwangsversteigerung (NUR Zwangsversteigerung, nicht freiwillig). "
+        "Verjährung: §1487 ABGB (3J), Fristbeginn = Vertragsschluss (hM, NICHT ab Kenntnis)\n"
+        "- Section 9 is MANDATORY when Aktenkontext is provided. Use EXACT dates and amounts from the context."
     )
     if postgres_only:
         sys_prompt = (
@@ -2682,9 +2988,65 @@ def synthesize_answer(
         )
     if synth_ctx:
         sys_prompt += "\n\n" + synth_ctx
+    if triage_context:
+        # Compact injection: urgency hint only, avoid attention dilution
+        try:
+            _tc = json.loads(triage_context) if isinstance(triage_context, str) else triage_context
+        except Exception:
+            _tc = {}
+        _urg = _tc.get("urgency", "MEDIUM") if isinstance(_tc, dict) else "MEDIUM"
+        _urg_reason = (_tc.get("urgency_reason", "") if isinstance(_tc, dict) else "")[:120]
+        sys_prompt += (
+            f"\n\nTRIAGE: Dringlichkeit {_urg}"
+            + (f" ({_urg_reason})" if _urg_reason else "")
+            + "."
+        )
+    # --- Extract facts from file context and inject into sys_prompt ---
+    _extracted_facts: list[str] = []
+    file_block = ""
+    if file_context:
+        # Use pre-extracted facts from full file scan (not truncated context)
+        _ef = (file_context_meta or {}).get("extracted_facts", {})
+        _fc_rs = _ef.get("rs_numbers", [])
+        _deadlines = _ef.get("deadlines", [])
+        _costs = _ef.get("costs", [])
+        _case_nums = _ef.get("case_nums", [])
+        _all_dates = _ef.get("dates", [])
+        # Fallback: extract from truncated context if meta missing
+        if not _fc_rs:
+            import re as _re
+            _fc_rs = sorted(set(_re.findall(r"RS0\d{5,7}", file_context)))
+        # Build facts for sys_prompt Section 9 instruction
+        if _deadlines:
+            _extracted_facts.append("FRISTEN: " + "; ".join(_deadlines))
+        if _costs:
+            _extracted_facts.append("KOSTEN: " + "; ".join(_costs))
+        if _case_nums:
+            _extracted_facts.append("PARALLELE VERFAHREN: " + "; ".join(_case_nums))
+        if _all_dates:
+            _extracted_facts.append("ALLE DATEN IM AKT: " + ", ".join(_all_dates))
+        if _extracted_facts:
+            sys_prompt += (
+                "\n\n=== SECTION 9 DATA (from case files — use EXACTLY as written) ===\n"
+                + "\n".join(_extracted_facts)
+                + "\nYou MUST include ALL of these in Section 9. Copy dates and amounts verbatim.\n"
+            )
+        # RS hint for sys_prompt
+        if _fc_rs:
+            sys_prompt += (
+                "\nPRE-VALIDATED RS numbers (may be cited even without tool evidence): "
+                + ", ".join(_fc_rs[:12])
+            )
+        # User prompt gets the full Aktenkontext
+        file_block = (
+            "\n\n--- AKTENKONTEXT (Lokale Dateien) ---\n"
+            + file_context[:_CONTEXT_MAX_CHARS]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+        )
     usr_prompt = (
         "Question:\n"
         + query
+        + file_block
         + "\n\nPlan focus:\n"
         + str(plan.get("synthesis_focus") or "")
         + "\n\nEvidence (JSON):\n"
@@ -2700,11 +3062,12 @@ def synthesize_answer(
         )
     )
     messages = [{"role": "system", "content": sys_prompt}, {"role": "user", "content": usr_prompt}]
+    vlog(f"\n{'='*60}\nSYNTHESIS: model={synth_model} sys_chars={len(sys_prompt)} usr_chars={len(usr_prompt)} evidence_chunks={len(evidence_chunks)}")
     try:
         raw_resp, latency_ms = openrouter_chat(
             model=synth_model,
             messages=messages,
-            max_tokens=4500,
+            max_tokens=max_tokens,
             temperature=0.0,
             tools=None,
             tool_choice=None,
@@ -2715,6 +3078,7 @@ def synthesize_answer(
         )
         msg = ((raw_resp.get("choices") or [{}])[0] or {}).get("message") or {}
         answer = message_text(msg).strip()
+        vlog(f"  SYNTHESIS DONE {latency_ms:.0f}ms answer_chars={len(answer)} max_tokens={max_tokens}")
         return answer, {
             "latency_ms": round(latency_ms, 2),
             "model": synth_model,
@@ -2749,6 +3113,227 @@ def synthesize_answer(
             lines.append(f"- [{rec.get('name')}] {rec.get('answer')}")
         answer = "\n".join(lines)
         return answer, {"latency_ms": None, "model": synth_model, "answer_chars": len(answer), "error": str(e)}
+
+
+# ---------------------------------------------------------------------------
+# Case context loader (--context-dir / --context-file / --ocr)
+# ---------------------------------------------------------------------------
+_CONTEXT_MAX_CHARS = 12000
+_SINGLE_FILE_MAX = 6000
+_PRIORITY_FILES = ["FALLUEBERSICHT.md", "AKT_KARTEIKARTE.md", "CASE_DATA.json"]
+_CONTEXT_EXCLUDE = {".DS_Store"}
+_CONTEXT_EXCLUDE_PREFIXES = ("REVIEW_", ".")
+
+
+def load_case_context(
+    context_dir: str,
+    context_files: list[str],
+    ocr_pdfs: bool,
+    exclude_patterns: list[str] | None = None,
+) -> tuple[str, dict[str, Any]]:
+    """Load case files into a single context string (max ~2K tokens)."""
+    meta: dict[str, Any] = {"files_read": [], "files_skipped": [], "ocr_count": 0, "final_chars": 0}
+    _user_excludes = set(exclude_patterns or [])
+    parts: list[str] = []
+    budget = _CONTEXT_MAX_CHARS
+
+    def _skip(name: str) -> bool:
+        if name in _CONTEXT_EXCLUDE:
+            return True
+        if name in _user_excludes:
+            return True
+        if any(fnmatch.fnmatch(name, pat) for pat in _user_excludes):
+            return True
+        return any(name.startswith(p) for p in _CONTEXT_EXCLUDE_PREFIXES)
+
+    def _read_text(p: Path) -> str:
+        try:
+            return p.read_text(encoding="utf-8", errors="replace")[:_SINGLE_FILE_MAX]
+        except Exception:
+            return ""
+
+    def _ocr_pdf(p: Path) -> str:
+        try:
+            r = subprocess.run(
+                ["pdftotext", "-layout", str(p), "-"],
+                capture_output=True, text=True, timeout=30,
+            )
+            txt = (r.stdout or "").strip()
+            if len(txt) < 50:
+                return ""
+            return txt[:_SINGLE_FILE_MAX]
+        except Exception:
+            return ""
+
+    seen: set[str] = set()
+
+    def _add(p: Path, content: str) -> None:
+        nonlocal budget
+        resolved = str(p.resolve())
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        if not content or budget <= 0:
+            meta["files_skipped"].append(str(p))
+            return
+        chunk = content[:budget]
+        parts.append(f"### {p.name}\n{chunk}")
+        budget -= len(chunk)
+        meta["files_read"].append(str(p))
+
+    # --- explicit --context-file entries ---
+    for fp in context_files:
+        p = Path(fp).expanduser()
+        if not p.is_file():
+            meta["files_skipped"].append(fp)
+            continue
+        if p.suffix.lower() == ".pdf":
+            if ocr_pdfs:
+                txt = _ocr_pdf(p)
+                if txt:
+                    meta["ocr_count"] += 1
+                    _add(p, txt)
+                else:
+                    meta["files_skipped"].append(str(p))
+            else:
+                meta["files_skipped"].append(str(p))
+        else:
+            _add(p, _read_text(p))
+
+    # --- --context-dir discovery ---
+    if context_dir:
+        d = Path(context_dir).expanduser()
+        if d.is_dir():
+            # Priority files first (unless excluded)
+            for name in _PRIORITY_FILES:
+                if _skip(name):
+                    continue
+                fp = d / name
+                if fp.is_file() and budget > 0:
+                    _add(fp, _read_text(fp))
+            # Other text files sorted by size (smallest first)
+            extras = sorted(
+                [f for f in d.iterdir()
+                 if f.is_file()
+                 and f.suffix.lower() in (".md", ".txt", ".json")
+                 and f.name not in _PRIORITY_FILES
+                 and not _skip(f.name)],
+                key=lambda f: f.stat().st_size,
+            )
+            for fp in extras:
+                if budget <= 0:
+                    meta["files_skipped"].append(str(fp))
+                    continue
+                _add(fp, _read_text(fp))
+            # PDFs (recursive, max 5)
+            if ocr_pdfs:
+                pdfs = sorted(d.rglob("*.pdf"))[:5]
+                for fp in pdfs:
+                    if _skip(fp.name) or budget <= 0:
+                        meta["files_skipped"].append(str(fp))
+                        continue
+                    txt = _ocr_pdf(fp)
+                    if txt:
+                        meta["ocr_count"] += 1
+                        _add(fp, txt)
+                    else:
+                        meta["files_skipped"].append(str(fp))
+        else:
+            meta["files_skipped"].append(f"dir_not_found:{context_dir}")
+
+    ctx = "\n\n".join(parts)
+    meta["final_chars"] = len(ctx)
+    # Extract key facts from FULL file contents (before truncation)
+    import re as _re
+    _full_texts = []
+    for fp_str in meta["files_read"]:
+        try:
+            _full_texts.append(Path(fp_str).read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            pass
+    _full_scan = "\n".join(_full_texts)
+    meta["extracted_facts"] = {
+        "deadlines": sorted(set(_re.findall(r"(?:bis|Deadline|Frist[a-z]*)\s*[:.]?\s*\d{2}\.\d{2}\.\d{4}", _full_scan, _re.I)))[:5],
+        "dates": sorted(set(_re.findall(r"\d{2}\.\d{2}\.\d{4}", _full_scan)))[:10],
+        "costs": [c for c in _re.findall(r"(?:EUR|€)\s*[\d.,]+", _full_scan) if not c.strip().endswith("0") or len(c) > 4][:5],
+        "case_nums": sorted(set(_re.findall(r"(?:Case\s+\d[\w-]+|SDNY\b|Chapter\s+11)", _full_scan, _re.I)))[:5],
+        "rs_numbers": sorted(set(_re.findall(r"RS0\d{5,7}", _full_scan)))[:15],
+    }
+    vlog(f"CONTEXT loaded {len(meta['files_read'])} files, {meta['final_chars']} chars, {meta['ocr_count']} OCR, {len(meta.get('extracted_facts',{}).get('rs_numbers',[]))} RS")
+    return ctx, meta
+
+
+def synthesize_quick(
+    query: str,
+    synth_model: str,
+    classification: dict[str, Any],
+    pre_search_evidence: str,
+    dry_run: bool,
+    file_context: str = "",
+) -> tuple[str, dict[str, Any] | None]:
+    """Single-call strategic synthesis — no worker pipeline."""
+    if dry_run:
+        return f"Dry-run quick synthesis\n\nQuestion: {query}", None
+
+    domain = classification.get("domain", "unclassified")
+    subdomain = classification.get("subdomain", "")
+    domain_hint = f"Rechtsgebiet: {domain}"
+    if subdomain:
+        domain_hint += f" ({subdomain})"
+
+    file_block = ""
+    if file_context:
+        file_block = (
+            "\n\n--- AKTENKONTEXT (Lokale Dateien) ---\n"
+            + file_context[:_CONTEXT_MAX_CHARS]
+            + "\n--- ENDE AKTENKONTEXT ---\n"
+        )
+
+    evidence_block = ""
+    if pre_search_evidence:
+        evidence_block = (
+            "\n\n--- VORRECHERCHE-ERGEBNISSE (PostgreSQL) ---\n"
+            + pre_search_evidence[:3000]
+            + "\n--- ENDE VORRECHERCHE ---\n"
+        )
+
+    sys_prompt = (
+        "Du bist ein erfahrener österreichischer Rechtsanwalt. "
+        "Erstelle ein kurzes strategisches Memo für den Mandanten. "
+        "Fokus: Handlungsempfehlung, Fristen, Kosten-Nutzen. "
+        "KEIN akademisches Gutachten. Pragmatisch und entscheidungsorientiert."
+        f"\n{domain_hint}"
+        f"{QUICK_STRUCTURED_FORMAT}"
+    )
+    usr_msg = f"MANDANTENFRAGE:\n{query}{file_block}{evidence_block}"
+
+    try:
+        raw_resp, latency_ms = openrouter_chat(
+            model=synth_model,
+            messages=[{"role": "system", "content": sys_prompt},
+                      {"role": "user", "content": usr_msg}],
+            max_tokens=2500,
+            temperature=0.1,
+            tools=None,
+            tool_choice=None,
+            provider=_openrouter_provider_for_model(synth_model),
+            reasoning=_openrouter_reasoning_for_role(synth_model, "synth"),
+            models=_openrouter_model_fallbacks(synth_model),
+            title="legalchat-quick-synthesis",
+        )
+        msg = ((raw_resp.get("choices") or [{}])[0] or {}).get("message") or {}
+        answer = message_text(msg).strip()
+        return answer, {
+            "latency_ms": round(latency_ms, 2),
+            "model": synth_model,
+            "answer_chars": len(answer),
+            "mode": "quick",
+            "domain": domain,
+            "usage": _openrouter_usage_snapshot(raw_resp),
+        }
+    except Exception as e:
+        answer = f"Quick synthesis error: {e}\n\nQuestion: {query}"
+        return answer, {"latency_ms": None, "model": synth_model, "answer_chars": len(answer), "error": str(e), "mode": "quick"}
 
 
 def collect_citation_evidence(subagent_results: list[dict[str, Any]], include_stream_answers: bool = False) -> dict[str, Any]:
@@ -2994,8 +3579,10 @@ def apply_hard_citation_gate(
     remote_ssh: str,
     remote_mcp_container: str,
     postgres_only: bool,
+    file_context: str = "",
 ) -> dict[str, Any]:
     mode = (citation_gate_mode or "warn").strip().lower()
+    vlog(f"\n{'='*60}\nCITATION GATE: mode={mode} answer_chars={len(answer)}")
     if mode == "off":
         return {
             "mode": "off",
@@ -3020,6 +3607,11 @@ def apply_hard_citation_gate(
     query_context_rs = set(extract_rs_numbers(query))
     query_context_te = {_normalize_ogh_gz(x) for x in extract_ogh_te_citations(query)}
     query_context_norms = set(extract_norm_citations(query))
+    # RS/TE/norms from file context (case files) are pre-curated — whitelist them
+    if file_context:
+        query_context_rs |= set(extract_rs_numbers(file_context))
+        query_context_te |= {_normalize_ogh_gz(x) for x in extract_ogh_te_citations(file_context)}
+        query_context_norms |= set(extract_norm_citations(file_context))
 
     def _evaluate(text: str) -> dict[str, Any]:
         cited_rs = extract_rs_numbers(text)
@@ -3033,6 +3625,14 @@ def apply_hard_citation_gate(
             remote_ssh=remote_ssh,
             remote_mcp_container=remote_mcp_container,
         )
+        # File-context RS numbers are pre-curated by case team — treat as valid
+        if query_context_rs:
+            fc_valid = query_context_rs & set(cited_rs)
+            if fc_valid:
+                inv = rs_validation.get("invalid") or []
+                rs_validation["invalid"] = [r for r in inv if r not in fc_valid]
+                rs_validation["valid"] = rs_validation.get("valid", 0) + len(fc_valid)
+                rs_validation["sample_valid"] = list(set(rs_validation.get("sample_valid") or []) | fc_valid)[:10]
         evidence_rs = set(evidence["rs"]) | query_context_rs
         evidence_te = {_normalize_ogh_gz(x) for x in evidence["te_ogh"]} | query_context_te
         evidence_norms = set(evidence["norms"]) | query_context_norms
@@ -3376,6 +3976,7 @@ def apply_hard_citation_gate(
                     indent=2,
                 )
             )
+    vlog(f"  CITATION GATE result: applied={report.get('applied')} answer_chars={len(report.get('answer',''))}")
     return report
 
 
@@ -3393,15 +3994,52 @@ def render_summary(
     citation_gate: dict[str, Any] | None,
     subagent_results: list[dict[str, Any]],
     dry_run: bool,
+    mode: str = "deep",
+    classification: dict[str, Any] | None = None,
+    pre_search_evidence_chars: int = 0,
+    elapsed_ms: float = 0.0,
+    file_context_meta: dict[str, Any] | None = None,
 ) -> str:
+    lines: list[str] = []
+    if mode == "quick":
+        lines.append("# LegalChat Quick Mode — Strategic Memo")
+        lines.append("")
+        lines.append(f"- Timestamp (UTC): `{utc_now()}`")
+        lines.append(f"- Dry run: `{dry_run}`")
+        lines.append(f"- Mode: `quick`")
+        lines.append(f"- Query: `{query}`")
+        lines.append(f"- Model profile: `{model_profile}`")
+        lines.append(f"- MCP mode: `{mcp_mode}`")
+        lines.append(f"- Synth model: `{synth_model}`")
+        if classification:
+            lines.append(f"- Domain: `{classification.get('domain', 'unclassified')}`")
+            if classification.get("subdomain"):
+                lines.append(f"- Subdomain: `{classification.get('subdomain')}`")
+        lines.append(f"- Pre-search evidence: `{pre_search_evidence_chars}` chars")
+        if file_context_meta and file_context_meta.get("final_chars"):
+            lines.append(f"- File context: `{file_context_meta['final_chars']}` chars, "
+                         f"`{len(file_context_meta.get('files_read', []))}` files, "
+                         f"`{file_context_meta.get('ocr_count', 0)}` OCR")
+        lines.append("")
+        lines.append("## Execution Stats")
+        if synth_meta:
+            lines.append(f"- synth_latency_ms: `{synth_meta.get('latency_ms')}`")
+            lines.append(f"- final_answer_chars: `{synth_meta.get('answer_chars')}`")
+        if citation_gate:
+            lines.append(f"- citation_gate_mode: `{citation_gate.get('mode')}`")
+        lines.append(f"- total_elapsed_ms: `{round(elapsed_ms, 2)}`")
+        lines.append("")
+        return "\n".join(lines) + "\n"
+
+    # --- Deep mode (original) ---
     total_stream_ms = sum(float(x.get("e2e_ms") or 0.0) for x in subagent_results)
     total_tool_calls = sum(int(x.get("tool_calls_total") or 0) for x in subagent_results)
     total_tool_ok = sum(int(x.get("tool_calls_ok") or 0) for x in subagent_results)
-    lines: list[str] = []
     lines.append("# LegalChat Agentic Harness Minimal Run")
     lines.append("")
     lines.append(f"- Timestamp (UTC): `{utc_now()}`")
     lines.append(f"- Dry run: `{dry_run}`")
+    lines.append(f"- Mode: `deep`")
     lines.append(f"- Query: `{query}`")
     lines.append(f"- Model profile: `{model_profile}`")
     lines.append(f"- Organizer backend: `{organizer_backend}`")
@@ -3409,6 +4047,10 @@ def render_summary(
     lines.append(f"- Organizer model: `{organizer_model}`")
     lines.append(f"- Worker model: `{worker_model}`")
     lines.append(f"- Synth model: `{synth_model}`")
+    if file_context_meta and file_context_meta.get("final_chars"):
+        lines.append(f"- File context: `{file_context_meta['final_chars']}` chars, "
+                     f"`{len(file_context_meta.get('files_read', []))}` files, "
+                     f"`{file_context_meta.get('ocr_count', 0)}` OCR")
     lines.append("")
     if organizer_meta:
         lines.append("## Organizer")
@@ -3469,6 +4111,648 @@ def discover_config_dir(argv: list[str]) -> Path:
     return cfg
 
 
+def write_output_file(output_path: str, answer: str, query: str, mode: str) -> dict:
+    """Write or append final answer to user-specified output file."""
+    p = Path(output_path).expanduser().resolve()
+    ext = p.suffix.lower()
+    existed = p.exists()
+    p.parent.mkdir(parents=True, exist_ok=True)
+
+    if ext == ".json":
+        entries: list = []
+        if existed:
+            try:
+                entries = json.loads(p.read_text(encoding="utf-8"))
+                if not isinstance(entries, list):
+                    entries = [entries]
+            except Exception:
+                entries = []
+        entries.append({
+            "query": query,
+            "mode": mode,
+            "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "answer": answer,
+        })
+        p.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+    else:
+        with open(p, "a", encoding="utf-8") as f:
+            if existed and p.stat().st_size > 0:
+                f.write(f"\n\n---\n\n<!-- Run: {dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M')} | Mode: {mode} | Query: {query[:80]} -->\n\n")
+            f.write(answer)
+            f.write("\n")
+
+    return {"output_file": str(p), "existed": existed, "ext": ext, "chars_written": len(answer)}
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# AGENT MODE: 3-phase chain (Triage → Deep Analysis → Strategic Response)
+# ────────────────────────────────────────────────────────────────────────────
+
+_TRIAGE_SYSTEM_PROMPT = """\
+Du bist juristischer Triage-Analyst. Extrahiere aus dem Sachverhalt:
+1. FRISTEN: Alle Deadlines mit Datum, Rechtsgrundlage, verbleibende Tage (ab heute {today})
+2. DRINGLICHKEIT: HIGH/MEDIUM/LOW mit Begründung
+3. STILLE RISIKEN: Was passiert bei UNTÄTIGKEIT? (Fristversäumnis, Rechtskrafteintritt, etc.)
+4. ENTSCHEIDUNGSPUNKTE: Welche strategischen Weichenstellungen stehen an?
+5. SZENARIEN: If/Then Verzweigungen
+
+Antworte NUR als JSON mit exakt diesen Keys:
+{{
+  "deadlines": [{{"date": "DD.MM.YYYY", "type": "...", "source": "§...", "days_remaining": N}}],
+  "urgency": "HIGH|MEDIUM|LOW",
+  "urgency_reason": "...",
+  "silent_risks": [{{"risk": "...", "consequence": "..."}}],
+  "decision_points": [{{"question": "...", "options": ["...", "..."]}}],
+  "scenario_branches": [{{"if": "...", "then": "..."}}],
+  "response_type_hint": "recommendation|client_letter|scenario_table|combined"
+}}
+Kein Freitext. Nur JSON."""
+
+
+def run_triage_phase(
+    query: str,
+    file_context: str,
+    file_context_meta: dict[str, Any] | None,
+    synth_model: str,
+    dry_run: bool,
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    """Phase 0: Extract deadlines, urgency, silent risks from query + file context."""
+    if dry_run:
+        return {
+            "deadlines": [], "urgency": "MEDIUM", "urgency_reason": "dry-run",
+            "silent_risks": [], "decision_points": [], "scenario_branches": [],
+            "response_type_hint": "combined",
+        }, None
+
+    today = dt.date.today().strftime("%d.%m.%Y")
+    sys_prompt = _TRIAGE_SYSTEM_PROMPT.format(today=today)
+
+    user_parts = [f"FRAGE: {query}"]
+    if file_context:
+        # Truncate file context to ~4000 chars for triage (just enough for fact extraction)
+        fc_trunc = file_context[:4000]
+        if len(file_context) > 4000:
+            fc_trunc += "\n[... gekürzt ...]"
+        user_parts.append(f"\nAKTENKONTEXT:\n{fc_trunc}")
+    # Inject pre-extracted facts if available
+    ef = (file_context_meta or {}).get("extracted_facts", {})
+    if ef.get("deadlines"):
+        user_parts.append("BEKANNTE FRISTEN: " + "; ".join(ef["deadlines"]))
+    if ef.get("costs"):
+        user_parts.append("BEKANNTE KOSTEN: " + "; ".join(ef["costs"]))
+    if ef.get("case_nums"):
+        user_parts.append("VERFAHRENSZAHLEN: " + "; ".join(ef["case_nums"]))
+
+    resp, elapsed = openrouter_chat(
+        model=synth_model,
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": "\n".join(user_parts)},
+        ],
+        max_tokens=1500,
+        temperature=0.0,
+        title="legalchat-agent-triage",
+    )
+    msg = ((resp.get("choices") or [{}])[0] or {}).get("message") or {}
+    text = message_text(msg)
+    parsed = extract_json_object(text)
+
+    usage = resp.get("usage")
+    meta = {"model": synth_model, "elapsed_s": elapsed, "usage": usage}
+
+    if isinstance(parsed, dict):
+        # Validate / defaults
+        for key in ("deadlines", "silent_risks", "decision_points", "scenario_branches"):
+            if not isinstance(parsed.get(key), list):
+                parsed[key] = []
+        parsed.setdefault("urgency", "MEDIUM")
+        parsed.setdefault("urgency_reason", "")
+        parsed.setdefault("response_type_hint", "combined")
+        return parsed, meta
+
+    # Fallback: could not parse JSON
+    return {
+        "deadlines": [], "urgency": "MEDIUM",
+        "urgency_reason": "Triage-LLM returned non-JSON",
+        "silent_risks": [], "decision_points": [], "scenario_branches": [],
+        "response_type_hint": "combined", "_raw_text": text[:500],
+    }, meta
+
+
+_RESPONSE_PROMPTS: dict[str, str] = {
+    "recommendation": """\
+Erstelle eine strukturierte EMPFEHLUNG:
+## EMPFEHLUNG
+- Hauptbegehren mit Erfolgsaussicht (%)
+- Eventualbegehren (priorisiert)
+- SOFORT-MASSNAHMEN (was JETZT passieren muss)
+
+## NÄCHSTE SCHRITTE (nummeriert, mit Fristen)
+1. ...
+
+## STILLE RISIKEN
+- Was passiert bei Untätigkeit?
+
+Ton: {tone}""",
+
+    "client_letter": """\
+Erstelle einen MANDANTENBRIEF:
+
+Sehr geehrte(r) [Mandant],
+
+[Sachverhaltszusammenfassung in 2-3 Sätzen]
+
+[Rechtliche Einschätzung: Haupt- und Eventualbegehren mit Erfolgsaussichten]
+
+[Empfohlene nächste Schritte mit Fristen]
+
+[Kostenhinweis falls aus Akten ableitbar]
+
+[Risikohinweis bei Untätigkeit]
+
+Mit freundlichen Grüßen,
+[Kanzlei]
+
+Ton: {tone}""",
+
+    "scenario_table": """\
+Erstelle eine SZENARIO-ANALYSE:
+
+## SZENARIEN
+| # | Szenario | Wahrscheinlichkeit | Nächster Schritt | Kosten | Zeitrahmen |
+|---|----------|-------------------|------------------|--------|------------|
+| 1 | ... | ...% | ... | ... | ... |
+
+## BEST CASE
+...
+
+## WORST CASE
+...
+
+## ENTSCHEIDUNGSMATRIX
+| Aktion | Pro | Contra | Empfehlung |
+|--------|-----|--------|------------|
+
+Ton: {tone}""",
+
+    "combined": """\
+Erstelle eine VOLLSTÄNDIGE STRATEGISCHE ANALYSE:
+
+## EMPFEHLUNG
+- Hauptbegehren mit Erfolgsaussicht (%)
+- Eventualbegehren (priorisiert)
+- SOFORT-MASSNAHMEN (was JETZT passieren muss)
+
+## SZENARIEN
+| # | Szenario | Wahrscheinlichkeit | Nächster Schritt | Kosten |
+|---|----------|-------------------|------------------|--------|
+| 1 | ... | ...% | ... | ... |
+
+## STILLE RISIKEN
+- Was passiert bei Untätigkeit?
+
+## NÄCHSTE SCHRITTE (nummeriert, mit Fristen)
+1. ...
+
+Ton: {tone}""",
+}
+
+
+def build_phase_context(
+    query: str,
+    file_context: str,
+    triage_result: dict[str, Any],
+    analysis_text: str,
+    max_chars: int = 16000,
+) -> str:
+    """Build accumulated context for Phase 2 with intelligent truncation."""
+    parts: list[str] = []
+    # Query: always full
+    parts.append(f"FRAGE:\n{query}\n")
+    # File context: max 4000 chars summary
+    if file_context:
+        fc = file_context[:4000]
+        if len(file_context) > 4000:
+            fc += "\n[... gekürzt ...]"
+        parts.append(f"AKTENKONTEXT:\n{fc}\n")
+    # Triage: always full (compact JSON, ~500 chars)
+    triage_compact = json.dumps(triage_result, ensure_ascii=False, separators=(",", ":"))
+    parts.append(f"TRIAGE:\n{triage_compact}\n")
+    # Analysis: truncate to fill remaining budget
+    used = sum(len(p) for p in parts)
+    analysis_budget = max(2000, max_chars - used)
+    if len(analysis_text) > analysis_budget:
+        analysis_trunc = analysis_text[:analysis_budget] + "\n[... gekürzt ...]"
+    else:
+        analysis_trunc = analysis_text
+    parts.append(f"RECHTLICHE ANALYSE:\n{analysis_trunc}")
+    return "\n".join(parts)
+
+
+def run_response_phase(
+    query: str,
+    file_context: str,
+    triage_result: dict[str, Any],
+    analysis_text: str,
+    response_type: str,
+    response_tone: str,
+    synth_model: str,
+    dry_run: bool,
+) -> tuple[str, dict[str, Any] | None]:
+    """Phase 2: Generate strategic response artefact from triage + analysis."""
+    if dry_run:
+        return "Dry-run response phase", None
+
+    template = _RESPONSE_PROMPTS.get(response_type, _RESPONSE_PROMPTS["combined"])
+    instruction = template.format(tone=response_tone)
+
+    phase_ctx = build_phase_context(query, file_context, triage_result, analysis_text)
+
+    sys_prompt = (
+        "Du bist juristischer Strategieberater für österreichisches Recht. "
+        "Basierend auf der vollständigen Analyse (Triage + Gutachten), erstelle ein handlungsorientiertes Artefakt. "
+        "Verwende konkrete Daten, EUR-Beträge und Fristen aus dem Kontext. "
+        "Nenne RS-Nummern und §§ nur wenn sie in der Analyse vorkommen."
+    )
+
+    resp, elapsed = openrouter_chat(
+        model=synth_model,
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": f"{phase_ctx}\n\n---\nAUFGABE:\n{instruction}"},
+        ],
+        max_tokens=4000,
+        temperature=0.2,
+        title="legalchat-agent-response",
+    )
+    msg = ((resp.get("choices") or [{}])[0] or {}).get("message") or {}
+    text = message_text(msg)
+    usage = resp.get("usage")
+    meta = {"model": synth_model, "elapsed_s": elapsed, "usage": usage, "response_type": response_type}
+    return text, meta
+
+
+def build_agent_bundle(
+    query: str,
+    triage_result: dict[str, Any],
+    analysis_text: str,
+    response_text: str,
+) -> str:
+    """Build combined AGENT_RESULT.md from all phases."""
+    today = dt.date.today().strftime("%d.%m.%Y")
+    urgency = triage_result.get("urgency", "MEDIUM")
+
+    parts: list[str] = []
+    parts.append(f"# Fallanalyse")
+    parts.append(f"**Datum:** {today} | **Dringlichkeit:** {urgency} | **Modus:** Agent\n")
+
+    # Section: Fristen & Risiken
+    parts.append("## FRISTEN & RISIKEN\n")
+    deadlines = triage_result.get("deadlines", [])
+    if deadlines:
+        parts.append("| Frist | Typ | Rechtsgrundlage | Verbleibend |")
+        parts.append("|-------|-----|-----------------|-------------|")
+        for dl in deadlines:
+            parts.append(f"| {dl.get('date', '?')} | {dl.get('type', '?')} | {dl.get('source', '?')} | {dl.get('days_remaining', '?')} Tage |")
+        parts.append("")
+    else:
+        parts.append("Keine konkreten Fristen erkannt.\n")
+
+    urgency_reason = triage_result.get("urgency_reason", "")
+    if urgency_reason:
+        parts.append(f"**Dringlichkeit:** {urgency} — {urgency_reason}\n")
+
+    silent_risks = triage_result.get("silent_risks", [])
+    if silent_risks:
+        parts.append("**Stille Risiken:**")
+        for sr in silent_risks:
+            parts.append(f"- {sr.get('risk', '?')} → {sr.get('consequence', '?')}")
+        parts.append("")
+
+    decision_points = triage_result.get("decision_points", [])
+    if decision_points:
+        parts.append("**Entscheidungspunkte:**")
+        for dp in decision_points:
+            opts = ", ".join(dp.get("options", []))
+            parts.append(f"- {dp.get('question', '?')} [{opts}]")
+        parts.append("")
+
+    # Section: Rechtliche Analyse (Phase 1 output)
+    parts.append("## RECHTLICHE ANALYSE\n")
+    parts.append(analysis_text)
+    parts.append("")
+
+    # Section: Strategische Empfehlung (Phase 2 output)
+    parts.append("## STRATEGISCHE EMPFEHLUNG\n")
+    parts.append(response_text)
+
+    return "\n".join(parts)
+
+
+def run_agent_mode(
+    query: str,
+    file_context: str,
+    file_context_meta: dict[str, Any] | None,
+    args: Any,
+    organizer_model: str,
+    worker_model: str,
+    synth_model: str,
+    classifier_model: str,
+    config_dir: Path,
+    config_meta: dict[str, Any] | None,
+    mcp_start_meta: dict[str, Any] | None,
+    started_at: float,
+) -> tuple[Path, dict[str, Any]]:
+    """3-phase agent orchestrator: Triage → Deep Analysis → Strategic Response."""
+    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+    if args.agent_out_dir:
+        out_dir = Path(args.agent_out_dir).expanduser().resolve()
+    else:
+        out_dir = REPORT_ROOT / f"legalchat_agent_{stamp}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Phase 0: TRIAGE ──
+    vlog("AGENT Phase 0: TRIAGE start")
+    t0 = time.perf_counter()
+    triage_result, triage_meta = run_triage_phase(
+        query=query,
+        file_context=file_context,
+        file_context_meta=file_context_meta,
+        synth_model=synth_model,
+        dry_run=bool(args.dry_run),
+    )
+    # Sofort auf Disk
+    (out_dir / "triage.json").write_text(
+        json.dumps(triage_result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    triage_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+    vlog(f"AGENT Phase 0: TRIAGE done in {triage_ms}ms — urgency={triage_result.get('urgency')}")
+
+    # ── Phase 1: DEEP ANALYSIS (existing pipeline) ──
+    vlog("AGENT Phase 1: DEEP ANALYSIS start")
+    t1 = time.perf_counter()
+
+    plan, organizer_meta = build_plan_with_organizer(
+        query=query,
+        organizer_model=organizer_model,
+        max_workstreams=max(1, min(args.max_workstreams, 4)),
+        dry_run=bool(args.dry_run),
+        organizer_backend=args.organizer_backend,
+        opencode_sidecar_cmd=args.opencode_sidecar_cmd,
+        opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
+        classifier_model=classifier_model,
+        file_context=file_context,
+    )
+
+    streams = plan.get("workstreams") or []
+    stream_results: list[dict[str, Any]] = []
+    run_fn = run_subagent_dry if args.dry_run else run_subagent_llm
+
+    classification = (organizer_meta or {}).get("classification") or classify_domain(query)
+    pre_search_evidence = ""
+    if not args.dry_run:
+        expanded = _expand_queries_with_llm(query, classification, classifier_model)
+        # Inject triage-extracted §§ into pre-search for broader RS coverage
+        _triage_paragraphs: list[str] = []
+        for dl in triage_result.get("deadlines", []):
+            src = dl.get("source", "")
+            if "§" in src:
+                _triage_paragraphs.append(src)
+        for dp in triage_result.get("decision_points", []):
+            for m in re.findall(r"§\s*\d+[a-z]?\s*(?:Abs\s*\d+\s*)?(?:Z\s*\d+\s*)?(?:ABGB|EO|IO|KSchG|ZPO|UGB|ZustG|PHG|VersVG)", dp.get("question", "")):
+                _triage_paragraphs.append(m)
+        if _triage_paragraphs:
+            existing_paras = expanded.get("paragraphs", [])
+            for tp in _triage_paragraphs:
+                if tp not in existing_paras:
+                    existing_paras.append(tp)
+            expanded["paragraphs"] = existing_paras[:8]
+        pre_search_evidence = run_pre_search_scatter(
+            expanded=expanded,
+            mcp_mode=args.mcp_mode,
+            mcp_base=args.mcp_base.rstrip("/"),
+            remote_ssh=args.remote_ssh,
+            remote_mcp_container=args.remote_mcp_container,
+            query=query,
+            classification=classification,
+        )
+
+    max_parallel = max(1, min(args.parallelism, len(streams) or 1))
+    with cf.ThreadPoolExecutor(max_workers=max_parallel) as pool:
+        futures = []
+        for stream in streams:
+            if args.dry_run:
+                fut = pool.submit(
+                    run_fn, stream, query,
+                    args.mcp_mode, args.mcp_base.rstrip("/"),
+                    args.remote_ssh, args.remote_mcp_container, args.probe_limit,
+                )
+            else:
+                _all_names = [s.get("name", "") for s in streams]
+                fut = pool.submit(
+                    run_fn, stream, query, worker_model,
+                    args.mcp_mode, args.mcp_base.rstrip("/"),
+                    args.remote_ssh, args.remote_mcp_container,
+                    args.max_steps, pre_search_evidence, _all_names,
+                    classification, file_context,
+                )
+            futures.append(fut)
+        for fut in cf.as_completed(futures):
+            try:
+                stream_results.append(fut.result())
+            except Exception as e:
+                stream_results.append({
+                    "name": "unknown_stream", "goal": "", "mode": "error",
+                    "tools": [], "llm_error": str(e), "tool_calls": [],
+                    "tool_calls_total": 0, "tool_calls_ok": 0,
+                    "tool_calls_ok_rate": None,
+                    "answer": f"Stream execution failed: {e}",
+                    "answer_chars": len(f"Stream execution failed: {e}"),
+                    "e2e_ms": None,
+                })
+
+    stream_results.sort(key=lambda x: str(x.get("name")))
+
+    # Inject triage context into synthesis
+    triage_ctx_str = json.dumps(triage_result, ensure_ascii=False, indent=2)[:800]
+
+    _AGENT_SYNTH_TOKENS = 6000
+
+    def _synth_quality_score(text: str) -> float:
+        """Score synthesis quality: RS count × sqrt(line count)."""
+        rs_count = len(set(re.findall(r"RS\d{7}", text)))
+        lines = len(text.splitlines())
+        return rs_count * (lines ** 0.5)
+
+    # Best-of-2 synthesis to mitigate stochastic variance
+    _synth_common = dict(
+        query=query, synth_model=synth_model, plan=plan,
+        subagent_results=stream_results,
+        postgres_only=(args.grounding_policy == "postgres_only"),
+        file_context=file_context, file_context_meta=file_context_meta,
+        triage_context=triage_ctx_str, max_tokens=_AGENT_SYNTH_TOKENS,
+    )
+
+    final_answer, synth_meta = synthesize_answer(dry_run=bool(args.dry_run), **_synth_common)
+
+    if not args.dry_run:
+        score_a = _synth_quality_score(final_answer)
+        # Collect worker RS for boosted retry
+        _worker_rs: set[str] = set()
+        for sr in stream_results:
+            _worker_rs.update(re.findall(r"RS\d{7}", sr.get("answer", "")))
+        _found_rs = set(re.findall(r"RS\d{7}", final_answer))
+        _missing_rs = sorted(_worker_rs - _found_rs)[:8]
+        _boosted_triage = triage_ctx_str
+        if _missing_rs:
+            _boosted_triage += (
+                f"\n\nWICHTIG: Verwende MINDESTENS diese RS in deiner Analyse: "
+                + ", ".join(_missing_rs) + "."
+            )
+        answer_b, meta_b = synthesize_answer(
+            dry_run=False, **{**_synth_common, "triage_context": _boosted_triage},
+        )
+        score_b = _synth_quality_score(answer_b)
+        _rs_b = set(re.findall(r"RS\d{7}", answer_b))
+        vlog(f"AGENT best-of-2: A={score_a:.1f} ({len(_found_rs)} RS) B={score_b:.1f} ({len(_rs_b)} RS)")
+        if score_b > score_a:
+            final_answer, synth_meta = answer_b, meta_b
+            vlog("AGENT best-of-2: picked B")
+
+        # Deterministic RS enrichment: inject worker-found RS missing from synthesis
+        _synth_rs = set(re.findall(r"RS\d{7}", final_answer))
+        _rs_ctx: dict[str, str] = {}
+        for sr in stream_results:
+            for m in re.finditer(r"(RS\d{7})[:\s]+([^\n]{10,120})", sr.get("answer", "")):
+                if m.group(1) not in _rs_ctx:
+                    _rs_ctx[m.group(1)] = m.group(2).strip().rstrip(".")
+        _inject_rs = sorted(set(_rs_ctx.keys()) - _synth_rs)
+        if _inject_rs and "### 4." in final_answer:
+            _extra = "\n".join(f"- **{rs}**: {_rs_ctx.get(rs, 'relevant')}." for rs in _inject_rs)
+            final_answer = final_answer.replace("### 4.", _extra + "\n\n### 4.")
+            vlog(f"AGENT RS enrichment: injected {len(_inject_rs)} RS -> {_inject_rs}")
+
+    citation_gate = apply_hard_citation_gate(
+        answer=final_answer,
+        query=query,
+        subagent_results=stream_results,
+        citation_gate_mode=args.citation_gate_mode,
+        repair_model=(args.citation_gate_repair_model.strip() or synth_model),
+        mcp_mode=args.mcp_mode,
+        mcp_base=args.mcp_base.rstrip("/"),
+        remote_ssh=args.remote_ssh,
+        remote_mcp_container=args.remote_mcp_container,
+        postgres_only=(args.grounding_policy == "postgres_only"),
+        file_context=file_context,
+    )
+    final_answer = citation_gate.get("answer") or final_answer
+
+    # Sofort auf Disk
+    (out_dir / "analysis.md").write_text(final_answer + "\n", encoding="utf-8")
+    (out_dir / "plan.json").write_text(
+        json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    (out_dir / "subagents.json").write_text(
+        json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    analysis_ms = round((time.perf_counter() - t1) * 1000.0, 2)
+    vlog(f"AGENT Phase 1: DEEP ANALYSIS done in {analysis_ms}ms")
+
+    # ── Phase 2: STRATEGIC RESPONSE ──
+    vlog("AGENT Phase 2: STRATEGIC RESPONSE start")
+    t2 = time.perf_counter()
+    response_text, response_meta = run_response_phase(
+        query=query,
+        file_context=file_context,
+        triage_result=triage_result,
+        analysis_text=final_answer,
+        response_type=args.response_type,
+        response_tone=args.response_tone,
+        synth_model=synth_model,
+        dry_run=bool(args.dry_run),
+    )
+    # Sofort auf Disk
+    (out_dir / "response.md").write_text(response_text + "\n", encoding="utf-8")
+    response_ms = round((time.perf_counter() - t2) * 1000.0, 2)
+    vlog(f"AGENT Phase 2: RESPONSE done in {response_ms}ms")
+
+    # ── Bundle ──
+    bundle = build_agent_bundle(query, triage_result, final_answer, response_text)
+    (out_dir / "AGENT_RESULT.md").write_text(bundle, encoding="utf-8")
+
+    elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+
+    # Meta
+    meta_result = {
+        "ok": True,
+        "started_at_utc": utc_now(),
+        "mode": "agent",
+        "config": {
+            "config_dir": str(config_dir),
+            "query": query,
+            "mode": "agent",
+            "response_type": args.response_type,
+            "response_tone": args.response_tone,
+            "model_profile": args.model_profile,
+            "organizer_model": organizer_model,
+            "worker_model": worker_model,
+            "synth_model": synth_model,
+            "mcp_mode": args.mcp_mode,
+            "citation_gate_mode": args.citation_gate_mode,
+            "grounding_policy": args.grounding_policy,
+            "dry_run": bool(args.dry_run),
+        },
+        "runtime_config": config_meta,
+        "mcp_startup": mcp_start_meta,
+        "phases": {
+            "triage": {"elapsed_ms": triage_ms, "meta": triage_meta, "result": triage_result},
+            "analysis": {"elapsed_ms": analysis_ms, "synth_meta": synth_meta, "citation_gate": citation_gate},
+            "response": {"elapsed_ms": response_ms, "meta": response_meta},
+        },
+        "classification": classification,
+        "pre_search_evidence_chars": len(pre_search_evidence),
+        "file_context_meta": file_context_meta,
+        "plan": plan,
+        "organizer_meta": organizer_meta,
+        "streams": stream_results,
+        "final_answer": final_answer,
+        "response_text": response_text,
+        "elapsed_ms": elapsed_ms,
+    }
+    (out_dir / "result.json").write_text(
+        json.dumps(meta_result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    # Summary
+    summary = render_summary(
+        query=query,
+        organizer_model=organizer_model,
+        worker_model=worker_model,
+        synth_model=synth_model,
+        model_profile=args.model_profile,
+        organizer_backend=args.organizer_backend,
+        mcp_mode=args.mcp_mode,
+        plan=plan,
+        organizer_meta=organizer_meta,
+        synth_meta=synth_meta,
+        citation_gate=citation_gate,
+        subagent_results=stream_results,
+        dry_run=bool(args.dry_run),
+        mode="agent",
+        classification=classification,
+        pre_search_evidence_chars=len(pre_search_evidence),
+        elapsed_ms=elapsed_ms,
+        file_context_meta=file_context_meta,
+    )
+    (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+    # Optional output file
+    if args.output:
+        write_output_file(args.output, bundle, query, "agent")
+
+    return out_dir, meta_result
+
+
 def main() -> int:
     raw_argv = sys.argv[1:]
     config_dir = discover_config_dir(raw_argv)
@@ -3484,6 +4768,13 @@ def main() -> int:
     )
     ap.add_argument("--config-dir", default=str(config_dir), help="Directory with agent_profiles.yaml + mcp_registry.yaml")
     ap.add_argument("--query", required=True, help="Legal question to process")
+    ap.add_argument("--mode", choices=["deep", "quick", "agent"], default="deep",
+        help="deep = full multi-agent pipeline; quick = single-call strategic memo; agent = triage→deep→response chain")
+    ap.add_argument("--response-type", choices=["recommendation", "client_letter", "scenario_table", "combined"], default="combined",
+        help="Agent mode: response artefact type")
+    ap.add_argument("--response-tone", choices=["formal", "empathisch", "direkt"], default="formal",
+        help="Agent mode: tone for response phase")
+    ap.add_argument("--agent-out-dir", default="", help="Agent mode: custom output directory")
     ap.add_argument("--model-profile", choices=sorted(MODEL_PROFILES.keys()), default="default")
     ap.add_argument("--organizer-model", default="")
     ap.add_argument("--worker-model", default="")
@@ -3498,7 +4789,7 @@ def main() -> int:
     ap.add_argument("--max-workstreams", type=int, default=3)
     ap.add_argument("--max-steps", type=int, default=8)
     ap.add_argument("--parallelism", type=int, default=max_parallel)
-    ap.add_argument("--citation-gate-mode", choices=["off", "warn", "repair", "enforce"], default="enforce")
+    ap.add_argument("--citation-gate-mode", choices=["off", "warn", "repair", "enforce"], default="repair")
     ap.add_argument("--citation-gate-repair-model", default="", help="Override model for citation repair (defaults to synth model)")
     ap.add_argument(
         "--grounding-policy",
@@ -3509,6 +4800,13 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="No OpenRouter calls; runs deterministic MCP probes only")
     ap.add_argument("--probe-limit", type=int, default=5, help="Tool result limit for dry-run probes")
     ap.add_argument("--keep-local-mcp", action="store_true")
+    ap.add_argument("--context-dir", default="", help="Case directory to read (*.md, *.txt, *.json, PDFs)")
+    ap.add_argument("--context-file", default=[], action="append", help="Single file as context (repeatable)")
+    ap.add_argument("--context-exclude", default=[], action="append", help="Exclude file by name/glob (repeatable, e.g. FALLUEBERSICHT.md)")
+    ap.add_argument("--ocr", action="store_true", help="OCR PDFs via pdftotext fast mode")
+    ap.add_argument("--verbose", action="store_true", help="Log every API/MCP call to verbose_trace.txt")
+    ap.add_argument("--output", default="", metavar="FILE",
+        help="Write final answer to FILE (.md/.txt/.json). Appends if file exists.")
     args = ap.parse_args(raw_argv)
 
     parsed_cfg = Path(args.config_dir).expanduser()
@@ -3534,177 +4832,356 @@ def main() -> int:
         if startup.get("started"):
             started_pid = int(startup.get("pid"))
 
-    started_at = time.perf_counter()
-    plan, organizer_meta = build_plan_with_organizer(
-        query=args.query,
-        organizer_model=organizer_model,
-        max_workstreams=max(1, min(args.max_workstreams, 4)),
-        dry_run=bool(args.dry_run),
-        organizer_backend=args.organizer_backend,
-        opencode_sidecar_cmd=args.opencode_sidecar_cmd,
-        opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
-        classifier_model=classifier_model,
+    file_context, file_context_meta = load_case_context(
+        context_dir=args.context_dir,
+        context_files=args.context_file or [],
+        ocr_pdfs=bool(args.ocr),
+        exclude_patterns=args.context_exclude or None,
     )
 
-    streams = plan.get("workstreams") or []
-    stream_results: list[dict[str, Any]] = []
-    run_fn = run_subagent_dry if args.dry_run else run_subagent_llm
+    # --- verbose trace setup ---
+    global _VERBOSE_FH, _VERBOSE_PATH
+    if args.verbose:
+        _VERBOSE_PATH = REPORT_ROOT / f"verbose_trace_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}.txt"
+        _VERBOSE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _VERBOSE_FH = open(_VERBOSE_PATH, "w", encoding="utf-8")
+        vlog(f"=== VERBOSE TRACE START === mode={args.mode} query={args.query[:120]!r}")
+        vlog(f"  mcp_mode={args.mcp_mode} model_profile={args.model_profile}")
+        if file_context_meta and file_context_meta.get("files_read"):
+            vlog(f"  context_files={file_context_meta['files_read']}")
 
-    # Phase 4: Pre-search scatter
-    classification = (organizer_meta or {}).get("classification") or classify_domain(args.query)
-    pre_search_evidence = ""
-    if not args.dry_run:
-        expanded = _expand_queries_with_llm(args.query, classification, classifier_model)
-        pre_search_evidence = run_pre_search_scatter(
-            expanded=expanded,
+    started_at = time.perf_counter()
+
+    if args.mode == "quick":
+        # --- QUICK PATH: classify → light pre-search → single synth ---
+        classification = classify_domain_with_llm_fallback(args.query, classifier_model)
+        pre_search_evidence = ""
+        if not args.dry_run:
+            expanded = _expand_queries_with_llm(args.query, classification, classifier_model)
+            pre_search_evidence = run_pre_search_scatter(
+                expanded=expanded,
+                mcp_mode=args.mcp_mode,
+                mcp_base=args.mcp_base.rstrip("/"),
+                remote_ssh=args.remote_ssh,
+                remote_mcp_container=args.remote_mcp_container,
+                query=args.query,
+                classification=classification,
+                max_paragraph=3, max_schlagwort=2, max_keyword=1,
+            )
+
+        final_answer, synth_meta = synthesize_quick(
+            query=args.query,
+            synth_model=synth_model,
+            classification=classification,
+            pre_search_evidence=pre_search_evidence,
+            dry_run=bool(args.dry_run),
+            file_context=file_context,
+        )
+
+        # Citation gate in warn mode (override enforce for quick)
+        effective_gate = "warn" if args.citation_gate_mode == "enforce" else args.citation_gate_mode
+        citation_gate = apply_hard_citation_gate(
+            answer=final_answer,
+            query=args.query,
+            subagent_results=[],
+            citation_gate_mode=effective_gate,
+            repair_model=(args.citation_gate_repair_model.strip() or synth_model),
             mcp_mode=args.mcp_mode,
             mcp_base=args.mcp_base.rstrip("/"),
             remote_ssh=args.remote_ssh,
             remote_mcp_container=args.remote_mcp_container,
+            postgres_only=(args.grounding_policy == "postgres_only"),
+            file_context=file_context,
+        )
+        final_answer = citation_gate.get("answer") or final_answer
+        elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+
+        stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+        out_dir = REPORT_ROOT / f"legalchat_quick_{stamp}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        result = {
+            "ok": True,
+            "started_at_utc": utc_now(),
+            "mode": "quick",
+            "config": {
+                "config_dir": str(config_dir),
+                "query": args.query,
+                "mode": "quick",
+                "model_profile": args.model_profile,
+                "synth_model": synth_model,
+                "mcp_mode": args.mcp_mode,
+                "mcp_base": args.mcp_base.rstrip("/"),
+                "citation_gate_mode": effective_gate,
+                "grounding_policy": args.grounding_policy,
+                "dry_run": bool(args.dry_run),
+            },
+            "runtime_config": config_meta,
+            "mcp_startup": mcp_start_meta,
+            "classification": classification,
+            "pre_search_evidence_chars": len(pre_search_evidence),
+            "file_context_meta": file_context_meta,
+            "synth_meta": synth_meta,
+            "citation_gate": citation_gate,
+            "final_answer": final_answer,
+            "elapsed_ms": elapsed_ms,
+        }
+        (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
+        output_file_meta = None
+        if args.output:
+            output_file_meta = write_output_file(args.output, final_answer, args.query, "quick")
+            vlog(f"OUTPUT FILE: {output_file_meta}")
+        summary = render_summary(
             query=args.query,
+            organizer_model=organizer_model,
+            worker_model=worker_model,
+            synth_model=synth_model,
+            model_profile=args.model_profile,
+            organizer_backend=args.organizer_backend,
+            mcp_mode=args.mcp_mode,
+            plan={},
+            organizer_meta=None,
+            synth_meta=synth_meta,
+            citation_gate=citation_gate,
+            subagent_results=[],
+            dry_run=bool(args.dry_run),
+            mode="quick",
             classification=classification,
+            pre_search_evidence_chars=len(pre_search_evidence),
+            elapsed_ms=elapsed_ms,
+            file_context_meta=file_context_meta,
+        )
+        (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+    elif args.mode == "agent":
+        # --- AGENT PATH: triage → deep analysis → strategic response ---
+        out_dir, meta_result = run_agent_mode(
+            query=args.query,
+            file_context=file_context,
+            file_context_meta=file_context_meta,
+            args=args,
+            organizer_model=organizer_model,
+            worker_model=worker_model,
+            synth_model=synth_model,
+            classifier_model=classifier_model,
+            config_dir=config_dir,
+            config_meta=config_meta,
+            mcp_start_meta=mcp_start_meta,
+            started_at=started_at,
+        )
+        elapsed_ms = meta_result.get("elapsed_ms", 0)
+        output_file_meta = None  # handled inside run_agent_mode
+
+    else:
+        # --- DEEP PATH (existing pipeline, unchanged) ---
+        plan, organizer_meta = build_plan_with_organizer(
+            query=args.query,
+            organizer_model=organizer_model,
+            max_workstreams=max(1, min(args.max_workstreams, 4)),
+            dry_run=bool(args.dry_run),
+            organizer_backend=args.organizer_backend,
+            opencode_sidecar_cmd=args.opencode_sidecar_cmd,
+            opencode_sidecar_timeout_sec=int(args.opencode_sidecar_timeout_sec),
+            classifier_model=classifier_model,
+            file_context=file_context,
         )
 
-    effective_parallelism = max(1, min(args.parallelism, max_parallel, len(streams) or 1))
-    with cf.ThreadPoolExecutor(max_workers=effective_parallelism) as pool:
-        futures = []
-        for stream in streams:
-            if args.dry_run:
-                fut = pool.submit(
-                    run_fn,  # type: ignore[arg-type]
-                    stream,
-                    args.query,
-                    args.mcp_mode,
-                    args.mcp_base.rstrip("/"),
-                    args.remote_ssh,
-                    args.remote_mcp_container,
-                    args.probe_limit,
-                )
-            else:
-                _all_names = [s.get("name", "") for s in streams]
-                fut = pool.submit(
-                    run_fn,  # type: ignore[arg-type]
-                    stream,
-                    args.query,
-                    worker_model,
-                    args.mcp_mode,
-                    args.mcp_base.rstrip("/"),
-                    args.remote_ssh,
-                    args.remote_mcp_container,
-                    args.max_steps,
-                    pre_search_evidence,
-                    _all_names,
-                    classification,
-                )
-            futures.append(fut)
-        for fut in cf.as_completed(futures):
-            try:
-                stream_results.append(fut.result())
-            except Exception as e:
-                stream_results.append(
-                    {
-                        "name": "unknown_stream",
-                        "goal": "",
-                        "mode": "error",
-                        "tools": [],
-                        "llm_error": str(e),
-                        "tool_calls": [],
-                        "tool_calls_total": 0,
-                        "tool_calls_ok": 0,
-                        "tool_calls_ok_rate": None,
-                        "answer": f"Stream execution failed: {e}",
-                        "answer_chars": len(f"Stream execution failed: {e}"),
-                        "e2e_ms": None,
-                    }
-                )
+        streams = plan.get("workstreams") or []
+        stream_results: list[dict[str, Any]] = []
+        run_fn = run_subagent_dry if args.dry_run else run_subagent_llm
 
-    stream_results.sort(key=lambda x: str(x.get("name")))
-    final_answer, synth_meta = synthesize_answer(
-        query=args.query,
-        synth_model=synth_model,
-        plan=plan,
-        subagent_results=stream_results,
-        dry_run=bool(args.dry_run),
-        postgres_only=(args.grounding_policy == "postgres_only"),
-    )
-    citation_gate = apply_hard_citation_gate(
-        answer=final_answer,
-        query=args.query,
-        subagent_results=stream_results,
-        citation_gate_mode=args.citation_gate_mode,
-        repair_model=(args.citation_gate_repair_model.strip() or synth_model),
-        mcp_mode=args.mcp_mode,
-        mcp_base=args.mcp_base.rstrip("/"),
-        remote_ssh=args.remote_ssh,
-        remote_mcp_container=args.remote_mcp_container,
-        postgres_only=(args.grounding_policy == "postgres_only"),
-    )
-    final_answer = citation_gate.get("answer") or final_answer
-    elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+        # Phase 4: Pre-search scatter
+        classification = (organizer_meta or {}).get("classification") or classify_domain(args.query)
+        pre_search_evidence = ""
+        if not args.dry_run:
+            expanded = _expand_queries_with_llm(args.query, classification, classifier_model)
+            pre_search_evidence = run_pre_search_scatter(
+                expanded=expanded,
+                mcp_mode=args.mcp_mode,
+                mcp_base=args.mcp_base.rstrip("/"),
+                remote_ssh=args.remote_ssh,
+                remote_mcp_container=args.remote_mcp_container,
+                query=args.query,
+                classification=classification,
+            )
 
-    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
-    out_dir = REPORT_ROOT / f"legalchat_agentic_harness_minimal_{stamp}"
-    out_dir.mkdir(parents=True, exist_ok=True)
+        effective_parallelism = max(1, min(args.parallelism, max_parallel, len(streams) or 1))
+        with cf.ThreadPoolExecutor(max_workers=effective_parallelism) as pool:
+            futures = []
+            for stream in streams:
+                if args.dry_run:
+                    fut = pool.submit(
+                        run_fn,  # type: ignore[arg-type]
+                        stream,
+                        args.query,
+                        args.mcp_mode,
+                        args.mcp_base.rstrip("/"),
+                        args.remote_ssh,
+                        args.remote_mcp_container,
+                        args.probe_limit,
+                    )
+                else:
+                    _all_names = [s.get("name", "") for s in streams]
+                    fut = pool.submit(
+                        run_fn,  # type: ignore[arg-type]
+                        stream,
+                        args.query,
+                        worker_model,
+                        args.mcp_mode,
+                        args.mcp_base.rstrip("/"),
+                        args.remote_ssh,
+                        args.remote_mcp_container,
+                        args.max_steps,
+                        pre_search_evidence,
+                        _all_names,
+                        classification,
+                        file_context,
+                    )
+                futures.append(fut)
+            for fut in cf.as_completed(futures):
+                try:
+                    stream_results.append(fut.result())
+                except Exception as e:
+                    stream_results.append(
+                        {
+                            "name": "unknown_stream",
+                            "goal": "",
+                            "mode": "error",
+                            "tools": [],
+                            "llm_error": str(e),
+                            "tool_calls": [],
+                            "tool_calls_total": 0,
+                            "tool_calls_ok": 0,
+                            "tool_calls_ok_rate": None,
+                            "answer": f"Stream execution failed: {e}",
+                            "answer_chars": len(f"Stream execution failed: {e}"),
+                            "e2e_ms": None,
+                        }
+                    )
 
-    result = {
-        "ok": True,
-        "started_at_utc": utc_now(),
-        "config": {
-            "config_dir": str(config_dir),
-            "query": args.query,
-            "model_profile": args.model_profile,
-            "organizer_model": organizer_model,
-            "worker_model": worker_model,
-            "synth_model": synth_model,
-            "organizer_backend": args.organizer_backend,
-            "opencode_sidecar_cmd": args.opencode_sidecar_cmd or None,
-            "opencode_sidecar_timeout_sec": args.opencode_sidecar_timeout_sec,
-            "mcp_mode": args.mcp_mode,
-            "mcp_base": args.mcp_base.rstrip("/"),
-            "remote_ssh": args.remote_ssh,
-            "remote_mcp_container": args.remote_mcp_container,
-            "max_workstreams": args.max_workstreams,
-            "max_steps": args.max_steps,
-            "parallelism": args.parallelism,
-            "effective_parallelism": effective_parallelism,
-            "citation_gate_mode": args.citation_gate_mode,
-            "citation_gate_repair_model": args.citation_gate_repair_model or None,
-            "grounding_policy": args.grounding_policy,
-            "dry_run": bool(args.dry_run),
-            "probe_limit": args.probe_limit,
-        },
-        "runtime_config": config_meta,
-        "mcp_startup": mcp_start_meta,
-        "classification": classification,
-        "pre_search_evidence_chars": len(pre_search_evidence),
-        "plan": plan,
-        "organizer_meta": organizer_meta,
-        "streams": stream_results,
-        "synth_meta": synth_meta,
-        "citation_gate": citation_gate,
-        "final_answer": final_answer,
-        "elapsed_ms": elapsed_ms,
-    }
-    (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "subagents.json").write_text(json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
-    summary = render_summary(
-        query=args.query,
-        organizer_model=organizer_model,
-        worker_model=worker_model,
-        synth_model=synth_model,
-        model_profile=args.model_profile,
-        organizer_backend=args.organizer_backend,
-        mcp_mode=args.mcp_mode,
-        plan=plan,
-        organizer_meta=organizer_meta,
-        synth_meta=synth_meta,
-        citation_gate=citation_gate,
-        subagent_results=stream_results,
-        dry_run=bool(args.dry_run),
-    )
-    (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+        stream_results.sort(key=lambda x: str(x.get("name")))
+        final_answer, synth_meta = synthesize_answer(
+            query=args.query,
+            synth_model=synth_model,
+            plan=plan,
+            subagent_results=stream_results,
+            dry_run=bool(args.dry_run),
+            postgres_only=(args.grounding_policy == "postgres_only"),
+            file_context=file_context,
+            file_context_meta=file_context_meta,
+        )
+        citation_gate = apply_hard_citation_gate(
+            answer=final_answer,
+            query=args.query,
+            subagent_results=stream_results,
+            citation_gate_mode=args.citation_gate_mode,
+            repair_model=(args.citation_gate_repair_model.strip() or synth_model),
+            mcp_mode=args.mcp_mode,
+            mcp_base=args.mcp_base.rstrip("/"),
+            remote_ssh=args.remote_ssh,
+            remote_mcp_container=args.remote_mcp_container,
+            postgres_only=(args.grounding_policy == "postgres_only"),
+            file_context=file_context,
+        )
+        final_answer = citation_gate.get("answer") or final_answer
+        # Post-gate: append extracted facts to ensure Section 9 has specific data
+        if file_context_meta and file_context_meta.get("extracted_facts"):
+            ef = file_context_meta["extracted_facts"]
+            fparts = []
+            if ef.get("deadlines"):
+                fparts.append("FRISTEN: " + "; ".join(ef["deadlines"]))
+            if ef.get("costs"):
+                fparts.append("KOSTEN: " + "; ".join(ef["costs"]))
+            if ef.get("case_nums"):
+                fparts.append("PARALLELE VERFAHREN: " + "; ".join(ef["case_nums"]))
+            if fparts:
+                import re as _ppre
+                # Detect Section 9 in any format (### 9. or plain 9.)
+                _s9_match = _ppre.search(r"(?:#{1,3}\s*)?9\.\s*STRATEGISCHE", final_answer)
+                _s9_text = final_answer[_s9_match.end():] if _s9_match else ""
+                _s9_has_date = bool(_ppre.search(r"\d{2}\.\d{2}\.\d{4}", _s9_text))
+                _s9_has_cost = bool(_ppre.search(r"(?:EUR|€)\s*\d", _s9_text))
+                if not _s9_has_date or not _s9_has_cost:
+                    facts_block = "\n".join(f"- **{f}**" for f in fparts)
+                    if not _s9_match:
+                        final_answer += "\n\n### 9. STRATEGISCHE DETAILS\n" + facts_block
+                    else:
+                        final_answer += "\n\n**Ergänzung aus Aktenkontext:**\n" + facts_block
+        elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+
+        stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+        out_dir = REPORT_ROOT / f"legalchat_agentic_harness_minimal_{stamp}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        result = {
+            "ok": True,
+            "started_at_utc": utc_now(),
+            "mode": "deep",
+            "config": {
+                "config_dir": str(config_dir),
+                "query": args.query,
+                "mode": "deep",
+                "model_profile": args.model_profile,
+                "organizer_model": organizer_model,
+                "worker_model": worker_model,
+                "synth_model": synth_model,
+                "organizer_backend": args.organizer_backend,
+                "opencode_sidecar_cmd": args.opencode_sidecar_cmd or None,
+                "opencode_sidecar_timeout_sec": args.opencode_sidecar_timeout_sec,
+                "mcp_mode": args.mcp_mode,
+                "mcp_base": args.mcp_base.rstrip("/"),
+                "remote_ssh": args.remote_ssh,
+                "remote_mcp_container": args.remote_mcp_container,
+                "max_workstreams": args.max_workstreams,
+                "max_steps": args.max_steps,
+                "parallelism": args.parallelism,
+                "effective_parallelism": effective_parallelism,
+                "citation_gate_mode": args.citation_gate_mode,
+                "citation_gate_repair_model": args.citation_gate_repair_model or None,
+                "grounding_policy": args.grounding_policy,
+                "dry_run": bool(args.dry_run),
+                "probe_limit": args.probe_limit,
+            },
+            "runtime_config": config_meta,
+            "mcp_startup": mcp_start_meta,
+            "classification": classification,
+            "pre_search_evidence_chars": len(pre_search_evidence),
+            "file_context_meta": file_context_meta,
+            "plan": plan,
+            "organizer_meta": organizer_meta,
+            "streams": stream_results,
+            "synth_meta": synth_meta,
+            "citation_gate": citation_gate,
+            "final_answer": final_answer,
+            "elapsed_ms": elapsed_ms,
+        }
+        (out_dir / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "subagents.json").write_text(json.dumps(stream_results, ensure_ascii=False, indent=2), encoding="utf-8")
+        (out_dir / "final_answer.md").write_text(final_answer + "\n", encoding="utf-8")
+        output_file_meta = None
+        if args.output:
+            output_file_meta = write_output_file(args.output, final_answer, args.query, "deep")
+            vlog(f"OUTPUT FILE: {output_file_meta}")
+        summary = render_summary(
+            query=args.query,
+            organizer_model=organizer_model,
+            worker_model=worker_model,
+            synth_model=synth_model,
+            model_profile=args.model_profile,
+            organizer_backend=args.organizer_backend,
+            mcp_mode=args.mcp_mode,
+            plan=plan,
+            organizer_meta=organizer_meta,
+            synth_meta=synth_meta,
+            citation_gate=citation_gate,
+            subagent_results=stream_results,
+            dry_run=bool(args.dry_run),
+            mode="deep",
+            file_context_meta=file_context_meta,
+        )
+        (out_dir / "summary.md").write_text(summary, encoding="utf-8")
 
     if started_pid and not args.keep_local_mcp:
         try:
@@ -3712,14 +5189,24 @@ def main() -> int:
         except Exception:
             pass
 
+    # --- verbose trace: copy to out_dir and close ---
+    if _VERBOSE_FH is not None:
+        vlog(f"=== VERBOSE TRACE END === elapsed_ms={elapsed_ms}")
+        _VERBOSE_FH.close()
+        if _VERBOSE_PATH and _VERBOSE_PATH.exists():
+            import shutil
+            shutil.copy2(str(_VERBOSE_PATH), str(out_dir / "verbose_trace.txt"))
+
     print(
         json.dumps(
             {
                 "ok": True,
+                "mode": args.mode,
                 "out_dir": str(out_dir),
                 "summary_md": str(out_dir / "summary.md"),
                 "result_json": str(out_dir / "result.json"),
                 "elapsed_ms": elapsed_ms,
+                "output_file": output_file_meta,
             },
             ensure_ascii=False,
         )

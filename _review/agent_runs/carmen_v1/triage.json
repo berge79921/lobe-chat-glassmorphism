@@ -1,0 +1,57 @@
+{
+  "deadlines": [],
+  "urgency": "HIGH",
+  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i seit 23.12.2025) gegen Mandantin mit niedrigem Einkommen (AMS-Leistungen); Antrag §7 Abs 3 EO bereits erstellt, aber noch nicht eingereicht; Risiko unmittelbarer Pfändung trotz negativer SV-Abfrage.",
+  "silent_risks": [
+    {
+      "risk": "Untätigkeit bei Einreichung Antrag §7 Abs 3 EO",
+      "consequence": "Vollstreckbarkeitsbestätigung bleibt bestehen, Exekution schreitet fort, Pfändung von Einkommen möglich."
+    },
+    {
+      "risk": "Verpasste Interzessionsfrist §40 EO oder Praeklusion",
+      "consequence": "Verbotene Überbefriedigung nicht anfechtbar, Mandantin haftet trotz erloschener Hauptschuld (§14 IO Akzessorietät)."
+    },
+    {
+      "risk": "Keine Hemmung der Exekution",
+      "consequence": "Sofortige Kontopfändung oder Gehaltspfändung, finanzielle Belastung der Mandantin."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Priorisierung der Anträge: §7 Abs 3 EO (Zustellungsunwirksamkeit) vs. Interzession (§14 IO, §42 EO wegen Überbefriedigung)?",
+      "options": [
+        "Zuerst §7 Abs 3 EO (fristlos, hohe Erfolgschance durch ZMR-Beweis)",
+        "Parallel Interzession nach §7 Abs 3 Erfolg"
+      ]
+    },
+    {
+      "question": "Hemmung der Exekution beantragen (§40 EO)?",
+      "options": [
+        "Ja, sofortig mit Vorabberichtigung",
+        "Nein, nach positiver Entscheidung §7 Abs 3 EO"
+      ]
+    },
+    {
+      "question": "§25c KSchG für Kontenschutz priorisieren?",
+      "options": [
+        "Ja, bei drohender Pfändung",
+        "Nein, EO-Anträge haben Vorrang"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "§7 Abs 3 EO-Antrag erfolgreich (unwirksame Zustellung bewiesen)",
+      "then": "Vollstreckbarkeitsbestätigung aufgehoben; Exekution erlischt; Interzession gegen Überbefriedigung (§14 IO) entfällt."
+    },
+    {
+      "if": "§7 Abs 3 EO abgewiesen, Hauptschuld-Erledigung anerkannt (§14 IO)",
+      "then": "Interzessionsantrag §42 EO; Rückforderung gezahlter Beträge möglich."
+    },
+    {
+      "if": "Keine Einreichung/Antrag scheitert",
+      "then": "Exekution fortgesetzt; Mandantin zahlt EUR 3.599,44 + Kosten; Praeklusion eintritt."
+    }
+  ],
+  "response_type_hint": "recommendation"
+}
