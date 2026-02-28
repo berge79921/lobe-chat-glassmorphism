@@ -21,7 +21,7 @@ from typing import Any
 
 import yaml
 
-ROOT = Path("/Users/reinhardberger/HCS/lobe-chat-custom")
+ROOT = Path(os.getenv("HARNESS_ROOT", Path(__file__).resolve().parent.parent))
 REPORT_ROOT = ROOT / "_review" / "test_reports"
 ONESHOT_RUNNER = ROOT / "scripts" / "zivilrecht_oneshot_functional_compare.py"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -4847,7 +4847,7 @@ def main() -> int:
 
     started_pid = None
     mcp_start_meta: dict[str, Any] | None = None
-    if args.mcp_mode == "local_http" and args.mcp_base.rstrip("/") == DEFAULT_MCP_BASE:
+    if args.mcp_mode == "local_http" and args.mcp_base.rstrip("/") == DEFAULT_MCP_BASE and ONESHOT_RUNNER.exists():
         runner = load_runner_module()
         startup = runner.ensure_local_mcp_ready(auto_start=True)
         mcp_start_meta = startup
