@@ -3388,6 +3388,418 @@ def collect_citation_evidence(subagent_results: list[dict[str, Any]], include_st
     }
 
 
+# ---------------------------------------------------------------------------
+# Case Memory — persistent per-case accumulation across turns
+# ---------------------------------------------------------------------------
+
+def load_case_memory(case_memory_dir: str) -> tuple[dict[str, Any], int]:
+    """Load case manifest from disk. Returns ({}, 1) if dir does not exist yet."""
+    d = Path(case_memory_dir).expanduser().resolve()
+    manifest_path = d / "case_manifest.json"
+    if not manifest_path.exists():
+        return {}, 1
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        next_turn = manifest.get("turn_count", 0) + 1
+        return manifest, next_turn
+    except (json.JSONDecodeError, OSError):
+        return {}, 1
+
+
+def build_case_memory_context(manifest: dict[str, Any]) -> str:
+    """Build compact context string from accumulated case memory."""
+    if not manifest:
+        return ""
+    parts: list[str] = []
+    ev = manifest.get("accumulated_evidence") or {}
+    rs_list = ev.get("rs", [])[:30]
+    norms = ev.get("norms", [])[:20]
+    if rs_list:
+        parts.append(f"BISHERIGE RS ({len(rs_list)}): " + ", ".join(rs_list))
+    if norms:
+        parts.append(f"BISHERIGE NORMEN ({len(norms)}): " + ", ".join(norms))
+    urg = manifest.get("urgency")
+    if urg:
+        parts.append(f"DRINGLICHKEIT: {urg}")
+        reason = manifest.get("urgency_reason")
+        if reason:
+            parts.append(f"  Grund: {reason}")
+    decisions = manifest.get("strategy_decisions") or []
+    if decisions:
+        last = decisions[-1]
+        parts.append(f"LETZTE STRATEGIE (Turn {last.get('turn', '?')}): {last.get('decision', '')}")
+    if not parts:
+        return ""
+    return "=== CASE MEMORY (bisherige Durchgänge) ===\n" + "\n".join(parts) + "\n=== END CASE MEMORY ===\n\n"
+
+
+def save_case_memory_turn(
+    case_dir: str,
+    turn_nr: int,
+    turn_data: dict[str, Any],
+    manifest: dict[str, Any],
+    mcp_params: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Save turn snapshot + update manifest + RS registry + TE discovery + Fallübersicht. Returns updated manifest."""
+    d = Path(case_dir).expanduser().resolve()
+    d.mkdir(parents=True, exist_ok=True)
+    turns_dir = d / "turns"
+    turns_dir.mkdir(exist_ok=True)
+
+    # 1. Write turn snapshot immediately
+    turn_file = turns_dir / f"turn_{turn_nr:03d}.json"
+    turn_file.write_text(json.dumps(turn_data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # 2. Update manifest
+    now_utc = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if not manifest:
+        case_id = Path(case_dir).name
+        manifest = {
+            "version": 1,
+            "case_id": case_id,
+            "created_utc": now_utc,
+            "updated_utc": now_utc,
+            "turn_count": 0,
+            "accumulated_evidence": {"rs": [], "te_ogh": [], "norms": [], "rs_count": 0, "te_count": 0, "norm_count": 0},
+            "urgency": None,
+            "urgency_reason": None,
+            "classification_history": [],
+            "strategy_decisions": [],
+            "turns": [],
+        }
+    manifest["updated_utc"] = now_utc
+    manifest["turn_count"] = turn_nr
+
+    # Merge evidence (dedup)
+    acc = manifest.setdefault("accumulated_evidence", {"rs": [], "te_ogh": [], "norms": []})
+    td_ev = turn_data.get("evidence") or {}
+    acc["rs"] = sorted(set(acc.get("rs", []) + td_ev.get("rs", [])))
+    acc["te_ogh"] = sorted(set(acc.get("te_ogh", []) + td_ev.get("te_ogh", [])))
+    acc["norms"] = sorted(set(acc.get("norms", []) + td_ev.get("norms", [])))
+    acc["rs_count"] = len(acc["rs"])
+    acc["te_count"] = len(acc["te_ogh"])
+    acc["norm_count"] = len(acc["norms"])
+
+    # Urgency (latest wins)
+    triage = turn_data.get("triage") or {}
+    if triage.get("urgency"):
+        manifest["urgency"] = triage["urgency"]
+        manifest["urgency_reason"] = triage.get("urgency_reason") or triage.get("reason")
+
+    # Classification history
+    cls = turn_data.get("classification") or {}
+    if cls.get("domain"):
+        manifest.setdefault("classification_history", []).append(
+            {"turn": turn_nr, "domain": cls["domain"], "subdomain": cls.get("subdomain")}
+        )
+
+    # Strategy decisions from turn
+    if turn_data.get("strategy_decisions"):
+        manifest.setdefault("strategy_decisions", []).extend(turn_data["strategy_decisions"])
+
+    # Turn summary row
+    manifest.setdefault("turns", []).append({
+        "turn_nr": turn_nr,
+        "timestamp": now_utc,
+        "query_excerpt": (turn_data.get("query") or "")[:120],
+        "mode": turn_data.get("mode", ""),
+        "rs_found": len(td_ev.get("rs", [])),
+        "elapsed_ms": turn_data.get("elapsed_ms"),
+        "out_dir": turn_data.get("out_dir", ""),
+    })
+
+    # 3. Write manifest atomically (tmp + rename)
+    _mf_tmp = d / "case_manifest.json.tmp"
+    _mf_tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    _mf_tmp.replace(d / "case_manifest.json")
+
+    # 4. Update RS registry
+    _update_rs_registry(case_dir, turn_nr, turn_data)
+
+    # 5. TE Discovery (non-fatal, after RS registry updated)
+    if mcp_params and td_ev.get("rs"):
+        try:
+            reg_path = d / "rs_registry.json"
+            registry = {}
+            if reg_path.exists():
+                registry = json.loads(reg_path.read_text(encoding="utf-8"))
+            te_discovered = discover_te_for_rs(
+                rs_registry=registry, manifest=manifest, **mcp_params,
+            )
+            if te_discovered:
+                existing_te = set(acc.get("te_ogh", []))
+                new_te = sorted(existing_te | set(te_discovered.keys()))
+                acc["te_ogh"] = new_te
+                acc["te_count"] = len(new_te)
+                # Store in te_registry (persistent in manifest)
+                te_reg = manifest.setdefault("te_registry", {})
+                for gz, info in te_discovered.items():
+                    if gz not in te_reg:
+                        te_reg[gz] = {
+                            "first_seen_turn": turn_nr,
+                            "rs_source": info.get("rs_source"),
+                            "source_type": info.get("source_type"),
+                            "context": info.get("context", ""),
+                        }
+                # Re-write manifest with TE updates
+                _mf_tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+                _mf_tmp.replace(d / "case_manifest.json")
+                vlog(f"TE discovery: added {len(te_discovered)} TEs to manifest")
+        except Exception as exc:
+            vlog(f"TE discovery failed (non-fatal): {exc}")
+
+    # 6. Regenerate Fallübersicht
+    update_falluebersicht(case_dir, manifest)
+
+    return manifest
+
+
+def _update_rs_registry(case_dir: str, turn_nr: int, turn_data: dict[str, Any]) -> None:
+    """Merge new RS into rs_registry.json with context and validation status."""
+    d = Path(case_dir).expanduser().resolve()
+    reg_path = d / "rs_registry.json"
+    if reg_path.exists():
+        try:
+            registry = json.loads(reg_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            registry = {"version": 1, "entries": {}}
+    else:
+        registry = {"version": 1, "entries": {}}
+
+    registry["updated_utc"] = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    entries = registry.setdefault("entries", {})
+
+    # RS from evidence
+    td_ev = turn_data.get("evidence") or {}
+    rs_context = turn_data.get("rs_context") or {}
+    rs_validated = set(turn_data.get("rs_validated") or [])
+    rs_invalid = set(turn_data.get("rs_invalid") or [])
+
+    for rs in td_ev.get("rs", []):
+        if rs in entries:
+            entry = entries[rs]
+            if turn_nr not in entry.get("turns", []):
+                entry.setdefault("turns", []).append(turn_nr)
+            # Only upgrade validation (True stays True), never downgrade
+            if rs in rs_validated:
+                entry["validated"] = True
+            elif rs in rs_invalid and not entry.get("validated"):
+                entry["validated"] = False
+            if rs in rs_context and not entry.get("context"):
+                entry["context"] = rs_context[rs]
+        else:
+            entries[rs] = {
+                "first_seen_turn": turn_nr,
+                "turns": [turn_nr],
+                "validated": rs in rs_validated,
+                "context": rs_context.get(rs, ""),
+                "source": "worker",
+            }
+
+    _reg_tmp = reg_path.with_suffix(".json.tmp")
+    _reg_tmp.write_text(json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8")
+    _reg_tmp.replace(reg_path)
+
+
+def update_falluebersicht(case_dir: str, manifest: dict[str, Any]) -> None:
+    """Generate FALLUEBERSICHT.md from manifest (template-based, no LLM)."""
+    d = Path(case_dir).expanduser().resolve()
+    fu_path = d / "FALLUEBERSICHT.md"
+
+    # Load RS registry for validation status
+    reg_path = d / "rs_registry.json"
+    rs_entries: dict[str, Any] = {}
+    if reg_path.exists():
+        try:
+            rs_entries = json.loads(reg_path.read_text(encoding="utf-8")).get("entries", {})
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    lines: list[str] = []
+    case_id = manifest.get("case_id", Path(case_dir).name)
+    lines.append(f"# Fallübersicht: {case_id}")
+    lines.append(f"**Stand:** {manifest.get('updated_utc', '?')} | **Durchgänge:** {manifest.get('turn_count', 0)}")
+    urg = manifest.get("urgency")
+    if urg:
+        lines.append(f"**Dringlichkeit:** {urg}" + (f" — {manifest.get('urgency_reason', '')}" if manifest.get("urgency_reason") else ""))
+    lines.append("")
+
+    # Normen
+    acc = manifest.get("accumulated_evidence") or {}
+    norms = acc.get("norms", [])
+    if norms:
+        lines.append("## Relevante Normen")
+        for n in norms[:25]:
+            lines.append(f"- {n}")
+        lines.append("")
+
+    # RS with validation status
+    rs_list = acc.get("rs", [])
+    if rs_list:
+        lines.append("## Rechtssätze")
+        for rs in rs_list[:40]:
+            entry = rs_entries.get(rs, {})
+            tag = "[V]" if entry.get("validated") else ("[X]" if entry.get("validated") is False else "[?]")
+            ctx = entry.get("context", "")
+            ctx_str = f" — {ctx}" if ctx else ""
+            lines.append(f"- {tag} **{rs}**{ctx_str}")
+        lines.append("")
+
+    # TEs (discovered via hot_rs_lookup + FTS)
+    te_reg = manifest.get("te_registry") or {}
+    if te_reg:
+        lines.append("## Textentscheidungen (TEs)")
+        lines.append("")
+        lines.append("| TE | Quelle | Kontext |")
+        lines.append("|----|--------|---------|")
+        for gz in sorted(te_reg.keys())[:30]:
+            info = te_reg[gz]
+            src = info.get("rs_source") or "FTS"
+            src_type = info.get("source_type", "")
+            src_label = f"{src} ({src_type})" if info.get("rs_source") else src_type.upper()
+            ctx = (info.get("context") or "")[:80]
+            lines.append(f"| {gz} | {src_label} | {ctx} |")
+        lines.append("")
+
+    # Strategy decisions
+    decisions = manifest.get("strategy_decisions") or []
+    if decisions:
+        lines.append("## Strategische Entscheidungen")
+        for dec in decisions:
+            lines.append(f"- Turn {dec.get('turn', '?')}: {dec.get('decision', '')}")
+        lines.append("")
+
+    # Turn history table
+    turns = manifest.get("turns") or []
+    if turns:
+        lines.append("## Verlauf")
+        lines.append("| Turn | Datum | Modus | RS | ms |")
+        lines.append("|------|-------|-------|----|----|")
+        for t in turns:
+            ts = (t.get("timestamp") or "")[:16]
+            lines.append(f"| {t.get('turn_nr', '?')} | {ts} | {t.get('mode', '?')} | {t.get('rs_found', 0)} | {t.get('elapsed_ms', '?')} |")
+        lines.append("")
+
+    fu_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _extract_rs_context_from_streams(stream_results: list[dict[str, Any]]) -> dict[str, str]:
+    """Extract RS→short description from worker answers via regex."""
+    ctx: dict[str, str] = {}
+    for sr in stream_results:
+        ans = sr.get("answer", "")
+        if not isinstance(ans, str):
+            continue
+        for m in re.finditer(r"(RS\d{7})[:\s]+([^\n]{10,120})", ans):
+            rs_nr = m.group(1)
+            if rs_nr not in ctx:
+                ctx[rs_nr] = m.group(2).strip().rstrip(".")
+    return ctx
+
+
+def _extract_rs_validation_from_gate(cg: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """Extract validated/invalid RS lists from citation_gate report."""
+    ev = cg.get("after") or cg.get("before") or {}
+    rs_block = ev.get("rs") or {}
+    valid = list(rs_block.get("valid") or [])
+    invalid = list((rs_block.get("validation") or {}).get("invalid") or [])
+    return valid, invalid
+
+
+def _build_te_search_terms(manifest: dict[str, Any]) -> list[str]:
+    """Build FTS search terms from manifest norms + domain keywords."""
+    acc = manifest.get("accumulated_evidence") or {}
+    norms = acc.get("norms", [])
+    queries: list[str] = []
+    # Top norms as queries (most specific)
+    for n in norms[:2]:
+        q = n[:60].strip()
+        if q:
+            queries.append(q)
+    # Domain keywords from classification
+    cls_history = manifest.get("classification_history") or []
+    if cls_history:
+        last_cls = cls_history[-1]
+        domain = last_cls.get("domain", "")
+        subdomain = last_cls.get("subdomain", "")
+        kw = f"{domain} {subdomain}".strip()[:60]
+        if kw and kw not in queries:
+            queries.append(kw)
+    return queries[:3]
+
+
+def discover_te_for_rs(
+    rs_registry: dict[str, Any],
+    manifest: dict[str, Any],
+    mcp_mode: str, mcp_base: str,
+    remote_ssh: str, remote_mcp_container: str,
+    max_rs_lookups: int = 5,
+    max_fts_queries: int = 3,
+) -> dict[str, dict[str, Any]]:
+    """Discover TEs via hot_rs_lookup + FTS. Returns {te_gz: {rs_source, context, source_type}}."""
+    te_found: dict[str, dict[str, Any]] = {}
+    entries = rs_registry.get("entries") or {}
+    if not entries:
+        return te_found
+
+    # Sort RS by turn frequency (most frequent first)
+    rs_ranked = sorted(entries.keys(), key=lambda r: len(entries[r].get("turns", [])), reverse=True)
+
+    # Stage 1: hot_rs_lookup for top RS
+    for rs in rs_ranked[:max_rs_lookups]:
+        try:
+            resp = call_mcp_tool(
+                "hot_rs_lookup", {"rs_number": rs, "te_limit": 3},
+                mcp_mode, mcp_base, remote_ssh, remote_mcp_container, timeout=15.0,
+            )
+            if not resp.get("ok"):
+                continue
+            data = parse_tool_payload(resp.get("body"))
+            if not isinstance(data, dict):
+                continue
+            stories = data.get("te_items") or data.get("te_stories") or []
+            if isinstance(stories, list):
+                for st in stories:
+                    gz = st.get("gz") or st.get("geschaeftszahl") or ""
+                    if gz and gz not in te_found:
+                        te_found[gz] = {
+                            "rs_source": rs,
+                            "source_type": "hot_rs_lookup",
+                            "context": (st.get("mini_story") or st.get("kurzgeschichte") or "")[:200],
+                        }
+        except Exception as exc:
+            vlog(f"TE discovery hot_rs_lookup {rs} failed: {exc}")
+
+    # Stage 2: FTS queries
+    search_terms = _build_te_search_terms(manifest)
+    for q in search_terms[:max_fts_queries]:
+        try:
+            resp = call_mcp_tool(
+                "search_ogh_entscheidungen", {"query": q, "limit": 3},
+                mcp_mode, mcp_base, remote_ssh, remote_mcp_container, timeout=15.0,
+            )
+            if not resp.get("ok"):
+                continue
+            data = parse_tool_payload(resp.get("body"))
+            if not isinstance(data, dict):
+                continue
+            results = data.get("results") or data.get("entscheidungen") or []
+            if isinstance(results, list):
+                for r in results:
+                    gz = r.get("geschaeftszahl") or r.get("gz") or ""
+                    if gz and gz not in te_found:
+                        te_found[gz] = {
+                            "rs_source": None,
+                            "source_type": "fts",
+                            "context": (r.get("kernaussage") or r.get("summary") or q)[:200],
+                        }
+        except Exception as exc:
+            vlog(f"TE discovery FTS '{q}' failed: {exc}")
+
+    vlog(f"TE discovery: found {len(te_found)} TEs ({sum(1 for v in te_found.values() if v['source_type']=='hot_rs_lookup')} hot, {sum(1 for v in te_found.values() if v['source_type']=='fts')} fts)")
+    return te_found
+
+
 def validate_rs_citations_via_mcp(
     rs_numbers: list[str],
     mcp_mode: str,
@@ -5234,6 +5646,12 @@ def main() -> int:
     ap.add_argument("--kanzlei", default="BERGER", help="Kanzlei-ID for DOCX template (e.g. BERGER, STU)")
     ap.add_argument("--docx-meta", default="", help='JSON: {"az":"1C123/25a","partei":"Müller"}')
     ap.add_argument("--docx-from", default="", help="Multi-turn: generate DOCX from existing .md file")
+    ap.add_argument("--case-memory", default="", metavar="DIR",
+        help="Persistent case memory dir. Accumulates RS/evidence across turns.")
+    ap.add_argument("--update-fu", action="store_true",
+        help="Force FALLUEBERSICHT.md regeneration from manifest")
+    ap.add_argument("--show-rs", action="store_true",
+        help="Print accumulated RS registry and exit")
     args = ap.parse_args(raw_argv)
 
     parsed_cfg = Path(args.config_dir).expanduser()
@@ -5259,6 +5677,10 @@ def main() -> int:
         if startup.get("started"):
             started_pid = int(startup.get("pid"))
 
+    # --- CASE MEMORY: auto-set context-dir before loading context ---
+    if args.case_memory and not args.context_dir:
+        args.context_dir = args.case_memory
+
     file_context, file_context_meta = load_case_context(
         context_dir=args.context_dir,
         context_files=args.context_file or [],
@@ -5278,6 +5700,35 @@ def main() -> int:
             vlog(f"  context_files={file_context_meta['files_read']}")
 
     started_at = time.perf_counter()
+
+    # --- CASE MEMORY: early-exit subcommands ---
+    if args.case_memory and args.show_rs:
+        _cm_dir = Path(args.case_memory).expanduser().resolve()
+        _reg_path = _cm_dir / "rs_registry.json"
+        if _reg_path.exists():
+            print(_reg_path.read_text(encoding="utf-8"))
+        else:
+            print(json.dumps({"version": 1, "entries": {}}, indent=2))
+        return 0
+    if args.case_memory and args.update_fu:
+        _cm_dir = Path(args.case_memory).expanduser().resolve()
+        _mf_path = _cm_dir / "case_manifest.json"
+        if _mf_path.exists():
+            _mf = json.loads(_mf_path.read_text(encoding="utf-8"))
+            update_falluebersicht(args.case_memory, _mf)
+            print(json.dumps({"ok": True, "action": "update_fu", "path": str(_cm_dir / "FALLUEBERSICHT.md")}))
+        else:
+            print(json.dumps({"ok": False, "error": "No case_manifest.json found"}))
+        return 0
+
+    # --- CASE MEMORY: load + inject context ---
+    case_manifest: dict[str, Any] = {}
+    case_turn_nr: int = 0
+    if args.case_memory:
+        case_manifest, case_turn_nr = load_case_memory(args.case_memory)
+        mem_ctx = build_case_memory_context(case_manifest)
+        if mem_ctx:
+            file_context = mem_ctx + file_context
 
     # --- DOCX-FROM: Multi-turn early exit (generate DOCX from existing .md) ---
     if getattr(args, "docx", False) and args.docx_from:
@@ -5411,6 +5862,30 @@ def main() -> int:
             )
             vlog(f"QUICK DOCX done -> {docx_meta.get('output_path', 'N/A')}")
 
+        # --- CASE MEMORY: save quick turn ---
+        if args.case_memory and case_turn_nr:
+            _q_rs = sorted(set(extract_rs_numbers(final_answer)))
+            _q_te = sorted(set(extract_ogh_te_citations(final_answer)))
+            _q_norms = sorted(set(extract_norm_citations(final_answer)))
+            turn_data = {
+                "turn_nr": case_turn_nr, "timestamp": utc_now(), "query": args.query,
+                "mode": "quick",
+                "classification": classification,
+                "evidence": {"rs": _q_rs, "te_ogh": _q_te, "norms": _q_norms},
+                "rs_validated": _extract_rs_validation_from_gate(citation_gate)[0],
+                "rs_invalid": _extract_rs_validation_from_gate(citation_gate)[1],
+                "rs_context": {},
+                "triage": {},
+                "elapsed_ms": elapsed_ms,
+                "out_dir": str(out_dir),
+                "answer_excerpt": final_answer[:500],
+            }
+            _mcp_p = {
+                "mcp_mode": args.mcp_mode, "mcp_base": args.mcp_base.rstrip("/"),
+                "remote_ssh": args.remote_ssh, "remote_mcp_container": args.remote_mcp_container,
+            } if not args.dry_run else None
+            case_manifest = save_case_memory_turn(args.case_memory, case_turn_nr, turn_data, case_manifest, mcp_params=_mcp_p)
+
     elif args.mode == "agent":
         # --- AGENT PATH: triage → deep analysis → strategic response ---
         out_dir, meta_result = run_agent_mode(
@@ -5429,6 +5904,32 @@ def main() -> int:
         )
         elapsed_ms = meta_result.get("elapsed_ms", 0)
         output_file_meta = None  # handled inside run_agent_mode
+
+        # --- CASE MEMORY: save agent turn ---
+        if args.case_memory and case_turn_nr:
+            _agent_streams = meta_result.get("streams") or []
+            _agent_ev = collect_citation_evidence(_agent_streams, include_stream_answers=True)
+            _agent_cg = meta_result.get("phases", {}).get("analysis", {}).get("citation_gate") or {}
+            _agent_cls = meta_result.get("classification") or {}
+            _agent_triage = meta_result.get("phases", {}).get("triage", {}).get("result") or {}
+            turn_data = {
+                "turn_nr": case_turn_nr, "timestamp": utc_now(), "query": args.query,
+                "mode": "agent",
+                "classification": _agent_cls,
+                "evidence": _agent_ev,
+                "rs_validated": _extract_rs_validation_from_gate(_agent_cg)[0],
+                "rs_invalid": _extract_rs_validation_from_gate(_agent_cg)[1],
+                "rs_context": _extract_rs_context_from_streams(_agent_streams),
+                "triage": _agent_triage,
+                "elapsed_ms": elapsed_ms,
+                "out_dir": str(out_dir),
+                "answer_excerpt": (meta_result.get("final_answer") or "")[:500],
+            }
+            _mcp_p = {
+                "mcp_mode": args.mcp_mode, "mcp_base": args.mcp_base.rstrip("/"),
+                "remote_ssh": args.remote_ssh, "remote_mcp_container": args.remote_mcp_container,
+            } if not args.dry_run else None
+            case_manifest = save_case_memory_turn(args.case_memory, case_turn_nr, turn_data, case_manifest, mcp_params=_mcp_p)
 
     else:
         # --- DEEP PATH (existing pipeline, unchanged) ---
@@ -5649,6 +6150,29 @@ def main() -> int:
                 query=args.query, file_context=file_context,
             )
             vlog(f"DEEP DOCX done -> {docx_meta.get('output_path', 'N/A')}")
+
+        # --- CASE MEMORY: save deep turn ---
+        if args.case_memory and case_turn_nr:
+            _d_ev = collect_citation_evidence(stream_results, include_stream_answers=True)
+            _d_cls = classification if isinstance(classification, dict) else {"domain": str(classification)}
+            turn_data = {
+                "turn_nr": case_turn_nr, "timestamp": utc_now(), "query": args.query,
+                "mode": "deep",
+                "classification": _d_cls,
+                "evidence": _d_ev,
+                "rs_validated": _extract_rs_validation_from_gate(citation_gate)[0],
+                "rs_invalid": _extract_rs_validation_from_gate(citation_gate)[1],
+                "rs_context": _extract_rs_context_from_streams(stream_results),
+                "triage": {},
+                "elapsed_ms": elapsed_ms,
+                "out_dir": str(out_dir),
+                "answer_excerpt": final_answer[:500],
+            }
+            _mcp_p = {
+                "mcp_mode": args.mcp_mode, "mcp_base": args.mcp_base.rstrip("/"),
+                "remote_ssh": args.remote_ssh, "remote_mcp_container": args.remote_mcp_container,
+            } if not args.dry_run else None
+            case_manifest = save_case_memory_turn(args.case_memory, case_turn_nr, turn_data, case_manifest, mcp_params=_mcp_p)
 
     if started_pid and not args.keep_local_mcp:
         try:
