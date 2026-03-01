@@ -4491,6 +4491,366 @@ def build_agent_bundle(
     return "\n".join(parts)
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# PHASE 3 — DOCX GENERATION (opt-in via --docx)
+# ═══════════════════════════════════════════════════════════════════════════
+
+DOCX_SKILL_DIR = Path(os.getenv(
+    "DOCX_SKILL_DIR",
+    str(Path(__file__).resolve().parent.parent.parent / ".claude" / "skills" / "docx-kanzlei"),
+))
+
+_DOCX_TYPE_PATTERNS: dict[str, list[str]] = {
+    "schriftsatz": [
+        r"\bSchriftsatz\b", r"\bEingabe\b", r"\bBerufung\b", r"\bBeschwerde\b",
+        r"\bKlage\b", r"\bAntrag\b", r"\bRekurs\b", r"\bStellungnahme\b",
+        r"\bGegenschrift\b", r"\bÄußerung\b", r"\bEinspruch\b",
+    ],
+    "gegnerschreiben": [
+        r"\bForderungsschreiben\b", r"\bMahnung\b", r"\bZahlungsaufforderung\b",
+        r"\bSchreiben\s*an\s*(?:den\s*)?Gegner\b", r"\bGegnervertreter\b",
+        r"\bVergleichsvorschlag\b", r"\bAbmahnung\b",
+    ],
+    "mandantenschreiben": [
+        r"\bMandantenschreiben\b", r"\bMandantenbrief\b", r"\bRechtsbelehrung\b",
+        r"\bSchreiben\s*an\s*(?:den\s*)?Mandant\b", r"\bInformation\s*an\b",
+    ],
+    "dokument": [
+        r"\bVertrag\b", r"\bMietvertrag\b", r"\bKaufvertrag\b", r"\bTestament\b",
+        r"\bVollmacht\b", r"\bVereinbarung\b", r"\bVertragsentwurf\b",
+    ],
+}
+
+_EINLEITUNG_MAP: dict[str, str] = {
+    "schriftsatz": "Vorbringen",
+    "mandantenschreiben": "",
+    "gegnerschreiben": "",
+    "dokument": "",
+}
+
+_DOCX_CONTENT_PROMPTS: dict[str, str] = {
+    "schriftsatz": (
+        "Du bist ein österreichischer Rechtsanwalt. Strukturiere den folgenden Analysetext als "
+        "GERICHTLICHE EINGABE (Schriftsatz). Verwende Markdown.\n\n"
+        "WICHTIG: Bestimme SELBST aus dem Analysetext, welche Art von Eingabe richtig ist "
+        "(Antrag, Berufung, Beschwerde, Klage, Rekurs, Stellungnahme, Oppositionsklage, etc.). "
+        "Übernimm die Einschätzung der Analyse — zwänge den Text NICHT in eine falsche Form.\n\n"
+        "RUBRUM WIRD SEPARAT GENERIERT — du darfst KEIN Rubrum, KEINE Parteibezeichnungen, "
+        "KEIN Gericht, KEIN Aktenzeichen und KEINE Anwaltsangaben in den Text schreiben. "
+        "Beginne direkt mit dem inhaltlichen Teil des Schriftsatzes.\n\n"
+        "Gliederung (an den konkreten Eingabe-Typ anpassen):\n"
+        "## I. Begehren (was soll das Gericht tun — Haupt- und Eventualanträge)\n"
+        "## II. Sachverhalt (kurz, nur was das Gericht wissen muss)\n"
+        "## III. Rechtliche Begründung (mit §§ und RS-Zitaten aus dem Analysetext)\n"
+        "## IV. Beweisangebote (falls vorhanden)\n\n"
+        "Halte dich eng an den Analysetext. Erfinde keine neuen Rechtsquellen."
+    ),
+    "mandantenschreiben": (
+        "Du bist ein österreichischer Rechtsanwalt. Strukturiere den folgenden Analysetext als "
+        "MANDANTENSCHREIBEN (informativ). Verwende Markdown.\n"
+        "Gliederung: Anrede — Zusammenfassung der Rechtslage (verständlich für Laien) — "
+        "Empfehlung / nächste Schritte — Kosten-/Risikohinweis — Grußformel.\n"
+        "Halte dich eng an den Analysetext. Erfinde keine neuen Rechtsquellen."
+    ),
+    "gegnerschreiben": (
+        "Du bist ein österreichischer Rechtsanwalt. Strukturiere den folgenden Analysetext als "
+        "SCHREIBEN AN DEN GEGNER / GEGNERVERTRETER (außergerichtlich). Verwende Markdown.\n"
+        "Gliederung: Betreff — Sachverhalt (kurz) — Rechtsgrundlage / Anspruch — "
+        "Forderung (konkretes Begehren, Frist) — Rechtsfolgenhinweis bei Nichterfüllung — Grußformel.\n"
+        "Halte dich eng an den Analysetext. Erfinde keine neuen Rechtsquellen."
+    ),
+    "dokument": (
+        "Du bist ein österreichischer Rechtsanwalt. Strukturiere den folgenden Analysetext als "
+        "RECHTSDOKUMENT (Vertrag, Testament, Vollmacht, Vereinbarung o.ä.). Verwende Markdown.\n\n"
+        "Bestimme SELBST aus dem Analysetext, welche Art von Dokument passend ist, und verwende "
+        "die korrekte Gliederung:\n"
+        "- Vertrag: Vertragsparteien — Definitionen — Nummerierte Klauseln (§ 1, § 2, ...) — "
+        "Schlussbestimmungen — Unterschriftenblock\n"
+        "- Testament: Überschrift — Erbeinsetzung — Vermächtnisse — Auflagen — Datum/Unterschrift\n"
+        "- Vollmacht: Vollmachtgeber — Bevollmächtigter — Umfang — Gültigkeitsdauer\n\n"
+        "Halte dich eng an den Analysetext. Erfinde keine neuen Rechtsquellen."
+    ),
+}
+
+
+def detect_docx_type(query: str, triage_result: dict[str, Any] | None = None) -> str:
+    """Regex-basierte Erkennung des Dokumenttyps aus Query-Keywords."""
+    q = query
+    # Check triage hint first
+    if triage_result and triage_result.get("docx_hint"):
+        hint = triage_result["docx_hint"].lower().strip()
+        if hint in _DOCX_TYPE_PATTERNS:
+            return hint
+    # Regex match — check specific categories before fallback to schriftsatz
+    for dtype in ["dokument", "gegnerschreiben", "mandantenschreiben", "schriftsatz"]:
+        for pat in _DOCX_TYPE_PATTERNS[dtype]:
+            if re.search(pat, q, re.IGNORECASE):
+                return dtype
+    return "schriftsatz"
+
+
+def extract_docx_meta(
+    query: str,
+    file_context: str,
+    triage_result: dict[str, Any] | None,
+    user_override: str,
+    analysis: str = "",
+) -> dict[str, Any]:
+    """Auto-extract AZ, Gericht, Parteien, Gegner, wegen from query + context + analysis."""
+    meta: dict[str, Any] = {}
+    # User override has priority
+    if user_override:
+        try:
+            meta.update(json.loads(user_override))
+        except json.JSONDecodeError:
+            pass
+    combined = query + "\n" + (file_context or "")[:5000] + "\n" + (analysis or "")[:3000]
+    # AZ pattern
+    if "az" not in meta:
+        m = re.search(r"(\d{1,3}\s*[A-Z]{1,4}\s+\d+/\d{2}[a-z]?)", combined)
+        if m:
+            meta["az"] = m.group(1).strip()
+    # Gericht
+    if "adressat" not in meta:
+        for g_pat, g_name in [
+            (r"\bOLG\s+\w+", None), (r"\bLG\s+\w+", None),
+            (r"\bBG\s+\w+", None), (r"\bBVwG\b", "Bundesverwaltungsgericht"),
+            (r"\bVwGH\b", "Verwaltungsgerichtshof"),
+        ]:
+            m = re.search(g_pat, combined)
+            if m:
+                meta["adressat"] = g_name or m.group(0).strip()
+                break
+    # Triage-sourced info
+    if triage_result:
+        if "partei" not in meta and triage_result.get("parties"):
+            parties = triage_result["parties"]
+            if isinstance(parties, list) and parties:
+                meta["partei"] = parties[0] if isinstance(parties[0], str) else str(parties[0])
+    return meta
+
+
+def extract_docx_meta_from_llm(
+    analysis: str,
+    response: str,
+    docx_type: str,
+    synth_model: str,
+    base_meta: dict[str, Any],
+    dry_run: bool = False,
+    file_context: str = "",
+) -> dict[str, Any]:
+    """LLM-basierte Meta-Extraktion fuer Rubrum (Parteien, Gegner, wegen, Titel)."""
+    if dry_run:
+        return base_meta
+    source = analysis if analysis and len(analysis) > 200 else response
+    if not source or len(source) < 50:
+        return base_meta
+    # Combine analysis + file_context so LLM can find party names
+    combined = source[:6000]
+    if file_context:
+        combined += "\n\n--- FALLDATEN ---\n" + file_context[:4000]
+    prompt = (
+        "Extrahiere aus dem folgenden juristischen Text die Rubrum-Daten "
+        "fuer einen oesterreichischen Schriftsatz. Antworte NUR als JSON-Objekt.\n\n"
+        "Felder (nur befuellen wenn im Text erkennbar, sonst weglassen):\n"
+        '- "partei": VOLLSTAENDIGER Name des Mandanten/Klaeger/Antragsteller (z.B. "Carmen Toblier")\n'
+        '- "partei_bezeichnung": Prozessuale Rolle (z.B. "Antragstellerin", "Klägerin", "Beschwerdeführer")\n'
+        '- "gegner": VOLLSTAENDIGER Name des Gegners (z.B. "Erste Bank der oesterreichischen Sparkassen AG")\n'
+        '- "gegner_bezeichnung": Prozessuale Rolle des Gegners (z.B. "Antragsgegnerin", "Beklagte")\n'
+        '- "wegen": Kurzbezeichnung des Streitgegenstands (z.B. "Aufhebung der Vollstreckbarkeitsbestätigung")\n'
+        '- "titel": Schriftsatz-Titel fuer das Rubrum (z.B. "ANTRAG gemäß § 7 Abs 3 EO")\n'
+        '- "adressat_adresse": Postanschrift des Gerichts (Strasse + PLZ Ort), wenn bekannt\n\n'
+        "WICHTIG: Gib NUR valides JSON zurueck, keinen Markdown, keine Erklaerung. "
+        "Extrahiere die ECHTEN Namen der Parteien aus dem Text, nicht Platzhalter."
+    )
+    messages = [
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": combined},
+    ]
+    try:
+        resp, _ = openrouter_chat(
+            model=synth_model, messages=messages,
+            max_tokens=500, temperature=0.0, title="docx-meta-extract",
+        )
+        # openrouter_chat returns a dict with choices
+        resp_text = (resp.get("choices") or [{}])[0].get("message", {}).get("content", "")
+        if not resp_text:
+            return base_meta
+        # Parse JSON from response (strip markdown fences if present)
+        cleaned = re.sub(r"^```(?:json)?\s*", "", resp_text.strip())
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+        llm_meta = json.loads(cleaned)
+        vlog(f"DOCX LLM meta extracted: {llm_meta}")
+        # Merge: base_meta (user override + regex) wins, LLM fills gaps
+        for k, v in llm_meta.items():
+            if k not in base_meta and v:
+                base_meta[k] = v
+    except Exception as e:
+        vlog(f"DOCX LLM meta extraction failed: {e}")
+    return base_meta
+
+
+def prepare_docx_content(
+    analysis: str,
+    response: str,
+    docx_type: str,
+    synth_model: str,
+    dry_run: bool = False,
+) -> str:
+    """LLM call to restructure analysis into the target document format."""
+    # For mandantenschreiben, response_text is already in the right format
+    if docx_type == "mandantenschreiben" and response and len(response) > 200:
+        return response
+
+    prompt = _DOCX_CONTENT_PROMPTS.get(docx_type, _DOCX_CONTENT_PROMPTS["schriftsatz"])
+    # Use the richer text: prefer analysis, fall back to response
+    source = analysis if analysis and len(analysis) > 200 else response
+
+    if dry_run:
+        return f"[DRY RUN — would transform {len(source)} chars into {docx_type} format]"
+
+    messages = [
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": f"Analysetext ({len(source)} Zeichen):\n\n{source[:12000]}"},
+    ]
+    try:
+        resp, _ = openrouter_chat(
+            model=synth_model,
+            messages=messages,
+            max_tokens=4000,
+            temperature=0.2,
+            title=f"docx-prepare-{docx_type}",
+        )
+        content = (resp.get("choices") or [{}])[0].get("message", {}).get("content", "")
+        if content and len(content) > 100:
+            return content
+    except Exception as e:
+        vlog(f"DOCX prepare_content error: {e}")
+    # Fallback: use source as-is
+    return source
+
+
+def _import_docx_kanzlei():
+    """Lazy import of docx_kanzlei module."""
+    # Try env-var path first, then common locations
+    for candidate in [
+        DOCX_SKILL_DIR,
+        Path("/Users/reinhardberger/HCS/.claude/skills/docx-kanzlei"),
+        Path(__file__).resolve().parent.parent.parent / ".claude" / "skills" / "docx-kanzlei",
+    ]:
+        if (candidate / "docx_kanzlei.py").exists():
+            sys.path.insert(0, str(candidate))
+            import docx_kanzlei as dk
+            return dk
+    raise RuntimeError(f"DOCX skill not found. Set DOCX_SKILL_DIR env variable.")
+
+
+def run_docx_generation(
+    out_dir: Path,
+    analysis: str,
+    response: str,
+    args: Any,
+    triage_result: dict[str, Any] | None,
+    synth_model: str,
+    query: str,
+    file_context: str,
+) -> dict[str, Any]:
+    """Phase 3 DOCX orchestrator: detect → extract meta → prepare → generate."""
+    t_start = time.perf_counter()
+
+    # 1. Resolve docx type
+    docx_type = args.docx_type
+    if docx_type == "auto":
+        docx_type = detect_docx_type(query, triage_result)
+    vlog(f"DOCX type resolved: {docx_type}")
+
+    # 2. Extract meta (regex first, then LLM enrichment for Rubrum fields)
+    meta = extract_docx_meta(query, file_context, triage_result, args.docx_meta, analysis)
+    if docx_type == "schriftsatz" and not args.dry_run:
+        meta = extract_docx_meta_from_llm(
+            analysis=analysis, response=response, docx_type=docx_type,
+            synth_model=synth_model, base_meta=meta, dry_run=bool(args.dry_run),
+            file_context=file_context,
+        )
+    vlog(f"DOCX meta: {meta}")
+
+    # 3. Prepare content via LLM
+    is_body_only = (docx_type in ("dokument", "mandantenschreiben", "gegnerschreiben"))
+    content_md = prepare_docx_content(
+        analysis=analysis,
+        response=response,
+        docx_type=docx_type,
+        synth_model=synth_model,
+        dry_run=bool(args.dry_run),
+    )
+
+    # 4. Write content to disk
+    content_path = out_dir / "docx_content.md"
+    content_path.write_text(content_md, encoding="utf-8")
+
+    # 5. Write meta to disk
+    meta_path = out_dir / "docx_meta.json"
+    meta_path.write_text(json.dumps({
+        "docx_type": docx_type,
+        "body_only": is_body_only,
+        "meta": meta,
+        "kanzlei": args.kanzlei,
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if args.dry_run:
+        return {
+            "status": "dry_run",
+            "docx_type": docx_type,
+            "meta": meta,
+            "content_path": str(content_path),
+            "elapsed_ms": round((time.perf_counter() - t_start) * 1000.0, 2),
+        }
+
+    # 6. Import docx_kanzlei
+    try:
+        dk = _import_docx_kanzlei()
+    except Exception as e:
+        return {"status": "error", "error": f"docx_kanzlei import failed: {e}"}
+
+    # 7. Load kanzlei config + resolve template
+    # Map our 4 categories to kanzlei template types
+    _TEMPLATE_TYPE_MAP = {
+        "schriftsatz": "default",
+        "mandantenschreiben": "mandantenschreiben",
+        "gegnerschreiben": "forderungsschreiben",
+        "dokument": "default",
+    }
+    try:
+        global_config = dk.load_global_config()
+        kanzlei_config = dk.load_kanzlei_config(args.kanzlei)
+        template_typ = _TEMPLATE_TYPE_MAP.get(docx_type, "default")
+        template_path = dk.resolve_template(kanzlei_config, template_typ, global_config)
+    except Exception as e:
+        return {"status": "error", "error": f"Kanzlei config error: {e}"}
+
+    # 8. Generate DOCX
+    output_docx = out_dir / f"{docx_type}.docx"
+    einleitung = _EINLEITUNG_MAP.get(docx_type, "Vorbringen")
+
+    result = dk.generate_docx(
+        template_path=template_path,
+        content_path=str(content_path),
+        output_path=str(output_docx),
+        meta=meta if not is_body_only else None,
+        body_only=is_body_only,
+        einleitung_titel=einleitung,
+        kanzlei_config=kanzlei_config if not is_body_only else None,
+    )
+
+    elapsed_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
+    result["docx_type"] = docx_type
+    result["meta"] = meta
+    result["elapsed_ms"] = elapsed_ms
+    result["output_path"] = str(output_docx)
+    vlog(f"DOCX generation: {result.get('status')} -> {output_docx} in {elapsed_ms}ms")
+    return result
+
+
 def run_agent_mode(
     query: str,
     file_context: str,
@@ -4722,6 +5082,24 @@ def run_agent_mode(
     bundle = build_agent_bundle(query, triage_result, final_answer, response_text)
     (out_dir / "AGENT_RESULT.md").write_text(bundle, encoding="utf-8")
 
+    # ── Phase 3: DOCX (optional) ──
+    docx_meta = None
+    if getattr(args, "docx", False):
+        vlog("AGENT Phase 3: DOCX start")
+        t3 = time.perf_counter()
+        docx_meta = run_docx_generation(
+            out_dir=out_dir,
+            analysis=final_answer,
+            response=response_text,
+            args=args,
+            triage_result=triage_result,
+            synth_model=synth_model,
+            query=query,
+            file_context=file_context,
+        )
+        docx_ms = round((time.perf_counter() - t3) * 1000.0, 2)
+        vlog(f"AGENT Phase 3: DOCX done in {docx_ms}ms -> {docx_meta.get('output_path', 'N/A')}")
+
     elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
 
     # Meta
@@ -4750,6 +5128,7 @@ def run_agent_mode(
             "triage": {"elapsed_ms": triage_ms, "meta": triage_meta, "result": triage_result},
             "analysis": {"elapsed_ms": analysis_ms, "synth_meta": synth_meta, "citation_gate": citation_gate},
             "response": {"elapsed_ms": response_ms, "meta": response_meta},
+            **({"docx": docx_meta} if docx_meta else {}),
         },
         "classification": classification,
         "pre_search_evidence_chars": len(pre_search_evidence),
@@ -4849,6 +5228,12 @@ def main() -> int:
     ap.add_argument("--verbose", action="store_true", help="Log every API/MCP call to verbose_trace.txt")
     ap.add_argument("--output", default="", metavar="FILE",
         help="Write final answer to FILE (.md/.txt/.json). Appends if file exists.")
+    ap.add_argument("--docx", action="store_true", help="Generate DOCX from output (Phase 3)")
+    ap.add_argument("--docx-type", default="auto",
+        choices=["auto", "schriftsatz", "mandantenschreiben", "gegnerschreiben", "dokument"])
+    ap.add_argument("--kanzlei", default="BERGER", help="Kanzlei-ID for DOCX template (e.g. BERGER, STU)")
+    ap.add_argument("--docx-meta", default="", help='JSON: {"az":"1C123/25a","partei":"Müller"}')
+    ap.add_argument("--docx-from", default="", help="Multi-turn: generate DOCX from existing .md file")
     args = ap.parse_args(raw_argv)
 
     parsed_cfg = Path(args.config_dir).expanduser()
@@ -4893,6 +5278,26 @@ def main() -> int:
             vlog(f"  context_files={file_context_meta['files_read']}")
 
     started_at = time.perf_counter()
+
+    # --- DOCX-FROM: Multi-turn early exit (generate DOCX from existing .md) ---
+    if getattr(args, "docx", False) and args.docx_from:
+        src = Path(args.docx_from).expanduser()
+        if not src.exists():
+            print(json.dumps({"ok": False, "error": f"--docx-from file not found: {src}"}))
+            return 1
+        content = src.read_text(encoding="utf-8")
+        stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M%S")
+        out_dir = REPORT_ROOT / f"legalchat_docx_{stamp}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        docx_meta = run_docx_generation(
+            out_dir=out_dir, analysis=content, response=content,
+            args=args, triage_result={}, synth_model=synth_model,
+            query=args.query, file_context=file_context,
+        )
+        elapsed_ms = round((time.perf_counter() - started_at) * 1000.0, 2)
+        print(json.dumps({"ok": True, "mode": "docx_from", "out_dir": str(out_dir),
+                           "docx": docx_meta, "elapsed_ms": elapsed_ms}, ensure_ascii=False))
+        return 0
 
     if args.mode == "quick":
         # --- QUICK PATH: classify → light pre-search → single synth ---
@@ -4995,6 +5400,16 @@ def main() -> int:
             file_context_meta=file_context_meta,
         )
         (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+        # DOCX generation (quick path)
+        if getattr(args, "docx", False):
+            vlog("QUICK Phase DOCX start")
+            docx_meta = run_docx_generation(
+                out_dir=out_dir, analysis=final_answer, response=final_answer,
+                args=args, triage_result=None, synth_model=synth_model,
+                query=args.query, file_context=file_context,
+            )
+            vlog(f"QUICK DOCX done -> {docx_meta.get('output_path', 'N/A')}")
 
     elif args.mode == "agent":
         # --- AGENT PATH: triage → deep analysis → strategic response ---
@@ -5224,6 +5639,16 @@ def main() -> int:
             file_context_meta=file_context_meta,
         )
         (out_dir / "summary.md").write_text(summary, encoding="utf-8")
+
+        # DOCX generation (deep path)
+        if getattr(args, "docx", False):
+            vlog("DEEP Phase DOCX start")
+            docx_meta = run_docx_generation(
+                out_dir=out_dir, analysis=final_answer, response=final_answer,
+                args=args, triage_result=None, synth_model=synth_model,
+                query=args.query, file_context=file_context,
+            )
+            vlog(f"DEEP DOCX done -> {docx_meta.get('output_path', 'N/A')}")
 
     if started_pid and not args.keep_local_mcp:
         try:
