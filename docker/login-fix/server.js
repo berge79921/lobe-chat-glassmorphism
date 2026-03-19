@@ -212,6 +212,8 @@ const LEGALCHAT_LOGTO_LOGO_VERSIONED_URL = withVersionQuery(LEGALCHAT_LOGTO_LOGO
 INTERNAL_HOSTS.add(LOGTO_UPSTREAM_HOST);
 INTERNAL_HOSTS.add('logto');
 const SIGNOUT_PATH_PATTERN = /^\/(?:api\/auth|next-auth)\/signout\/?$/;
+const LOCALIZED_LOGIN_HELPER_PATH_PATTERN = /^\/[^/]+__[^/]+__[^/]+\/login\/?$/i;
+const LOCALIZED_LOGOUT_HELPER_PATH_PATTERN = /^\/[^/]+__[^/]+__[^/]+\/(?:logout|signout)\/?$/i;
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
   alloy: 'en-US-JennyNeural',
@@ -2592,6 +2594,10 @@ const sendLoginHelper = (res, options = {}) => {
     'content-length': textEncoder.encode(html).byteLength,
     'content-type': 'text/html; charset=utf-8',
   });
+  if (options.headOnly) {
+    res.end();
+    return;
+  }
   res.end(html);
 };
 
@@ -3030,10 +3036,20 @@ const hasSessionCookie = (req) => {
   return false;
 };
 
+const isLoginHelperPath = (pathname) =>
+  pathname === '/login' || pathname === '/login/' || LOCALIZED_LOGIN_HELPER_PATH_PATTERN.test(pathname);
+
+const isLogoutHelperPath = (pathname) =>
+  pathname === '/logout' ||
+  pathname === '/logout/' ||
+  pathname === '/signout' ||
+  pathname === '/signout/' ||
+  LOCALIZED_LOGOUT_HELPER_PATH_PATTERN.test(pathname);
+
 const shouldEnforceLogin = (req, parsedUrl) => {
   if (req.method !== 'GET') return false;
   if (!isUiRoutePath(parsedUrl.pathname)) return false;
-  if (parsedUrl.pathname === '/login') return false;
+  if (isLoginHelperPath(parsedUrl.pathname)) return false;
   if (shouldShowHelperOnRoot(req)) return false;
   return !hasSessionCookie(req);
 };
@@ -3045,6 +3061,41 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && parsedUrl.pathname === '/healthz') {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('ok');
+    return;
+  }
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && isLoginHelperPath(parsedUrl.pathname)) {
+    sendLoginHelper(res, {
+      loggedOut: isTruthyFlag(parsedUrl.searchParams.get('logged_out')),
+      callbackUrl: parsedUrl.searchParams.get('callbackUrl'),
+      headOnly: req.method === 'HEAD',
+    });
+    return;
+  }
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && isLogoutHelperPath(parsedUrl.pathname)) {
+    const requestedPostLogoutRedirectUrl = parsedUrl.searchParams.get('post_logout_redirect_uri');
+    const postLogoutRedirectUrl =
+      requestedPostLogoutRedirectUrl || LOGTO_POST_LOGOUT_REDIRECT_URL || APP_PUBLIC_URL;
+    const useOidcLogout = LEGALCHAT_LOGOUT_MODE === 'oidc';
+    const location = useOidcLogout
+      ? (() => {
+          const logoutUrl = new URL(LOGTO_END_SESSION_ENDPOINT);
+          logoutUrl.searchParams.set('post_logout_redirect_uri', postLogoutRedirectUrl);
+          if (AUTH_LOGTO_ID) logoutUrl.searchParams.set('client_id', AUTH_LOGTO_ID);
+          return logoutUrl.toString();
+        })()
+      : normalizeLocalLogoutLocation(
+          requestedPostLogoutRedirectUrl || LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL,
+          publicOrigin,
+        );
+
+    res.writeHead(302, {
+      'cache-control': 'no-store',
+      location,
+      'set-cookie': buildLogoutCookieHeaders(),
+    });
+    res.end();
     return;
   }
 
@@ -3119,7 +3170,7 @@ const server = http.createServer(async (req, res) => {
 
       const isUnknownSession =
         parsedUrl.pathname === '/' ||
-        parsedUrl.pathname === '/login' ||
+        isLoginHelperPath(parsedUrl.pathname) ||
         /^\/unknown-session(?:\/|$)/.test(parsedUrl.pathname);
 
       if (isUnknownSession) {
@@ -3132,35 +3183,6 @@ const server = http.createServer(async (req, res) => {
     }
 
     await proxyLogtoBrandedRequest(req, res);
-    return;
-  }
-
-  if (
-    req.method === 'GET' &&
-    (parsedUrl.pathname === '/logout' || parsedUrl.pathname === '/signout')
-  ) {
-    const requestedPostLogoutRedirectUrl = parsedUrl.searchParams.get('post_logout_redirect_uri');
-    const postLogoutRedirectUrl =
-      requestedPostLogoutRedirectUrl || LOGTO_POST_LOGOUT_REDIRECT_URL || APP_PUBLIC_URL;
-    const useOidcLogout = LEGALCHAT_LOGOUT_MODE === 'oidc';
-    const location = useOidcLogout
-      ? (() => {
-          const logoutUrl = new URL(LOGTO_END_SESSION_ENDPOINT);
-          logoutUrl.searchParams.set('post_logout_redirect_uri', postLogoutRedirectUrl);
-          if (AUTH_LOGTO_ID) logoutUrl.searchParams.set('client_id', AUTH_LOGTO_ID);
-          return logoutUrl.toString();
-        })()
-      : normalizeLocalLogoutLocation(
-          requestedPostLogoutRedirectUrl || LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL,
-          publicOrigin,
-        );
-
-    res.writeHead(302, {
-      'cache-control': 'no-store',
-      location,
-      'set-cookie': buildLogoutCookieHeaders(),
-    });
-    res.end();
     return;
   }
 
@@ -3208,14 +3230,6 @@ const server = http.createServer(async (req, res) => {
     const location = `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
     res.writeHead(302, { 'cache-control': 'no-store', location });
     res.end();
-    return;
-  }
-
-  if (req.method === 'GET' && parsedUrl.pathname === '/login') {
-    sendLoginHelper(res, {
-      loggedOut: isTruthyFlag(parsedUrl.searchParams.get('logged_out')),
-      callbackUrl: parsedUrl.searchParams.get('callbackUrl'),
-    });
     return;
   }
 
