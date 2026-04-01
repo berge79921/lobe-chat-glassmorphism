@@ -1,0 +1,28 @@
+services:
+  openlaw-auth:
+    build: ./openlaw-auth
+    container_name: openlaw-auth
+    expose:
+      - "3210"
+    environment:
+      PORT: 3210
+      APP_PUBLIC_URL: https://www.openlaw.cc
+      APP_NAME: OpenLaw
+      SESSION_SECRET: ${NEXT_AUTH_SECRET:-openlaw-change-me}
+      LOGTO_ENDPOINT: https://ov6at4.logto.app
+      AUTH_LOGTO_ID: ${AUTH_LOGTO_ID:-}
+      AUTH_LOGTO_SECRET: ${AUTH_LOGTO_SECRET:-}
+      MAIL_ENABLED: ${MAIL_ENABLED:-1}
+      MAIL_ACCOUNTS_JSON: ${MAIL_ACCOUNTS_JSON:-}
+      MAIL_ACCOUNT_ACCESS_JSON: ${MAIL_ACCOUNT_ACCESS_JSON:-}
+      MAIL_CONTACTS_JSON: ${MAIL_CONTACTS_JSON:-}
+      MAIL_DEFAULT_ACCOUNT: ${MAIL_DEFAULT_ACCOUNT:-}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-OpenLaw}
+      MAIL_IMAP_HOST: ${MAIL_IMAP_HOST:-mail.geotracer.cc}
+      MAIL_IMAP_PORT: ${MAIL_IMAP_PORT:-993}
+      MAIL_SMTP_HOST: ${MAIL_SMTP_HOST:-mail.geotracer.cc}
+      MAIL_SMTP_PORT: ${MAIL_SMTP_PORT:-465}
+      MAIL_TLS_SERVERNAME: ${MAIL_TLS_SERVERNAME:-mail.geotracer.cc}
+    restart: unless-stopped

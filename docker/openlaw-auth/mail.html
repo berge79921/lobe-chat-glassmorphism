@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenLaw Mail</title>
+<style>
+:root {
+  --bg: #dce5f0;
+  --bg-2: #f5f8fd;
+  --window: rgba(248, 250, 253, .72);
+  --sidebar-bg: rgba(240, 244, 249, .88);
+  --list-bg: rgba(248, 250, 253, .92);
+  --detail-bg: rgba(255,255,255,.94);
+  --panel: rgba(255,255,255,.76);
+  --panel-strong: rgba(255,255,255,.94);
+  --line: rgba(62, 82, 109, .12);
+  --line-strong: rgba(62, 82, 109, .18);
+  --text: #1f2c3a;
+  --text-dim: #546272;
+  --text-soft: #7f8b99;
+  --accent: #0a84ff;
+  --accent-2: #56a8ff;
+  --accent-soft: rgba(10,132,255,.12);
+  --ok: #2f855a;
+  --danger: #ff453a;
+  --shadow: 0 24px 64px rgba(29, 44, 68, .18);
+  --radius: 24px;
+  --mono: "SFMono-Regular", "IBM Plex Mono", ui-monospace, monospace;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background:
+    radial-gradient(circle at top left, rgba(135,170,220,.42), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(221,229,240,.92), transparent 44%),
+    linear-gradient(180deg, #d6e0ec 0%, #eef3fa 42%, #f8fbfe 100%);
+  color: var(--text);
+  font-family: var(--sans);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 18px;
+  gap: 0;
+  overflow: hidden;
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+.shell {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 276px 360px minmax(420px, 1fr);
+  min-height: 0;
+  width: min(100%, 1640px);
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 26px 26px;
+  overflow: hidden;
+  background: rgba(255,255,255,.4);
+  box-shadow: var(--shadow);
+}
+.topbar {
+  flex: 0 0 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  width: min(100%, 1640px);
+  margin: 0 auto;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 26px 26px 0 0;
+  background: rgba(247, 250, 254, .72);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 12px 24px rgba(36, 50, 72, .08);
+}
+.window-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.window-controls {
+  display: flex;
+  gap: 8px;
+}
+.window-control {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 0 0 1px rgba(0,0,0,.04);
+}
+.window-control.red { background: #ff5f57; }
+.window-control.yellow { background: #febc2e; }
+.window-control.green { background: #28c840; }
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.brand h1 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 18px;
+  letter-spacing: -.02em;
+  font-weight: 600;
+}
+.brand p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  letter-spacing: .01em;
+}
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.topbar-chip {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 220px;
+  max-width: min(34vw, 420px);
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255,255,255,.56);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.86);
+  overflow: hidden;
+}
+.topbar-chip strong,
+.topbar-chip span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-chip strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.topbar-chip span {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+.btn {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.78);
+  color: var(--text);
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82);
+  transition: background .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+.btn:hover {
+  border-color: rgba(10,132,255,.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 1px 2px rgba(38,52,76,.08);
+}
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  color: #fff;
+  border-color: rgba(10,132,255,.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+}
+.btn.danger {
+  color: var(--danger);
+}
+.sidebar,
+.list-pane,
+.detail-pane {
+  min-height: 0;
+  overflow: hidden;
+}
+.sidebar {
+  padding: 0;
+  border-right: 1px solid var(--line);
+  background: var(--sidebar-bg);
+}
+.sidebar-card,
+.list-card,
+.detail-card,
+.composer {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+}
+.sidebar-card {
+  height: 100%;
+  padding: 18px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+.account-list,
+.folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.account-item,
+.folder-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: transparent;
+}
+.account-item.active,
+.folder-item.active {
+  background: linear-gradient(180deg, rgba(10,132,255,.16), rgba(10,132,255,.1));
+  border-color: rgba(10,132,255,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+}
+.account-item strong,
+.folder-item strong {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+}
+.account-item span,
+.folder-item span {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: 0 8px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(10,132,255,.12);
+  color: var(--accent);
+  font-size: 11px;
+  font-family: var(--mono);
+}
+.account-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.list-pane {
+  padding: 0;
+  border-right: 1px solid var(--line);
+  background: var(--list-bg);
+}
+.list-card,
+.detail-card {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.list-head,
+.detail-head {
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,.56);
+  backdrop-filter: blur(18px);
+}
+.list-head h2 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -.04em;
+}
+.detail-head {
+  padding: 24px 22px 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.86), rgba(247,250,254,.8)),
+    radial-gradient(circle at top right, rgba(86,168,255,.1), transparent 34%);
+}
+.detail-head h2 {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--sans);
+  font-size: clamp(34px, 2.7vw, 46px);
+  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -.05em;
+  text-wrap: balance;
+}
+.list-head p,
+.detail-head p {
+  margin: 4px 0 0;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.detail-head p {
+  margin-top: 10px;
+  color: var(--text-soft);
+}
+.message-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+.message-row {
+  position: relative;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  padding: 14px 18px 14px 24px;
+  border-bottom: 1px solid rgba(62,82,109,.08);
+  transition: background .14s ease, box-shadow .14s ease;
+}
+.message-row:hover,
+.message-row.active {
+  background: linear-gradient(180deg, rgba(10,132,255,.15), rgba(10,132,255,.1));
+}
+.message-row.active {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.message-row.unread::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 20px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(10,132,255,.12);
+}
+.message-row.unread .message-subject {
+  color: var(--text);
+  font-weight: 700;
+}
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+.message-from {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.message-date {
+  font-size: 11px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+.message-subject {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.message-preview {
+  margin-top: 6px;
+  color: var(--text-soft);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-pane {
+  padding: 0;
+  background: var(--detail-bg);
+}
+.detail-card { position: relative; }
+.detail-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(62,82,109,.08);
+}
+.detail-toolbar .btn {
+  height: 34px;
+  padding: 0 15px;
+  border-radius: 999px;
+}
+.detail-toolbar .btn.primary {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 10px 22px rgba(10,132,255,.16);
+}
+.detail-toolbar .btn.soft {
+  background: rgba(255,255,255,.7);
+}
+.detail-toolbar .btn.subtle-danger {
+  background: rgba(255,255,255,.62);
+}
+.btn.soft {
+  background: rgba(255,255,255,.58);
+}
+.btn.subtle-danger {
+  color: #be392f;
+  background: rgba(255,255,255,.48);
+  border-color: rgba(255,69,58,.14);
+}
+.btn.subtle-danger:hover {
+  border-color: rgba(255,69,58,.22);
+}
+.detail-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 28px 30px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background:
+    linear-gradient(180deg, rgba(249,251,254,.82), rgba(255,255,255,.96)),
+    radial-gradient(circle at top right, rgba(86,168,255,.08), transparent 30%);
+}
+.detail-content section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.detail-summary-card,
+.detail-empty {
+  margin: auto;
+  max-width: 520px;
+  text-align: center;
+  padding: 34px 30px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: rgba(255,255,255,.84);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92);
+}
+.detail-empty h3 {
+  font-family: var(--sans);
+  font-size: 36px;
+  margin: 0 0 12px;
+  letter-spacing: -.04em;
+}
+.detail-empty p {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.72;
+}
+.detail-summary-card {
+  margin: 0;
+  max-width: none;
+  text-align: left;
+  padding: 22px 22px 20px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(249,251,255,.94)),
+    radial-gradient(circle at top right, rgba(86,168,255,.08), transparent 42%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 16px 36px rgba(32,46,68,.06);
+}
+.detail-summary-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+.detail-sender-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+.detail-sender-badge {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #0e4278;
+  background:
+    linear-gradient(180deg, rgba(214,231,248,.96), rgba(233,241,250,.88));
+  border: 1px solid rgba(10,132,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.86);
+}
+.detail-sender-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.detail-overline {
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.detail-sender-copy strong {
+  display: block;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+.detail-sender-copy span {
+  display: block;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.detail-summary-side {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-family: var(--mono);
+  text-align: right;
+}
+.detail-summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.detail-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(62,82,109,.08);
+  background: rgba(246,249,253,.9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88);
+}
+.detail-summary-chip-label {
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.detail-summary-chip-value {
+  min-width: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-summary-footer {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(62,82,109,.08);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+}
+.detail-summary-footer-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(260px, 100%);
+  flex: 1 1 220px;
+}
+.detail-summary-footer-block strong,
+.detail-summary-footer-block code {
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.detail-summary-footer-block code {
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: rgba(244,247,251,.94);
+  border: 1px solid rgba(62,82,109,.08);
+  font-family: var(--mono);
+  white-space: normal;
+  word-break: break-all;
+}
+.detail-meta-card,
+.detail-section-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255,255,255,.9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.94), 0 12px 24px rgba(34, 50, 74, .05);
+}
+.detail-meta-card {
+  padding: 18px 20px;
+}
+.detail-section-card {
+  padding: 20px 22px 22px;
+}
+.detail-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.detail-section-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.meta-grid {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 9px 16px;
+  font-size: 13px;
+}
+.meta-grid dt {
+  color: var(--text-soft);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.meta-grid dd {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.body-plain {
+  white-space: pre-wrap;
+  line-height: 1.82;
+  color: var(--text);
+  font-size: 16px;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 30px 34px 34px;
+  border-radius: 24px;
+  border: 1px solid rgba(62,82,109,.08);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.99), rgba(249,251,254,.95));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 8px 18px rgba(34, 50, 74, .04);
+}
+.body-html {
+  border: 1px solid rgba(62,82,109,.08);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.99), rgba(249,251,255,.95));
+  min-height: 460px;
+  padding: 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 10px 22px rgba(34, 50, 74, .04);
+}
+.body-html iframe {
+  width: 100%;
+  min-height: 420px;
+  border: 0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(62,82,109,.08);
+}
+.attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.attachment {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(62,82,109,.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(247,250,253,.96), rgba(255,255,255,.98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88);
+}
+.attachment::before {
+  content: "";
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(223,235,248,.96), rgba(238,244,251,.9));
+  border: 1px solid rgba(10,132,255,.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+.attachment-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.attachment-copy strong,
+.attachment-copy small {
+  display: block;
+}
+.attachment-copy strong {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachment a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(10,132,255,.12);
+  background: rgba(240,247,255,.94);
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.attachment small {
+  color: var(--text-soft);
+  margin-top: 3px;
+}
+.composer-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.composer-attachment-summary {
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.composer-attachment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.composer-attachment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.52);
+  min-width: 220px;
+  max-width: 100%;
+}
+.composer-attachment-meta {
+  min-width: 0;
+  flex: 1;
+}
+.composer-attachment-meta strong,
+.composer-attachment-meta small {
+  display: block;
+}
+.composer-attachment-meta strong {
+  color: var(--text);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.composer-attachment-meta small {
+  margin-top: 4px;
+  color: var(--text-soft);
+  font-size: 11px;
+}
+.composer-attachment-remove {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 1;
+}
+.composer-attachment-remove:hover {
+  color: #7f241c;
+}
+.composer-wrap {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,.26), transparent 30%),
+    rgba(30, 42, 61, .22);
+  backdrop-filter: blur(22px) saturate(1.15);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 20;
+}
+.composer-wrap.open { display: flex; }
+.composer {
+  width: min(1120px, 100%);
+  max-height: calc(100vh - 28px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(252, 253, 255, .992), rgba(246, 249, 253, .985));
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 32px;
+  box-shadow:
+    0 38px 110px rgba(15, 25, 39, .3),
+    0 16px 44px rgba(33, 48, 73, .14),
+    inset 0 1px 0 rgba(255,255,255,.96);
+}
+.composer-windowbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 13px 18px;
+  border-bottom: 1px solid rgba(62,82,109,.08);
+  background:
+    linear-gradient(180deg, rgba(250,252,255,.98), rgba(244,248,253,.94)),
+    radial-gradient(circle at top right, rgba(86,168,255,.12), transparent 34%);
+}
+.composer-window-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.composer-window-kicker {
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.composer-window-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn.ghost {
+  background: rgba(255,255,255,.62);
+  border-color: rgba(62,82,109,.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+.composer-head-copy {
+  min-width: 0;
+}
+.composer-windowbar h3 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 28px;
+  line-height: 1.04;
+  letter-spacing: -.05em;
+}
+.composer-windowbar p {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+.composer-body-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background:
+    linear-gradient(180deg, rgba(246,249,253,.96), rgba(250,252,255,.98));
+}
+.composer-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(280px, .88fr);
+  gap: 14px;
+  align-items: start;
+}
+.composer-main-column,
+.composer-side-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.composer-envelope,
+.composer-stage,
+.composer-actions {
+  border: 1px solid rgba(62,82,109,.08);
+  border-radius: 24px;
+  background: rgba(255,255,255,.88);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 12px 30px rgba(28, 42, 65, .05);
+}
+.composer-envelope {
+  padding: 2px 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(247,250,254,.9)),
+    radial-gradient(circle at top right, rgba(86,168,255,.08), transparent 38%);
+}
+.composer-stage {
+  padding: 14px;
+}
+.composer-stage.editor-stage {
+  min-height: 0;
+}
+.composer-stage.side-stage {
+  position: sticky;
+  top: 0;
+}
+.composer-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.composer-section-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.composer-section-kicker {
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.composer-section-title {
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+.composer-stage-note {
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 0 14px;
+  margin-bottom: 0;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(62,82,109,.08);
+}
+.field-grid:last-child {
+  border-bottom: 0;
+}
+.field-grid label {
+  padding-top: 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.editor-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid rgba(62,82,109,.08);
+  border-radius: 26px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(250,252,255,.98), rgba(255,255,255,.985));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.96);
+}
+.composer-stage.editor-stage .editor-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px 9px;
+  border-bottom: 1px solid rgba(62,82,109,.08);
+  background:
+    linear-gradient(180deg, rgba(248,250,254,.98), rgba(244,247,252,.94));
+}
+.editor-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.editor-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(62,82,109,.12);
+}
+.editor-btn,
+.editor-chip {
+  height: 36px;
+  border: 1px solid rgba(62,82,109,.1);
+  border-radius: 999px;
+  background: rgba(245,248,252,.96);
+  color: var(--text);
+  padding: 0 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+  transition: border-color .14s ease, background .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+.editor-btn {
+  min-width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.editor-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+}
+.editor-font-chip {
+  min-width: 72px;
+}
+.editor-btn:hover,
+.editor-chip:hover,
+.editor-btn.active,
+.editor-chip.active {
+  border-color: rgba(10,132,255,.24);
+  background: rgba(240,247,255,.96);
+  transform: translateY(-1px);
+}
+.editor-chip.active,
+.editor-btn.active {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 0 0 3px rgba(10,132,255,.08);
+}
+.composer-editor {
+  min-height: clamp(220px, 34vh, 360px);
+  border: 0;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.995), rgba(250,252,255,.975));
+  padding: 22px 26px 28px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.82;
+  overflow: auto;
+  outline: none;
+}
+.composer-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-soft);
+}
+.composer-editor p {
+  margin: 0 0 12px;
+}
+.composer-editor p:last-child {
+  margin-bottom: 0;
+}
+.composer-editor blockquote {
+  margin: 14px 0;
+  padding-left: 14px;
+  border-left: 3px solid rgba(10,132,255,.24);
+  color: var(--text-dim);
+}
+.composer-editor hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 18px 0;
+}
+.field-grid input,
+.field-grid select {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 0;
+  color: var(--text);
+  box-shadow: none;
+  font-size: 15px;
+}
+.field-grid input:focus,
+.field-grid select:focus {
+  outline: none;
+}
+.field-grid input::placeholder {
+  color: #8d98a5;
+}
+.field-grid textarea {
+  min-height: 180px;
+  resize: vertical;
+  line-height: 1.55;
+}
+.composer-upload-area {
+  border: 1px dashed rgba(62,82,109,.18);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(249,251,255,.96), rgba(255,255,255,.98));
+  padding: 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 220px;
+}
+.composer-upload-area.dragover {
+  border-color: rgba(10,132,255,.34);
+  background: linear-gradient(180deg, rgba(240,247,255,.98), rgba(251,253,255,.98));
+}
+.composer-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.composer-upload-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+.composer-upload-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 0 1 auto;
+  cursor: pointer;
+}
+.composer-upload-copy strong {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+.composer-upload-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(62,82,109,.1);
+  background: rgba(255,255,255,.84);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92);
+  cursor: pointer;
+}
+.composer-upload-trigger::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(10,132,255,.12);
+  color: var(--accent);
+  font-weight: 700;
+}
+.composer-upload-note {
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.composer-actions {
+  padding: 4px 2px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex-wrap: nowrap;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.composer-hint-card {
+  max-width: none;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.composer-footer-note {
+  color: var(--text-soft);
+  font-size: 11px;
+  line-height: 1.5;
+  padding-left: 0;
+}
+.composer-attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow: auto;
+  padding-right: 4px;
+}
+.composer-attachment-item {
+  min-width: 0;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(247,250,254,.92));
+}
+.status {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+  background: rgba(29, 41, 60, .92);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  display: none;
+  max-width: min(460px, calc(100vw - 40px));
+}
+.status.show { display: block; }
+.muted { color: var(--text-soft); }
+.hidden { display: none !important; }
+.sidebar-note {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.58);
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82);
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (max-width: 1220px) {
+  .shell {
+    grid-template-columns: 248px 340px minmax(320px, 1fr);
+  }
+}
+@media (max-width: 980px) {
+  body {
+    overflow: auto;
+    padding: 0;
+  }
+  .topbar,
+  .shell {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+  .shell {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .sidebar,
+  .list-pane,
+  .detail-pane {
+    padding: 14px;
+    border-right: 0;
+  }
+  .sidebar-card,
+  .list-card,
+  .detail-card {
+    height: auto;
+    min-height: 280px;
+  }
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+  .field-grid label {
+    padding-top: 0;
+  }
+  .composer {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .composer-windowbar,
+  .composer-body-frame {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .composer-windowbar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .composer-workbench {
+    grid-template-columns: 1fr;
+  }
+  .composer-stage.side-stage {
+    position: static;
+  }
+  .composer-window-actions {
+    justify-content: flex-end;
+  }
+  .editor-divider {
+    display: none;
+  }
+  .detail-summary-top,
+  .detail-summary-footer {
+    flex-direction: column;
+  }
+  .detail-summary-side {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .body-plain {
+    padding: 22px 20px 24px;
+  }
+  .body-html {
+    padding: 12px;
+  }
+  .topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+  .window-meta {
+    width: 100%;
+  }
+  .topbar-chip {
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .toolbar {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .composer-editor {
+    min-height: 300px;
+    padding: 22px 20px 24px;
+  }
+  .composer-envelope,
+  .composer-stage,
+  .composer-actions {
+    border-radius: 20px;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="window-meta">
+      <div class="window-controls" aria-hidden="true">
+        <span class="window-control red"></span>
+        <span class="window-control yellow"></span>
+        <span class="window-control green"></span>
+      </div>
+      <div class="brand">
+        <h1>OpenLaw Mail</h1>
+        <p>Direkter Mail-Client für produktive OpenLaw-Postfächer</p>
+      </div>
+      <div class="topbar-chip">
+        <strong id="topbar-context-title">Keine Mailbox gewählt</strong>
+        <span id="topbar-context-subtitle">Wähle links ein Postfach und einen Ordner</span>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="refresh-btn" type="button">Aktualisieren</button>
+      <button class="btn primary" id="compose-btn" type="button">Neue Mail</button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <div>
+          <div class="section-label">Mailboxen</div>
+          <div class="account-list" id="account-list"></div>
+        </div>
+        <div>
+          <div class="section-label">Ordner</div>
+          <div class="folder-list" id="folder-list"></div>
+        </div>
+        <div>
+          <div class="section-label">Hinweis</div>
+          <div class="sidebar-note">
+            Direktzugriff auf die produktiven OpenLaw-Postfächer. Gebaut für schnelle Sichtung, saubere Antworten, Weiterleitungen und eine später anschließbare Agent-Pipeline.
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="list-pane">
+      <div class="list-card">
+        <div class="list-head">
+          <h2 id="list-title">Posteingang</h2>
+          <p id="list-subtitle">Lade Nachrichten …</p>
+        </div>
+        <div class="message-list" id="message-list"></div>
+      </div>
+    </section>
+
+    <section class="detail-pane">
+      <div class="detail-card">
+        <div class="detail-head">
+          <h2 id="detail-title">Nachricht</h2>
+          <p id="detail-subtitle">Wähle links eine Nachricht.</p>
+          <div class="detail-toolbar hidden" id="detail-toolbar">
+            <button class="btn primary" type="button" id="reply-btn">Antworten</button>
+            <button class="btn soft" type="button" id="reply-all-btn">Allen antworten</button>
+            <button class="btn soft" type="button" id="forward-btn">Weiterleiten</button>
+            <button class="btn subtle-danger" type="button" id="delete-btn">In Papierkorb</button>
+          </div>
+        </div>
+        <div class="detail-content" id="detail-content">
+          <div class="detail-empty">
+            <h3>Nachricht auswählen</h3>
+            <p>
+              Die aktuelle Auswahl erscheint hier mit Meta-Daten, Anhängen und HTML- oder Textansicht.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="composer-wrap" id="composer-wrap">
+    <div class="composer">
+      <div class="composer-windowbar">
+        <div class="window-controls" aria-hidden="true">
+          <span class="window-control red"></span>
+          <span class="window-control yellow"></span>
+          <span class="window-control green"></span>
+        </div>
+        <div class="composer-window-copy">
+          <span class="composer-window-kicker">OpenLaw Mail</span>
+          <div class="composer-head-copy">
+            <h3 id="composer-title">Neue Nachricht</h3>
+            <p id="composer-subtitle">Klar, schnell und lesbar schreiben.</p>
+          </div>
+        </div>
+        <div class="composer-window-actions">
+          <button class="btn ghost" type="button" id="composer-close-btn">Schließen</button>
+          <button class="btn primary" type="button" id="composer-send-btn">Senden</button>
+        </div>
+      </div>
+      <div class="composer-body-frame">
+        <div class="composer-envelope">
+          <div class="field-grid">
+            <label for="composer-account">Mailbox</label>
+            <select id="composer-account"></select>
+          </div>
+          <div class="field-grid">
+            <label for="composer-to">An</label>
+            <input id="composer-to" type="text" placeholder="name@example.com, zweite.person@example.com">
+          </div>
+          <div class="field-grid">
+            <label for="composer-cc">CC</label>
+            <input id="composer-cc" type="text" placeholder="optional">
+          </div>
+          <div class="field-grid">
+            <label for="composer-bcc">BCC</label>
+            <input id="composer-bcc" type="text" placeholder="optional">
+          </div>
+          <div class="field-grid">
+            <label for="composer-subject">Betreff</label>
+            <input id="composer-subject" type="text" placeholder="Betreff">
+          </div>
+        </div>
+        <div class="composer-workbench">
+          <div class="composer-main-column">
+            <section class="composer-stage editor-stage">
+              <div class="composer-section-head">
+                <div class="composer-section-copy">
+                  <span class="composer-section-kicker">Nachricht</span>
+                  <span class="composer-section-title">Formatierter Text</span>
+                </div>
+                <div class="composer-stage-note">Fett, Kursiv, Ausrichtung und Schriftarten direkt oben anklicken.</div>
+              </div>
+              <div class="editor-shell">
+                <div class="editor-toolbar" id="composer-editor-toolbar">
+                  <div class="editor-group">
+                    <button class="editor-btn" type="button" data-editor-command="bold" aria-label="Fett"><strong>B</strong></button>
+                    <button class="editor-btn" type="button" data-editor-command="italic" aria-label="Kursiv"><em>I</em></button>
+                    <button class="editor-btn" type="button" data-editor-command="underline" aria-label="Unterstreichen"><span style="text-decoration:underline">U</span></button>
+                    <button class="editor-btn" type="button" data-editor-command="insertUnorderedList" aria-label="Aufzählung">•</button>
+                    <button class="editor-btn" type="button" data-editor-command="insertOrderedList" aria-label="Nummerierung">1.</button>
+                    <button class="editor-btn" type="button" data-editor-command="justifyLeft" aria-label="Linksbündig">L</button>
+                    <button class="editor-btn" type="button" data-editor-command="justifyCenter" aria-label="Zentriert">C</button>
+                    <button class="editor-btn" type="button" data-editor-command="justifyRight" aria-label="Rechtsbündig">R</button>
+                  </div>
+                  <div class="editor-divider" aria-hidden="true"></div>
+                  <div class="editor-group">
+                    <button class="editor-chip" type="button" data-format-block="p">Text</button>
+                    <button class="editor-chip" type="button" data-format-block="h2">Titel</button>
+                    <button class="editor-chip" type="button" data-format-block="blockquote">Zitat</button>
+                  </div>
+                  <div class="editor-divider" aria-hidden="true"></div>
+                  <div class="editor-group">
+                    <button class="editor-chip editor-font-chip" type="button" data-font-family="Arial, Helvetica, sans-serif" style="font-family: Arial, Helvetica, sans-serif;">Arial</button>
+                    <button class="editor-chip editor-font-chip" type="button" data-font-family="Times New Roman, Times, serif" style="font-family: Times New Roman, Times, serif;">Times</button>
+                    <button class="editor-chip editor-font-chip" type="button" data-font-family="Georgia, Times New Roman, serif" style="font-family: Georgia, Times New Roman, serif;">Georgia</button>
+                    <button class="editor-chip editor-font-chip" type="button" data-font-family="Helvetica, Arial, sans-serif" style="font-family: Helvetica, Arial, sans-serif;">Helvetica</button>
+                    <button class="editor-chip editor-font-chip" type="button" data-font-family="Courier New, Courier, monospace" style="font-family: Courier New, Courier, monospace;">Courier</button>
+                  </div>
+                </div>
+                <div id="composer-body" class="composer-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Nachrichtentext"></div>
+              </div>
+            </section>
+          </div>
+          <div class="composer-side-column">
+            <section class="composer-stage side-stage">
+              <div class="composer-section-head">
+                <div class="composer-section-copy">
+                  <span class="composer-section-kicker">Anhänge</span>
+                  <span class="composer-section-title">Dokumente und Dateien</span>
+                </div>
+                <div class="composer-stage-note">PDF, DOCX, Bilder und sonstige Anlagen direkt mit der Mail mitsenden.</div>
+              </div>
+              <div class="composer-upload-area" id="composer-upload-area">
+                <input id="composer-files" class="composer-file-input" type="file" multiple aria-label="Anhänge auswählen">
+                <div class="composer-upload-bar">
+                  <label class="composer-upload-trigger" id="composer-files-trigger" for="composer-files">Dokumente hinzufügen</label>
+                  <label class="composer-upload-copy" for="composer-files">
+                    <strong>Dateien auswählen oder hineinziehen</strong>
+                    <div class="composer-attachment-summary muted" id="composer-attachment-summary">Keine Anhänge ausgewählt.</div>
+                  </label>
+                </div>
+                <div class="composer-upload-note">Die Auswahl ist jetzt nativ mit dem Datei-Dialog des Browsers verbunden, zusätzlich funktioniert Drag-and-drop direkt auf diese Fläche.</div>
+                <div class="composer-attachment-list" id="composer-attachment-list"></div>
+              </div>
+            </section>
+            <div class="composer-actions">
+              <div class="composer-hint-card" id="composer-hint">Formatierte E-Mails werden als HTML und Plaintext versendet. Anhänge werden direkt mitgesendet.</div>
+              <div class="composer-footer-note">Nach dem Senden springt die Ansicht automatisch in den Ordner „Gesendet“.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+<script>
+const state = {
+  accounts: [],
+  attachmentLimits: {
+    maxAttachments: 8,
+    maxTotalAttachmentBytes: 12 * 1024 * 1024,
+    maxJsonBodyBytes: 25 * 1024 * 1024,
+  },
+  composerAttachments: [],
+  defaultAccountKey: '',
+  currentAccountKey: '',
+  currentFolder: 'INBOX',
+  messages: [],
+  selectedMessage: null,
+  mode: 'new',
+  replySource: null,
+  replySourceFolder: '',
+};
+
+const folders = [
+  { key: 'INBOX', label: 'Posteingang' },
+  { key: 'Sent', label: 'Gesendet' },
+  { key: 'Drafts', label: 'Entwürfe' },
+  { key: 'Trash', label: 'Papierkorb' },
+];
+
+const folderSlugMap = {
+  inbox: 'INBOX',
+  sent: 'Sent',
+  drafts: 'Drafts',
+  trash: 'Trash',
+};
+
+const els = {
+  accountList: document.getElementById('account-list'),
+  composerAccount: document.getElementById('composer-account'),
+  composerBody: document.getElementById('composer-body'),
+  composerBcc: document.getElementById('composer-bcc'),
+  composerCloseBtn: document.getElementById('composer-close-btn'),
+  composerFiles: document.getElementById('composer-files'),
+  composerAttachmentList: document.getElementById('composer-attachment-list'),
+  composerAttachmentSummary: document.getElementById('composer-attachment-summary'),
+  composerFilesTrigger: document.getElementById('composer-files-trigger'),
+  composerHint: document.getElementById('composer-hint'),
+  composerSendBtn: document.getElementById('composer-send-btn'),
+  composerSubject: document.getElementById('composer-subject'),
+  composerSubtitle: document.getElementById('composer-subtitle'),
+  composerTitle: document.getElementById('composer-title'),
+  composerTo: document.getElementById('composer-to'),
+  composerToolbar: document.getElementById('composer-editor-toolbar'),
+  composerUploadArea: document.getElementById('composer-upload-area'),
+  composerWrap: document.getElementById('composer-wrap'),
+  composerCc: document.getElementById('composer-cc'),
+  composeBtn: document.getElementById('compose-btn'),
+  deleteBtn: document.getElementById('delete-btn'),
+  detailContent: document.getElementById('detail-content'),
+  detailSubtitle: document.getElementById('detail-subtitle'),
+  detailTitle: document.getElementById('detail-title'),
+  detailToolbar: document.getElementById('detail-toolbar'),
+  folderList: document.getElementById('folder-list'),
+  forwardBtn: document.getElementById('forward-btn'),
+  listSubtitle: document.getElementById('list-subtitle'),
+  listTitle: document.getElementById('list-title'),
+  messageList: document.getElementById('message-list'),
+  refreshBtn: document.getElementById('refresh-btn'),
+  replyAllBtn: document.getElementById('reply-all-btn'),
+  replyBtn: document.getElementById('reply-btn'),
+  status: document.getElementById('status'),
+  topbarContextSubtitle: document.getElementById('topbar-context-subtitle'),
+  topbarContextTitle: document.getElementById('topbar-context-title'),
+};
+
+function showStatus(message, isError = false) {
+  els.status.textContent = message;
+  els.status.style.background = isError ? 'rgba(143,44,34,.94)' : 'rgba(24,54,104,.94)';
+  els.status.classList.add('show');
+  clearTimeout(showStatus._timer);
+  showStatus._timer = setTimeout(() => els.status.classList.remove('show'), 3200);
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    credentials: 'same-origin',
+    headers: {
+      ...(options.body ? { 'content-type': 'application/json' } : {}),
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.ok) {
+    const message = payload.error || `Request failed (${response.status})`;
+    throw new Error(message);
+  }
+  return payload.data;
+}
+
+function formatDate(value) {
+  if (!value) return 'ohne Datum';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('de-AT', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+}
+
+function formatBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (value >= 1024 * 1024) {
+    return `${(value / (1024 * 1024)).toFixed(value >= 10 * 1024 * 1024 ? 0 : 1)} MB`;
+  }
+  if (value >= 1024) return `${Math.max(1, Math.round(value / 1024))} KB`;
+  return `${value} B`;
+}
+
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function normalizeMailIdentity(value = '') {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9@._+-]/g, '');
+}
+
+function decodePathSegment(value = '') {
+  try {
+    return decodeURIComponent(String(value || '').trim());
+  } catch {
+    return String(value || '').trim();
+  }
+}
+
+function normalizeFolderKey(value = '') {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const directMatch = folders.find((folder) => folder.key.toLowerCase() === raw.toLowerCase());
+  if (directMatch) return directMatch.key;
+  return folderSlugMap[raw.toLowerCase()] || '';
+}
+
+function folderKeyToSlug(folderKey = '') {
+  const directMatch = Object.entries(folderSlugMap).find(([, key]) => key === folderKey);
+  return directMatch ? directMatch[0] : String(folderKey || 'inbox').trim().toLowerCase();
+}
+
+function getFolderMeta(folderKey = '') {
+  return folders.find((folder) => folder.key === folderKey) || {
+    key: folderKey || 'INBOX',
+    label: folderKey || 'Postfach',
+  };
+}
+
+function getFolderLabel(folderKey = '') {
+  return getFolderMeta(folderKey).label;
+}
+
+function getActiveAccount() {
+  return state.accounts.find((entry) => entry.key === state.currentAccountKey) || null;
+}
+
+function formatMessageCount(count) {
+  const total = Number(count || 0);
+  return `${total} Nachricht${total === 1 ? '' : 'en'}`;
+}
+
+function parseMailRoute() {
+  const parts = window.location.pathname
+    .split('/')
+    .map((segment) => decodePathSegment(segment))
+    .filter(Boolean);
+  if (parts[0] !== 'mail') {
+    return { accountKey: '', folderKey: '' };
+  }
+  return {
+    accountKey: normalizeMailIdentity(parts[1] || ''),
+    folderKey: normalizeFolderKey(parts[2] || ''),
+  };
+}
+
+function syncMailUrl({ replace = true } = {}) {
+  const accountKey = normalizeMailIdentity(state.currentAccountKey || '');
+  if (!accountKey) return;
+  const folderSlug = folderKeyToSlug(state.currentFolder || 'INBOX');
+  const nextPath = `/mail/${encodeURIComponent(accountKey)}/${encodeURIComponent(folderSlug)}`;
+  const nextUrl = `${nextPath}${window.location.search || ''}${window.location.hash || ''}`;
+  if (window.location.pathname === nextPath) return;
+  const method = replace ? 'replaceState' : 'pushState';
+  window.history[method](null, '', nextUrl);
+}
+
+function applyRouteSelection() {
+  const route = parseMailRoute();
+  const routedAccount = route.accountKey
+    ? state.accounts.find((account) => account.key === route.accountKey)
+    : null;
+  if (routedAccount) {
+    state.currentAccountKey = routedAccount.key;
+  } else if (!state.currentAccountKey) {
+    state.currentAccountKey = state.defaultAccountKey || state.accounts[0]?.key || '';
+  }
+  state.currentFolder = route.folderKey || state.currentFolder || 'INBOX';
+}
+
+function compactAddress(entry) {
+  if (!entry) return '';
+  const name = String(entry.name || '').trim();
+  const address = String(entry.address || entry.email || '').trim();
+  if (name && address) return `${name} <${address}>`;
+  return address || name;
+}
+
+function getAddressParts(entry) {
+  return {
+    name: String(entry?.name || '').trim(),
+    address: String(entry?.address || entry?.email || '').trim(),
+  };
+}
+
+function getIdentityInitials(entry) {
+  const { name, address } = getAddressParts(entry);
+  const source = (name || address || '?').trim();
+  const parts = source
+    .replace(/<.*?>/g, ' ')
+    .replace(/@.*$/, '')
+    .split(/[\s._-]+/)
+    .filter(Boolean);
+  if (!parts.length) return '?';
+  return parts
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('');
+}
+
+function uniqueAddresses(list = []) {
+  const seen = new Set();
+  return list
+    .map((entry) => compactAddress(entry).trim())
+    .filter((entry) => {
+      if (!entry || seen.has(entry.toLowerCase())) return false;
+      seen.add(entry.toLowerCase());
+      return true;
+    });
+}
+
+function summarizeAddresses(list = [], maxItems = 2) {
+  const entries = uniqueAddresses(list);
+  if (!entries.length) return '—';
+  if (entries.length <= maxItems) return entries.join(', ');
+  return `${entries.slice(0, maxItems).join(', ')} +${entries.length - maxItems}`;
+}
+
+function setComposerBodyHtml(value = '') {
+  els.composerBody.innerHTML = String(value || '').trim();
+}
+
+function getComposerBodyHtml() {
+  const html = String(els.composerBody.innerHTML || '')
+    .replace(/<(div|p)><br><\/\1>/gi, '')
+    .trim();
+  return html;
+}
+
+function getComposerBodyText() {
+  return String(els.composerBody.innerText || '')
+    .replace(/\u00a0/g, ' ')
+    .replace(/\r/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function setActiveToolbarChoice(attributeName, value) {
+  Array.from(els.composerToolbar.querySelectorAll(`[${attributeName}]`)).forEach((button) => {
+    button.classList.toggle('active', button.getAttribute(attributeName) === value);
+  });
+}
+
+function buildReplyComposerBodyHtml(message, from) {
+  const quoted = escapeHtml(String(message.textBody || '').trim() || '(ohne Text)').replace(/\n/g, '<br>');
+  return `
+    <p><br></p>
+    <p><br></p>
+    <blockquote>
+      <p>Am ${escapeHtml(formatDate(message.date))} schrieb ${escapeHtml(from || 'Unbekannt')}:</p>
+      <p>${quoted}</p>
+    </blockquote>
+  `;
+}
+
+function buildForwardComposerBodyHtml(message) {
+  const headerRows = [
+    ['Von', compactAddress(message.from) || '—'],
+    ['An', uniqueAddresses(message.to).join(', ') || '—'],
+    ['CC', uniqueAddresses(message.cc).join(', ') || '—'],
+    ['Datum', formatDate(message.date)],
+    ['Betreff', message.subject || '(kein Betreff)'],
+  ];
+  const originalText = escapeHtml(String(message.textBody || '').trim() || '(ohne Text)').replace(/\n/g, '<br>');
+  return `
+    <p><br></p>
+    <p><br></p>
+    <hr>
+    <p><strong>Weitergeleitete Nachricht</strong></p>
+    ${headerRows.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`).join('')}
+    <blockquote><p>${originalText}</p></blockquote>
+  `;
+}
+
+function buildForwardSourceAttachments(message, folder) {
+  const attachments = Array.isArray(message?.attachments) ? message.attachments : [];
+  return attachments.map((attachment, index) => ({
+    kind: 'source',
+    name: attachment.filename || `attachment-${index + 1}`,
+    size: Number(attachment.size || 0),
+    type: attachment.contentType || 'application/octet-stream',
+    sourceAccountKey: message.accountKey,
+    sourceFolder: folder,
+    sourceIndex: index,
+    sourceUid: message.uid,
+  }));
+}
+
+function buildFolderList() {
+  els.folderList.innerHTML = '';
+  folders.forEach((folder) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `folder-item${state.currentFolder === folder.key ? ' active' : ''}`;
+    button.innerHTML = `<strong>${folder.label}</strong><span>${folder.key}</span>`;
+    button.addEventListener('click', () => {
+      state.currentFolder = folder.key;
+      state.selectedMessage = null;
+      state.messages = [];
+      syncMailUrl();
+      buildFolderList();
+      renderMessageList();
+      renderDetail(null);
+      loadMessages();
+    });
+    els.folderList.appendChild(button);
+  });
+}
+
+function buildAccountList() {
+  els.accountList.innerHTML = '';
+  els.composerAccount.innerHTML = '';
+  state.accounts.forEach((account) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `account-item${state.currentAccountKey === account.key ? ' active' : ''}`;
+    button.innerHTML = `
+      <div class="account-top">
+        <strong>${escapeHtml(account.label)}</strong>
+        <span class="badge">${account.unread == null ? '…' : account.unread}</span>
+      </div>
+      <span>${escapeHtml(account.email)}</span>
+    `;
+    button.addEventListener('click', () => {
+      state.currentAccountKey = account.key;
+      state.selectedMessage = null;
+      state.messages = [];
+      syncMailUrl();
+      buildAccountList();
+      renderMessageList();
+      renderDetail(null);
+      loadMessages();
+    });
+    els.accountList.appendChild(button);
+
+    const option = document.createElement('option');
+    option.value = account.key;
+    option.textContent = `${account.label} · ${account.email}`;
+    els.composerAccount.appendChild(option);
+  });
+  els.composerAccount.value = state.currentAccountKey || state.defaultAccountKey || '';
+}
+
+function renderTopbarContext() {
+  const activeAccount = getActiveAccount();
+  if (!activeAccount) {
+    els.topbarContextTitle.textContent = 'Keine Mailbox gewählt';
+    els.topbarContextSubtitle.textContent = 'Wähle links ein Postfach und einen Ordner';
+    return;
+  }
+  els.topbarContextTitle.textContent = `${activeAccount.label} · ${activeAccount.email}`;
+  els.topbarContextSubtitle.textContent = `${getFolderLabel(state.currentFolder)} · ${formatMessageCount(state.messages.length)}`;
+}
+
+function renderMessageList() {
+  els.listTitle.textContent = getFolderLabel(state.currentFolder);
+  const activeAccount = getActiveAccount();
+  els.listSubtitle.textContent = activeAccount
+    ? `${activeAccount.label} · ${activeAccount.email} · ${formatMessageCount(state.messages.length)}`
+    : 'Keine Mailbox gewählt';
+  renderTopbarContext();
+
+  if (!state.messages.length) {
+    els.messageList.innerHTML = `
+      <div style="padding:40px 24px; color:var(--text-dim);">
+        Keine Nachrichten im gewählten Ordner.
+      </div>
+    `;
+    return;
+  }
+
+  els.messageList.innerHTML = '';
+  state.messages.forEach((message) => {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = `message-row${message.seen ? '' : ' unread'}${state.selectedMessage && state.selectedMessage.uid === message.uid ? ' active' : ''}`;
+    const previewSource = compactAddress(message.from || {}) || compactAddress(message.to || {}) || '';
+    row.innerHTML = `
+      <div class="message-meta">
+        <div class="message-from">${escapeHtml(previewSource || 'Unbekannt')}</div>
+        <div class="message-date">${escapeHtml(formatDate(message.date))}</div>
+      </div>
+      <div class="message-subject">${escapeHtml(message.subject || '(kein Betreff)')}</div>
+      <div class="message-preview">${escapeHtml(message.size ? `${Math.round(message.size / 1024)} KB` : 'ohne Größenangabe')}</div>
+    `;
+    row.addEventListener('click', () => selectMessage(message.uid));
+    els.messageList.appendChild(row);
+  });
+}
+
+function renderDetail(message) {
+  if (!message) {
+    els.detailTitle.textContent = 'Nachricht';
+    els.detailSubtitle.textContent = 'Wähle links eine Nachricht.';
+    els.detailToolbar.classList.add('hidden');
+    els.detailContent.innerHTML = `
+      <div class="detail-empty">
+        <h3>Nachricht auswählen</h3>
+        <p>Hier erscheinen Absender, Empfänger, Anhänge und der eigentliche Inhalt der ausgewählten Mail.</p>
+      </div>
+    `;
+    return;
+  }
+
+  els.detailToolbar.classList.remove('hidden');
+  els.detailTitle.textContent = message.subject || '(kein Betreff)';
+  const fromLabel = compactAddress(message.from) || message.accountKey || 'Unbekannt';
+  const formattedDate = formatDate(message.date);
+  const attachments = Array.isArray(message.attachments) ? message.attachments : [];
+  els.detailSubtitle.textContent = `${formattedDate} · ${fromLabel}${attachments.length ? ` · ${attachments.length} Anhang${attachments.length === 1 ? '' : 'e'}` : ''}`;
+
+  const textBody = String(message.textBody || '').trim();
+  const htmlBody = String(message.htmlBody || '').trim();
+  const toSummary = summarizeAddresses(message.to, 2);
+  const ccSummary = summarizeAddresses(message.cc, 2);
+  const bccSummary = summarizeAddresses(message.bcc, 2);
+  const accountMeta = state.accounts.find((entry) => entry.key === message.accountKey) || null;
+  const fromParts = getAddressParts(message.from);
+  const senderTitle = fromParts.name || fromParts.address || 'Unbekannt';
+  const senderSubtitle = fromParts.name && fromParts.address ? fromParts.address : 'Direkte Absenderadresse';
+  const sideMetaLabel = attachments.length
+    ? `${attachments.length} Anhang${attachments.length === 1 ? '' : 'e'}`
+    : `UID ${message.uid}`;
+  const detailChips = [
+    ['An', toSummary],
+    ccSummary !== '—' ? ['CC', ccSummary] : null,
+    bccSummary !== '—' ? ['BCC', bccSummary] : null,
+    ['Ordner', getFolderLabel(state.currentFolder)],
+    attachments.length ? ['Anhänge', `${attachments.length} Datei${attachments.length === 1 ? '' : 'en'}`] : null,
+  ]
+    .filter(Boolean)
+    .map(([label, value]) => `
+      <div class="detail-summary-chip">
+        <span class="detail-summary-chip-label">${escapeHtml(label)}</span>
+        <span class="detail-summary-chip-value" title="${escapeHtml(value)}">${escapeHtml(value)}</span>
+      </div>
+    `)
+    .join('');
+
+  const attachmentsHtml = attachments.length
+    ? `
+      <section class="detail-section-card">
+        <div class="detail-section-head">
+          <h3 class="detail-section-title">Anhänge</h3>
+        </div>
+        <div class="attachments">
+          ${attachments.map((attachment, index) => `
+            <div class="attachment">
+              <div class="attachment-copy">
+                <strong>${escapeHtml(attachment.filename)}</strong>
+                <small>${escapeHtml(attachment.contentType || 'application/octet-stream')} · ${Math.max(1, Math.round((attachment.size || 0) / 1024))} KB</small>
+              </div>
+              <a href="/mail/api/attachment?account=${encodeURIComponent(message.accountKey)}&folder=${encodeURIComponent(state.currentFolder)}&uid=${message.uid}&index=${index}" target="_blank" rel="noopener noreferrer">Öffnen</a>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `
+    : '';
+
+  const bodyHtml = htmlBody
+    ? `
+      <section class="detail-section-card">
+        <div class="detail-section-head">
+          <h3 class="detail-section-title">Nachricht</h3>
+        </div>
+        <div class="body-html"><iframe sandbox="allow-same-origin" srcdoc="${escapeHtml(htmlBody)}"></iframe></div>
+      </section>
+    `
+    : '';
+
+  const plainHtml = textBody
+    ? `
+      <section class="detail-section-card">
+        <div class="detail-section-head">
+          <h3 class="detail-section-title">${htmlBody ? 'Plaintext' : 'Nachricht'}</h3>
+        </div>
+        <div class="body-plain">${escapeHtml(textBody)}</div>
+      </section>
+    `
+    : '';
+
+  els.detailContent.innerHTML = `
+    <div class="detail-summary-card">
+      <div class="detail-summary-top">
+        <div class="detail-sender-block">
+          <div class="detail-sender-badge" aria-hidden="true">${escapeHtml(getIdentityInitials(message.from))}</div>
+          <div class="detail-sender-copy">
+            <span class="detail-overline">Absender</span>
+            <strong>${escapeHtml(senderTitle)}</strong>
+            <span>${escapeHtml(senderSubtitle)}</span>
+          </div>
+        </div>
+        <div class="detail-summary-side">
+          <span>${escapeHtml(formattedDate)}</span>
+          <span>${escapeHtml(sideMetaLabel)}</span>
+        </div>
+      </div>
+      ${detailChips ? `<div class="detail-summary-chips">${detailChips}</div>` : ''}
+      <div class="detail-summary-footer">
+        <div class="detail-summary-footer-block">
+          <span class="detail-overline">Mailbox</span>
+          <strong>${escapeHtml(accountMeta ? `${accountMeta.label} · ${accountMeta.email}` : message.accountKey || '—')}</strong>
+        </div>
+        <div class="detail-summary-footer-block">
+          <span class="detail-overline">Message-ID</span>
+          <code>${escapeHtml(message.messageId || '—')}</code>
+        </div>
+      </div>
+    </div>
+    ${attachmentsHtml}
+    ${bodyHtml}
+    ${plainHtml}
+  `;
+}
+
+async function loadAccounts() {
+  const data = await api('/mail/api/accounts');
+  state.accounts = data.accounts || [];
+  state.attachmentLimits = {
+    ...state.attachmentLimits,
+    ...(data.limits || {}),
+  };
+  state.defaultAccountKey = data.defaultAccountKey || '';
+  applyRouteSelection();
+  buildAccountList();
+  const route = parseMailRoute();
+  if (route.accountKey || route.folderKey || window.location.pathname !== '/mail') {
+    syncMailUrl();
+  }
+  renderComposerAttachments();
+}
+
+async function loadMessages() {
+  if (!state.currentAccountKey) {
+    state.messages = [];
+    renderMessageList();
+    renderDetail(null);
+    return;
+  }
+  const data = await api(`/mail/api/list?account=${encodeURIComponent(state.currentAccountKey)}&folder=${encodeURIComponent(state.currentFolder)}`);
+  state.messages = data.messages || [];
+  renderMessageList();
+  renderDetail(null);
+}
+
+async function refreshAll() {
+  try {
+    await loadAccounts();
+    buildFolderList();
+    await loadMessages();
+  } catch (error) {
+    showStatus(error.message, true);
+  }
+}
+
+async function selectMessage(uid) {
+  try {
+    const data = await api(`/mail/api/message?account=${encodeURIComponent(state.currentAccountKey)}&folder=${encodeURIComponent(state.currentFolder)}&uid=${uid}`);
+    state.selectedMessage = data;
+    renderMessageList();
+    renderDetail(data);
+    if (!data.seen) {
+      await api('/mail/api/mark-read', {
+        method: 'POST',
+        body: JSON.stringify({
+          account: state.currentAccountKey,
+          folder: state.currentFolder,
+          uid,
+        }),
+      });
+    }
+  } catch (error) {
+    showStatus(error.message, true);
+  }
+}
+
+function resetComposer() {
+  state.mode = 'new';
+  state.replySource = null;
+  state.replySourceFolder = '';
+  state.composerAttachments = [];
+  els.composerTitle.textContent = 'Neue Nachricht';
+  els.composerSubtitle.textContent = 'Klar, schnell und lesbar schreiben.';
+  els.composerAccount.value = state.currentAccountKey || state.defaultAccountKey || '';
+  els.composerTo.value = '';
+  els.composerCc.value = '';
+  els.composerBcc.value = '';
+  els.composerSubject.value = '';
+  setComposerBodyHtml('');
+  els.composerFiles.value = '';
+  els.composerHint.textContent = 'Formatierte E-Mails werden als HTML und Plaintext versendet. Anhänge werden direkt mitgesendet.';
+  setActiveToolbarChoice('data-format-block', '__none__');
+  setActiveToolbarChoice('data-font-family', '__none__');
+  els.composerUploadArea.classList.remove('dragover');
+  renderComposerAttachments();
+}
+
+function openComposer(mode = 'new', replyAll = false) {
+  resetComposer();
+  state.mode = mode;
+  els.composerWrap.classList.add('open');
+  if ((mode === 'reply' || mode === 'reply-all') && state.selectedMessage) {
+    state.replySource = state.selectedMessage;
+    state.replySourceFolder = state.currentFolder;
+    els.composerTitle.textContent = replyAll ? 'Allen antworten' : 'Antworten';
+    els.composerSubtitle.textContent = 'Antwort direkt im Kontext der geöffneten Nachricht.';
+    els.composerAccount.value = state.selectedMessage.accountKey || state.currentAccountKey;
+    const from = compactAddress(state.selectedMessage.from);
+    const to = uniqueAddresses(state.selectedMessage.to);
+    const cc = uniqueAddresses(state.selectedMessage.cc);
+    els.composerTo.value = replyAll
+      ? Array.from(new Set([from, ...to])).join(', ')
+      : from;
+    els.composerCc.value = replyAll ? cc.join(', ') : '';
+    els.composerSubject.value = /^Re:/i.test(state.selectedMessage.subject || '')
+      ? state.selectedMessage.subject
+      : `Re: ${state.selectedMessage.subject || ''}`;
+    setComposerBodyHtml(buildReplyComposerBodyHtml(state.selectedMessage, from));
+    els.composerHint.textContent = 'Antworten referenzieren die ursprüngliche Message-ID. Zusätzliche Anhänge können ergänzt werden.';
+  } else if (mode === 'forward' && state.selectedMessage) {
+    state.replySource = state.selectedMessage;
+    state.replySourceFolder = state.currentFolder;
+    state.composerAttachments = buildForwardSourceAttachments(state.selectedMessage, state.currentFolder);
+    els.composerTitle.textContent = 'Weiterleiten';
+    els.composerSubtitle.textContent = 'Anhänge und Kontext der Originalnachricht bleiben erhalten.';
+    els.composerAccount.value = state.selectedMessage.accountKey || state.currentAccountKey;
+    els.composerSubject.value = /^(fwd|fw|wg):/i.test(state.selectedMessage.subject || '')
+      ? state.selectedMessage.subject
+      : `Fwd: ${state.selectedMessage.subject || ''}`;
+    setComposerBodyHtml(buildForwardComposerBodyHtml(state.selectedMessage));
+    els.composerHint.textContent = 'Original-Anhänge werden mit übernommen und können vor dem Senden entfernt oder um neue Anhänge ergänzt werden.';
+    renderComposerAttachments();
+  }
+  els.composerBody.focus();
+}
+
+function closeComposer() {
+  els.composerWrap.classList.remove('open');
+}
+
+function getAttachmentFingerprint(file) {
+  return [
+    String(file.name || '').trim().toLowerCase(),
+    Number(file.size || 0),
+    Number(file.lastModified || 0),
+    String(file.type || '').trim().toLowerCase(),
+  ].join('::');
+}
+
+function createUploadComposerAttachment(file) {
+  return {
+    kind: 'upload',
+    file,
+    fingerprint: getAttachmentFingerprint(file),
+    name: file.name,
+    size: Number(file.size || 0),
+    type: file.type || 'application/octet-stream',
+  };
+}
+
+function applyComposerCommand(command, value = null) {
+  els.composerBody.focus();
+  try {
+    document.execCommand('styleWithCSS', false, true);
+  } catch {}
+  document.execCommand(command, false, value);
+}
+
+function handleComposerFiles(fileList) {
+  try {
+    mergeComposerAttachments(fileList);
+    els.composerFiles.value = '';
+  } catch (error) {
+    els.composerFiles.value = '';
+    showStatus(error.message, true);
+  }
+}
+
+function renderComposerAttachments() {
+  const attachments = Array.isArray(state.composerAttachments) ? state.composerAttachments : [];
+  const totalBytes = attachments.reduce((sum, file) => sum + Number(file.size || 0), 0);
+  const maxAttachments = Number(state.attachmentLimits.maxAttachments || 8);
+  const maxBytes = Number(state.attachmentLimits.maxTotalAttachmentBytes || 12 * 1024 * 1024);
+  els.composerAttachmentSummary.textContent = attachments.length
+    ? `${attachments.length} Anhang/Anhänge · ${formatBytes(totalBytes)} von ${formatBytes(maxBytes)} · max. ${maxAttachments} Dateien`
+    : `Keine Anhänge ausgewählt. Maximal ${maxAttachments} Dateien und ${formatBytes(maxBytes)} gesamt.`;
+  els.composerAttachmentList.innerHTML = '';
+  attachments.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'composer-attachment-item';
+    const originLabel = file.kind === 'source' ? 'Original-Anhang' : 'Neuer Anhang';
+    item.innerHTML = `
+      <div class="composer-attachment-meta">
+        <strong title="${escapeHtml(file.name || `Anhang ${index + 1}`)}">${escapeHtml(file.name || `Anhang ${index + 1}`)}</strong>
+        <small>${escapeHtml(file.type || 'application/octet-stream')} · ${escapeHtml(formatBytes(file.size || 0))} · ${escapeHtml(originLabel)}</small>
+      </div>
+      <button class="composer-attachment-remove" type="button" data-index="${index}" aria-label="Anhang entfernen">Entfernen</button>
+    `;
+    item.querySelector('.composer-attachment-remove').addEventListener('click', () => {
+      state.composerAttachments = state.composerAttachments.filter((_, currentIndex) => currentIndex !== index);
+      renderComposerAttachments();
+    });
+    els.composerAttachmentList.appendChild(item);
+  });
+}
+
+function mergeComposerAttachments(fileList) {
+  const incoming = Array.from(fileList || []);
+  if (!incoming.length) return;
+  const existing = Array.isArray(state.composerAttachments) ? state.composerAttachments : [];
+  const maxAttachments = Number(state.attachmentLimits.maxAttachments || 8);
+  const maxBytes = Number(state.attachmentLimits.maxTotalAttachmentBytes || 12 * 1024 * 1024);
+  const staticAttachments = existing.filter((entry) => entry.kind === 'source');
+  const byFingerprint = new Map(
+    existing
+      .filter((entry) => entry.kind !== 'source')
+      .map((file) => [file.fingerprint || getAttachmentFingerprint(file.file || file), file]),
+  );
+  for (const file of incoming) {
+    const nextFile = createUploadComposerAttachment(file);
+    byFingerprint.set(nextFile.fingerprint, nextFile);
+  }
+  const next = [...staticAttachments, ...Array.from(byFingerprint.values())];
+  if (next.length > maxAttachments) {
+    throw new Error(`Zu viele Anhänge. Erlaubt sind maximal ${maxAttachments} Dateien.`);
+  }
+  const totalBytes = next.reduce((sum, file) => sum + Number(file.size || 0), 0);
+  if (totalBytes > maxBytes) {
+    throw new Error(`Anhänge überschreiten das Limit von ${formatBytes(maxBytes)}.`);
+  }
+  state.composerAttachments = next;
+  renderComposerAttachments();
+}
+
+function fileToAttachment(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const contentBase64 = result.includes(',') ? result.split(',')[1] : result;
+      resolve({
+        name: file.name,
+        contentBase64,
+        contentType: file.type || 'application/octet-stream',
+      });
+    };
+    reader.onerror = () => reject(new Error(`Datei konnte nicht gelesen werden: ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function sendComposer() {
+  els.composerSendBtn.disabled = true;
+  try {
+    const composerAttachments = Array.isArray(state.composerAttachments) ? state.composerAttachments : [];
+    const attachments = await Promise.all(
+      composerAttachments
+        .filter((entry) => entry.kind !== 'source')
+        .map((entry) => fileToAttachment(entry.file || entry)),
+    );
+    const payload = {
+      account: els.composerAccount.value,
+      to: els.composerTo.value,
+      cc: els.composerCc.value,
+      bcc: els.composerBcc.value,
+      subject: els.composerSubject.value,
+      text: getComposerBodyText(),
+      html: getComposerBodyHtml(),
+      attachments,
+    };
+    let endpoint = '/mail/api/send';
+    let successMessage = 'Mail gesendet.';
+    if ((state.mode === 'reply' || state.mode === 'reply-all') && state.replySource) {
+      endpoint = '/mail/api/reply';
+      payload.inReplyTo = state.replySource.messageId || '';
+      successMessage = 'Antwort gesendet.';
+    } else if (state.mode === 'forward' && state.replySource) {
+      endpoint = '/mail/api/forward';
+      payload.forwardSource = {
+        account: state.replySource.accountKey,
+        attachmentIndices: composerAttachments
+          .filter((entry) => entry.kind === 'source')
+          .map((entry) => entry.sourceIndex),
+        folder: state.replySourceFolder || state.currentFolder,
+        uid: state.replySource.uid,
+      };
+      successMessage = 'Weiterleitung gesendet.';
+    }
+    await api(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    closeComposer();
+    showStatus(successMessage);
+    await refreshAll();
+    state.currentFolder = 'Sent';
+    syncMailUrl();
+    buildFolderList();
+    await loadMessages();
+  } catch (error) {
+    showStatus(error.message, true);
+  } finally {
+    els.composerSendBtn.disabled = false;
+  }
+}
+
+async function deleteSelectedMessage() {
+  if (!state.selectedMessage) return;
+  const confirmed = window.confirm('Nachricht in den Papierkorb verschieben?');
+  if (!confirmed) return;
+  try {
+    await api('/mail/api/delete', {
+      method: 'POST',
+      body: JSON.stringify({
+        account: state.selectedMessage.accountKey,
+        folder: state.currentFolder,
+        uid: state.selectedMessage.uid,
+      }),
+    });
+    showStatus('Nachricht verschoben.');
+    state.selectedMessage = null;
+    await refreshAll();
+  } catch (error) {
+    showStatus(error.message, true);
+  }
+}
+
+els.composeBtn.addEventListener('click', () => openComposer('new'));
+els.composerCloseBtn.addEventListener('click', closeComposer);
+els.composerWrap.addEventListener('click', (event) => {
+  if (event.target === els.composerWrap) closeComposer();
+});
+els.composerSendBtn.addEventListener('click', sendComposer);
+els.composerFiles.addEventListener('change', () => handleComposerFiles(els.composerFiles.files));
+els.composerUploadArea.addEventListener('click', (event) => {
+  if (event.target.closest('button, a, label, input')) return;
+  els.composerFiles.click();
+});
+els.composerUploadArea.addEventListener('dragover', (event) => {
+  event.preventDefault();
+  els.composerUploadArea.classList.add('dragover');
+});
+els.composerUploadArea.addEventListener('dragleave', (event) => {
+  if (event.currentTarget === event.target) {
+    els.composerUploadArea.classList.remove('dragover');
+  }
+});
+els.composerUploadArea.addEventListener('drop', (event) => {
+  event.preventDefault();
+  els.composerUploadArea.classList.remove('dragover');
+  handleComposerFiles(event.dataTransfer?.files);
+});
+els.refreshBtn.addEventListener('click', refreshAll);
+els.replyBtn.addEventListener('click', () => openComposer('reply'));
+els.replyAllBtn.addEventListener('click', () => openComposer('reply-all', true));
+els.forwardBtn.addEventListener('click', () => openComposer('forward'));
+els.deleteBtn.addEventListener('click', deleteSelectedMessage);
+Array.from(els.composerToolbar.querySelectorAll('[data-editor-command]')).forEach((button) => {
+  button.addEventListener('mousedown', (event) => event.preventDefault());
+  button.addEventListener('click', () => {
+    applyComposerCommand(button.dataset.editorCommand || '');
+  });
+});
+Array.from(els.composerToolbar.querySelectorAll('[data-format-block]')).forEach((button) => {
+  button.addEventListener('mousedown', (event) => event.preventDefault());
+  button.addEventListener('click', () => {
+    const value = button.getAttribute('data-format-block') || 'p';
+    applyComposerCommand('formatBlock', value);
+    setActiveToolbarChoice('data-format-block', value);
+  });
+});
+Array.from(els.composerToolbar.querySelectorAll('[data-font-family]')).forEach((button) => {
+  button.addEventListener('mousedown', (event) => event.preventDefault());
+  button.addEventListener('click', () => {
+    const value = button.getAttribute('data-font-family') || '';
+    if (!value) return;
+    applyComposerCommand('fontName', value);
+    setActiveToolbarChoice('data-font-family', value);
+  });
+});
+
+buildFolderList();
+refreshAll();
+</script>
+</body>
+</html>

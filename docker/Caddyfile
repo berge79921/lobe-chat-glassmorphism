@@ -6,6 +6,42 @@ www.legalchat.net {
   redir https://legalchat.net{uri} 308
 }
 
+openlaw.cc, www.openlaw.cc {
+  encode zstd gzip
+
+  handle /mail* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /mailbox* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /login* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /logout* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /signout* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /api/auth* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle {
+    reverse_proxy openlaw-site:80
+  }
+}
+
+mail.openlaw.cc {
+  respond 204
+}
+
 legalchat.net {
   encode zstd gzip
   reverse_proxy login-proxy:3210
