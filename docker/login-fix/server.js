@@ -9,6 +9,7 @@
 const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
+const { maybeHandleMailRequest } = require('./mail-routes');
 
 const isEnvTruthy = (value) => /^(1|true|yes|on)$/i.test(String(value || '').trim());
 const parseCsvLowerSet = (value) =>
@@ -112,6 +113,9 @@ const LEGALCHAT_MCP_PRUEFUNGSMODUS_ENDPOINT = String(
 )
   .trim()
   .replace(/\/+$/, '');
+const LEGALCHAT_MCP_SWISS_ENDPOINT = String(process.env.LEGALCHAT_MCP_SWISS_ENDPOINT || '')
+  .trim()
+  .replace(/\/+$/, '');
 const LEGALCHAT_MCP_BEARER_TOKEN = String(process.env.LEGALCHAT_MCP_BEARER_TOKEN || '').trim();
 const LEGALCHAT_MCP_ADMIN_BEARER_TOKEN = String(
   process.env.LEGALCHAT_MCP_ADMIN_BEARER_TOKEN || '',
@@ -133,6 +137,13 @@ const LEGALCHAT_MCP_CALL_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/call`;
 const LEGALCHAT_MCP_STATUS_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/status`;
 const LEGALCHAT_MCP_DEEP_RESEARCH_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/deep-research`;
 const LEGALCHAT_MCP_PRUEFUNGSMODUS_ROUTE = `${LEGALCHAT_MCP_API_BASE_PATH}/pruefungsmodus`;
+const LEGALCHAT_SWISS_MANIFEST_ROUTE = '/swiss_plugin_manifest.json';
+const LEGALCHAT_SWISS_SEARCH_ROUTE = '/swiss/search';
+const LEGALCHAT_SWISS_DECISION_ROUTE = '/swiss/entscheidung';
+const LEGALCHAT_SWISS_CASE_PACK_ROUTE = '/swiss/case-pack';
+const LEGALCHAT_SWISS_ANALYZE_ROUTE = '/swiss/analyze';
+const LEGALCHAT_SWISS_GATEWAY_ROUTE = '/swiss/gateway';
+const LEGALCHAT_SWISS_PLUGIN_IDENTIFIER = 'swiss-legal-expert';
 const LEGALCHAT_MCP_MODE_TOOL_ROUTE_PATTERN =
   /^\/api\/legalchat\/mcp\/(deep-research|pruefungsmodus)\/([^/]+)$/;
 const LEGALCHAT_MCP_MODE_ENDPOINTS = {
@@ -212,6 +223,8 @@ const LEGALCHAT_LOGTO_LOGO_VERSIONED_URL = withVersionQuery(LEGALCHAT_LOGTO_LOGO
 INTERNAL_HOSTS.add(LOGTO_UPSTREAM_HOST);
 INTERNAL_HOSTS.add('logto');
 const SIGNOUT_PATH_PATTERN = /^\/(?:api\/auth|next-auth)\/signout\/?$/;
+const LOCALIZED_LOGIN_HELPER_PATH_PATTERN = /^\/[^/]+__[^/]+__[^/]+\/login\/?$/i;
+const LOCALIZED_LOGOUT_HELPER_PATH_PATTERN = /^\/[^/]+__[^/]+__[^/]+\/(?:logout|signout)\/?$/i;
 const DEFAULT_EDGE_VOICE = process.env.TTS_FALLBACK_EDGE_VOICE || 'en-US-JennyNeural';
 const OPENAI_TO_EDGE_VOICE_MAP = {
   alloy: 'en-US-JennyNeural',
@@ -762,6 +775,35 @@ const rewriteLocationHeader = (location, req) => {
   }
 };
 
+const rewriteLogtoRedirectUri = (location, req) => {
+  if (!location || location.startsWith('/')) return location;
+
+  try {
+    const parsed = new URL(location);
+    const redirectUri = parsed.searchParams.get('redirect_uri');
+    if (!redirectUri) return location;
+
+    const forwardedOrigin = `${getForwardedProtocol(req)}://${getPublicHost(req)}`;
+    const expectedCallbackPath = '/api/auth/callback/logto';
+    const upstreamOrigins = new Set();
+
+    upstreamOrigins.add(new URL(APP_PUBLIC_URL).origin);
+    upstreamOrigins.add(forwardedOrigin);
+
+    const targetRedirect = new URL(redirectUri);
+    const isKnownCallback =
+      targetRedirect.pathname === expectedCallbackPath && upstreamOrigins.has(targetRedirect.origin);
+    if (!isKnownCallback) return location;
+
+    targetRedirect.protocol = `${getForwardedProtocol(req)}:`;
+    targetRedirect.host = getPublicHost(req);
+    parsed.searchParams.set('redirect_uri', targetRedirect.toString());
+    return parsed.toString();
+  } catch {
+    return location;
+  }
+};
+
 const requestTarget = ({ method, path, headers = {}, body = '', timeoutMs = 0 }) =>
   new Promise((resolve, reject) => {
     const upstreamReq = http.request(
@@ -1148,6 +1190,27 @@ const sendJsonResponse = (res, statusCode, payload, extraHeaders = {}) => {
   res.end(body);
 };
 
+const getSwissCorsHeaders = (req, extraHeaders = {}) => {
+  const origin = String(req.headers.origin || '').trim();
+  const allowOrigin =
+    origin === 'https://legalchat.net' || origin === 'https://www.legalchat.net'
+      ? origin
+      : '*';
+  return {
+    'access-control-allow-headers': 'Authorization, Content-Type',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-origin': allowOrigin,
+    'access-control-max-age': '86400',
+    vary: 'Origin',
+    ...extraHeaders,
+  };
+};
+
+const sendSwissPreflightResponse = (req, res) => {
+  res.writeHead(204, getSwissCorsHeaders(req));
+  res.end();
+};
+
 const extractBearerToken = (authorizationHeader) => {
   const value = String(authorizationHeader || '').trim();
   if (!/^Bearer\s+/i.test(value)) return '';
@@ -1183,6 +1246,81 @@ const normalizeMcpMode = (value) => {
 };
 
 const getMcpEndpointForMode = (mode) => LEGALCHAT_MCP_MODE_ENDPOINTS[normalizeMcpMode(mode)] || '';
+
+const getSwissPluginManifest = (req) => {
+  const publicOrigin = `${getForwardedProtocol(req)}://${getPublicHost(req)}`;
+  return {
+    identifier: LEGALCHAT_SWISS_PLUGIN_IDENTIFIER,
+    meta: {
+      title: 'Swiss Legal Database',
+      description: 'Nativer API Zugriff auf das Schweizerische Bundesgericht (BGer).',
+      avatar: '🇨🇭',
+      tags: ['law', 'switzerland', 'jurisprudence'],
+    },
+    author: 'Antigravity',
+    createdAt: '2026-03-11',
+    schemaVersion: 'v1',
+    api: [
+      {
+        name: 'searchSwissDecisions',
+        url: `${publicOrigin}${LEGALCHAT_SWISS_SEARCH_ROUTE}`,
+        description: 'Durchsucht die Datenbank des Schweizerischen Bundesgerichts nach Stichwörtern.',
+        parameters: {
+          type: 'object',
+          required: ['fulltext'],
+          properties: {
+            fulltext: {
+              type: 'string',
+              description:
+                "Suchbegriff(e) für die Volltextsuche, z.B. 'Kündigung', 'Schadenersatz'.",
+            },
+            limit: {
+              type: 'number',
+              description: 'Anzahl der maximalen Ergebnisse.',
+              default: 3,
+            },
+            sprache: {
+              type: 'string',
+              description: "Optionaler Sprachfilter ('de', 'fr', 'it').",
+            },
+            rechtsgebiet: {
+              type: 'string',
+              description: 'Optionaler Filter auf primäres Rechtsgebiet.',
+            },
+            year_from: {
+              type: 'number',
+              description: 'Optionales Startjahr.',
+            },
+            year_to: {
+              type: 'number',
+              description: 'Optionales Endjahr.',
+            },
+          },
+        },
+      },
+      {
+        name: 'getSwissDecisionText',
+        url: `${publicOrigin}${LEGALCHAT_SWISS_DECISION_ROUTE}`,
+        description: 'Ruft den vollständigen Text einer schweizer Entscheidung ab.',
+        parameters: {
+          type: 'object',
+          required: ['stable_key'],
+          properties: {
+            stable_key: {
+              type: 'string',
+              description: 'Die eindeutige ID (stable_key) der Entscheidung.',
+            },
+          },
+        },
+      },
+    ],
+    gateway: `${publicOrigin}${LEGALCHAT_SWISS_GATEWAY_ROUTE}`,
+    settings: {
+      type: 'object',
+      properties: {},
+    },
+  };
+};
 
 const extractSessionRoles = (user) => {
   const roles = new Set();
@@ -1408,6 +1546,378 @@ const callMcpBridge = async ({
     payload: parsedPayload ?? { ok: true, result: rawText },
     statusCode: 200,
   };
+};
+
+const callConfiguredBridgeEndpoint = async ({
+  endpoint,
+  errorLabel,
+  path,
+  payload,
+  timeoutMs = LEGALCHAT_MCP_REQUEST_TIMEOUT_MS,
+}) => {
+  if (!endpoint) {
+    return {
+      ok: false,
+      payload: {
+        error: `${errorLabel} endpoint is not configured.`,
+        ok: false,
+      },
+      statusCode: 500,
+    };
+  }
+
+  const url = `${endpoint}${path}`;
+  let response;
+  try {
+    response = await fetchWithTimeout(
+      url,
+      {
+        body: typeof payload === 'undefined' ? undefined : JSON.stringify(payload),
+        headers:
+          typeof payload === 'undefined'
+            ? { Accept: 'application/json' }
+            : {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+        method: typeof payload === 'undefined' ? 'GET' : 'POST',
+      },
+      timeoutMs,
+    );
+  } catch (error) {
+    return {
+      ok: false,
+      payload: {
+        details: error?.message || String(error),
+        error: `${errorLabel} is unreachable.`,
+        ok: false,
+      },
+      statusCode: 502,
+    };
+  }
+
+  const rawText = await response.text().catch(() => '');
+  let parsedPayload = null;
+  if (rawText) {
+    try {
+      parsedPayload = JSON.parse(rawText);
+    } catch {
+      parsedPayload = null;
+    }
+  }
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      payload: {
+        bridgeResponse: parsedPayload || rawText.slice(0, 600),
+        bridgeStatus: response.status,
+        error: `${errorLabel} request failed.`,
+        ok: false,
+      },
+      statusCode: response.status === 404 ? 502 : response.status,
+    };
+  }
+
+  return {
+    ok: true,
+    payload: parsedPayload ?? { ok: true, result: rawText },
+    statusCode: 200,
+  };
+};
+
+const extractStructuredBridgeResult = (bridgePayload) => {
+  const rawResult = bridgePayload?.result ?? bridgePayload;
+  if (Array.isArray(rawResult?.content)) {
+    const text = rawResult.content
+      .map((item) => (item && typeof item.text === 'string' ? item.text : ''))
+      .join('\n')
+      .trim();
+    if (!text) return rawResult;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { ok: true, text };
+    }
+  }
+  return rawResult;
+};
+
+const parseSwissNumber = (value, { max, min } = {}) => {
+  if (value === null || typeof value === 'undefined' || value === '') return undefined;
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return undefined;
+  let normalized = Math.trunc(numeric);
+  if (typeof min === 'number' && normalized < min) normalized = min;
+  if (typeof max === 'number' && normalized > max) normalized = max;
+  return normalized;
+};
+
+const callSwissBridgeTool = async (toolName, argumentsPayload) => {
+  const bridgeResponse = await callConfiguredBridgeEndpoint({
+    endpoint: LEGALCHAT_MCP_SWISS_ENDPOINT,
+    errorLabel: 'Swiss bridge',
+    path: '/tools/call',
+    payload: {
+      arguments: argumentsPayload,
+      name: toolName,
+    },
+  });
+  if (!bridgeResponse.ok) return bridgeResponse;
+
+  return {
+    ok: true,
+    payload: extractStructuredBridgeResult(bridgeResponse.payload),
+    statusCode: 200,
+  };
+};
+
+const normalizeSwissSearchArgs = ({ fulltext, rechtsgebiet, sprache, year_from, year_to, limit }) => ({
+  query: String(fulltext || '').trim(),
+  rechtsgebiet: rechtsgebiet ? String(rechtsgebiet).trim() : undefined,
+  sprache: sprache ? String(sprache).trim() : 'de',
+  year_from: parseSwissNumber(year_from),
+  year_to: parseSwissNumber(year_to),
+  limit: parseSwissNumber(limit, { min: 1, max: 20 }) || 5,
+});
+
+const handleSwissManifestRequest = (req, res) => {
+  sendJsonResponse(res, 200, getSwissPluginManifest(req), getSwissCorsHeaders(req));
+};
+
+const handleSwissSearchRequest = async (req, res, parsedUrl) => {
+  const input =
+    req.method === 'GET'
+      ? Object.fromEntries(parsedUrl.searchParams.entries())
+      : await readJsonRequestBody(req).catch(() => null);
+
+  if (!input || !String(input.fulltext || '').trim()) {
+    sendJsonResponse(
+      res,
+      400,
+      { detail: 'fulltext is required', ok: false },
+      getSwissCorsHeaders(req),
+    );
+    return;
+  }
+
+  const bridgeResponse = await callSwissBridgeTool(
+    'search_swiss_entscheidungen',
+    normalizeSwissSearchArgs(input),
+  );
+
+  if (!bridgeResponse.ok) {
+    sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+};
+
+const handleSwissDecisionRequest = async (req, res, parsedUrl) => {
+  const input =
+    req.method === 'GET'
+      ? Object.fromEntries(parsedUrl.searchParams.entries())
+      : await readJsonRequestBody(req).catch(() => null);
+  const stableKey = String(input?.stable_key || input?.identifier || input?.geschaeftszahl || '').trim();
+
+  if (!stableKey) {
+    sendJsonResponse(
+      res,
+      400,
+      { detail: 'stable_key is required', ok: false },
+      getSwissCorsHeaders(req),
+    );
+    return;
+  }
+
+  const bridgeResponse = await callSwissBridgeTool('get_swiss_entscheidung', {
+    geschaeftszahl: stableKey,
+  });
+
+  if (!bridgeResponse.ok) {
+    sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+};
+
+const handleSwissCasePackRequest = async (req, res, parsedUrl) => {
+  const input =
+    req.method === 'GET'
+      ? Object.fromEntries(parsedUrl.searchParams.entries())
+      : await readJsonRequestBody(req).catch(() => null);
+  const query = String(input?.query || input?.fulltext || '').trim();
+  if (!query) {
+    sendJsonResponse(
+      res,
+      400,
+      { detail: 'query is required', ok: false },
+      getSwissCorsHeaders(req),
+    );
+    return;
+  }
+
+  const bridgeResponse = await callSwissBridgeTool('build_swiss_case_pack', {
+    query,
+    sprache: input?.sprache ? String(input.sprache).trim() : 'de',
+    rechtsgebiet: input?.rechtsgebiet ? String(input.rechtsgebiet).trim() : undefined,
+    year_from: parseSwissNumber(input?.year_from),
+    year_to: parseSwissNumber(input?.year_to),
+    limit_decisions: parseSwissNumber(input?.limit_decisions || input?.limit, { min: 1, max: 10 }) || 5,
+    passages_per_decision: parseSwissNumber(input?.passages_per_decision, { min: 1, max: 10 }) || 3,
+  });
+
+  if (!bridgeResponse.ok) {
+    sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+};
+
+const handleSwissAnalyzeRequest = async (req, res, parsedUrl) => {
+  const input =
+    req.method === 'GET'
+      ? Object.fromEntries(parsedUrl.searchParams.entries())
+      : await readJsonRequestBody(req).catch(() => null);
+  const issueQuery = String(input?.issue_query || input?.query || '').trim();
+  if (!issueQuery) {
+    sendJsonResponse(
+      res,
+      400,
+      { detail: 'issue_query is required', ok: false },
+      getSwissCorsHeaders(req),
+    );
+    return;
+  }
+
+  const bridgeResponse = await callSwissBridgeTool('analyze_swiss_issue', {
+    issue_query: issueQuery,
+    facts: input?.facts ? String(input.facts) : undefined,
+    sprache: input?.sprache ? String(input.sprache).trim() : 'de',
+    rechtsgebiet: input?.rechtsgebiet ? String(input.rechtsgebiet).trim() : undefined,
+    year_from: parseSwissNumber(input?.year_from),
+    year_to: parseSwissNumber(input?.year_to),
+    limit_decisions: parseSwissNumber(input?.limit_decisions, { min: 1, max: 10 }) || 5,
+    passages_per_decision: parseSwissNumber(input?.passages_per_decision, { min: 1, max: 10 }) || 3,
+    include_case_pack: input?.include_case_pack !== false,
+  });
+
+  if (!bridgeResponse.ok) {
+    sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+};
+
+const handleSwissGatewayRequest = async (req, res) => {
+  let body;
+  try {
+    body = await readJsonRequestBody(req);
+  } catch {
+    sendJsonResponse(res, 400, { detail: 'Invalid JSON payload', ok: false }, getSwissCorsHeaders(req));
+    return;
+  }
+
+  const apiName = String(body?.apiName || '').trim();
+  let args = body?.arguments || {};
+  if (typeof args === 'string') {
+    try {
+      args = args ? JSON.parse(args) : {};
+    } catch {
+      sendJsonResponse(
+        res,
+        400,
+        { detail: 'Invalid plugin arguments JSON', ok: false },
+        getSwissCorsHeaders(req),
+      );
+      return;
+    }
+  }
+  if (!args || typeof args !== 'object' || Array.isArray(args)) args = {};
+
+  if (apiName === 'searchSwissDecisions') {
+    const fulltext = String(args.fulltext || '').trim();
+    if (!fulltext) {
+      sendJsonResponse(
+        res,
+        400,
+        { detail: 'fulltext is required', ok: false },
+        getSwissCorsHeaders(req),
+      );
+      return;
+    }
+    const bridgeResponse = await callSwissBridgeTool(
+      'search_swiss_entscheidungen',
+      normalizeSwissSearchArgs(args),
+    );
+    if (!bridgeResponse.ok) {
+      sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+      return;
+    }
+    sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  if (apiName === 'getSwissDecisionText') {
+    const bridgeResponse = await callSwissBridgeTool('get_swiss_entscheidung', {
+      geschaeftszahl: String(args.stable_key || '').trim(),
+    });
+    if (!bridgeResponse.ok) {
+      sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+      return;
+    }
+    sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  if (apiName === 'buildSwissCasePack') {
+    const bridgeResponse = await callSwissBridgeTool('build_swiss_case_pack', {
+      query: String(args.query || args.fulltext || '').trim(),
+      sprache: args.sprache ? String(args.sprache).trim() : 'de',
+      rechtsgebiet: args.rechtsgebiet ? String(args.rechtsgebiet).trim() : undefined,
+      year_from: parseSwissNumber(args.year_from),
+      year_to: parseSwissNumber(args.year_to),
+      limit_decisions: parseSwissNumber(args.limit_decisions || args.limit, { min: 1, max: 10 }) || 5,
+      passages_per_decision: parseSwissNumber(args.passages_per_decision, { min: 1, max: 10 }) || 3,
+    });
+    if (!bridgeResponse.ok) {
+      sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+      return;
+    }
+    sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  if (apiName === 'analyzeSwissIssue') {
+    const bridgeResponse = await callSwissBridgeTool('analyze_swiss_issue', {
+      issue_query: String(args.issue_query || args.query || '').trim(),
+      facts: args.facts ? String(args.facts) : undefined,
+      sprache: args.sprache ? String(args.sprache).trim() : 'de',
+      rechtsgebiet: args.rechtsgebiet ? String(args.rechtsgebiet).trim() : undefined,
+      year_from: parseSwissNumber(args.year_from),
+      year_to: parseSwissNumber(args.year_to),
+      limit_decisions: parseSwissNumber(args.limit_decisions, { min: 1, max: 10 }) || 5,
+      passages_per_decision: parseSwissNumber(args.passages_per_decision, { min: 1, max: 10 }) || 3,
+      include_case_pack: args.include_case_pack !== false,
+    });
+    if (!bridgeResponse.ok) {
+      sendJsonResponse(res, bridgeResponse.statusCode, bridgeResponse.payload, getSwissCorsHeaders(req));
+      return;
+    }
+    sendJsonResponse(res, 200, bridgeResponse.payload, getSwissCorsHeaders(req));
+    return;
+  }
+
+  sendJsonResponse(
+    res,
+    400,
+    { detail: `Unknown apiName: ${apiName}`, ok: false },
+    getSwissCorsHeaders(req),
+  );
 };
 
 const normalizeToolCallPayload = ({ body, modeFromPath, toolNameFromPath }) => {
@@ -2313,8 +2823,8 @@ const normalizeCallbackUrl = (input, fallbackOrigin) => {
   }
 };
 
-const buildHelperHtml = ({ loggedOut = false, callbackUrl } = {}) => {
-  const callback = normalizeCallbackUrl(callbackUrl, APP_PUBLIC_URL);
+const buildHelperHtml = ({ loggedOut = false, callbackUrl, fallbackOrigin } = {}) => {
+  const callback = normalizeCallbackUrl(callbackUrl, fallbackOrigin || APP_PUBLIC_URL);
   const loginHref = buildProviderSigninUrl(callback);
   // Important: Always start from the app's OIDC entrypoint (not /sign-up directly),
   // otherwise Logto may show unknown-session 404.
@@ -2592,6 +3102,10 @@ const sendLoginHelper = (res, options = {}) => {
     'content-length': textEncoder.encode(html).byteLength,
     'content-type': 'text/html; charset=utf-8',
   });
+  if (options.headOnly) {
+    res.end();
+    return;
+  }
   res.end(html);
 };
 
@@ -2687,7 +3201,10 @@ const handleProviderSigninGet = async (req, res, parsedUrl) => {
 
     const responseHeaders = { ...signinResponse.headers };
     if (responseHeaders.location) {
-      responseHeaders.location = rewriteLocationHeader(responseHeaders.location, req);
+      responseHeaders.location = rewriteLogtoRedirectUri(
+        rewriteLocationHeader(responseHeaders.location, req),
+        req,
+      );
     }
 
     res.writeHead(signinResponse.statusCode, responseHeaders);
@@ -3030,10 +3547,20 @@ const hasSessionCookie = (req) => {
   return false;
 };
 
+const isLoginHelperPath = (pathname) =>
+  pathname === '/login' || pathname === '/login/' || LOCALIZED_LOGIN_HELPER_PATH_PATTERN.test(pathname);
+
+const isLogoutHelperPath = (pathname) =>
+  pathname === '/logout' ||
+  pathname === '/logout/' ||
+  pathname === '/signout' ||
+  pathname === '/signout/' ||
+  LOCALIZED_LOGOUT_HELPER_PATH_PATTERN.test(pathname);
+
 const shouldEnforceLogin = (req, parsedUrl) => {
   if (req.method !== 'GET') return false;
   if (!isUiRoutePath(parsedUrl.pathname)) return false;
-  if (parsedUrl.pathname === '/login') return false;
+  if (isLoginHelperPath(parsedUrl.pathname)) return false;
   if (shouldShowHelperOnRoot(req)) return false;
   return !hasSessionCookie(req);
 };
@@ -3042,9 +3569,117 @@ const server = http.createServer(async (req, res) => {
   const publicOrigin = `${getForwardedProtocol(req)}://${getPublicHost(req)}`;
   const parsedUrl = new URL(req.url, publicOrigin);
 
+  if (
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    (parsedUrl.pathname === '/mailbox' || parsedUrl.pathname.startsWith('/mailbox/'))
+  ) {
+    const suffix = parsedUrl.pathname.slice('/mailbox'.length);
+    const location = `/mail${suffix}${parsedUrl.search}`;
+    res.writeHead(308, { 'cache-control': 'no-store', location });
+    res.end();
+    return;
+  }
+
   if (req.method === 'GET' && parsedUrl.pathname === '/healthz') {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('ok');
+    return;
+  }
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && isLoginHelperPath(parsedUrl.pathname)) {
+    sendLoginHelper(res, {
+      loggedOut: isTruthyFlag(parsedUrl.searchParams.get('logged_out')),
+      callbackUrl: parsedUrl.searchParams.get('callbackUrl'),
+      fallbackOrigin: publicOrigin,
+      headOnly: req.method === 'HEAD',
+    });
+    return;
+  }
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && isLogoutHelperPath(parsedUrl.pathname)) {
+    const requestedPostLogoutRedirectUrl = parsedUrl.searchParams.get('post_logout_redirect_uri');
+    const postLogoutRedirectUrl =
+      requestedPostLogoutRedirectUrl || LOGTO_POST_LOGOUT_REDIRECT_URL || APP_PUBLIC_URL;
+    const useOidcLogout = LEGALCHAT_LOGOUT_MODE === 'oidc';
+    const location = useOidcLogout
+      ? (() => {
+          const logoutUrl = new URL(LOGTO_END_SESSION_ENDPOINT);
+          logoutUrl.searchParams.set('post_logout_redirect_uri', postLogoutRedirectUrl);
+          if (AUTH_LOGTO_ID) logoutUrl.searchParams.set('client_id', AUTH_LOGTO_ID);
+          return logoutUrl.toString();
+        })()
+      : normalizeLocalLogoutLocation(
+          requestedPostLogoutRedirectUrl || LEGALCHAT_LOCAL_LOGOUT_REDIRECT_URL,
+          publicOrigin,
+        );
+
+    res.writeHead(302, {
+      'cache-control': 'no-store',
+      location,
+      'set-cookie': buildLogoutCookieHeaders(),
+    });
+    res.end();
+    return;
+  }
+
+  if (await maybeHandleMailRequest(req, res, { publicOrigin, validateSessionViaAuthJs })) {
+    return;
+  }
+
+  if (
+    req.method === 'OPTIONS' &&
+    [
+      LEGALCHAT_SWISS_MANIFEST_ROUTE,
+      LEGALCHAT_SWISS_SEARCH_ROUTE,
+      LEGALCHAT_SWISS_DECISION_ROUTE,
+      LEGALCHAT_SWISS_CASE_PACK_ROUTE,
+      LEGALCHAT_SWISS_ANALYZE_ROUTE,
+      LEGALCHAT_SWISS_GATEWAY_ROUTE,
+    ].includes(parsedUrl.pathname)
+  ) {
+    sendSwissPreflightResponse(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && parsedUrl.pathname === LEGALCHAT_SWISS_MANIFEST_ROUTE) {
+    handleSwissManifestRequest(req, res);
+    return;
+  }
+
+  if (
+    (req.method === 'GET' || req.method === 'POST') &&
+    parsedUrl.pathname === LEGALCHAT_SWISS_SEARCH_ROUTE
+  ) {
+    await handleSwissSearchRequest(req, res, parsedUrl);
+    return;
+  }
+
+  if (
+    (req.method === 'GET' || req.method === 'POST') &&
+    parsedUrl.pathname === LEGALCHAT_SWISS_DECISION_ROUTE
+  ) {
+    await handleSwissDecisionRequest(req, res, parsedUrl);
+    return;
+  }
+
+  if (
+    (req.method === 'GET' || req.method === 'POST') &&
+    parsedUrl.pathname === LEGALCHAT_SWISS_CASE_PACK_ROUTE
+  ) {
+    await handleSwissCasePackRequest(req, res, parsedUrl);
+    return;
+  }
+
+  if (
+    (req.method === 'GET' || req.method === 'POST') &&
+    parsedUrl.pathname === LEGALCHAT_SWISS_ANALYZE_ROUTE
+  ) {
+    await handleSwissAnalyzeRequest(req, res, parsedUrl);
+    return;
+  }
+
+  if (req.method === 'POST' && parsedUrl.pathname === LEGALCHAT_SWISS_GATEWAY_ROUTE) {
+    await handleSwissGatewayRequest(req, res);
     return;
   }
 
@@ -3119,7 +3754,7 @@ const server = http.createServer(async (req, res) => {
 
       const isUnknownSession =
         parsedUrl.pathname === '/' ||
-        parsedUrl.pathname === '/login' ||
+        isLoginHelperPath(parsedUrl.pathname) ||
         /^\/unknown-session(?:\/|$)/.test(parsedUrl.pathname);
 
       if (isUnknownSession) {
@@ -3135,10 +3770,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (
-    req.method === 'GET' &&
-    (parsedUrl.pathname === '/logout' || parsedUrl.pathname === '/signout')
-  ) {
+  if ((req.method === 'GET' || req.method === 'HEAD') && isLogoutHelperPath(parsedUrl.pathname)) {
     const requestedPostLogoutRedirectUrl = parsedUrl.searchParams.get('post_logout_redirect_uri');
     const postLogoutRedirectUrl =
       requestedPostLogoutRedirectUrl || LOGTO_POST_LOGOUT_REDIRECT_URL || APP_PUBLIC_URL;
@@ -3208,14 +3840,6 @@ const server = http.createServer(async (req, res) => {
     const location = `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
     res.writeHead(302, { 'cache-control': 'no-store', location });
     res.end();
-    return;
-  }
-
-  if (req.method === 'GET' && parsedUrl.pathname === '/login') {
-    sendLoginHelper(res, {
-      loggedOut: isTruthyFlag(parsedUrl.searchParams.get('logged_out')),
-      callbackUrl: parsedUrl.searchParams.get('callbackUrl'),
-    });
     return;
   }
 
