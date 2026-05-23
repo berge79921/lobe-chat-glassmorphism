@@ -1649,7 +1649,7 @@ def _load_klang_corpus_cache(law_token: str) -> List[tuple]:
         data = _load_klang_file(json_path)
         if not data:
             continue
-        meta = data.get("meta", {})
+        meta = _leipziger_meta(data)
         paragraph_ref = meta.get("paragraph_ref", "")
         law = meta.get("law", law_token)
         authors = meta.get("authors", [])
@@ -1727,7 +1727,7 @@ def search_klang_randziffer(paragraph: str, rz_num: int, law: str = "ABGB") -> d
     if not data:
         return {"found": False, "reason": "file_load_error"}
 
-    meta = data.get("meta", {})
+    meta = _leipziger_meta(data)
     for rz in data.get("randziffern", []):
         if rz.get("rz_num") == rz_num:
             # Build a concrete Zitiervorschlag with the actual Rz number
@@ -1782,7 +1782,7 @@ def search_klang_by_paragraph(paragraph: str, law: str = "ABGB") -> dict:
     if not data:
         return {"found": False, "reason": "file_load_error"}
 
-    meta = data.get("meta", {})
+    meta = _leipziger_meta(data)
     stats = data.get("stats", {})
     rz_overview = [
         {
@@ -1875,8 +1875,12 @@ def search_klang_keyword(keyword: str, korpora: Optional[List[str]] = None, max_
 # ============================================================================
 
 _LEIPZIGER_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/DE/StGB/leipziger")
-_LEIPZIGER_EXTRACTED: Path = _LEIPZIGER_BASE / "extracted"
-_LEIPZIGER_ENRICHED: Path = _LEIPZIGER_BASE / "enriched"
+# V2 production paths (extracted_v2 + enriched_v2 with §-membership-voting)
+_LEIPZIGER_EXTRACTED: Path = _LEIPZIGER_BASE / "extracted_v2"
+_LEIPZIGER_ENRICHED: Path = _LEIPZIGER_BASE / "enriched_v2"
+# V1 fallback (deprecated — boundary-bleed not fully resolved)
+_LEIPZIGER_EXTRACTED_V1: Path = _LEIPZIGER_BASE / "extracted"
+_LEIPZIGER_ENRICHED_V1: Path = _LEIPZIGER_BASE / "enriched"
 
 # Cache: edition -> list of (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count)
 _leipziger_cache: dict[int, list[tuple]] = {}
@@ -1910,19 +1914,34 @@ def _parse_stgb_paragraph(paragraph: str) -> Tuple[str, str]:
 def _find_leipziger_file(num_str: str, suffix: str, edition: Optional[int] = None) -> Optional[Path]:
     """Locate a Leipziger §-JSON file.
 
-    Filename pattern: __{num}{suffix}_StGB__{Author}__Leipziger_aufl{edition}.json
-    If edition is None: prefer aufl13, fall back to aufl12.
+    Lookup order (prefers higher-quality source):
+      1. enriched_v2/  (V2 with enrichment) — if § has been enriched
+      2. extracted_v2/ (V2 without enrichment) — fallback for non-enriched V2 §§
+      3. enriched/     (V1 with enrichment) — V1 fallback when V2 missing
+      4. extracted/    (V1 raw)
     """
-    src_dir = _resolve_leipziger_dir()
     para_part = f"{num_str}{suffix}"
     editions_to_try = [edition] if edition else [13, 12]
-    for ed in editions_to_try:
-        pattern = f"__{para_part}_StGB__*__Leipziger_aufl{ed}.json"
-        for p in src_dir.glob(pattern):
+    v2_prefix = f"__{para_part}_StGB__"
+    v2_pat_ed = "_v2.json"
+    # Try each dir in order
+    for search_dir in [_LEIPZIGER_ENRICHED, _LEIPZIGER_EXTRACTED]:
+        if not search_dir.exists():
+            continue
+        for ed in editions_to_try:
+            for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}_v2.json"):
+                return p
+        for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*_v2.json"):
             return p
-    # Fallback: any edition
-    for p in src_dir.glob(f"__{para_part}_StGB__*__Leipziger_aufl*.json"):
-        return p
+    # V1 fallback
+    for search_dir in [_LEIPZIGER_ENRICHED_V1, _LEIPZIGER_EXTRACTED_V1]:
+        if not search_dir.exists():
+            continue
+        for ed in editions_to_try:
+            for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}.json"):
+                return p
+        for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*.json"):
+            return p
     return None
 
 
@@ -1933,32 +1952,67 @@ def _load_leipziger_file(path: Path) -> Optional[dict]:
         return None
 
 
+def _leipziger_meta(data: dict) -> dict:
+    """Return unified meta dict for V1 (nested 'meta') and V2 (flat) schemas."""
+    if "meta" in data and isinstance(data["meta"], dict):
+        return data["meta"]
+    # V2 flat schema — synthesize meta
+    return {
+        "paragraph_ref": data.get("paragraph_ref", ""),
+        "law": data.get("law", "StGB"),
+        "edition": data.get("edition"),
+        "edition_label": data.get("edition_label"),
+        "is_replacement": data.get("is_replacement", False),
+        "authors": data.get("authors", []),
+        "volume_id": data.get("volume_id", ""),
+        "zitiervorschlag": data.get("zitiervorschlag", ""),
+        "para_from": data.get("para_num"),
+        "title": data.get("title", ""),
+    }
+
+
 def _load_leipziger_corpus_cache(edition: int = 13) -> List[tuple]:
-    """Load all Rn tuples for keyword search (lazy)."""
+    """Load all Rn tuples for keyword search (lazy). Supports both V2 (flat) and V1 (nested meta) schemas."""
     if edition in _leipziger_cache:
         return _leipziger_cache[edition]
     src_dir = _resolve_leipziger_dir()
     entries: List[tuple] = []
-    pattern = f"*__Leipziger_aufl{edition}.json"
-    for json_path in sorted(src_dir.glob(pattern)):
-        data = _load_leipziger_file(json_path)
-        if not data:
-            continue
-        meta = data.get("meta", {})
-        paragraph_ref = meta.get("paragraph_ref", "")
-        authors = meta.get("authors", [])
-        for rn in data.get("randnummern", []):
-            entries.append((
-                paragraph_ref,
-                rn.get("rn_num"),
-                rn.get("rn_text", ""),
-                authors,
-                rn.get("page_from"),
-                len(rn.get("fussnoten", [])),
-                rn.get("fussnoten", []),
-                rn.get("stable_key", ""),
-                meta.get("edition", edition),
-            ))
+    # V2 (preferred) + V1 fallback
+    patterns = [f"*__Leipziger_aufl{edition}_v2.json", f"*__Leipziger_aufl{edition}.json"]
+    seen_paragraphs: set = set()
+    for pattern in patterns:
+        for json_path in sorted(src_dir.glob(pattern)):
+            # Also try V1 dir if src_dir is V2
+            pass
+        # Iterate both V2 and V1 dirs
+        for search_dir in [src_dir, _LEIPZIGER_ENRICHED_V1 if _LEIPZIGER_ENRICHED_V1.exists() else _LEIPZIGER_EXTRACTED_V1]:
+            if search_dir == src_dir and not pattern.endswith("_v2.json"):
+                continue  # V1 pattern only in V1 dir
+            if search_dir != src_dir and pattern.endswith("_v2.json"):
+                continue  # V2 pattern only in V2 dir
+            for json_path in sorted(search_dir.glob(pattern)):
+                data = _load_leipziger_file(json_path)
+                if not data:
+                    continue
+                # V2: flat schema; V1: nested 'meta'
+                paragraph_ref = data.get("paragraph_ref") or data.get("meta", {}).get("paragraph_ref", "")
+                if paragraph_ref in seen_paragraphs:
+                    continue  # prefer V2 (loaded first)
+                seen_paragraphs.add(paragraph_ref)
+                authors = data.get("authors") or data.get("meta", {}).get("authors", [])
+                vol_edition = data.get("edition") or data.get("meta", {}).get("edition", edition)
+                for rn in data.get("randnummern", []):
+                    entries.append((
+                        paragraph_ref,
+                        rn.get("rn_num"),
+                        rn.get("rn_text", ""),
+                        authors or rn.get("page_authors", []),
+                        rn.get("page_from"),
+                        len(rn.get("fussnoten", [])),
+                        rn.get("fussnoten", []),
+                        rn.get("stable_key", ""),
+                        vol_edition,
+                    ))
     _leipziger_cache[edition] = entries
     return entries
 
@@ -1978,11 +2032,12 @@ def get_leipziger_artikel(paragraph: str, law: str = "StGB", edition: Optional[i
     return {
         "found": True,
         "source": "Leipziger Kommentar StGB",
-        "meta": data.get("meta", {}),
+        "meta": _leipziger_meta(data),
         "header_excerpt": data.get("header_excerpt", ""),
         "randnummern": data.get("randnummern", []),
         "stats": data.get("stats", {}),
         "file": file_path.name,
+        "extractor_version": "v2" if "_v2.json" in file_path.name else "v1",
     }
 
 
@@ -2003,7 +2058,7 @@ def search_leipziger_randziffer(paragraph: str, rn_num: int, law: str = "StGB",
     data = _load_leipziger_file(file_path)
     if not data:
         return {"found": False, "reason": "file_load_error"}
-    meta = data.get("meta", {})
+    meta = _leipziger_meta(data)
     for rn in data.get("randnummern", []):
         if rn.get("rn_num") == rn_num:
             zitier_base = meta.get("zitiervorschlag", "")
@@ -2052,7 +2107,7 @@ def search_leipziger_by_paragraph(paragraph: str, law: str = "StGB", edition: Op
     data = _load_leipziger_file(file_path)
     if not data:
         return {"found": False, "reason": "file_load_error"}
-    meta = data.get("meta", {})
+    meta = _leipziger_meta(data)
     stats = data.get("stats", {})
     rn_overview = [
         {
