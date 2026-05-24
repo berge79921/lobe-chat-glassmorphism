@@ -626,6 +626,41 @@ async def list_tools() -> list[Tool]:
                 "required": ["werk", "klausel_id"]
             }
         ),
+        Tool(
+            name="get_bk_vvg_artikel",
+            description="Ruft einen vollständigen Artikel aus dem Berliner Kommentar zum VVG (Honsell 1999, Springer) ab. Pre-Reform-2008. Kommentiert deutsches UND österreichisches VVG gleichermaßen. 163 §§, 4.248 Rn, 4.373 unique Schlagworte. Wertvolle Ergänzung zu Bruck/Möller für DE-AT-Rechtsvergleich.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "Paragraph, z.B. '1', '§ 12', '§ 100 VVG'"}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_bk_vvg_randziffer",
+            description="Ruft eine einzelne Randnummer aus dem Berliner Kommentar VVG (Honsell 1999) ab. Zitiervorschlag-Format: BK/<AUTOR> § X VVG Rn Y.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "rn_num": {"type": "integer"}
+                },
+                "required": ["paragraph", "rn_num"]
+            }
+        ),
+        Tool(
+            name="search_bk_vvg_keyword",
+            description="Volltextsuche im Berliner Kommentar VVG (Honsell 1999). Findet DE+AT-VVG-Kommentare zu Begriffen wie 'Rückwärtsversicherung', 'Obliegenheit', 'OGH', 'österreichisch'. Enthält Stand-1998 Rechtsmeinungen + Pre-Reform-2008-Dogmatik.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string"},
+                    "max_results": {"type": "integer", "default": 50}
+                },
+                "required": ["keyword"]
+            }
+        ),
     ]
 
 
@@ -817,6 +852,24 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         result = get_vvg_bedingung(
             arguments.get("werk", ""),
             arguments.get("klausel_id", ""),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_bk_vvg_artikel":
+        result = get_bk_vvg_artikel(arguments.get("paragraph", ""))
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_bk_vvg_randziffer":
+        result = search_bk_vvg_randziffer(
+            arguments.get("paragraph", ""),
+            arguments.get("rn_num", 1),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_bk_vvg_keyword":
+        result = search_bk_vvg_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("max_results", 50),
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
@@ -2725,6 +2778,157 @@ def get_vvg_bedingung(werk: str, klausel_id: str) -> dict:
         "rn_count": len(d.get("randnummern", [])),
         "randnummern": d.get("randnummern", []),
         "file": f.name,
+    }
+
+
+# ============================================================================
+# BERLINER KOMMENTAR VVG (HONSELL 1999) — DE+AT
+# ============================================================================
+
+_BK_VVG_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/DE_AT/VVG/berliner")
+_BK_VVG_EXTRACTED: Path = _BK_VVG_BASE / "extracted_v2"
+_BK_VVG_ENRICHED: Path = _BK_VVG_BASE / "enriched_v2"
+_bk_vvg_cache: list[tuple] = []
+
+
+def _find_bk_vvg_file(num_str: str, suffix: str) -> Optional[Path]:
+    """Lookup BK VVG §-File. enriched_v2 -> extracted_v2."""
+    para_part = f"{num_str}{suffix}"
+    prefix = f"__{para_part}_VVG__"
+    for dir_path in [_BK_VVG_ENRICHED, _BK_VVG_EXTRACTED]:
+        if not dir_path.exists():
+            continue
+        cands = list(dir_path.glob(f"{prefix}*_VVG_aufl1_v2.json"))
+        if not cands:
+            continue
+
+        def sort_key(p: Path):
+            is_generic = "__BK_VVG__" in p.name
+            try:
+                d = json.loads(p.read_text(encoding="utf-8"))
+                rn_count = len(d.get("randnummern", []))
+            except Exception:
+                rn_count = 0
+            return (is_generic, -rn_count)
+
+        return sorted(cands, key=sort_key)[0]
+    return None
+
+
+def get_bk_vvg_artikel(paragraph: str) -> dict:
+    """Kompletter Berliner-Kommentar-VVG-Artikel."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_bk_vvg_file(num_str, suffix)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_bk_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"found": False, "reason": "file_load_error", "error": str(e)}
+    return {
+        "found": True,
+        "source": "Berliner Kommentar VVG (Honsell 1999)",
+        "scope": "DE+AT",
+        "stand": "1998-09-15",
+        "paragraph_ref": data.get("paragraph_ref"),
+        "edition": data.get("edition"),
+        "main_author": data.get("main_author"),
+        "rn_count": len(data.get("randnummern", [])),
+        "randnummern": data.get("randnummern", []),
+        "file": f.name,
+    }
+
+
+def search_bk_vvg_randziffer(paragraph: str, rn_num: int) -> dict:
+    """Einzelne Randnummer aus BK VVG."""
+    paragraph = clamp_query(paragraph, 100)
+    try:
+        rn_num = int(rn_num)
+    except (TypeError, ValueError):
+        return {"found": False, "reason": "invalid_rn_num"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_bk_vvg_file(num_str, suffix)
+    if not f:
+        return {"found": False, "reason": "paragraph_not_found"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {"found": False, "reason": "file_load_error"}
+    for rn in data.get("randnummern", []):
+        if rn.get("rn_num") == rn_num:
+            page_authors = rn.get("page_authors", [])
+            author = page_authors[0] if page_authors else data.get("main_author", "BK_VVG")
+            zit = f"BK/{author} § {num_str}{suffix} VVG Rn {rn_num}"
+            return {
+                "found": True,
+                "source": "Berliner Kommentar VVG (Honsell 1999)",
+                "scope": "DE+AT",
+                "paragraph_ref": data.get("paragraph_ref"),
+                "rn_num": rn["rn_num"],
+                "rn_text": rn.get("rn_text", ""),
+                "char_count": rn.get("char_count"),
+                "page_authors": page_authors,
+                "zitiervorschlag": zit,
+                "enrichment": rn.get("enrichment", {}),
+                "fussnoten": rn.get("fussnoten", []),
+            }
+    return {"found": False, "reason": "rn_not_found", "rn_num": rn_num}
+
+
+def search_bk_vvg_keyword(keyword: str, max_results: int = 50) -> dict:
+    """Volltextsuche im Berliner Kommentar VVG."""
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=50, max_value=200)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+    kw_lower = keyword.lower()
+    matches: list[dict] = []
+    src = _BK_VVG_ENRICHED if _BK_VVG_ENRICHED.exists() else _BK_VVG_EXTRACTED
+    if not src.exists():
+        return {"keyword": keyword, "count": 0, "results": []}
+
+    for f in sorted(src.glob("*.json")):
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        paragraph_ref = data.get("paragraph_ref", "")
+        for rn in data.get("randnummern", []):
+            txt = rn.get("rn_text", "")
+            score = (txt or "").lower().count(kw_lower)
+            if score == 0:
+                continue
+            idx = txt.lower().find(kw_lower)
+            if idx >= 0:
+                start = max(0, idx - 80)
+                end = min(len(txt), idx + 220)
+                snippet = ("..." if start > 0 else "") + txt[start:end] + ("..." if end < len(txt) else "")
+            else:
+                snippet = txt[:300]
+            page_authors = rn.get("page_authors", [])
+            matches.append({
+                "source": "Berliner Kommentar VVG",
+                "paragraph_ref": paragraph_ref,
+                "rn_num": rn.get("rn_num"),
+                "snippet": snippet,
+                "author": page_authors[0] if page_authors else "",
+                "schlagworte": (rn.get("enrichment") or {}).get("schlagworte", []),
+                "score": score,
+            })
+            if len(matches) >= max_results * 3:
+                break
+        if len(matches) >= max_results * 3:
+            break
+
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "keyword": keyword,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "results": matches[:max_results],
     }
 
 
