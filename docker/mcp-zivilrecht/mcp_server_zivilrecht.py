@@ -651,14 +651,27 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="search_bk_vvg_keyword",
-            description="Volltextsuche im Berliner Kommentar VVG (Honsell 1999). Findet DE+AT-VVG-Kommentare zu Begriffen wie 'Rückwärtsversicherung', 'Obliegenheit', 'OGH', 'österreichisch'. Enthält Stand-1998 Rechtsmeinungen + Pre-Reform-2008-Dogmatik.",
+            description="Volltextsuche im Berliner Kommentar VVG (Honsell 1999). Mit Mojibake-Toleranz für OCR-Schäden — 'österreich' findet auch 'Osterreich', 'für' findet auch 'fUr'/'fiir', 'Rücktritt' findet auch 'Riicktritt'. Findet DE+AT-VVG-Kommentare zu Begriffen wie 'OGH', 'Obliegenheit', 'Rückwärtsversicherung'.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "keyword": {"type": "string"},
-                    "max_results": {"type": "integer", "default": 50}
+                    "max_results": {"type": "integer", "default": 50},
+                    "mojibake_tolerant": {"type": "boolean", "description": "OCR-Umlaut-Varianten automatisch suchen (default true)", "default": True}
                 },
                 "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="compare_vvg_kommentare",
+            description="Vergleicht Berliner Kommentar VVG (Honsell 1999, DE+AT, pre-Reform) mit Bruck/Möller (DE n.F., post-Reform-2008). Mit auto-Mapping AT↔DE: § 6 VersVG (AT) ≡ § 28 VVG (DE), § 69 VersVG (AT) ≡ § 95 VVG (DE), § 158k VersVG (AT) ≡ § 127 VVG (DE) usw. Liefert beide Kommentierungen parallel — perfekt für Rechtsvergleich AT/DE in Versicherungsfällen.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "§ N (mit/ohne 'VersVG'/'VVG'-Suffix)"},
+                    "source_law": {"type": "string", "description": "AT|DE|auto (default 'auto', versucht beide)", "enum": ["AT", "DE", "auto"], "default": "auto"}
+                },
+                "required": ["paragraph"]
             }
         ),
     ]
@@ -870,6 +883,14 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         result = search_bk_vvg_keyword(
             arguments.get("keyword", ""),
             arguments.get("max_results", 50),
+            arguments.get("mojibake_tolerant", True),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "compare_vvg_kommentare":
+        result = compare_vvg_kommentare(
+            arguments.get("paragraph", ""),
+            arguments.get("source_law", "auto"),
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
@@ -2878,14 +2899,65 @@ def search_bk_vvg_randziffer(paragraph: str, rn_num: int) -> dict:
     return {"found": False, "reason": "rn_not_found", "rn_num": rn_num}
 
 
-def search_bk_vvg_keyword(keyword: str, max_results: int = 50) -> dict:
-    """Volltextsuche im Berliner Kommentar VVG."""
+def _bk_mojibake_variants(keyword: str) -> list[str]:
+    """Erzeugt OCR-Mojibake-Varianten der Suchanfrage.
+
+    BK 1999 wurde via PdfCompressor 3.1.34 OCRed — typische Umlaut-Fehler:
+    - ü → ii / ti / U / u (Riicktritt, fUr, tiber, dnvergehen)
+    - ö → o (Osterreich, Erhohung, Konnen)
+    - ä → a (geandert, Pramie, Verkaufer)
+    - ß → B (mUssen, beschrankt, BeschluB)
+
+    Returns list of variants to OR-match. Inkl. das Original.
+    """
+    variants = {keyword, keyword.lower()}
+    kl = keyword.lower()
+    # Generate de-umlauted variant + ASCII-mappings
+    mappings = [
+        ("ü", "ii"), ("ü", "u"), ("ü", "ti"), ("ü", "U"),
+        ("ö", "o"), ("ö", "O"),
+        ("ä", "a"), ("ä", "A"),
+        ("ß", "B"), ("ß", "ss"),
+        ("Ü", "U"), ("Ü", "ii"),
+        ("Ö", "O"),
+        ("Ä", "A"),
+    ]
+    # Generate de-umlauted variant
+    ascii_v = (
+        kl.replace("ü", "u").replace("ö", "o").replace("ä", "a").replace("ß", "ss")
+    )
+    variants.add(ascii_v)
+    # For each umlaut in keyword, generate variants
+    for orig, repl in mappings:
+        if orig in keyword:
+            variants.add(keyword.replace(orig, repl))
+            variants.add(keyword.lower().replace(orig.lower(), repl.lower()))
+    # Also: query without umlauts — try matching uppercase-O for Ö
+    if "ö" in kl or "ü" in kl or "ä" in kl:
+        variants.add(kl.replace("ö", "o").replace("ü", "ii").replace("ä", "a"))
+        variants.add(kl.replace("ö", "O").replace("ü", "U").replace("ä", "A"))
+    return [v for v in variants if v and len(v) >= 2]
+
+
+def search_bk_vvg_keyword(keyword: str, max_results: int = 50,
+                          mojibake_tolerant: bool = True) -> dict:
+    """Volltextsuche im Berliner Kommentar VVG.
+
+    Mit `mojibake_tolerant=True` (default): erzeugt Umlaut-Varianten der Suchanfrage,
+    um OCR-Schäden im BK zu kompensieren. z.B. 'österreich' findet auch 'Osterreich'.
+    """
     keyword = clamp_query(keyword, 300)
     max_results = clamp_limit(max_results, default=50, max_value=200)
     if not keyword:
         return {"keyword": keyword, "count": 0, "results": []}
-    kw_lower = keyword.lower()
+
+    if mojibake_tolerant:
+        search_terms = _bk_mojibake_variants(keyword)
+    else:
+        search_terms = [keyword.lower()]
+
     matches: list[dict] = []
+    seen: set = set()
     src = _BK_VVG_ENRICHED if _BK_VVG_ENRICHED.exists() else _BK_VVG_EXTRACTED
     if not src.exists():
         return {"keyword": keyword, "count": 0, "results": []}
@@ -2898,13 +2970,28 @@ def search_bk_vvg_keyword(keyword: str, max_results: int = 50) -> dict:
         paragraph_ref = data.get("paragraph_ref", "")
         for rn in data.get("randnummern", []):
             txt = rn.get("rn_text", "")
-            score = (txt or "").lower().count(kw_lower)
+            txt_lower = (txt or "").lower()
+            # Score: total count across all variants
+            score = 0
+            best_idx = -1
+            best_term = ""
+            for term in search_terms:
+                t_lower = term.lower()
+                cnt = txt_lower.count(t_lower)
+                if cnt > 0:
+                    score += cnt
+                    if best_idx == -1:
+                        best_idx = txt_lower.find(t_lower)
+                        best_term = term
             if score == 0:
                 continue
-            idx = txt.lower().find(kw_lower)
-            if idx >= 0:
-                start = max(0, idx - 80)
-                end = min(len(txt), idx + 220)
+            dedup_key = (paragraph_ref, rn.get("rn_num"))
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
+            if best_idx >= 0:
+                start = max(0, best_idx - 80)
+                end = min(len(txt), best_idx + 220)
                 snippet = ("..." if start > 0 else "") + txt[start:end] + ("..." if end < len(txt) else "")
             else:
                 snippet = txt[:300]
@@ -2913,6 +3000,7 @@ def search_bk_vvg_keyword(keyword: str, max_results: int = 50) -> dict:
                 "source": "Berliner Kommentar VVG",
                 "paragraph_ref": paragraph_ref,
                 "rn_num": rn.get("rn_num"),
+                "matched_variant": best_term if best_term != keyword else None,
                 "snippet": snippet,
                 "author": page_authors[0] if page_authors else "",
                 "schlagworte": (rn.get("enrichment") or {}).get("schlagworte", []),
@@ -2926,9 +3014,121 @@ def search_bk_vvg_keyword(keyword: str, max_results: int = 50) -> dict:
     matches.sort(key=lambda x: x["score"], reverse=True)
     return {
         "keyword": keyword,
+        "mojibake_variants_tried": search_terms if mojibake_tolerant else [],
         "total_found": len(matches),
         "count": min(len(matches), max_results),
         "results": matches[:max_results],
+    }
+
+
+# ============================================================================
+# CROSS-KORPUS-COMPARE — BK VVG (DE+AT) <-> Bruck/Möller (DE)
+# ============================================================================
+
+# AT VersVG <-> DE VVG n.F. (2008+) Mapping
+# Bei Reform 2008 wurde die §-Nummerierung im DE-VVG geändert; AT VersVG hat Original-Nummerierung
+AT_DE_VVG_MAPPING = {
+    # AT-§ → DE-VVG-§ (n.F.)
+    "6": "28",       # Obliegenheitsverletzung
+    "16": "19",      # Anzeigepflicht
+    "17": "20",
+    "18": "21",
+    "19": "21",
+    "20": "21",
+    "21": "21",
+    "22": "22",      # Arglist
+    "38": "37",      # Erstprämie Verzug
+    "39": "38",      # Folgeprämie Verzug
+    "69": "95",      # Vertragsübergang Veräußerung
+    "70": "96",
+    "96": "92",      # Schadenkündigung
+    "158": "125",    # RSV
+    "158a": "125",
+    "158b": "126",
+    "158c": "127",   # Anwaltswahl
+    "158d": "128",
+    "158e": "128",
+    "158k": "127",   # Direktanspruch
+    "158m": "127",
+    "158n": "128",
+}
+DE_AT_VVG_MAPPING = {v: k for k, v in AT_DE_VVG_MAPPING.items()}
+
+
+def compare_vvg_kommentare(paragraph: str, source_law: str = "auto") -> dict:
+    """Vergleicht BK VVG (Honsell 1999, DE+AT) mit Bruck/Möller (DE n.F.).
+
+    source_law: "AT", "DE", oder "auto" (default — versucht beide).
+
+    Bei AT-§ wird auto-mapped auf DE-§ via AT_DE_VVG_MAPPING.
+    z.B. compare_vvg_kommentare("§ 6 VersVG") → BK § 6 + Bruck/Möller § 28.
+    """
+    # Parse paragraph
+    paragraph = clamp_query(paragraph, 100)
+    m = re.search(r"(\d{1,4})([a-z]?)", paragraph)
+    if not m:
+        return {"error": "invalid_paragraph", "paragraph": paragraph}
+    num_str = m.group(1)
+    suf = m.group(2) or ""
+    full_key = f"{num_str}{suf}"
+
+    # Determine paragraphs to look up
+    if source_law == "AT":
+        bk_para = f"§ {full_key}"
+        bm_de_para = AT_DE_VVG_MAPPING.get(full_key, full_key)
+        bm_para = f"§ {bm_de_para}"
+        mapping_note = f"AT § {full_key} VersVG → DE § {bm_de_para} VVG (Reform 2008)"
+    elif source_law == "DE":
+        bm_para = f"§ {full_key}"
+        bk_at_para = DE_AT_VVG_MAPPING.get(full_key, full_key)
+        bk_para = f"§ {bk_at_para}"
+        mapping_note = f"DE § {full_key} VVG n.F. → AT § {bk_at_para} VersVG"
+    else:  # auto: try AT-mapping first (BK is DE+AT pre-Reform); same para in both
+        bk_para = f"§ {full_key}"
+        bm_de_para = AT_DE_VVG_MAPPING.get(full_key, full_key)
+        bm_para = f"§ {bm_de_para}"
+        if bm_de_para != full_key:
+            mapping_note = f"auto-Mapping: AT § {full_key} VersVG ≡ DE § {bm_de_para} VVG"
+        else:
+            mapping_note = "kein AT/DE-Mapping nötig (selbe Nummer)"
+
+    bk = get_bk_vvg_artikel(bk_para)
+    bm = get_vvg_artikel(bm_para)
+
+    def snippet(d: dict, n: int = 350) -> str:
+        if not d.get("found"):
+            return ""
+        rns = d.get("randnummern", [])
+        if not rns:
+            return ""
+        return (rns[0].get("rn_text", "") or "")[:n]
+
+    return {
+        "query_paragraph": paragraph,
+        "source_law": source_law,
+        "mapping_note": mapping_note,
+        "berliner_kommentar": {
+            "paragraph_ref": bk.get("paragraph_ref"),
+            "scope": "DE+AT (pre-Reform 1998)",
+            "found": bk.get("found"),
+            "rn_count": bk.get("rn_count"),
+            "main_author": bk.get("main_author") if bk.get("found") else None,
+            "first_rn_snippet": snippet(bk),
+        },
+        "bruck_moeller": {
+            "paragraph_ref": bm.get("meta", {}).get("paragraph_ref") if bm.get("found") else None,
+            "scope": "DE (post-Reform 2008)",
+            "found": bm.get("found"),
+            "edition": bm.get("meta", {}).get("edition") if bm.get("found") else None,
+            "rn_count": bm.get("rn_count"),
+            "main_author": bm.get("meta", {}).get("main_author") if bm.get("found") else None,
+            "first_rn_snippet": snippet(bm),
+        },
+        "summary": (
+            f"BK {bk.get('rn_count', 0)} Rn ({bk.get('main_author', '?')}) "
+            f"vs Bruck/Möller {bm.get('rn_count', 0)} Rn "
+            f"({bm.get('meta', {}).get('main_author', '?') if bm.get('found') else '?'})."
+        ),
     }
 
 
