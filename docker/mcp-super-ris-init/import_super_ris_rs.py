@@ -41,6 +41,13 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--dry-run", action="store_true", help="Parse and report only")
     parser.add_argument("--verbose", action="store_true", help="Verbose logging")
+    parser.add_argument("--default-gericht", default=os.getenv("IMPORT_RS_DEFAULT_GERICHT"), help="Fallback gericht (e.g. OGH)")
+    parser.add_argument(
+        "--default-dokumenttyp",
+        default=os.getenv("IMPORT_RS_DEFAULT_DOKUMENTTYP"),
+        help="Fallback dokumenttyp (e.g. RS)",
+    )
+    parser.add_argument("--default-corpus", default=os.getenv("IMPORT_RS_DEFAULT_CORPUS"), help="Fallback corpus (e.g. OGH_ZIVIL)")
     return parser.parse_args()
 
 
@@ -81,7 +88,8 @@ def _normalize_text_list(value: Any) -> list[str]:
         text = _as_text(value)
         if text:
             out.append(text)
-    return out
+    # Keep deterministic order and drop duplicates.
+    return list(dict.fromkeys(out))
 
 
 def _get_nested(obj: dict[str, Any], *keys: str) -> Any:
@@ -142,7 +150,14 @@ def _extract_rs_number(payload: dict[str, Any], path: Path) -> str | None:
         [
             payload.get("rechtssatznummer"),
             payload.get("rs_number"),
+            payload.get("rs_id"),
+            payload.get("dokumentnummer"),
+            _get_nested(payload, "rs", "rechtssatznummer"),
+            _get_nested(payload, "grok_enrichment", "rechtssatznummer"),
             _get_nested(payload, "meta", "rechtssatznummer"),
+            _get_nested(payload, "meta", "dokumentnummer"),
+            _get_nested(payload, "meta", "rs_id"),
+            _get_nested(payload, "meta", "id"),
             rs_ref,
             file_match,
         ]
@@ -155,22 +170,42 @@ def _extract_rs_number(payload: dict[str, Any], path: Path) -> str | None:
     return rs_number.strip().upper()
 
 
-def _extract_row(payload: dict[str, Any], path: Path) -> dict[str, Any] | None:
+def _extract_row(payload: dict[str, Any], path: Path, args: argparse.Namespace) -> dict[str, Any] | None:
     rs_number = _extract_rs_number(payload, path)
     if not rs_number:
         return None
 
+    rs_obj = payload.get("rs")
+    if not isinstance(rs_obj, dict):
+        rs_obj = {}
+    grok_obj = payload.get("grok_result")
+    if not isinstance(grok_obj, dict):
+        grok_obj = {}
+    grok_enrichment = grok_obj.get("enrichment")
+    if not isinstance(grok_enrichment, dict):
+        grok_enrichment = {}
+
     rechtssatz_volltext = _first_non_empty(
         [
             payload.get("rechtssatz"),
+            rs_obj.get("rechtssatz"),
+            rs_obj.get("rechtssatz_kurztext"),
             _get_nested(payload, "super_ris", "summary"),
+            _get_nested(grok_enrichment, "super_ris", "summary"),
+            _get_nested(payload, "grok_enrichment", "super_ris", "summary"),
+            _get_nested(payload, "rs_enrichment", "summary"),
             _get_nested(payload, "analysis", "summary"),
+            payload.get("leitsatz"),
         ]
     )
 
     kurzinformation = _first_non_empty(
         [
+            rs_obj.get("rechtssatz_kurztext"),
             _get_nested(payload, "super_ris", "summary"),
+            _get_nested(grok_enrichment, "super_ris", "summary"),
+            _get_nested(payload, "grok_enrichment", "super_ris", "summary"),
+            _get_nested(payload, "rs_enrichment", "summary"),
             _get_nested(payload, "analysis", "summary"),
             rechtssatz_volltext,
         ]
@@ -180,48 +215,94 @@ def _extract_row(payload: dict[str, Any], path: Path) -> dict[str, Any] | None:
         [
             payload.get("rechtsgebiet_primary"),
             payload.get("rechtsgebiet"),
+            _get_nested(payload, "meta", "rechtsgebiet_haupt"),
+            _get_nested(payload, "grok_enrichment", "super_ris", "rechtsgebiet"),
+            _get_nested(grok_enrichment, "super_ris", "rechtsgebiet"),
             _get_nested(payload, "super_ris", "rechtsgebiet"),
+            _get_nested(payload, "rs_enrichment", "rechtsgebiet"),
         ]
     )
 
     schlagworte = _normalize_text_list(
         payload.get("schlagworte")
         if payload.get("schlagworte") is not None
-        else _get_nested(payload, "super_ris", "schlagworte")
+        else (
+            _get_nested(payload, "super_ris", "schlagworte")
+            if _get_nested(payload, "super_ris", "schlagworte") is not None
+            else (
+                _get_nested(payload, "grok_enrichment", "super_ris", "schlagworte")
+                if _get_nested(payload, "grok_enrichment", "super_ris", "schlagworte") is not None
+                else _get_nested(grok_enrichment, "super_ris", "schlagworte")
+            )
+        )
     )
     fachgebiete = _normalize_text_list(
         payload.get("fachgebiete")
         if payload.get("fachgebiete") is not None
-        else _get_nested(payload, "super_ris", "fachgebiet")
+        else (
+            _get_nested(payload, "super_ris", "fachgebiet")
+            if _get_nested(payload, "super_ris", "fachgebiet") is not None
+            else (
+                _get_nested(payload, "grok_enrichment", "super_ris", "fachgebiet")
+                if _get_nested(payload, "grok_enrichment", "super_ris", "fachgebiet") is not None
+                else (
+                    _get_nested(grok_enrichment, "super_ris", "fachgebiet")
+                    if _get_nested(grok_enrichment, "super_ris", "fachgebiet") is not None
+                    else _get_nested(payload, "rs_enrichment", "fachgebiet")
+                )
+            )
+        )
     )
+
+    rs_entscheidungstexte = rs_obj.get("entscheidungstexte")
+    et_datum = None
+    if isinstance(rs_entscheidungstexte, list):
+        for item in rs_entscheidungstexte:
+            if isinstance(item, dict):
+                et_datum = _parse_date(item.get("datum"))
+                if et_datum:
+                    break
 
     entscheidungsdatum = _parse_date(
         payload.get("entscheidungsdatum")
         or payload.get("datum")
-        or _get_nested(payload, "metadata", "date")
         or _get_nested(payload, "meta", "entscheidungsdatum")
+        or _get_nested(payload, "meta", "date")
+        or _get_nested(payload, "grok_enrichment", "entscheidungsdatum")
+        or _get_nested(grok_enrichment, "entscheidungsdatum")
+        or _get_nested(payload, "metadata", "date")
+        or et_datum
     )
 
     return {
         "rs_number": rs_number,
+        "gericht": _first_non_empty([payload.get("gericht"), args.default_gericht]),
+        "dokumenttyp": _first_non_empty([payload.get("dokumenttyp"), args.default_dokumenttyp, "RS"]),
+        "corpus": _first_non_empty([payload.get("corpus"), args.default_corpus]),
         "rechtssatz_volltext": rechtssatz_volltext,
         "kurzinformation": kurzinformation,
         "rechtsgebiet_primary": rechtsgebiet_primary,
-        "schlagworte": schlagworte,
-        "fachgebiete": fachgebiete,
+        "schlagworte": schlagworte or None,
+        "fachgebiete": fachgebiete or None,
         "entscheidungsdatum": entscheidungsdatum,
     }
 
 
 def _collect_json_files(root: Path, pattern: str, limit: int) -> list[Path]:
+    def _is_valid(path: Path) -> bool:
+        # Skip AppleDouble metadata files generated on macOS.
+        return not path.name.startswith("._")
+
     if limit > 0:
         files: list[Path] = []
         for path in root.rglob(pattern):
+            if not _is_valid(path):
+                continue
             files.append(path)
             if len(files) >= limit:
                 break
         return sorted(files)
-    return sorted(root.rglob(pattern))
+    return sorted(path for path in root.rglob(pattern) if _is_valid(path))
 
 
 def _build_conn() -> psycopg2.extensions.connection:
@@ -246,29 +327,64 @@ def _build_conn() -> psycopg2.extensions.connection:
 UPSERT_SQL = """
 INSERT INTO super_ris.rs (
   rs_number,
+  gericht,
+  dokumenttyp,
+  corpus,
   rechtssatz_volltext,
   kurzinformation,
   rechtsgebiet_primary,
   schlagworte,
   fachgebiete,
-  entscheidungsdatum
+  entscheidungsdatum,
+  content_status
 ) VALUES (
   %(rs_number)s,
+  %(gericht)s,
+  %(dokumenttyp)s,
+  %(corpus)s,
   %(rechtssatz_volltext)s,
   %(kurzinformation)s,
   %(rechtsgebiet_primary)s,
   %(schlagworte)s,
   %(fachgebiete)s,
-  %(entscheidungsdatum)s
+  %(entscheidungsdatum)s,
+  CASE
+    WHEN NULLIF(BTRIM(COALESCE(%(rechtssatz_volltext)s, %(kurzinformation)s, '')), '') IS NULL
+    THEN 'NO_CONTENT_STUB'
+    ELSE NULL
+  END
 )
 ON CONFLICT (rs_number)
 DO UPDATE SET
-  rechtssatz_volltext = EXCLUDED.rechtssatz_volltext,
-  kurzinformation = EXCLUDED.kurzinformation,
-  rechtsgebiet_primary = EXCLUDED.rechtsgebiet_primary,
-  schlagworte = EXCLUDED.schlagworte,
-  fachgebiete = EXCLUDED.fachgebiete,
-  entscheidungsdatum = EXCLUDED.entscheidungsdatum
+  gericht = COALESCE(NULLIF(EXCLUDED.gericht, ''), super_ris.rs.gericht),
+  dokumenttyp = COALESCE(NULLIF(EXCLUDED.dokumenttyp, ''), super_ris.rs.dokumenttyp),
+  corpus = COALESCE(NULLIF(EXCLUDED.corpus, ''), super_ris.rs.corpus),
+  rechtssatz_volltext = COALESCE(NULLIF(EXCLUDED.rechtssatz_volltext, ''), super_ris.rs.rechtssatz_volltext),
+  kurzinformation = COALESCE(NULLIF(EXCLUDED.kurzinformation, ''), super_ris.rs.kurzinformation),
+  rechtsgebiet_primary = COALESCE(NULLIF(EXCLUDED.rechtsgebiet_primary, ''), super_ris.rs.rechtsgebiet_primary),
+  schlagworte = CASE
+    WHEN EXCLUDED.schlagworte IS NOT NULL AND cardinality(EXCLUDED.schlagworte) > 0 THEN EXCLUDED.schlagworte
+    ELSE super_ris.rs.schlagworte
+  END,
+  fachgebiete = CASE
+    WHEN EXCLUDED.fachgebiete IS NOT NULL AND cardinality(EXCLUDED.fachgebiete) > 0 THEN EXCLUDED.fachgebiete
+    ELSE super_ris.rs.fachgebiete
+  END,
+  entscheidungsdatum = COALESCE(EXCLUDED.entscheidungsdatum, super_ris.rs.entscheidungsdatum),
+  content_status = CASE
+    WHEN NULLIF(
+      BTRIM(
+        COALESCE(
+          COALESCE(NULLIF(EXCLUDED.rechtssatz_volltext, ''), super_ris.rs.rechtssatz_volltext),
+          COALESCE(NULLIF(EXCLUDED.kurzinformation, ''), super_ris.rs.kurzinformation),
+          ''
+        )
+      ),
+      ''
+    ) IS NULL
+    THEN 'NO_CONTENT_STUB'
+    ELSE NULL
+  END
 RETURNING (xmax = 0) AS inserted;
 """
 
@@ -301,6 +417,10 @@ def main() -> int:
         if not args.dry_run:
             conn = _build_conn()
             cur = conn.cursor()
+            # Keep schema/import behavior in sync for empty-source RS stubs.
+            cur.execute("ALTER TABLE super_ris.rs ADD COLUMN IF NOT EXISTS content_status text")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_rs_content_status ON super_ris.rs(content_status)")
+            conn.commit()
 
         for index, path in enumerate(files, start=1):
             try:
@@ -308,7 +428,7 @@ def main() -> int:
                 if not isinstance(payload, dict):
                     raise ValueError("JSON root is not an object")
 
-                row = _extract_row(payload, path)
+                row = _extract_row(payload, path, args)
                 if row is None:
                     skipped += 1
                     if args.verbose:

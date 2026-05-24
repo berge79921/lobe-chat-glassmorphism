@@ -2,6 +2,11 @@
 
 > Stand: 10. Februar 2026
 
+## Neu: Modell-Portfolio (Swiss/LegalChat)
+
+- Dokument: `/Users/reinhardberger/HCS/lobe-chat-custom/docs/MODELL_PORTFOLIO_SWISS_2026-02-25.md`
+- Inhalt: Kosten, staerkste Schwaechen pro Modell, klare Modellwahl pro Einsatzfall.
+
 ## ✅ Status-Update (10. Februar 2026)
 
 Ein **Auth-Gateway-Fix** wurde implementiert:
@@ -221,7 +226,7 @@ Nach dem Login funktioniert LegalChat vollständig:
 ## 🧭 MCP Taskliste (Zwischenreview 20. Februar 2026)
 
 Quelle: technischer Zwischenreview (Code + Live-Checks gegen Hetzner).  
-Status: Abschluss-Update mit Verifikation vom 20. Februar 2026.
+Status: Abschluss-Update mit Verifikation vom 20. Februar 2026. **(Unabhängige E2E-Zweitverifikation und Audit durch Antigravity am 21. Februar 2026 erfolgreich durchgeführt.)**
 
 ### P1 - Produktionskritisch
 
@@ -257,6 +262,67 @@ Status: Abschluss-Update mit Verifikation vom 20. Februar 2026.
     - kein 404 mehr auf der MCP-Lane.
 
 ### P2 - Stabilitaet / Performance
+
+---
+
+## 🧭 Agentic Harness Taskliste (25. Februar 2026)
+
+- [x] `AGENTIC-P1-01` Agentic 10-Faelle Benchmark (Local vs Remote, gleiche Rubrik) umgesetzt  
+  Umsetzung:
+  - Runner: `/Users/reinhardberger/HCS/lobe-chat-custom/scripts/zivilrecht_agentic_10cases_benchmark.py`
+  - Harness: `/Users/reinhardberger/HCS/lobe-chat-custom/scripts/legalchat_agentic_harness_minimal.py`
+  Verifikation:
+  - Dry-Run 10/10 Faelle erfolgreich (`local_ok=10`, `remote_ok=10`).
+  - Report: `/Users/reinhardberger/HCS/lobe-chat-custom/_review/test_reports/zivilrecht_agentic_10cases_20260225_023525/summary.md`
+
+- [x] `AGENTIC-P1-02` Hard-Citation-Gates im Agentic-Finalizer integriert  
+  Umsetzung:
+  - Gate-Modi: `off|warn|repair|enforce`
+  - RS-Validierung via MCP `get_rechtssatz`
+  - Grounding-Check fuer RS/OGH-TE/Normen gegen Subagent-Evidence
+  Verifikation:
+  - Enforce-Block bei absichtlich ungueltigem RS-Zitat reproduzierbar.
+
+- [x] `AGENTIC-P1-03` Rollenrouting pro Modellprofil umgesetzt  
+  Umsetzung:
+  - Profile: `cheap_default`, `default`, `premium_champion`
+  - Rollen: Organizer/Worker/Synth getrennt und ueberschreibbar per CLI.
+
+- [x] `AGENTIC-P1-04` OpenCode-Sidecar Organizer Spike (A/B-faehig) umgesetzt  
+  Umsetzung:
+  - Organizer-Backends: `openrouter|opencode_sidecar|ab_test`
+  - Sidecar-Command via `--opencode-sidecar-cmd` (stdin->stdout JSON Plan).
+  Verifikation:
+  - `ab_test`-Mode mit Fallback-Transparenz (OpenRouter/Sidecar getrennt im Report).
+
+- [x] `AGENTIC-P1-05` Citation-Gate A/B fuer guenstiges Modellprofil (`warn` vs `repair`) auf 10 Faellen durchgefuehrt  
+  Umsetzung:
+  - Zwei Vollruns mit identischem Setup (`cheap_default`, `openrouter`, 10 Faelle):
+    - `warn`: `/Users/reinhardberger/HCS/lobe-chat-custom/_review/test_reports/zivilrecht_agentic_10cases_20260225_033712/summary.md`
+    - `repair`: `/Users/reinhardberger/HCS/lobe-chat-custom/_review/test_reports/zivilrecht_agentic_10cases_20260225_025956/summary.md`
+  Verifikation:
+  - Gate-Passrate verbessert von `0.2 -> 1.0` (lokal) und `0.3 -> 1.0` (remote).
+  - Tool-Call-Erfolg stabil (`1.0` in beiden Modi).
+  - Delta-Report: `/Users/reinhardberger/HCS/lobe-chat-custom/_review/test_reports/zivilrecht_agentic_compare_warn_vs_repair_20260225_040000/summary.md`
+  Entscheidung:
+  - Operativer Default fuer dieses Profil auf `citation_gate=repair`.
+
+- [x] `AGENTIC-P1-06` Judge-Fallback im 10-Faelle-Runner eingebaut (gegen `402`/Provider-Ausfaelle)  
+  Umsetzung:
+  - Neuer CLI-Parameter: `--judge-fallback-model` (Default: `google/gemini-3-flash-preview`)
+  - Mehrfachversuch Primary->Fallback, pro Case mit `judge_attempt_errors` protokolliert.
+  Verifikation:
+  - Fehlerfaelle werden nicht mehr als stummer Judge-Ausfall behandelt, sondern explizit mit allen Attempt-Fehlern im Report gespeichert.
+
+- [x] `AGENTIC-P1-07` Fachqualitaet-Haertung im Harness (Grounding-first) umgesetzt  
+  Umsetzung:
+  - Tool-Arg-Sanitizing fuer `search_ogh_rechtssaetze`, `hot_rs_search`, `search_kommentar_*`, `hot_cluster_context`, `get_rechtssatz`.
+  - Retrieval-Hints werden systematisch in Tool-Args uebernommen (statt Query-Volltext).
+  - Evidence fuer Citation-Gate wird aus Tool-Payloads gebildet (kein self-grounding aus LLM-Text).
+  - Harte Regel: Bei Fundstellen-/Judikatur-Request muss mindestens RS/OGH-TE im Finaltext stehen.
+  Verifikation:
+  - FERKSCHNEIDER-Reruns zeigen, dass rein normative/generische Antworten jetzt nicht mehr false-positive "gruen" sind (`local_gate=False`, `remote_gate=False` bei fehlender Judikatur).
+  - Report: `/Users/reinhardberger/HCS/lobe-chat-custom/_review/test_reports/zivilrecht_agentic_10cases_20260225_113520/summary.md`
 
 - [x] `MCP-P2-01` Harte Request-Timeouts in `mcp_stdio_bridge.py` bei blockierendem `readline()`  
   Umsetzung: Timeout-Verhalten gegen haengenden Fake-MCP verifiziert.  
@@ -401,3 +467,5 @@ Statt Logto einen anderen Provider verwenden, der besser unterstützt wird.
 | Datum | Autor | Änderung |
 |-------|-------|----------|
 | 2026-02-10 | Kimi | Initiale Dokumentation |
+| 2026-02-20 | Codex | Implementierung & Verifizierung der MCP P1-P3 Issues (Commit `bc3d5b1`) |
+| 2026-02-21 | Antigravity | Manuelles Security- und Performance-Audit sowie E2E-Testing der Commit-Fixes auf Local/Hetzner |

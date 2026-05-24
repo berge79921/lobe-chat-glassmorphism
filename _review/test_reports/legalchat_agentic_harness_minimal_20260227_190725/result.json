@@ -1,0 +1,2236 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-27T19:07:25.341423+00:00",
+  "mode": "deep",
+  "config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "query": "Welche Chancen hat der Rekurs gegen den Beschluss des BG Traun?",
+    "mode": "deep",
+    "model_profile": "default",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "google/gemini-3-flash-preview",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "organizer_backend": "openrouter",
+    "opencode_sidecar_cmd": null,
+    "opencode_sidecar_timeout_sec": 90,
+    "mcp_mode": "local_http",
+    "mcp_base": "http://127.0.0.1:8070",
+    "remote_ssh": "root@46.225.110.68",
+    "remote_mcp_container": "mcp-zivilrecht",
+    "max_workstreams": 3,
+    "max_steps": 8,
+    "parallelism": 3,
+    "effective_parallelism": 3,
+    "citation_gate_mode": "enforce",
+    "citation_gate_repair_model": null,
+    "grounding_policy": "postgres_only",
+    "dry_run": false,
+    "probe_limit": 5
+  },
+  "runtime_config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "files": {
+      "agent_profiles": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/mcp_registry.yaml",
+        "tools_with_policy": 14,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      },
+      "skills_bindings": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/skills_bindings.yaml",
+        "roles": 4
+      }
+    }
+  },
+  "mcp_startup": {
+    "ready": true,
+    "started": false,
+    "health": {
+      "ok": true,
+      "bridge": "zivilrecht-local-bridge-oneshot",
+      "initialized": true
+    }
+  },
+  "classification": {
+    "domain": "",
+    "subdomain": "",
+    "confidence": 0.0,
+    "paragraphs": [],
+    "mandatory_paragraphs": [],
+    "keywords": [],
+    "all_scores": {},
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 101,
+  "file_context_meta": {
+    "files_read": [
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/FALLUEBERSICHT.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/AKT_KARTEIKARTE.md"
+    ],
+    "files_skipped": [
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/anschreiben_eav_mitter.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/Begleitschreiben_Mitter_V1.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/Begleitschreiben_Mitter_V2.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/Begleitschreiben_Mitter_V3.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/Begleitschreiben_Mitter_FINAL.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/akteneinsicht_mitter_v3_ergaenzungen2.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/akteneinsicht_mitter_v3_ergaenzungen.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/akteneinsicht_mitter_v3.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/MITTER:CELSIUS/Rekurs_BG_Traun_18Hc4_25t.md"
+    ],
+    "ocr_count": 0,
+    "final_chars": 12047,
+    "extracted_facts": {
+      "deadlines": [
+        "Frist 13.07.2024",
+        "Fristablauf: 13.07.2024",
+        "bis 09.03.2026"
+      ],
+      "dates": [
+        "01.10.1994",
+        "06.02.2026",
+        "07.02.2026",
+        "08.07.2024",
+        "09.02.2026",
+        "09.03.2026",
+        "11.09.2025",
+        "13.07.2022",
+        "13.07.2024",
+        "17.01.2024"
+      ],
+      "costs": [
+        "EUR 454,00"
+      ],
+      "case_nums": [
+        "Case 24-02942-mg",
+        "Chapter 11",
+        "SDNY"
+      ],
+      "rs_numbers": [
+        "RS0083714",
+        "RS0108130",
+        "RS0110260",
+        "RS0110261",
+        "RS0111049",
+        "RS0111270",
+        "RS0111369",
+        "RS0114024",
+        "RS0115027",
+        "RS0117046",
+        "RS0117067",
+        "RS0126357",
+        "RS0129151",
+        "RS0130977",
+        "RS0134713"
+      ]
+    }
+  },
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Zustellungsrechtliche Wirksamkeit nach § 163 Geo iVm HZÜ & ZMR",
+        "goal": "Prüfung, ob Zustellung an abgemeldete Adresse gemäß § 163 Abs 1 Geo iVm § 17 ZMR wirksam ist – insb. ob 'gewöhnlicher Aufenthalt' vorliegt oder Annahmeverweigerung gem § 163 Abs 5 Geo geltend gemacht werden konnte",
+        "tools": [
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "hot_rs_lookup",
+          "get_rechtssatz",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "Rechtsmittelführungskompetenz & Rekursbegründetheit gegen BG-Traun-Beschluss",
+        "goal": "Klärung der Rechtsmittelführungsbedingungen (§ 48 Abs 1 ZPO iVm § 163 Geo) und der Rekursbegründetheit bei Verletzung der Zustellvorschriften im Rechtshilfeverfahren",
+        "tools": [
+          "search_by_paragraph",
+          "hot_rs_lookup",
+          "get_rechtssatz",
+          "search_kommentar_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze"
+        ]
+      },
+      {
+        "name": "US-Insolvenzrechtliche Konsequenzen & Foreign Representative Status",
+        "goal": "Prüfung, ob Alexander Meghji als Litigation Administrator die erforderliche Prozessbefugnis im Sinne von § 163 Geo iVm Art 2 HZÜ besitzt – insb. im Lichte des US-Chapter-11-Plans und dessen Effective Date",
+        "tools": [
+          "search_by_schlagwort",
+          "search_ogh_entscheidungen",
+          "hot_rs_lookup",
+          "get_rechtssatz",
+          "search_by_paragraph",
+          "search_ogh_rechtssaetze"
+        ]
+      }
+    ],
+    "synthesis_focus": "Chancenbewertung des Rekurs gegen BG Traun (20.02.2026) aufgrund fehlerhafter Zustellung an abgemeldete Adresse – unter Berücksichtigung von § 163 Geo iVm § 17 ZMR, Rechtshilfevollstreckbarkeit und US-Insolvenzprozessbefugnis"
+  },
+  "organizer_meta": {
+    "latency_ms": 11915.34,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Zustellungsrechtliche Wirksamkeit nach § 163 Geo iVm HZÜ & ZMR\",\n      \"goal\": \"Prüfung, ob Zustellung an abgemeldete Adresse gemäß § 163 Abs 1 Geo iVm § 17 ZMR wirksam ist – insb. ob 'gewöhnlicher Aufenthalt' vorliegt oder Annahmeverweigerung gem § 163 Abs 5 Geo geltend gemacht werden konnte\",\n      \"tools\": [\n        \"search_by_paragraph\",\n        \"search_by_schlagwort\",\n        \"hot_rs_lookup\",\n        \"get_rechtssatz\"\n      ]\n    },\n    {\n      \"name\": \"Rechtsmittelführungskompetenz & Rekursbegründetheit gegen BG-Traun-Beschluss\",\n      \"goal\": \"Klärung der Rechtsmittelführungsbedingungen (§ 48 Abs 1 ZPO iVm § 163 Geo) und der Rekursbegründetheit bei Verletzung der Zustellvorschriften im Rechtshilfeverfahren\",\n      \"tools\": [\n        \"search_by_paragraph\",\n        \"hot_rs_lookup\",\n        \"get_rechtssatz\",\n        \"search_kommentar_paragraph\"\n      ]\n    },\n    {\n      \"name\": \"US-Insolvenzrechtliche Konsequenzen & Foreign Representative Status\",\n      \"goal\": \"Prüfung, ob Alexander Meghji als Litigation Administrator die erforderliche Prozessbefugnis im Sinne von § 163 Geo iVm Art 2 HZÜ besitzt – insb. im Lichte des US-Chapter-11-Plans und dessen Effective Date\",\n      \"tools\": [\n        \"search_by_schlagwort\",\n        \"search_ogh_entscheidungen\",\n        \"hot_rs_lookup\",\n        \"get_rechtssatz\"\n      ]\n    },\n    {\n      \"name\": \"Hot-Index-Synthese zu § 163 Geo & Rechtshilfezustellung\",\n      \"goal\": \"Ermittlung aktueller OGH-Praxis, Hot-Index-Cluster und Kommentar-Stellungnahmen zu Zustellungsfehlern im Rechtshilfeverfahren – mit Fokus auf die 12 identifizierten RS-Nummern\",\n      \"tools\": [\n        \"hot_index_stats\",\n        \"detect_clusters\",\n        \"hot_cluster_context\",\n        \"build_grounding_context\"\n      ]\n    }\n  ],\n  \"synthesis_focus\": \"Chancenbewertung des Rekurs gegen BG Traun (20.02.2026) aufgrund fehlerhafter Zustellung an abgemeldete Adresse – unter Berücksichtigung von § 163 Geo iVm § 17 ZMR, Rechtshilfevollstreckbarkeit und US-Insolvenzprozessbefugnis\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 1589,
+      "completion_tokens": 665,
+      "total_tokens": 2254,
+      "cost": 0.00118377,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "",
+      "subdomain": "",
+      "confidence": 0.0,
+      "paragraphs": [],
+      "mandatory_paragraphs": [],
+      "keywords": [],
+      "all_scores": {},
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Rechtsmittelführungskompetenz & Rekursbegründetheit gegen BG-Traun-Beschluss",
+      "goal": "Klärung der Rechtsmittelführungsbedingungen (§ 48 Abs 1 ZPO iVm § 163 Geo) und der Rekursbegründetheit bei Verletzung der Zustellvorschriften im Rechtshilfeverfahren",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "hot_rs_lookup",
+        "get_rechtssatz",
+        "search_kommentar_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 2731.4,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 12,
+          "usage": {
+            "prompt_tokens": 2592,
+            "completion_tokens": 324,
+            "total_tokens": 2916,
+            "cost": 0.002268,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 1729.07,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 6942,
+            "completion_tokens": 102,
+            "total_tokens": 7044,
+            "cost": 0.003777,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 2389.05,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 8240,
+            "completion_tokens": 112,
+            "total_tokens": 8352,
+            "cost": 0.004456,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 2581.16,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 9439,
+            "completion_tokens": 171,
+            "total_tokens": 9610,
+            "cost": 0.0052325,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 2140.43,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 11404,
+            "completion_tokens": 159,
+            "total_tokens": 11563,
+            "cost": 0.006179,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 6,
+          "latency_ms": 8560.91,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 13823,
+            "completion_tokens": 1075,
+            "total_tokens": 14898,
+            "cost": 0.0101365,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_AAca8LstbTT5l4ojMScF",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0083714"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.77,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0083714\", \"rechtssatz\": \"Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitierten Gesetzesstelle vorgesehene Heilung tritt auch dann nicht ein, wenn er noch innerhalb der Abholfrist zurückkehrt. Vielmehr heilt die gesetzwidrig vorgenommene Zustellung nach § 7 ZustG erst mit dem Tag, an dem das Schriftstück dem Adressaten tatsächlich zugekommen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Ortsabwesenheit des Adressaten\", \"Heilung von Zustellmängeln\", \"Tatsächliches Zukommen\", \"Abholfrist\", \"Unzulässige Ersatzzustellung\", \"Fristenlauf\"], \"fachgebiete\": [\"Verfahrensrecht\", \"Vertragsrecht\"], \"datum\": \"2015-11-11\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_HJh7maEM51JBtxfXi9hw",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0108130"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.37,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0108130\", \"rechtssatz\": \"Bei einer rund viermonatigen Benützung einer anderen Wohnung ist der bis dahin benutzten Wohnung die Qualifikation als Abgabestelle im Sinne des § 4 ZustG nicht mehr zuzubilligen, wenn der Empfänger seinen Lebensmittelpunkt und damit seinen regelmäßigen Aufenthaltsort (Zuzug in die Wohnung einer \\\"Freundin\\\") verlegt hat. Wie weit ein neuer Aufenthaltsort vom alten entfernt ist, ist dabei von keiner besonderen Bedeutung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"gerichtliche Aufkündigung\", \"Zustellung\", \"Hinterlegung\", \"Abgabestelle\", \"Ortsabwesenheit\", \"ZustG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"1997-05-15\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_UH7Ixstoon61Cbc7EgYX",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110260"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.79,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110260\", \"rechtssatz\": \"Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amtssprache des Zustelllandes abgefasst und auch nicht übersetzt sind und die der Empfänger in vielen Fällen nicht verstehen wird, jedenfalls aber nicht verstehen muss. Mangels entsprechender Sprachkenntnisse wird er häufig gar nicht erkennen können, um welche Art von Schriftstücken es sich handelt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"EuGVVO\", \"Bevollmächtigung\", \"Zustellung ins Ausland\", \"fair trial\", \"Internationale Zustellung\", \"internationale Zuständigkeit\", \"Arbeitsvertrag\", \"Rechtshilfevertrag Österreich-Jugoslawien\", \"Unterhaltsklage\", \"Suchtgifthandel\", \"Rechtshilfevertrag\", \"Heilung Verfahrensmängel\", \"Zustellung Ausland\", \"Einspruch\", \"Zustellung im Ausland\", \"Vollstreckbarerklärung ausländischer Unterhaltstitel\", \"Revisionsrekurs\", \"Waisenrente\", \"Prozesseinlassung\", \"Versäumungsurteil\", \"Kindesunterhalt\", \"kriminelle Vereinigung\", \"Ordination\", \"ASGG\", \"Anklageschrift\", \"SMG § 28a\", \"Zustellung Togo\", \"Heilung Zustellmangel\", \"StPO § 212\", \"Bosnien-Herzegowina\"], \"fachgebiete\": [\"Internationales Privatrecht\", \"Kindesunterhalt\", \"Revision\", \"Scheidung\", \"EU-Recht\"], \"datum\": \"2023-06-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_EnWKYCsC2eB0FZ5w4JIj",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110261"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.88,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110261\", \"rechtssatz\": \"Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post zugestellt erhält, die nicht in seiner Sprache abgefasst und auch nicht übersetzt sind. Eine solche Zustellung ist unwirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unterhaltsfestsetzung\", \"EuGVVO\", \"Bevollmächtigung\", \"Zustellung ins Ausland\", \"Annahmeverweigerungsrecht\", \"Ausweichmanöver\", \"Internationale Zustellung\", \"internationale Zuständigkeit\", \"Arbeitsvertrag\", \"Übersetzungspflicht\", \"AußStrG\", \"Unterhaltsklage\", \"Nichtigkeitsgrund\", \"Rechtshilfevertrag\", \"Zulassungsvorstellung\", \"ZPO § 477\", \"Heilung Verfahrensmängel\", \"Verschulden\", \"Haftung\", \"Skiunfall\", \"Zustellung im Ausland\", \"Vollstreckbarerklärung ausländischer Unterhaltstitel\", \"Revisionsrekurs\", \"Waisenrente\", \"Prozesseinlassung\", \"Kindesunterhalt\", \"Berufung\", \"Ordination\", \"Zustellung Togo\", \"Heilung Zustellmangel\"], \"fachgebiete\": [\"Internationales Privatrecht\", \"Kindesunterhalt\", \"Scheidung\", \"EU-Recht\"], \"datum\": \"2023-06-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_nu1gDw2hEIszPYs6iOIM",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111049"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.87,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111049\", \"rechtssatz\": \"Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andernfalls ist die Hinterlegung gesetzwidrig und die Zustellung rechtsunwirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung\", \"Hinterlegung\", \"Ersatzzustellung\", \"Ersatzempfänger\", \"Versäumungsurteil\", \"Zustellung im Ausland\", \"Russische Föderation\", \"HPÜ 1954\", \"öffentliche Bekanntmachung\", \"Aufteilung ehelichen Vermögens\", \"Haager Zustellungsübereinkommen HZÜ\", \"Bindungswirkung Zustellungszeugnis\", \"Russisches Recht\"], \"fachgebiete\": [\"Unterlassung\", \"Scheidung\", \"Revision\"], \"datum\": \"2024-01-17\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_87rnVWsw88mpUMh6aOOY",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111270"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.14,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111270\", \"rechtssatz\": \"Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages eines Sachwalters des Beklagten auf Zustellung des Versäumungsurteiles) selbständig im Rahmen der amtswegigen Überwachung des Zustellwesens (§ 87 Abs 1 ZPO) zu prüfen, ob schon eine gesetzmäßige Zustellung der Entscheidung an den Beklagten erfolgt ist, dieser also im Zeitpunkt der Zustellung des Versäumungsurteiles die Tragweite des konkreten Rechtsstreites und der von ihm zur Rechtsverteidigung allenfalls erforderlichen Rechtshandlungen erkennen konnte (SZ 51/93). Auf diese Entscheidung hat das Sachwalterverfahren keinen Einfluß, sodaß es einer Unterbrechung des Streitverfahrens zur Wahrung der prozessualen Rechte des Beklagten in diesem Verfahrensstadium nicht (mehr) bedurfte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Öffentliche Urkunde\", \"Mahnklage\", \"Beweiswürdigung\", \"Währungsumrechnung\", \"Hinterlegungsanzeige\", \"Widerspruchsverfahren\", \"Rückforderung\", \"Rechtliches Gehör\", \"Zustellung Ersturteil\", \"Passivlegitimation\", \"Prozeßfähigkeit\", \"MSchG §29a\", \"Verständigung\", \"Russisches Recht\", \"Glücksspiel\", \"Rekurs\", \"Inquisitionsmaxime\", \"MSchG §29b\", \"Passverlust\", \"Verfahrensunterbrechung\", \"GSpG\", \"Zustellung durch Hinterlegung\", \"Zustellung\", \"Gegenbeweis\", \"Vollstreckbarkeitsvermerk\", \"Berufungsfrist\", \"Markenwiderspruch\", \"Rückschein\", \"Zahlungsbefehl\", \"Vollstreckbarkeitsbestätigung\"], \"fachgebiete\": [\"Revision\", \"Berufung\"], \"datum\": \"2024-05-2"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_JeyPCAy2M0tiZEpmptkM",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111369"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.43,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111369\", \"rechtssatz\": \"Die Gewährung des rechtlichen Gehörs stellt einen derart fundamentalen Grundsatz des Verfahrensrechts dar, dass dessen Verletzung regelmäßig als Nichtigkeit im Sinne des (gemäß § 171 KO anwendbaren) § 477 Abs 1 Z 4 ZPO zu beurteilen ist (so schon 9 Ob 382/97k, 1 Ob 305/98d).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Nichtigkeit der Ehe\", \"Art. 6 MRK\", \"Anerkennung ausländischer Entscheidung\", \"Nichtigkeit Beschluss\", \"§ 477 ZPO\", \"AußStrG\", \"Verstorbener\", \"Verfahrenshilfe\", \"Zulassungsvorstellung\", \"Kuratorbestellung\", \"Rechtliches Gehör\", \"unbekannter Aufenthalt\", \"Prozessgegners Stellungnahme\", \"Rekurs\", \"Revisionsrekurs\", \"§ 57 ZPO\", \"Konkursforderung\", \"§ 59 ZPO\", \"Vollstreckbarerklärung\", \"Verfahrensmängel\", \"Kaufvertrag\", \"Abwesenheitskurator\", \"§ 66 ZPO\", \"verfassungskonforme Auslegung\", \"ordre public\", \"Befreiungstatbestände\", \"Prozesskurator\", \"Nichtigkeit\", \"Unterhaltsvorschuss\", \"§ 72 ZPO\"], \"fachgebiete\": [\"Grundbuch\", \"Internationales Privatrecht\", \"Kindesunterhalt\", \"Rekurs\", \"Revision\", \"Scheidung\"], \"datum\": \"2009-09-30\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_jzE6dSbaxJhUEHUNjFPw",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0114024"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.74,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0114024\", \"rechtssatz\": \"Die Voraussetzungen für die Vollstreckbarerklärung sind von Amts wegen zu prüfen. Für die Ordnungsmäßigkeit der Zustellung im Sinn des Art 27 Z 2 LGVÜ ist das Recht des Staates maßgebend, in dem die Entscheidung, deren Vollstreckbarerklärung begehrt wird, erging. Als Urkunde im Sinn des Art 46 Z 2 LGVÜ (EuGVÜ) kommt in erster Linie eine Urkunde über den Zustellvorgang oder eine Bestätigung in Betracht, aus der hervorgeht, in welcher Form das Schriftstück zugestellt wurde.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vollstreckbarerklärung\", \"Versäumnisurteil\", \"Zustellungsnachweis\", \"LGVÜ\", \"EuGVÜ\", \"Art 46 LGVÜ\", \"Art 27 LGVÜ\", \"Art 48 LGVÜ\", \"Bestimmtheit des Exekutionstitels\", \"Unterhaltstitel\", \"RegelbetragVO\", \"Verfahrenskurator\", \"Unterhalt\", \"Polen\", \"Zustellung\", \"Parteienidentität\", \"Rechtsnachfolge\", \"ausländischer Unterhaltstitel\", \"Originalausfertigung\", \"Formgebrechen\", \"österreichisch-jugoslawisches Abkommen\", \"Vollstreckbarerklärung ausländischer Titel\", \"LGVÜ 1988\", \"Eventualmaxime\", \"Revisionsrekurs\", \"Exekutionsbewilligung\", \"Vollstreckbarerklärung ausländischer Entscheidung\", \"Zustellung verfahrenseinleitender Schriftsatz\", \"VollstrV 1968\", \"HPÜ 1954\"], \"fachgebiete\": [\"Revision\", \"Internationales Privatrecht\", \"Kindesunterhalt\"], \"datum\": \"2019-08-29\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_panszt2ANpl5fUR8dbpz",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0115027"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.97,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0115027\", \"rechtssatz\": \"§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung oder eine Vertretung Vorsorge zu treffen, sondern nur jenen, der bereits von einem bestimmten Verfahren Kenntnis hat. Im Hinblick auf verfassungsrechtliche Überlegungen auf Grund Art 6 EMRK ist jedoch in lang andauernden Pflegschaftsverfahren zu berücksichtigen, dass das Verfahren nicht erst mit der Entfertigung des Minderjährigen, sondern mit jedem einzelnen Verfahrensabschnitt (zB Verfahren über einen Unterhaltsantrag) als beendet anzusehen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Änderung der Abgabestelle\", \"Prozesskurator\", \"Hinterlegung\", \"Zustellung\", \"§ 8 ZustG\", \"Verfahrenskenntnis\", \"Obsorgeentzug\", \"EMRK Art 6\", \"Zustellung Hinterlegung\", \"Pflegschaftsverfahren\", \"Abgabestelle\", \"Abwesenheitskurator\", \"AußStrG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2001-03-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_fmwmGHnTesZqcrvnVYs9",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117046"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.73,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117046\", \"rechtssatz\": \"Die Anordnung der im Rechtshilfeweg beantragten Zustellung ist kein anfechtbarer Beschluss.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellungsrechtshilfe\", \"Rechtshilfeersuchen\", \"Revisionsrekurs\", \"Strafschadensersatz\"], \"fachgebiete\": [\"Internationales Privatrecht\"], \"datum\": \"2002-11-21\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_JkGjUV9nuWvk8wOAYkp4",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117067"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.25,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117067\", \"rechtssatz\": \"Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verletzung des rechtlichen Gehörs im Sinne des Art 6 Abs 1 EMRK dar, welche Nichtigkeit im Sinne des § 477 Abs 1 Z 4 ZPO nach sich zieht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vorrang\", \"Schadensersatz\", \"§18 WEG\", \"Marktmanipulation\", \"Mahnklage\", \"BörseG\", \"Kurzparkzone\", \"Gerichtspraxis\", \"Solidarhaftung\", \"Flugzeug-Ausflottung\", \"Anrechnung Vordienst\", \"§235 ZPO\", \"Rechtliches Gehör\", \"Ausgleichselement\", \"Verkehrsunfall\", \"Umschulungsangebot\", \"Kollektivvertrag Bordpersonal\", \"Rekurs\", \"Nichtanrechnung\", \"§ 26 VBG\", \"Bescheinigungstagsatzung\", \"LKW-Kartell\", \"Erfinderschaft\", \"Fristberechnung\", \"Wasserrechtsbescheid\", \"COVID-19 Kurzarbeit\", \"Widmung\", \"Einstweilige Verfügung\", \"Pilotenkündigung\", \"Lizenznehmer\"], \"fachgebiete\": [\"Rekurs\", \"Nachbarrecht\", \"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2024-01-25\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_fzWhR9S6PaRNoYk3VVC1",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0126357"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.9,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0126357\", \"rechtssatz\": \"Nur soweit das Gericht im Einklang mit dem Gesetz ohne Zuziehung einer Partei tätig wird, zB wegen deren Säumnis, liegt mangels ungesetzlichen Vorgangs der Tatbestand des § 477 Abs 1 Z 4 ZPO nicht vor. Soweit die Säumigkeit aber Folge einer nicht gehörigen Ladung ist, ist der Nichtigkeitsgrund verwirklicht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Klagezustellung\", \"Wohnsitz\", \"Versäumungsurteil\", \"Krankheit des Vertreters\", \"Nichtigkeit Berufungsverhandlung\", \"Nichtigkeitsberufung\", \"§ 477 ZPO\", \"Zustellung an Anwaltskanzlei\", \"Zustellung Hinterlegung\", \"Provisionsforderung\", \"Säumnisfolge\"], \"fachgebiete\": [\"Berufung\"], \"datum\": \"2010-10-21\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_zxGSzOWRoz2ohGSgwmNz",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 163 Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1011.34,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 163 Geo\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_XBosVAiDhVeazlnYZOqi",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 48 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 533.82,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 48 ZPO\", \"results\": [{\"rs_number\": \"RW0000196\", \"kernaussage\": \"Die Kosten der pflegschaftsbehördlichen Grundierung einer Klage sind - soweit keine umfangreiche Begründung behauptet wird - nach TP 1 RAT 2 entlohnen. Vertagungsanträge und Fristerstreckungsanträge sind gemäß § 142 ZPO iVm § 48 ZPO nicht zu entlohnen, wenn deren Ursache in der Sphäre der obsiegende...\", \"schlagworte\": []}, {\"rs_number\": \"RWZ0000129\", \"kernaussage\": \"Eine mögliche Kostenseparation nach § 48 ZPO hat nach Klagsrückziehung nicht mehr stattzufinden.\", \"schlagworte\": []}, {\"rs_number\": \"RW0000483\", \"kernaussage\": \"Die Kosten der pflegschaftsbehördlichen Grundierung einer Klage sind - soweit keine umfangreiche Begründung behauptet wird - nach TP 1 RAT 2 entlohnen. Vertagungsanträge und Fristerstreckungsanträge sind gemäß § 142 ZPO iVm § 48 ZPO nicht zu entlohnen, wenn deren Ursache in der Sphäre der obsiegende...\", \"schlagworte\": []}, {\"rs_number\": \"RS0113956\", \"kernaussage\": \"Rechtsfolge einer derart ergänzungsbedürftigen Klage, deren Unvollständigkeit (hier: über Auftrag des Gerichtes) behoben wurde, ist nicht die fehlende Unterbrechungswirkung, sondern allenfalls eine Kostenseparation gemäß § 142 iVm § 48 ZPO.\", \"schlagworte\": [\"Anwaltshonorar\", \"Verjährung\", \"Honorarnote\", \"Fälligkeit\", \"Unterbrechung der Verjährung\", \"Architekturvertrag\", \"Werklohn\", \"Mängelrügen\", \"Preisminderung\", \"Vorschüsse\", \"Eigentümergemeinschaft\", \"Abtretung\", \"Schadenersatz\", \"Werkvertrag\", \"Mängelverbesserung\"]}], \"count\": 4}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_JJEwwp78EJau5Tdp5um7",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Rekurs gegen Beschluss Zustellung Rechtshilfe Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.52,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Rekurs gegen Beschluss Zustellung Rechtshilfe Geo\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_schlagwort_iQOFDhDdAgUpcu0yKSMq",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Zustellungsrechtshilfe",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1926.63,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Zustellungsrechtshilfe\", \"results\": [{\"rs_number\": \"RS0083644\", \"kernaussage\": \"Die Zustellung ist ein rechtlich geregeltes Verfahren, das aus zwei rechtlich zu unterscheidenden Akten, der Zustellverfügung und dem eigentlichen Zustellvorgang, besteht. Erstere ist von der Behörde zu treffen und hat ua den Empfänger festzulegen; der \\\"eigentliche Zustellvorgang\\\" führt die...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Hilflosenzuschuß\", \"Invaliditätspension\", \"Geistige Behinderung\", \"Debilität\", \"Sachwalter\", \"Zustellung\", \"Zustellungsrechtshilfe\", \"Rechtshilfeersuchen\", \"Revisionsrekurs\", \"Strafschadensersatz\", \"Postsperre\", \"Rechtsmittelfrist\", \"Insolvenzverwalter\", \"Rekurs\", \"Rekurs unzulässig\", \"Abwesenheitskurator\", \"Zustellmangel\", \"Nichtigkeit\", \"formelle Rechtskraft\", \"Grundbuchsverfahren\", \"Dienstbarkeit\", \"ÖBB-Umstrukturierung\", \"Einverleibung\", \"Verlassenschaft\", \"Erbantrittserklärung\", \"Verlassenschaftskurator\", \"Geschäftsfähigkeit\"]}, {\"rs_number\": \"RS0117046\", \"kernaussage\": \"Die Anordnung der im Rechtshilfeweg beantragten Zustellung ist kein anfechtbarer Beschluss.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellungsrechtshilfe\", \"Rechtshilfeersuchen\", \"Revisionsrekurs\", \"Strafschadensersatz\"]}], \"count\": 2}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_kommentar_paragraph_3aMic4DhRTsPBJGRTfW6",
+          "tool": "search_kommentar_paragraph",
+          "args": {
+            "paragraph": "163",
+            "limit": 5,
+            "law": "GEO"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3497.64,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"163\", \"law\": \"GEO\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_G9ZRGIwUthtdmO6Dw4ya",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Einspruch gegen Zustellung Rechtshilfe Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.86,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Einspruch gegen Zustellung Rechtshilfe Geo\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_9YBw3SRbVA7RSWqKD96F",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Zustellzeugnis HZÜ Anfechtung Rekurs",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.92,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Zustellzeugnis HZÜ Anfechtung Rekurs\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_schlagwort_Bs0D7u6zMIH5EhqPQCY7",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Zustellmangel",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.03,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Zustellmangel\", \"results\": [{\"rs_number\": \"JWR_1991100167_19911111X01\", \"kernaussage\": \"Zustellmangel kein unvorhergesehenes Ereignis i.Sd. § 46 Abs. 1 VwGG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zustellmangel\", \"Wiedereinsetzung\", \"unvorhergesehenes Ereignis\", \"unabwendbares Ereignis\", \"§ 46 VwGG\", \"Postfach\", \"Verfahrensrisiko\"]}, {\"rs_number\": \"JWR_1992070140_19950627X03\", \"kernaussage\": \"Sanierung von Zustellmangel bei Ehegattenladung durch Verhandlungser scheinen\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zustellung\", \"Ladung\", \"Ehegatten\", \"Zustellnachweis\", \"Zustellmangel\", \"Sanierung\", \"Verhandlung\", \"Vertretung\"]}, {\"rs_number\": \"JWR_2000030099_20020625X01\", \"kernaussage\": \"Sanierung Zustellmangel durch tatsächlichen Zugang bei paralleler Zustellung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zustellung\", \"Zustellmangel\", \"Sanierung\", \"tatsächlicher Zugang\", \"Rechtsanwalt\", \"Bevollmächtigung\", \"parallele Zustellung\", \"Beschwerde\"]}, {\"rs_number\": \"JWR_1999180411_20030626X03\", \"kernaussage\": \"Zustellmangel kein Wiedereinsetzungsgrund iSd § 46 VwGG\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zustellmangel\", \"Wiedereinsetzung\", \"§ 46 VwGG\", \"unvorhergesehenes Ereignis\", \"Fristversäumnis\", \"Zustellfrist\", \"VwSlg 10059A/1980\"]}, {\"rs_number\": \"JWR_1989100159_19891218X01\", \"kernaussage\": \"Zustellmangel und Notwendigkeit der Zeugeneinvernahme\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zustellmangel\", \"Zeugeneinvernahme\", \"Beweisaufnahme\", \"Formmangel\", \"Rechtskraft\", \"Verwaltungsverfahren\", \"Zus"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_iNYCbRbiwQ67Ev5ChhEB",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.27,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Zustellung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_fWLSUbqFPWyi9RcVzZ97",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geschäftsordnung Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.59,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geschäftsordnung Zustellung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_poBRr0NaMxcbBChDci0E",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Zustellzeugnis Einspruch",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.1,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Zustellzeugnis Einspruch\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_XQAuOqSnbo7IouHcvqyg",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "ZPO Rekurslegitimation Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.2,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0036936\", \"rechtssatz\": \"Zustellung eines Beschlusses nach § 160 Abs 2 ZPO an eine verfahrensfremde Person, die zufällig denselben Namen trägt, wie der Beklagte. Rekurslegitimation und Kostenersatzanspruch dieses Prozeßfremden.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verfahrensunterbrechung\", \"falscher Beklagter\", \"Rekursberechtigung\", \"Anwaltszwang\", \"Exekutionsbewilligung\", \"Parteibezeichnung\", \"Rekurs\"], \"relevance\": 0.08}], \"count\": 1, \"query\": \"ZPO Rekurslegitimation Zustellung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_by_paragraph_CsYa7zVqG0MTBEwcfkE2",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 7 ZustG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 58.47,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 7 ZustG\", \"results\": [{\"rs_number\": \"JWR_2017200290_20171019L05\", \"kernaussage\": \"Zustellwirkung bei Mängeln: Heilung nur durch tatsächliches Zukommen (§ 7 ZustG)\", \"schlagworte\": [\"Zustellung\", \"Mängelheilung\", \"tatsächliches Zukommen\", \"Hinterlegung\", \"Verständigung\", \"Kenntnis\", \"Bescheid\", \"Zustellwirkung\"]}, {\"rs_number\": \"JWR_2002170182_20030623X07\", \"kernaussage\": \"§ 7 ZustG gilt grundsätzlich bei Auslands-Zustellungen\", \"schlagworte\": [\"Zustellung Ausland\", \"Heilung Mängel\", \"§ 7 ZustG\", \"§ 11 ZustG\", \"Abschnitt I ZustG\", \"Abschnitt II ZustG\", \"internationales Abkommen\", \"Rechtshilfe\"]}, {\"rs_number\": \"JWR_1993090410_19950119X04\", \"kernaussage\": \"Akteneinsicht kein tatsächliches Zukommen (§ 7 ZustG)\", \"schlagworte\": [\"Zustellung\", \"Zukommen\", \"Akteneinsicht\", \"Bescheid\", \"Kenntnisnahme\", \"Fristlauf\", \"Tatsächliches Zukommen\"]}, {\"rs_number\": \"JWR_1999110193_20000627X01\", \"kernaussage\": \"Akteneinsicht kein tatsächliches Zukommen (§ 7 ZustG)\", \"schlagworte\": [\"Zustellung\", \"Zukommen\", \"Akteneinsicht\", \"Bescheid\", \"Kenntnisnahme\", \"Fristbeginn\", \"§ 7 ZustG\"]}, {\"rs_number\": \"JWR_1995100052_19960325X05\", \"kernaussage\": \"Zustellung an Vertreter gilt als für Betroffene bestimmt (§ 7 ZustG)\", \"schlagworte\": [\"Zustellung\", \"Adresse\", \"Vertreter\", \"Bestimmung\", \"§ 7 ZustG\", \"Sanierung\", \"tatsächliches Zugehen\", \"Kenntnis\"]}], \"count\": 5}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_by_paragraph_zXPlgFmtIMl5dkbF9R83",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 17 ZustG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 149.55,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 17 ZustG\", \"results\": [{\"rs_number\": \"JWR_1988100069_19880630X02\", \"kernaussage\": \"Voraussetzungen Hinterlegung § 17 ZustG: Wohnung während Zustellvorgang\", \"schlagworte\": [\"Zustellung\", \"Hinterlegung\", \"Zustellvorgang\", \"Wohnung\", \"Zustellfiktion\", \"Empfänger\", \"Adresse\", \"ZustG\"]}, {\"rs_number\": \"JWR_1994170225_19940927X04\", \"kernaussage\": \"Keine Beweispflicht bei behaupteter Ortsabwesenheit § 17 ZustG\", \"schlagworte\": [\"Ortsabwesenheit\", \"§ 17 ZustG\", \"Beweispflicht\", \"Mitwirkungspflicht\", \"Amtswegigkeit\", \"Amtsermittlung\", \"Zustellung\", \"Verwaltungsverfahren\"]}, {\"rs_number\": \"JWR_2004130093_20070626X01\", \"kernaussage\": \"Rechtswirksame Hinterlegung erfordert 2-Wochen-Abholfrist § 17 ZustG\", \"schlagworte\": [\"Zustellung\", \"Hinterlegung\", \"Abholfrist\", \"rechtswirksam\", \"§ 17 ZustG\", \"Beschwerdefrist\", \"Postfehler\", \"VwGG § 26\"]}, {\"rs_number\": \"JWR_2021110188_20221102L02\", \"kernaussage\": \"Unabdingbarkeit der Hinterlegungsanzeige bei § 17 ZustG\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Hinterlegungsanzeige\", \"Zustellnachweis\", \"Gegenbeweis\", \"Rückschein\", \"öffentliche Urkunde\", \"Beweislast\", \"Fristauslösung\", \"Vermutung der Richtigkeit\"]}, {\"rs_number\": \"JWR_2015070001_20170330F01\", \"kernaussage\": \"Hinterlegungsanzeige unabdingbar für Zustellung § 17 ZustG\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Hinterlegungsanzeige\", \"öffentliche Urkunde\", \"Gegenbeweis\", \"ZustG\", \"Zustellnachweis\", \"Wirksamkeit der Zustellung\"]}], \"count\": 5}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_EMEma1Cyog14AcZumbSI",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Einspruch Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.59,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Einspruch Zustellung\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_CzwSVMdfSloQ3NiD9TPM",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Beschluss Rekurs",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.66,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Beschluss Rekurs\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_mLjXZNaAUQhbmKwWpbET",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Zustellzeugnis Bindungswirkung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.47,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Zustellzeugnis Bindungswirkung\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_itTppWvDvMdofxdTjEqa",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "ZPO Rekurslegitimation Zustellmangel",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.27,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"ZPO Rekurslegitimation Zustellmangel\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_by_schlagwort_Oj0aWx4MjiAZMZaECtoN",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Heilung Zustellmangel",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 277.67,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Heilung Zustellmangel\", \"results\": [{\"rs_number\": \"RS0041446\", \"kernaussage\": \"Stellt sich ein Postaufgabevermerk (§ 108 Abs 3 Geo), auf Grund dessen eine Revision vom OGH als verspätet zurückgewiesen wurde, nachträglich als unrichtig heraus, dann hat der OGH in analoger Anwendung des § 522 ZPO dem \\\"Berichtigungsantrag\\\" des Revisionswerbers Folge zu geben, seinen Zurückweisung...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Berichtigung gerichtlicher Entscheidungen\", \"Wiederaufnahme\", \"Rekursfrist\", \"Außerstreitverfahren\", \"Sondervertrag\", \"KVI\", \"Dienstverhältnis\", \"Kündigungsbeschränkungen\", \"Tabakmonopolgesetz\", \"Tabaktrafik\", \"Übertragung an Angehörige\", \"zufriedenstellende Tätigkeit\", \"§ 26 TabMG\", \"Liegenschaftskauf\", \"Tankstelle\", \"Bodenkontamination\", \"Altlasten\", \"Gewährleistungsausschluss\", \"Berufungsfrist\", \"Verspätung\", \"Vermutung der Rechtzeitigkeit\", \"Rekurs\", \"Wiederaufnahme wegen unrichtigen Kanzleivermerks\", \"außerordentliche Revision\", \"qualifizierte Mahnung § 13 KSchG\", \"Revisionsrekurs\", \"Rechtsmittelfrist\", \"Fristversäumnis\", \"einstweilige Verfügung\", \"Schipistenhaftung\", \"Verkehrssicherungspflicht\", \"Bergwerksstollen\", \"fahrlässige Körperverletzung\", \"Revisionsrekursfrist\", \"Fristwahrung\", \"falsche Adressierung\", \"§ 89 GOG\", \"Verjährung\", \"Schadenersatz\", \"Werkvertrag\", \"Erkundigungspflicht\", \"Generalunternehmer\", \"Kindesunterhalt\", \"Abwesenheitskurator\", \"Auslandszustellung\", \"Zustellung Togo\", \"Heilung Zustellmangel\", \"Wiederaufnahmeantrag\", \"Ausgleichsverfahren\", \"Sachwalterenthebung\", \"Revisionsfrist\", \"Postaufgabe\", \"außerordentlicher "
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0113956",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0113956",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 16.0,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0113956\", \"rechtssatz_text\": \"Rechtsfolge einer derart ergänzungsbedürftigen Klage, deren Unvollständigkeit (hier: über Auftrag des Gerichtes) behoben wurde, ist nicht die fehlende Unterbrechungswirkung, sondern allenfalls eine Kostenseparation gemäß § 142 iVm § 48 ZPO.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9934, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob168/25z|OGH|2025-12-16\", \"gz\": \"1Ob168/25z\", \"datum\": \"2025-12-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über den Revisionsrekurs des Antragsgegners gegen die Bestätigung einer Unterhaltsentscheidung durch das LG Wien.\"}, {\"te_stable_key\": \"5Ob163/25v|OGH|2025-11-20\", \"gz\": \"5Ob163/25v\", \"datum\": \"2025-11-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH bestätigt den Beschluss des Rekursgerichts in einer Unterhaltssache nach Prüfung des Revisionsrekurses des Antragsgegners.\"}, {\"te_stable_key\": \"1Ob107_25d|OGH|2025-09-30\", \"gz\": \"1Ob107_25d\", \"datum\": \"2025-09-30\", \"gericht\": \"OGH\", \"mini_story\": \"Amtshaftungsklage gegen das Land Wien wegen Schließung eines Lokals, das als Wettlokal vermutet wurde, und anschließender Verzögerung der Rückgabe trotz Aufhebung des Bescheids.\"}, {\"te_stable_key\": \"5Ob16_19t|OGH|2019-06-13\", \"gz\": \"5Ob16_19t\", \"datum\": \"2019-06-13\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der aktiven Legitimation der Eigentümergemeinschaft durch Abtretung von Schadenersatzansprüchen und des Beginns der Verjährungsfrist bei Mangelschäden im Werkvertragsrecht.\"}, {\"te_stable_key\": \"7Ob156_10g|OGH|2010-09-29\", \"gz\": \"7Ob156_10g\", \"datum\": \"2010-09-29\", \"gericht\": \"OGH\", \"mini_story\": \"OGH-Entscheidung zur Bemessung des Kindesunterhalts unter Berücksichtigung von Abzügen für Ehegattin, Kreditraten und Verjährungseinwänden.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0083644",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0083644",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.62,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0083644\", \"rechtssatz_text\": \"Die Zustellung ist ein rechtlich geregeltes Verfahren, das aus zwei rechtlich zu unterscheidenden Akten, der Zustellverfügung und dem eigentlichen Zustellvorgang, besteht. Erstere ist von der Behörde zu treffen und hat ua den Empfänger festzulegen; der \\\"eigentliche Zustellvorgang\\\" führt die...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9629, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob30_25k|OGH|2025-04-02\", \"gz\": \"5Ob30_25k\", \"datum\": \"2025-04-02\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs gegen die Ablehnung eines Einverleibungsantrags im Grundbuch ab, da keine wirksame Zustellung an die Verlassenschaft erfolgt ist.\"}, {\"te_stable_key\": \"5Ob149_15w|OGH|2015-09-25\", \"gz\": \"5Ob149_15w\", \"datum\": \"2015-09-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt die Rechtmäßigkeit eines Rekurses gegen einen Grundbuchbeschluss her, da die Zustellung an die falsch bezeichnete ÖBB fehlerhaft war.\"}, {\"te_stable_key\": \"8ObA4_14t|OGH|2014-02-27\", \"gz\": \"8ObA4_14t\", \"datum\": \"2014-02-27\", \"gericht\": \"OGH\", \"mini_story\": \"Unzulässigkeit eines Rekurses gegen den Beschluss des Berufungsgerichts, der das Ersturteil wegen Nichtigkeit aufhob.\"}, {\"te_stable_key\": \"8Ob50_12d|OGH|2012-05-30\", \"gz\": \"8Ob50_12d\", \"datum\": \"2012-05-30\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt die Wirksamkeit der Zustellung eines Konkursgerichtsbeschlusses an die Schuldnerin trotz Postsperre und elektronischer Zustellung an den Masseverwalter.\"}, {\"te_stable_key\": \"2Ob273_02i|OGH|2002-11-21\", \"gz\": \"2Ob273_02i\", \"datum\": \"2002-11-21\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Zulässigkeit eines Revisionsrekurses gegen eine Zustellverfügung im Rahmen eines Rechtshilfeersuchens eines US-Gerichts bezüglich einer Schadenersatzklage aus der Kaprun-Katastrophe.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0041446",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0041446",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.81,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0041446\", \"rechtssatz_text\": \"Stellt sich ein Postaufgabevermerk (§ 108 Abs 3 Geo), auf Grund dessen eine Revision vom OGH als verspätet zurückgewiesen wurde, nachträglich als unrichtig heraus, dann hat der OGH in analoger Anwendung des § 522 ZPO dem \\\"Berichtigungsantrag\\\" des Revisionswerbers Folge zu geben, seinen Zurückweisung...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7154, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8Ob91_24a|OGH|2024-09-26\", \"gz\": \"8Ob91_24a\", \"datum\": \"2024-09-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH gibt dem Revisionsrekurs gegen die Zurückweisung eines Rekurses zur Konkurseröffnung statt, da der Rekurs rechtzeitig war.\"}, {\"te_stable_key\": \"10ObS154_10k|OGH|2011-03-01\", \"gz\": \"10ObS154_10k\", \"datum\": \"2011-03-01\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Zurückweisung einer verspätet geglaubten Revision auf und prüft inhaltlich den Widerruf von Kinderbetreuungsgeld wegen angeblicher Überschreitung der Zuverdienstgrenze durch Berücksichtigung von Sozialversicherungsbeiträgen.\"}, {\"te_stable_key\": \"1Ob127_06t|OGH|2007-01-23\", \"gz\": \"1Ob127_06t\", \"datum\": \"2007-01-23\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung eines Revisionsrekurses gegen die a limine Zurückweisung eines Antrags auf Erlassung eines Übernahmsauftrags gemäß § 567 Abs 1 ZPO, da das Bestandverhältnis bereits aufgelöst war.\"}, {\"te_stable_key\": \"3Ob225_06v|OGH|2006-10-19\", \"gz\": \"3Ob225_06v\", \"datum\": \"2006-10-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH berichtigt zunächst einen Fehler in der Fristberechnung und prüft dann den außerordentlichen Revisionsrekurs gegen die teilweise Änderung einer Unterlassungsexekution, weist ihn jedoch als unzulässig zurück.\"}, {\"te_stable_key\": \"4Ob15_06v|OGH|2006-03-14\", \"gz\": \"4Ob15_06v\", \"datum\": \"2006-03-14\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Zurückweisung eines außerordentlichen Revisionsrekurses wegen Fristwahrung durch Telefaxeinlangung auf und weist den Rekurs zurück, da eine Verwechslungsgefahr durch die Benutzung des Zeichens 'Weekend Vorarlberg' für Zeitschriften mit der Marke 'Weekend Magazin' nach § 10 Abs 1 Z 2\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0036936",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0036936",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.95,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0036936\"}"
+        }
+      ],
+      "tool_calls_total": 35,
+      "tool_calls_ok": 35,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Die Analyse der Erfolgsaussichten des Rekurses gegen den Beschluss des BG Traun ergibt folgendes Bild hinsichtlich der Rechtsmittelführungsbedingungen und der inhaltlichen Begründetheit:\n\n### 1. Rechtsmittelführungsbedingungen (Zulässigkeit)\n*   **Rekurslegitimation (§ 48 Abs 1 ZPO):** Der Mandant ist durch den Beschluss, der die Wirksamkeit der Zustellung bejaht und seinen Einspruch zurückweist, materiell beschwert. Obwohl die bloße *Anordnung* einer Zustellung im Rechtshilfeweg nicht anfechtbar ist (**RS0117046**), ist die Entscheidung über die *Wirksamkeit* einer bereits erfolgten Zustellung (insbesondere nach Einspruch gemäß § 163 Geo) ein anfechtbarer Beschluss, da er über die Rechtmäßigkeit eines Rechtshilfeaktes abspricht, der die Rechtsstellung des Mandanten (Fristenlauf in den USA) massiv beeinflusst.\n*   **Frist und Form:** Der Rekurs ist bis zum **09.03.2026** beim BG Traun einzubringen. Die Zustellung des Beschlusses am 23.02.2026 löst die 14-tägige Rekursfrist aus.\n\n### 2. Rekursbegründetheit (Inhaltliche Chancen)\nDer Rekurs hat exzellente Erfolgsaussichten, da die Zustellung an die alte Adresse (**Janshartweg 8/4, 4053 Ansfelden**) evident rechtsunwirksam war:\n\n*   **Fehlende Abgabestelle (§ 17 Abs 1 ZustG iVm § 163 Geo):**\n    *   Eine Zustellung durch Hinterlegung ist nur zulässig, wenn die Adresse zum Zeitpunkt der Zustellung eine gültige **Abgabestelle** ist.\n    *   Da der Mandant bereits seit dem 28.11.2023 (ca. 14 Monate vor dem Zustellversuch) dort abgemeldet war und seinen Lebensmittelpunkt verlegt hatte, verlor die Wohnung die Qualität als Abgabestelle (**RS0108130**).\n    *   Eine Hinterlegung an einer Adresse, an der der Empfänger nicht mehr wohnt, ist **gesetzwidrig und rechtsunwirksam** (**RS0111049**).\n\n*   **Keine Heilung des Zustellmangels (§ 7 ZustG):**\n    *   Eine Heilung tritt nach österreichischem Recht erst mit dem Tag ein, an dem das Schriftstück dem Adressaten **tatsächlich zugekommen** ist (**RS0083714**).\n    *   Die bloße Kenntnisnahme durch Akteneinsicht oder die Weiterleitung des Einspruchs durch das Gericht heilt den Mangel nicht, solange die physische Verfügungsgewalt über die Dokumente nicht eingeräumt wurde.\n\n*   **Verletzung der Übersetzungspflicht (Art. 5 HZÜ / § 163 Geo):**\n    *   Die Verweigerung der Annahme wegen fehlender deutscher Übersetzung ist berechtigt. Die Zustellung von Schriftstücken, die nicht in der Amtssprache verfasst oder übersetzt sind, ist mit einem **fairen Verfahren (Art 6 EMRK)** unvereinbar und daher unwirksam (**RS0110261**, **RS0110260**).\n\n*   **Bindungswirkung des Zustellzeugnisses (Art. 6 HZÜ):**\n    *   Das vom BG Traun ausgestellte Zustellzeugnis entfaltet zwar im Ausland eine gewisse Vermutungswirkung, ist aber im Inland bei Nachweis der Unrichtigkeit (ZMR-Bestätigung!) korrigierbar. Das Gericht ist verpflichtet, die Gesetzmäßigkeit der Zustellung von Amts wegen zu prüfen (**RS0111270**).\n\n### 3. Beweislast\n*   **Mandant:** Trägt die Beweislast für die **Ortsabwesenheit** bzw. die Aufgabe der Abgabestelle zum Zustellzeitpunkt. Diese ist durch die ZMR-Bestätigung (Abmeldung 2023) bereits liquide bewiesen.\n*   **Gegner:** Müsste beweisen, dass der Mandant trotz Abmeldung weiterhin dort wohnhaft war oder dass ihm die Dokumente auf anderem Weg tatsächlich zugekommen sind (§ 7 ZustG).\n\n**Fazit:** Der Rekurs sollte auf die **Nichtigkeit wegen Verletzung des rechtlichen Gehörs (§ 477 Abs 1 Z 4 ZPO)** gestützt werden, da die unwirksame Zustellung den Mandanten daran hindert, seine Rechte im US-Verfahren effektiv wahrzunehmen (**RS0111369**, **RS0117067**).",
+      "answer_chars": 3595,
+      "e2e_ms": 27945.99
+    },
+    {
+      "name": "US-Insolvenzrechtliche Konsequenzen & Foreign Representative Status",
+      "goal": "Prüfung, ob Alexander Meghji als Litigation Administrator die erforderliche Prozessbefugnis im Sinne von § 163 Geo iVm Art 2 HZÜ besitzt – insb. im Lichte des US-Chapter-11-Plans und dessen Effective Date",
+      "mode": "llm",
+      "tools": [
+        "search_by_schlagwort",
+        "search_ogh_entscheidungen",
+        "hot_rs_lookup",
+        "get_rechtssatz",
+        "search_by_paragraph",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 2553.91,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 12,
+          "usage": {
+            "prompt_tokens": 2606,
+            "completion_tokens": 324,
+            "total_tokens": 2930,
+            "cost": 0.002275,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 1730.51,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 6956,
+            "completion_tokens": 115,
+            "total_tokens": 7071,
+            "cost": 0.0029212,
+            "cached_tokens": 2004,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 1982.73,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 7573,
+            "completion_tokens": 150,
+            "total_tokens": 7723,
+            "cost": 0.0042365,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 2431.74,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 8341,
+            "completion_tokens": 159,
+            "total_tokens": 8500,
+            "cost": 0.0046475,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 2515.84,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 9132,
+            "completion_tokens": 152,
+            "total_tokens": 9284,
+            "cost": 0.005022,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 6,
+          "latency_ms": 2481.52,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 9963,
+            "completion_tokens": 152,
+            "total_tokens": 10115,
+            "cost": 0.0054375,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 7,
+          "latency_ms": 8634.56,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 10807,
+            "completion_tokens": 1066,
+            "total_tokens": 11873,
+            "cost": 0.0086015,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_I8Q42SjoaMBUmonZCD5L",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0083714"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 15.49,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0083714\", \"rechtssatz\": \"Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitierten Gesetzesstelle vorgesehene Heilung tritt auch dann nicht ein, wenn er noch innerhalb der Abholfrist zurückkehrt. Vielmehr heilt die gesetzwidrig vorgenommene Zustellung nach § 7 ZustG erst mit dem Tag, an dem das Schriftstück dem Adressaten tatsächlich zugekommen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Ortsabwesenheit des Adressaten\", \"Heilung von Zustellmängeln\", \"Tatsächliches Zukommen\", \"Abholfrist\", \"Unzulässige Ersatzzustellung\", \"Fristenlauf\"], \"fachgebiete\": [\"Verfahrensrecht\", \"Vertragsrecht\"], \"datum\": \"2015-11-11\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_v9227cBKyadx4UQIKgI6",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0108130"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.76,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0108130\", \"rechtssatz\": \"Bei einer rund viermonatigen Benützung einer anderen Wohnung ist der bis dahin benutzten Wohnung die Qualifikation als Abgabestelle im Sinne des § 4 ZustG nicht mehr zuzubilligen, wenn der Empfänger seinen Lebensmittelpunkt und damit seinen regelmäßigen Aufenthaltsort (Zuzug in die Wohnung einer \\\"Freundin\\\") verlegt hat. Wie weit ein neuer Aufenthaltsort vom alten entfernt ist, ist dabei von keiner besonderen Bedeutung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"gerichtliche Aufkündigung\", \"Zustellung\", \"Hinterlegung\", \"Abgabestelle\", \"Ortsabwesenheit\", \"ZustG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"1997-05-15\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_gdfNdPPJrG0pSeQtvOPt",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110260"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.89,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110260\", \"rechtssatz\": \"Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amtssprache des Zustelllandes abgefasst und auch nicht übersetzt sind und die der Empfänger in vielen Fällen nicht verstehen wird, jedenfalls aber nicht verstehen muss. Mangels entsprechender Sprachkenntnisse wird er häufig gar nicht erkennen können, um welche Art von Schriftstücken es sich handelt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"EuGVVO\", \"Bevollmächtigung\", \"Zustellung ins Ausland\", \"fair trial\", \"Internationale Zustellung\", \"internationale Zuständigkeit\", \"Arbeitsvertrag\", \"Rechtshilfevertrag Österreich-Jugoslawien\", \"Unterhaltsklage\", \"Suchtgifthandel\", \"Rechtshilfevertrag\", \"Heilung Verfahrensmängel\", \"Zustellung Ausland\", \"Einspruch\", \"Zustellung im Ausland\", \"Vollstreckbarerklärung ausländischer Unterhaltstitel\", \"Revisionsrekurs\", \"Waisenrente\", \"Prozesseinlassung\", \"Versäumungsurteil\", \"Kindesunterhalt\", \"kriminelle Vereinigung\", \"Ordination\", \"ASGG\", \"Anklageschrift\", \"SMG § 28a\", \"Zustellung Togo\", \"Heilung Zustellmangel\", \"StPO § 212\", \"Bosnien-Herzegowina\"], \"fachgebiete\": [\"Internationales Privatrecht\", \"Kindesunterhalt\", \"Revision\", \"Scheidung\", \"EU-Recht\"], \"datum\": \"2023-06-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_Q5ETYaefJ743XAu6v9el",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110261"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.83,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110261\", \"rechtssatz\": \"Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post zugestellt erhält, die nicht in seiner Sprache abgefasst und auch nicht übersetzt sind. Eine solche Zustellung ist unwirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unterhaltsfestsetzung\", \"EuGVVO\", \"Bevollmächtigung\", \"Zustellung ins Ausland\", \"Annahmeverweigerungsrecht\", \"Ausweichmanöver\", \"Internationale Zustellung\", \"internationale Zuständigkeit\", \"Arbeitsvertrag\", \"Übersetzungspflicht\", \"AußStrG\", \"Unterhaltsklage\", \"Nichtigkeitsgrund\", \"Rechtshilfevertrag\", \"Zulassungsvorstellung\", \"ZPO § 477\", \"Heilung Verfahrensmängel\", \"Verschulden\", \"Haftung\", \"Skiunfall\", \"Zustellung im Ausland\", \"Vollstreckbarerklärung ausländischer Unterhaltstitel\", \"Revisionsrekurs\", \"Waisenrente\", \"Prozesseinlassung\", \"Kindesunterhalt\", \"Berufung\", \"Ordination\", \"Zustellung Togo\", \"Heilung Zustellmangel\"], \"fachgebiete\": [\"Internationales Privatrecht\", \"Kindesunterhalt\", \"Scheidung\", \"EU-Recht\"], \"datum\": \"2023-06-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_fyyxylRBNSe7BuxRoK9N",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111049"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.94,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111049\", \"rechtssatz\": \"Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andernfalls ist die Hinterlegung gesetzwidrig und die Zustellung rechtsunwirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung\", \"Hinterlegung\", \"Ersatzzustellung\", \"Ersatzempfänger\", \"Versäumungsurteil\", \"Zustellung im Ausland\", \"Russische Föderation\", \"HPÜ 1954\", \"öffentliche Bekanntmachung\", \"Aufteilung ehelichen Vermögens\", \"Haager Zustellungsübereinkommen HZÜ\", \"Bindungswirkung Zustellungszeugnis\", \"Russisches Recht\"], \"fachgebiete\": [\"Unterlassung\", \"Scheidung\", \"Revision\"], \"datum\": \"2024-01-17\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_dpiaQz5PfJ0Vs6IFxjef",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111270"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.08,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111270\", \"rechtssatz\": \"Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages eines Sachwalters des Beklagten auf Zustellung des Versäumungsurteiles) selbständig im Rahmen der amtswegigen Überwachung des Zustellwesens (§ 87 Abs 1 ZPO) zu prüfen, ob schon eine gesetzmäßige Zustellung der Entscheidung an den Beklagten erfolgt ist, dieser also im Zeitpunkt der Zustellung des Versäumungsurteiles die Tragweite des konkreten Rechtsstreites und der von ihm zur Rechtsverteidigung allenfalls erforderlichen Rechtshandlungen erkennen konnte (SZ 51/93). Auf diese Entscheidung hat das Sachwalterverfahren keinen Einfluß, sodaß es einer Unterbrechung des Streitverfahrens zur Wahrung der prozessualen Rechte des Beklagten in diesem Verfahrensstadium nicht (mehr) bedurfte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Öffentliche Urkunde\", \"Mahnklage\", \"Beweiswürdigung\", \"Währungsumrechnung\", \"Hinterlegungsanzeige\", \"Widerspruchsverfahren\", \"Rückforderung\", \"Rechtliches Gehör\", \"Zustellung Ersturteil\", \"Passivlegitimation\", \"Prozeßfähigkeit\", \"MSchG §29a\", \"Verständigung\", \"Russisches Recht\", \"Glücksspiel\", \"Rekurs\", \"Inquisitionsmaxime\", \"MSchG §29b\", \"Passverlust\", \"Verfahrensunterbrechung\", \"GSpG\", \"Zustellung durch Hinterlegung\", \"Zustellung\", \"Gegenbeweis\", \"Vollstreckbarkeitsvermerk\", \"Berufungsfrist\", \"Markenwiderspruch\", \"Rückschein\", \"Zahlungsbefehl\", \"Vollstreckbarkeitsbestätigung\"], \"fachgebiete\": [\"Revision\", \"Berufung\"], \"datum\": \"2024-05-2"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_YmKk1UZxRsZY4MTEHD0C",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111369"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.78,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111369\", \"rechtssatz\": \"Die Gewährung des rechtlichen Gehörs stellt einen derart fundamentalen Grundsatz des Verfahrensrechts dar, dass dessen Verletzung regelmäßig als Nichtigkeit im Sinne des (gemäß § 171 KO anwendbaren) § 477 Abs 1 Z 4 ZPO zu beurteilen ist (so schon 9 Ob 382/97k, 1 Ob 305/98d).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Nichtigkeit der Ehe\", \"Art. 6 MRK\", \"Anerkennung ausländischer Entscheidung\", \"Nichtigkeit Beschluss\", \"§ 477 ZPO\", \"AußStrG\", \"Verstorbener\", \"Verfahrenshilfe\", \"Zulassungsvorstellung\", \"Kuratorbestellung\", \"Rechtliches Gehör\", \"unbekannter Aufenthalt\", \"Prozessgegners Stellungnahme\", \"Rekurs\", \"Revisionsrekurs\", \"§ 57 ZPO\", \"Konkursforderung\", \"§ 59 ZPO\", \"Vollstreckbarerklärung\", \"Verfahrensmängel\", \"Kaufvertrag\", \"Abwesenheitskurator\", \"§ 66 ZPO\", \"verfassungskonforme Auslegung\", \"ordre public\", \"Befreiungstatbestände\", \"Prozesskurator\", \"Nichtigkeit\", \"Unterhaltsvorschuss\", \"§ 72 ZPO\"], \"fachgebiete\": [\"Grundbuch\", \"Internationales Privatrecht\", \"Kindesunterhalt\", \"Rekurs\", \"Revision\", \"Scheidung\"], \"datum\": \"2009-09-30\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_Eokp7NsEdBkqrUn7IAtB",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0114024"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.98,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0114024\", \"rechtssatz\": \"Die Voraussetzungen für die Vollstreckbarerklärung sind von Amts wegen zu prüfen. Für die Ordnungsmäßigkeit der Zustellung im Sinn des Art 27 Z 2 LGVÜ ist das Recht des Staates maßgebend, in dem die Entscheidung, deren Vollstreckbarerklärung begehrt wird, erging. Als Urkunde im Sinn des Art 46 Z 2 LGVÜ (EuGVÜ) kommt in erster Linie eine Urkunde über den Zustellvorgang oder eine Bestätigung in Betracht, aus der hervorgeht, in welcher Form das Schriftstück zugestellt wurde.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vollstreckbarerklärung\", \"Versäumnisurteil\", \"Zustellungsnachweis\", \"LGVÜ\", \"EuGVÜ\", \"Art 46 LGVÜ\", \"Art 27 LGVÜ\", \"Art 48 LGVÜ\", \"Bestimmtheit des Exekutionstitels\", \"Unterhaltstitel\", \"RegelbetragVO\", \"Verfahrenskurator\", \"Unterhalt\", \"Polen\", \"Zustellung\", \"Parteienidentität\", \"Rechtsnachfolge\", \"ausländischer Unterhaltstitel\", \"Originalausfertigung\", \"Formgebrechen\", \"österreichisch-jugoslawisches Abkommen\", \"Vollstreckbarerklärung ausländischer Titel\", \"LGVÜ 1988\", \"Eventualmaxime\", \"Revisionsrekurs\", \"Exekutionsbewilligung\", \"Vollstreckbarerklärung ausländischer Entscheidung\", \"Zustellung verfahrenseinleitender Schriftsatz\", \"VollstrV 1968\", \"HPÜ 1954\"], \"fachgebiete\": [\"Revision\", \"Internationales Privatrecht\", \"Kindesunterhalt\"], \"datum\": \"2019-08-29\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_A8ci04hKoVBlb7w6e08y",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0115027"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.81,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0115027\", \"rechtssatz\": \"§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung oder eine Vertretung Vorsorge zu treffen, sondern nur jenen, der bereits von einem bestimmten Verfahren Kenntnis hat. Im Hinblick auf verfassungsrechtliche Überlegungen auf Grund Art 6 EMRK ist jedoch in lang andauernden Pflegschaftsverfahren zu berücksichtigen, dass das Verfahren nicht erst mit der Entfertigung des Minderjährigen, sondern mit jedem einzelnen Verfahrensabschnitt (zB Verfahren über einen Unterhaltsantrag) als beendet anzusehen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Änderung der Abgabestelle\", \"Prozesskurator\", \"Hinterlegung\", \"Zustellung\", \"§ 8 ZustG\", \"Verfahrenskenntnis\", \"Obsorgeentzug\", \"EMRK Art 6\", \"Zustellung Hinterlegung\", \"Pflegschaftsverfahren\", \"Abgabestelle\", \"Abwesenheitskurator\", \"AußStrG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2001-03-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_tYAGD8Hb2dRvGKzNqVvx",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117046"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.01,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117046\", \"rechtssatz\": \"Die Anordnung der im Rechtshilfeweg beantragten Zustellung ist kein anfechtbarer Beschluss.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellungsrechtshilfe\", \"Rechtshilfeersuchen\", \"Revisionsrekurs\", \"Strafschadensersatz\"], \"fachgebiete\": [\"Internationales Privatrecht\"], \"datum\": \"2002-11-21\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_PKeCMa4cCb0pojujo3So",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117067"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.45,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117067\", \"rechtssatz\": \"Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verletzung des rechtlichen Gehörs im Sinne des Art 6 Abs 1 EMRK dar, welche Nichtigkeit im Sinne des § 477 Abs 1 Z 4 ZPO nach sich zieht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vorrang\", \"Schadensersatz\", \"§18 WEG\", \"Marktmanipulation\", \"Mahnklage\", \"BörseG\", \"Kurzparkzone\", \"Gerichtspraxis\", \"Solidarhaftung\", \"Flugzeug-Ausflottung\", \"Anrechnung Vordienst\", \"§235 ZPO\", \"Rechtliches Gehör\", \"Ausgleichselement\", \"Verkehrsunfall\", \"Umschulungsangebot\", \"Kollektivvertrag Bordpersonal\", \"Rekurs\", \"Nichtanrechnung\", \"§ 26 VBG\", \"Bescheinigungstagsatzung\", \"LKW-Kartell\", \"Erfinderschaft\", \"Fristberechnung\", \"Wasserrechtsbescheid\", \"COVID-19 Kurzarbeit\", \"Widmung\", \"Einstweilige Verfügung\", \"Pilotenkündigung\", \"Lizenznehmer\"], \"fachgebiete\": [\"Rekurs\", \"Nachbarrecht\", \"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2024-01-25\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_WeAPKdoVmZuQ7HErL8Q6",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0126357"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.0,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0126357\", \"rechtssatz\": \"Nur soweit das Gericht im Einklang mit dem Gesetz ohne Zuziehung einer Partei tätig wird, zB wegen deren Säumnis, liegt mangels ungesetzlichen Vorgangs der Tatbestand des § 477 Abs 1 Z 4 ZPO nicht vor. Soweit die Säumigkeit aber Folge einer nicht gehörigen Ladung ist, ist der Nichtigkeitsgrund verwirklicht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Klagezustellung\", \"Wohnsitz\", \"Versäumungsurteil\", \"Krankheit des Vertreters\", \"Nichtigkeit Berufungsverhandlung\", \"Nichtigkeitsberufung\", \"§ 477 ZPO\", \"Zustellung an Anwaltskanzlei\", \"Zustellung Hinterlegung\", \"Provisionsforderung\", \"Säumnisfolge\"], \"fachgebiete\": [\"Berufung\"], \"datum\": \"2010-10-21\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_t4iZwKTammgS25CaOsav",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 163 Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 781.6,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 163 Geo\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_WdCVnsGhlw1EfcSUNKRn",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Litigation Administrator Prozessbefugnis Chapter",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 890.72,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Litigation Administrator Prozessbefugnis Chapter\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_jbUpQdsrCyYCEMrD8wKv",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Zustellungszeugnis HZÜ Bindungswirkung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1931.87,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Zustellungszeugnis HZÜ Bindungswirkung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_y2ZkQb3mZRZAXETvbORY",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Prozessbefugnis",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.21,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Prozessbefugnis\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_entscheidungen_mjxYjVwKcElV4tSb4srl",
+          "tool": "search_ogh_entscheidungen",
+          "args": {
+            "query": "163 Geo Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3897.72,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Zustellung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_PXorLtXYDqe6WMV2cCe9",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Litigation Administrator Insolvenz",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.03,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Litigation Administrator Insolvenz\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_DsHHeBaeff4Ft0xgUn90",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Chapter Prozessführungsbefugnis",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.64,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Chapter Prozessführungsbefugnis\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_Ev8vSYMuVPvrhxF8sIZc",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "HZÜ Zustellungszeugnis Bindungswirkung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.59,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"HZÜ Zustellungszeugnis Bindungswirkung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_W4FKjvBxBtIgaoeRKnPt",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Zeugnis",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1674.9,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Zeugnis\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_u4ctlcnz7Ru608VTMHtL",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "ausländischer Insolvenzverwalter Prozessführungsbefugnis",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.37,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"ausländischer Insolvenzverwalter Prozessführungsbefugnis\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_1EjSY3YV6j6me7XGMUul",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Beweiskraft",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.39,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Beweiskraft\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_zxF3TEcBI0odNfiICCXa",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Versäumnisurteil",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.94,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Versäumnisurteil\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_smJmElQONf1sbKyMSS9G",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geschäftsordnung Gerichte Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.94,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geschäftsordnung Gerichte Zustellung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_9Sc0KLPXYt7iEwmNScTN",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Chapter Anerkennung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.52,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Chapter Anerkennung\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_1Lhf1SGrcfwozleve55y",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "ausländischer Konkursverwalter Prozessführungsbefugnis",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.36,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"ausländischer Konkursverwalter Prozessführungsbefugnis\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_0qqXB7zmDOCazOrlxMCw",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Beweis",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.74,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Beweis\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_aEsVtwuyfgT1ohsxLEbI",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.91,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0134713\", \"rechtssatz\": \"Dem Zustellungszeugnis nach Art 6 Haager Übereinkommen vom 15.11.1965 über die Zustellung gerichtlicher und außergerichtlicher Schriftstücke im Ausland in Zivil- oder Handelssachen (HZÜ) kommt keine eigene rechtlich bindende Wirkung oder Wertung zu.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung im Ausland\", \"Haager Zustellungsübereinkommen HZÜ\", \"Bindungswirkung Zustellungszeugnis\", \"Russisches Recht\"], \"relevance\": 0.094}], \"count\": 1, \"query\": \"Art HZÜ Zustellung\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_9hmEZBNzLfH54ECj9uMx",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Einspruch",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.06,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Einspruch\"}"
+        },
+        {
+          "step": 5,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_3YW384LYHVPdiWL2CvMF",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Chapter Insolvenzverwalter",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.92,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Chapter Insolvenzverwalter\"}"
+        },
+        {
+          "step": 6,
+          "tool_call_id": "tool_get_rechtssatz_mjsTrLvydAU8eoyLyBTL",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0134713"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.27,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0134713\", \"rechtssatz\": \"Dem Zustellungszeugnis nach Art 6 Haager Übereinkommen vom 15.11.1965 über die Zustellung gerichtlicher und außergerichtlicher Schriftstücke im Ausland in Zivil- oder Handelssachen (HZÜ) kommt keine eigene rechtlich bindende Wirkung oder Wertung zu.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung im Ausland\", \"Haager Zustellungsübereinkommen HZÜ\", \"Bindungswirkung Zustellungszeugnis\", \"Russisches Recht\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2024-01-17\"}"
+        },
+        {
+          "step": 6,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_r4pXIohqRGUro4LLTaVp",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "ausländischer Insolvenzverwalter Aktivlegitimation",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.06,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"ausländischer Insolvenzverwalter Aktivlegitimation\"}"
+        },
+        {
+          "step": 6,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_aD7IyLepVEDX8rzUFeHR",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Anerkennung ausländisches Insolvenzverfahren USA",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.33,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Anerkennung ausländisches Insolvenzverfahren USA\"}"
+        },
+        {
+          "step": 6,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_Sc3Lo5zWddudt9bBY0Kq",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Art HZÜ Bindungswirkung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.25,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Art HZÜ Bindungswirkung\"}"
+        },
+        {
+          "step": 6,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_XYgLxrB5SjeT8JifEo2I",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Zustellung Einspruch",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.77,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Zustellung Einspruch\"}"
+        }
+      ],
+      "tool_calls_total": 36,
+      "tool_calls_ok": 36,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Die Prüfung der Prozessbefugnis von Alexander Meghji als Litigation Administrator im Rahmen des Rekursverfahrens gegen den Beschluss des BG Traun ergibt folgendes Bild:\n\n### 1. Prozessführungsbefugnis des Litigation Administrators\nDie Prozessführungsbefugnis (Aktivlegitimation) eines ausländischen Insolvenzorgans (hier: Litigation Administrator nach US-Chapter-11) richtet sich nach der Anerkennung des ausländischen Insolvenzverfahrens in Österreich.\n*   **Anerkennung:** Gemäß **§ 240 IO** werden ausländische Insolvenzverfahren anerkannt, wenn der Schuldner den Mittelpunkt seiner hauptsächlichen Interessen (COMI) im Ausland hat und das Verfahren mit dem österreichischen *Ordre Public* vereinbar ist.\n*   **Wirkung des Effective Date:** Mit dem *Plan Effective Date* (31.01.2024) gehen die Befugnisse zur Prozessführung auf den Litigation Administrator über, sofern dies im gerichtlich bestätigten *Chapter 11 Plan* vorgesehen ist. In Österreich ist zu prüfen, ob diese Funktionsnachfolge der Rechtsstellung eines Masseverwalters (§ 80 IO) gleichzuhalten ist.\n*   **Beweislast:** Der Kläger (Meghji) muss seine Prozessführungsbefugnis durch Vorlage des US-Bestellungsbeschlusses und des Plans (samt Übersetzung) nachweisen, wenn diese bestritten wird.\n\n### 2. Bindungswirkung des Zustellungszeugnisses (Art 6 HZÜ)\nDas BG Traun stützte seinen Beschluss offenbar auf das ausgestellte Zustellungszeugnis. Hierzu hat der OGH klargestellt:\n*   **Keine Bindungswirkung:** Dem Zustellungszeugnis nach Art 6 HZÜ kommt **keine eigene rechtlich bindende Wirkung oder Wertung** zu (**RS0134713**). \n*   **Selbständige Prüfung:** Das österreichische Gericht muss im Rahmen der amtswegigen Überwachung des Zustellwesens (§ 87 Abs 1 ZPO) selbständig prüfen, ob eine gesetzmäßige Zustellung erfolgt ist (**RS0111270**). Das Zeugnis ist lediglich eine Beweisurkunde, die durch den Nachweis der tatsächlichen Verhältnisse (hier: Abmeldung 14 Monate vor Zustellversuch) entkräftet werden kann.\n\n### 3. Wirksamkeit der Zustellung (§ 163 Geo iVm HZÜ)\n*   **Fehlende Abgabestelle:** Eine Zustellung durch Hinterlegung ist rechtsunwirksam, wenn der Empfänger zum Zeitpunkt der Zustellung keine Abgabestelle mehr an der betreffenden Adresse hatte (**RS0111049**, **RS0108130**). Da David Mitter bereits seit 28.11.2023 (über ein Jahr vor dem Zustellversuch am 27.01.2025) abgemeldet war, lag keine gültige Abgabestelle vor.\n*   **Heilungsausschluss:** Eine Heilung nach § 7 ZustG tritt erst mit dem tatsächlichen Zukommen des Schriftstücks ein. Die bloße Kenntnis vom Verfahren durch den Einspruch des Anwalts heilt den Mangel der fehlerhaften Hinterlegung an einer \"toten\" Adresse nicht rückwirkend auf den Zeitpunkt der Hinterlegung (**RS0083714**).\n\n### 4. Rechtliches Gehör und Übersetzungsgebot\n*   **Übersetzungspflicht:** Die Zustellung verfahrenseinleitender Schriftstücke ohne deutsche Übersetzung ist unwirksam, wenn der Empfänger die Sprache nicht versteht (**RS0110261**, **RS0110260**). Das Annahmeverweigerungsrecht nach § 163 Abs 5 Geo ist hier ein zentrales Instrument zur Wahrung des fairen Verfahrens (Art 6 EMRK).\n*   **Nichtigkeit:** Die Verletzung des rechtlichen Gehörs durch unwirksame Zustellung führt zur Nichtigkeit nach **§ 477 Abs 1 Z 4 ZPO** (**RS0111369**, **RS0117067**).\n\n**Fazit für den Rekurs:**\nDie Chancen des Rekurses sind als **hoch** einzustufen. Das BG Traun durfte sich nicht blind auf das Art-6-HZÜ-Zeugnis verlassen (RS0134713). Da zum Zustellzeitpunkt keine Abgabestelle mehr existierte, ist die Zustellung nichtig. Zudem ist die Prozessführungsbefugnis des Litigation Administrators unter dem Aspekt der zeitlichen Befristung des Chapter-11-Plans und der ordnungsgemäßen Funktionsnachfolge im Rekursverfahren explizit zu rügen.",
+      "answer_chars": 3756,
+      "e2e_ms": 31928.89
+    },
+    {
+      "name": "Zustellungsrechtliche Wirksamkeit nach § 163 Geo iVm HZÜ & ZMR",
+      "goal": "Prüfung, ob Zustellung an abgemeldete Adresse gemäß § 163 Abs 1 Geo iVm § 17 ZMR wirksam ist – insb. ob 'gewöhnlicher Aufenthalt' vorliegt oder Annahmeverweigerung gem § 163 Abs 5 Geo geltend gemacht werden konnte",
+      "mode": "llm",
+      "tools": [
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "hot_rs_lookup",
+        "get_rechtssatz",
+        "search_ogh_rechtssaetze"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 2692.5,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 12,
+          "usage": {
+            "prompt_tokens": 2531,
+            "completion_tokens": 324,
+            "total_tokens": 2855,
+            "cost": 0.0022375,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 2179.16,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 6881,
+            "completion_tokens": 136,
+            "total_tokens": 7017,
+            "cost": 0.0029467,
+            "cached_tokens": 2004,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 2885.99,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 8192,
+            "completion_tokens": 179,
+            "total_tokens": 8371,
+            "cost": 0.004633,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 2749.9,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 6,
+          "usage": {
+            "prompt_tokens": 9752,
+            "completion_tokens": 182,
+            "total_tokens": 9934,
+            "cost": 0.005422,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 8933.45,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 10672,
+            "completion_tokens": 1100,
+            "total_tokens": 11772,
+            "cost": 0.008636,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_qgD5OPC2dDouKUGHrMZT",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0083714"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.73,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0083714\", \"rechtssatz\": \"Ist der Adressat für längere Zeit ortsabwesend, so ist eine Zustellung durch Hinterlegung nach § 17 Abs 3 ZustG beim Postamt der Abgabestelle unzulässig. Die in der zitierten Gesetzesstelle vorgesehene Heilung tritt auch dann nicht ein, wenn er noch innerhalb der Abholfrist zurückkehrt. Vielmehr heilt die gesetzwidrig vorgenommene Zustellung nach § 7 ZustG erst mit dem Tag, an dem das Schriftstück dem Adressaten tatsächlich zugekommen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Ortsabwesenheit des Adressaten\", \"Heilung von Zustellmängeln\", \"Tatsächliches Zukommen\", \"Abholfrist\", \"Unzulässige Ersatzzustellung\", \"Fristenlauf\"], \"fachgebiete\": [\"Verfahrensrecht\", \"Vertragsrecht\"], \"datum\": \"2015-11-11\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_kePXhnu3ubOJYuvdfl9x",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0108130"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.29,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0108130\", \"rechtssatz\": \"Bei einer rund viermonatigen Benützung einer anderen Wohnung ist der bis dahin benutzten Wohnung die Qualifikation als Abgabestelle im Sinne des § 4 ZustG nicht mehr zuzubilligen, wenn der Empfänger seinen Lebensmittelpunkt und damit seinen regelmäßigen Aufenthaltsort (Zuzug in die Wohnung einer \\\"Freundin\\\") verlegt hat. Wie weit ein neuer Aufenthaltsort vom alten entfernt ist, ist dabei von keiner besonderen Bedeutung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"gerichtliche Aufkündigung\", \"Zustellung\", \"Hinterlegung\", \"Abgabestelle\", \"Ortsabwesenheit\", \"ZustG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"1997-05-15\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_hL32rWdPmkcbs2zeaWvX",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110260"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.06,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110260\", \"rechtssatz\": \"Grundvoraussetzung jeder wirksamen Vertretung ist, dass der Betroffene versteht, worum es geht. Daran fehlt es, wenn Schriftstücke zugestellt werden, die nicht in der Amtssprache des Zustelllandes abgefasst und auch nicht übersetzt sind und die der Empfänger in vielen Fällen nicht verstehen wird, jedenfalls aber nicht verstehen muss. Mangels entsprechender Sprachkenntnisse wird er häufig gar nicht erkennen können, um welche Art von Schriftstücken es sich handelt.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"EuGVVO\", \"Bevollmächtigung\", \"Zustellung ins Ausland\", \"fair trial\", \"Internationale Zustellung\", \"internationale Zuständigkeit\", \"Arbeitsvertrag\", \"Rechtshilfevertrag Österreich-Jugoslawien\", \"Unterhaltsklage\", \"Suchtgifthandel\", \"Rechtshilfevertrag\", \"Heilung Verfahrensmängel\", \"Zustellung Ausland\", \"Einspruch\", \"Zustellung im Ausland\", \"Vollstreckbarerklärung ausländischer Unterhaltstitel\", \"Revisionsrekurs\", \"Waisenrente\", \"Prozesseinlassung\", \"Versäumungsurteil\", \"Kindesunterhalt\", \"kriminelle Vereinigung\", \"Ordination\", \"ASGG\", \"Anklageschrift\", \"SMG § 28a\", \"Zustellung Togo\", \"Heilung Zustellmangel\", \"StPO § 212\", \"Bosnien-Herzegowina\"], \"fachgebiete\": [\"Internationales Privatrecht\", \"Kindesunterhalt\", \"Revision\", \"Scheidung\", \"EU-Recht\"], \"datum\": \"2023-06-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_5qCwUX097ig0dc92Qmfl",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0110261"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.67,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0110261\", \"rechtssatz\": \"Es ist demnach mit einem fair geführten Verfahren unvereinbar, wenn der Empfänger, wie im vorliegenden Fall, verfahrenseinleitende Schriftstücke unmittelbar durch die Post zugestellt erhält, die nicht in seiner Sprache abgefasst und auch nicht übersetzt sind. Eine solche Zustellung ist unwirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Unterhaltsfestsetzung\", \"EuGVVO\", \"Bevollmächtigung\", \"Zustellung ins Ausland\", \"Annahmeverweigerungsrecht\", \"Ausweichmanöver\", \"Internationale Zustellung\", \"internationale Zuständigkeit\", \"Arbeitsvertrag\", \"Übersetzungspflicht\", \"AußStrG\", \"Unterhaltsklage\", \"Nichtigkeitsgrund\", \"Rechtshilfevertrag\", \"Zulassungsvorstellung\", \"ZPO § 477\", \"Heilung Verfahrensmängel\", \"Verschulden\", \"Haftung\", \"Skiunfall\", \"Zustellung im Ausland\", \"Vollstreckbarerklärung ausländischer Unterhaltstitel\", \"Revisionsrekurs\", \"Waisenrente\", \"Prozesseinlassung\", \"Kindesunterhalt\", \"Berufung\", \"Ordination\", \"Zustellung Togo\", \"Heilung Zustellmangel\"], \"fachgebiete\": [\"Internationales Privatrecht\", \"Kindesunterhalt\", \"Scheidung\", \"EU-Recht\"], \"datum\": \"2023-06-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_vT7T3jFZ9hG0pAsgWWXT",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111049"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.28,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111049\", \"rechtssatz\": \"Durch Hinterlegung darf - wie sich aus § 17 Abs 1 ZustG ergibt - erst zugestellt werden, wenn weder dem Empfänger noch einem Ersatzempfänger zugestellt werden kann. Andernfalls ist die Hinterlegung gesetzwidrig und die Zustellung rechtsunwirksam.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellung\", \"Hinterlegung\", \"Ersatzzustellung\", \"Ersatzempfänger\", \"Versäumungsurteil\", \"Zustellung im Ausland\", \"Russische Föderation\", \"HPÜ 1954\", \"öffentliche Bekanntmachung\", \"Aufteilung ehelichen Vermögens\", \"Haager Zustellungsübereinkommen HZÜ\", \"Bindungswirkung Zustellungszeugnis\", \"Russisches Recht\"], \"fachgebiete\": [\"Unterlassung\", \"Scheidung\", \"Revision\"], \"datum\": \"2024-01-17\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_SaPa6oaQEU9gv4PhZtdB",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111270"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.11,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111270\", \"rechtssatz\": \"Das Prozeßgericht hat vor Erteilung einer Vollstreckbarkeitsbestätigung für das Versäumungsurteil (beziehungsweise auch in Erledigung des allenfalls gestellten Antrages eines Sachwalters des Beklagten auf Zustellung des Versäumungsurteiles) selbständig im Rahmen der amtswegigen Überwachung des Zustellwesens (§ 87 Abs 1 ZPO) zu prüfen, ob schon eine gesetzmäßige Zustellung der Entscheidung an den Beklagten erfolgt ist, dieser also im Zeitpunkt der Zustellung des Versäumungsurteiles die Tragweite des konkreten Rechtsstreites und der von ihm zur Rechtsverteidigung allenfalls erforderlichen Rechtshandlungen erkennen konnte (SZ 51/93). Auf diese Entscheidung hat das Sachwalterverfahren keinen Einfluß, sodaß es einer Unterbrechung des Streitverfahrens zur Wahrung der prozessualen Rechte des Beklagten in diesem Verfahrensstadium nicht (mehr) bedurfte.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Öffentliche Urkunde\", \"Mahnklage\", \"Beweiswürdigung\", \"Währungsumrechnung\", \"Hinterlegungsanzeige\", \"Widerspruchsverfahren\", \"Rückforderung\", \"Rechtliches Gehör\", \"Zustellung Ersturteil\", \"Passivlegitimation\", \"Prozeßfähigkeit\", \"MSchG §29a\", \"Verständigung\", \"Russisches Recht\", \"Glücksspiel\", \"Rekurs\", \"Inquisitionsmaxime\", \"MSchG §29b\", \"Passverlust\", \"Verfahrensunterbrechung\", \"GSpG\", \"Zustellung durch Hinterlegung\", \"Zustellung\", \"Gegenbeweis\", \"Vollstreckbarkeitsvermerk\", \"Berufungsfrist\", \"Markenwiderspruch\", \"Rückschein\", \"Zahlungsbefehl\", \"Vollstreckbarkeitsbestätigung\"], \"fachgebiete\": [\"Revision\", \"Berufung\"], \"datum\": \"2024-05-2"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_iAx4chA9dPXP0mUQPz4M",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0111369"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.61,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0111369\", \"rechtssatz\": \"Die Gewährung des rechtlichen Gehörs stellt einen derart fundamentalen Grundsatz des Verfahrensrechts dar, dass dessen Verletzung regelmäßig als Nichtigkeit im Sinne des (gemäß § 171 KO anwendbaren) § 477 Abs 1 Z 4 ZPO zu beurteilen ist (so schon 9 Ob 382/97k, 1 Ob 305/98d).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Nichtigkeit der Ehe\", \"Art. 6 MRK\", \"Anerkennung ausländischer Entscheidung\", \"Nichtigkeit Beschluss\", \"§ 477 ZPO\", \"AußStrG\", \"Verstorbener\", \"Verfahrenshilfe\", \"Zulassungsvorstellung\", \"Kuratorbestellung\", \"Rechtliches Gehör\", \"unbekannter Aufenthalt\", \"Prozessgegners Stellungnahme\", \"Rekurs\", \"Revisionsrekurs\", \"§ 57 ZPO\", \"Konkursforderung\", \"§ 59 ZPO\", \"Vollstreckbarerklärung\", \"Verfahrensmängel\", \"Kaufvertrag\", \"Abwesenheitskurator\", \"§ 66 ZPO\", \"verfassungskonforme Auslegung\", \"ordre public\", \"Befreiungstatbestände\", \"Prozesskurator\", \"Nichtigkeit\", \"Unterhaltsvorschuss\", \"§ 72 ZPO\"], \"fachgebiete\": [\"Grundbuch\", \"Internationales Privatrecht\", \"Kindesunterhalt\", \"Rekurs\", \"Revision\", \"Scheidung\"], \"datum\": \"2009-09-30\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_gP3OZXVBPWlzOZqZHL87",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0114024"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.6,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0114024\", \"rechtssatz\": \"Die Voraussetzungen für die Vollstreckbarerklärung sind von Amts wegen zu prüfen. Für die Ordnungsmäßigkeit der Zustellung im Sinn des Art 27 Z 2 LGVÜ ist das Recht des Staates maßgebend, in dem die Entscheidung, deren Vollstreckbarerklärung begehrt wird, erging. Als Urkunde im Sinn des Art 46 Z 2 LGVÜ (EuGVÜ) kommt in erster Linie eine Urkunde über den Zustellvorgang oder eine Bestätigung in Betracht, aus der hervorgeht, in welcher Form das Schriftstück zugestellt wurde.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vollstreckbarerklärung\", \"Versäumnisurteil\", \"Zustellungsnachweis\", \"LGVÜ\", \"EuGVÜ\", \"Art 46 LGVÜ\", \"Art 27 LGVÜ\", \"Art 48 LGVÜ\", \"Bestimmtheit des Exekutionstitels\", \"Unterhaltstitel\", \"RegelbetragVO\", \"Verfahrenskurator\", \"Unterhalt\", \"Polen\", \"Zustellung\", \"Parteienidentität\", \"Rechtsnachfolge\", \"ausländischer Unterhaltstitel\", \"Originalausfertigung\", \"Formgebrechen\", \"österreichisch-jugoslawisches Abkommen\", \"Vollstreckbarerklärung ausländischer Titel\", \"LGVÜ 1988\", \"Eventualmaxime\", \"Revisionsrekurs\", \"Exekutionsbewilligung\", \"Vollstreckbarerklärung ausländischer Entscheidung\", \"Zustellung verfahrenseinleitender Schriftsatz\", \"VollstrV 1968\", \"HPÜ 1954\"], \"fachgebiete\": [\"Revision\", \"Internationales Privatrecht\", \"Kindesunterhalt\"], \"datum\": \"2019-08-29\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_zZQ7XFjBLyWTT7k5pzk9",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0115027"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.74,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0115027\", \"rechtssatz\": \"§ 8 ZustG verpflichtet nicht jeden potentiellen Empfänger, stets auf eine behördliche Zustellung gefasst zu sein und deshalb Nachschau zu halten oder für eine Nachsendung oder eine Vertretung Vorsorge zu treffen, sondern nur jenen, der bereits von einem bestimmten Verfahren Kenntnis hat. Im Hinblick auf verfassungsrechtliche Überlegungen auf Grund Art 6 EMRK ist jedoch in lang andauernden Pflegschaftsverfahren zu berücksichtigen, dass das Verfahren nicht erst mit der Entfertigung des Minderjährigen, sondern mit jedem einzelnen Verfahrensabschnitt (zB Verfahren über einen Unterhaltsantrag) als beendet anzusehen ist.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Änderung der Abgabestelle\", \"Prozesskurator\", \"Hinterlegung\", \"Zustellung\", \"§ 8 ZustG\", \"Verfahrenskenntnis\", \"Obsorgeentzug\", \"EMRK Art 6\", \"Zustellung Hinterlegung\", \"Pflegschaftsverfahren\", \"Abgabestelle\", \"Abwesenheitskurator\", \"AußStrG\"], \"fachgebiete\": [\"Revision\"], \"datum\": \"2001-03-28\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_zzZSofW9pL9IkBt8iVZZ",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117046"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.7,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117046\", \"rechtssatz\": \"Die Anordnung der im Rechtshilfeweg beantragten Zustellung ist kein anfechtbarer Beschluss.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Zustellungsrechtshilfe\", \"Rechtshilfeersuchen\", \"Revisionsrekurs\", \"Strafschadensersatz\"], \"fachgebiete\": [\"Internationales Privatrecht\"], \"datum\": \"2002-11-21\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_0DFb64La0pXZqQbNfF4R",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0117067"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.71,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0117067\", \"rechtssatz\": \"Die Entziehung der Möglichkeit, zu einer den Parteien nicht bekannten, vom Gericht jedoch in seiner Entscheidung verwerteten Urkunde Stellung zu nehmen, stellt eine Verletzung des rechtlichen Gehörs im Sinne des Art 6 Abs 1 EMRK dar, welche Nichtigkeit im Sinne des § 477 Abs 1 Z 4 ZPO nach sich zieht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Vorrang\", \"Schadensersatz\", \"§18 WEG\", \"Marktmanipulation\", \"Mahnklage\", \"BörseG\", \"Kurzparkzone\", \"Gerichtspraxis\", \"Solidarhaftung\", \"Flugzeug-Ausflottung\", \"Anrechnung Vordienst\", \"§235 ZPO\", \"Rechtliches Gehör\", \"Ausgleichselement\", \"Verkehrsunfall\", \"Umschulungsangebot\", \"Kollektivvertrag Bordpersonal\", \"Rekurs\", \"Nichtanrechnung\", \"§ 26 VBG\", \"Bescheinigungstagsatzung\", \"LKW-Kartell\", \"Erfinderschaft\", \"Fristberechnung\", \"Wasserrechtsbescheid\", \"COVID-19 Kurzarbeit\", \"Widmung\", \"Einstweilige Verfügung\", \"Pilotenkündigung\", \"Lizenznehmer\"], \"fachgebiete\": [\"Rekurs\", \"Nachbarrecht\", \"Haftungsrecht\", \"Vertragsauslegung\"], \"datum\": \"2024-01-25\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_get_rechtssatz_ZgPmDu4JgJhmLY743kUu",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0126357"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.94,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0126357\", \"rechtssatz\": \"Nur soweit das Gericht im Einklang mit dem Gesetz ohne Zuziehung einer Partei tätig wird, zB wegen deren Säumnis, liegt mangels ungesetzlichen Vorgangs der Tatbestand des § 477 Abs 1 Z 4 ZPO nicht vor. Soweit die Säumigkeit aber Folge einer nicht gehörigen Ladung ist, ist der Nichtigkeitsgrund verwirklicht.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Klagezustellung\", \"Wohnsitz\", \"Versäumungsurteil\", \"Krankheit des Vertreters\", \"Nichtigkeit Berufungsverhandlung\", \"Nichtigkeitsberufung\", \"§ 477 ZPO\", \"Zustellung an Anwaltskanzlei\", \"Zustellung Hinterlegung\", \"Provisionsforderung\", \"Säumnisfolge\"], \"fachgebiete\": [\"Berufung\"], \"datum\": \"2010-10-21\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_O3CWoYwqpZ5w3TSoVKSE",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 163 Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 609.61,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 163 Geo\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_H9rwZxV3BdHbuQ122ZnH",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 17 ZustG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 532.36,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 17 ZustG\", \"results\": [{\"rs_number\": \"JWR_2020190248_20210225L01\", \"kernaussage\": \"Hinterlegungsanzeige unabdingbar für Zustellung § 17 ZustG\", \"schlagworte\": [\"Zustellung durch Hinterlegung\", \"Hinterlegungsanzeige\", \"unabdingbare Voraussetzung\", \"Zustellnachweis\", \"öffentliche Urkunde\", \"Gegenbeweis\", \"ZustG\"]}, {\"rs_number\": \"RS0134642\", \"kernaussage\": \"Wenn eine Partei ein Verfahren selbst einleitet und dabei eine oder mehrere Adresse(n) angibt, die von vornherein keine geeignete(n) Abgabestelle(n) im Sinn des Zustellgesetzes ist bzw sind, sind Hinterlegungen an dieser Zustelladresse nach § 17 ZustG aufgrund eines Größenschlusses aus § 8 Abs 2...\", \"schlagworte\": [\"Verfahrenshilfe\", \"Aufhebungsklage\", \"Schiedsspruch\", \"Verbesserungsauftrag\", \"Faxeingaben\"]}, {\"rs_number\": \"JWR_1994090248_19950119X02\", \"kernaussage\": \"Abgrenzung vorübergehender Abwesenheit bei Zustellung § 17 ZustG\", \"schlagworte\": [\"Zustellung\", \"vorübergehende Abwesenheit\", \"Hinterlegung\", \"berufliche Abwesenheit\", \"Zustellort\", \"§ 17 ZustG\", \"Reise\", \"Urlaub\", \"Krankenhausaufenthalt\"]}, {\"rs_number\": \"JWR_1994100022_19940620X01\", \"kernaussage\": \"Abgrenzung vorübergehender Abwesenheit bei Zustellung (§ 17 ZustG)\", \"schlagworte\": [\"Zustellung\", \"Hinterlegung\", \"vorübergehende Abwesenheit\", \"berufliche Abwesenheit\", \"ZustG § 17 Abs 3\", \"Reise\", \"Urlaub\", \"Krankenhausaufenthalt\"]}, {\"rs_number\": \"JWR_2023030007_20230213L02\", \"kernaussage\": \"Mitwirkungspflicht bei behaupteter Ortsabwesenheit § 17 ZustG\", \"schlagworte\": [\"Ortsabwesenheit\", \"Hinterlegung\", \"Mitwirkungspflicht\", \"Amtswegigkeit"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_gC4W0ZzrKlp9Vhn0FyfB",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 17 ZMR",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1927.66,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 17 ZMR\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_dp3V6bE4hZY73FCZUFkg",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Zustellung abgemeldete Adresse gewöhnlicher Aufenthalt Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.57,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Zustellung abgemeldete Adresse gewöhnlicher Aufenthalt Geo\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_3ErNhkkSLKWg3z6zwScR",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Annahmeverweigerung Übersetzung HZÜ 163 Geo",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.44,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Annahmeverweigerung Übersetzung HZÜ 163 Geo\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_DnQnM88OOFsswV3ElqK5",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Zustellung Einspruch",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2992.74,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Zustellung Einspruch\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_H5gNkiclQGWWAutPKlqA",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Übersetzung Annahmeverweigerung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.33,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Übersetzung Annahmeverweigerung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_GbyQqwM311IvX5TczvQc",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Wirksamkeit Zustellung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.85,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Wirksamkeit Zustellung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_I1X3vf6AehYOJr1YOwzs",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo HZÜ Übersetzung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.67,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo HZÜ Übersetzung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_schlagwort_d9avqYEMnXXHIdQcxiIj",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Rechtshilfe",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.48,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Rechtshilfe\", \"results\": [{\"rs_number\": \"JWR_1999030042_19990630X02\", \"kernaussage\": \"Ausschließliche Zuständigkeit des ersuchten Staates für Vollstreckungseinwendungen (AT-DE-Vertrag)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Amtshilfe\", \"Rechtshilfe\", \"Vollstreckung\", \"Zulässigkeitseinwendungen\", \"ersuchter Staat\", \"AT-DE-Vertrag\", \"Territorialitätsprinzip\", \"Verwaltungsvollstreckung\"]}, {\"rs_number\": \"JWR_1993140120_19931028X02\", \"kernaussage\": \"Bindung Vollstreckungsbehörde an Rückstandsanzeige (Art 11 AT-DE-Vertrag)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Verjährung\", \"Zustellungsmängel\", \"Vollstreckung\", \"Abgabensachen\", \"Rechtshilfe\", \"Rückstandsanzeige\", \"Unanfechtbarkeit\", \"Vollstreckbarkeit\", \"AT-DE-Vertrag\", \"Bindung Behörden\"]}, {\"rs_number\": \"JWR_2019020029_20190617L02\", \"kernaussage\": \"Übersetzungspflicht Straferkenntnis bei Anhaltspunkten für Sprachunkundigkeit\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Zustellung\", \"Übersetzungspflicht\", \"Sprachunkundigkeit\", \"Rechtshilfe\", \"EU-Übereinkommen\", \"Straferkenntnis\", \"Polnisch\", \"Verwaltungsstrafe\", \"Rechtswirksamkeit\"]}, {\"rs_number\": \"JWR_2003030015_20070320X01\", \"kernaussage\": \"Keine Strafverfolgung gegen tschechischen Vertreter ohne Rechtshilfevertrag\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Verwaltungsstrafe\", \"Rechtshilfe\", \"Ausland\", \"Tschechien\", \"Strafverfolgung\", \"Vollstreckung\", \"Vertreter\", \"Beförderer\", \"Zustellung\", \"Exekution\"]}, {\"rs_number\": \"JWR_2006030129_20090417X05\", \"kernaussage\": \"Keine Unmöglichkeit Strafverfolgung bei M"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_schlagwort_7gHMEAgS69iBV1a7suKh",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Haager Zustellungsübereinkommen",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1675.09,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Haager Zustellungsübereinkommen\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_tIT5qJUrN3DfTpkh7r7b",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Zustellung Einspruch",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 18.16,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Zustellung Einspruch\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_DbcvSjn75PWKV1WnvKbh",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Übersetzung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.15,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Übersetzung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_ylWCMGzyv5sFnGmnv5PX",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Annahmeverweigerung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.35,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Annahmeverweigerung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_ynBQ6Jniof47dAXBMHhC",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Wirksamkeit",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.6,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Wirksamkeit\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_SjKhrgJ3l9ICC3CdeKAF",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo HZÜ",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.42,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo HZÜ\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_qch2eHX6WCEmXkGs0kpM",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "163 Geo Rechtshilfe",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.73,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"163 Geo Rechtshilfe\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0134642",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0134642",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.98,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0134642\"}"
+        }
+      ],
+      "tool_calls_total": 30,
+      "tool_calls_ok": 30,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Die Prüfung der Erfolgsaussichten des Rekurses gegen den Beschluss des BG Traun ergibt auf Basis der OGH-Rechtsprechung und der gesetzlichen Bestimmungen (§ 163 Geo, HZÜ, ZustG) folgende zentrale Argumentationslinien:\n\n### 1. Unwirksamkeit der Zustellung wegen fehlender Abgabestelle\nDie Zustellung durch Hinterlegung am 27.01.2025 an der Adresse Janshartweg 8/4, 4053 Ansfelden, ist voraussichtlich **rechtsunwirksam**, da zum Zustellzeitpunkt keine gültige Abgabestelle vorlag.\n*   **Fehlende Abgabestelle:** Gemäß **RS0108130** verliert eine Wohnung die Eigenschaft als Abgabestelle (§ 4 ZustG), wenn der Empfänger seinen Lebensmittelpunkt verlegt hat. Da der Mandant bereits am 28.11.2023 (14 Monate vor dem Zustellversuch) abgemeldet war und tatsächlich in Scharten wohnte, lag in Ansfelden keine Abgabestelle mehr vor.\n*   **Unzulässige Hinterlegung:** Eine Hinterlegung nach § 17 ZustG setzt voraus, dass der Empfänger an der Abgabestelle wohnt, aber lediglich vorübergehend abwesend ist. Bei dauerhafter Aufgabe des Wohnsitzes ist die Hinterlegung gesetzwidrig (**RS0111049**).\n*   **Keine Heilung:** Eine Heilung nach § 7 ZustG tritt erst mit dem tatsächlichen Zukommen des Schriftstücks ein (**RS0083714**). Da der Mandant erst durch den Einspruch reagierte, ist die Zustellwirkung nicht rückwirkend auf den Januar 2025 fingierbar.\n\n### 2. Annahmeverweigerungsrecht wegen fehlender Übersetzung (§ 163 Abs 5 Geo)\nDer Einspruch stützt sich zudem auf die fehlende deutsche Übersetzung der US-Summons/Complaint.\n*   **Fair Trial & Sprachkenntnisse:** Nach **RS0110260** und **RS0110261** ist es mit einem fairen Verfahren unvereinbar, wenn verfahrenseinleitende Schriftstücke nicht in der Amtssprache des Zustelllandes (Deutsch) abgefasst oder übersetzt sind. Der Empfänger muss den Inhalt verstehen können.\n*   **Rechtsfolge:** Eine Zustellung ohne erforderliche Übersetzung ist unwirksam, sofern der Empfänger die Annahme verweigert oder (wie hier) zeitnah Einspruch nach § 163 Abs 5 Geo erhebt. Das BG Traun hätte den Einspruch nicht zurückweisen dürfen, wenn die Voraussetzungen des § 163 Abs 1 Geo (Einhaltung der Form des ersuchten Staates) nicht erfüllt waren.\n\n### 3. Anfechtbarkeit des Beschlusses (Verfahrensrechtliche Hürde)\nEin kritischer Punkt ist die Zulässigkeit des Rekurses:\n*   **RS0117046** besagt, dass die *Anordnung* der Zustellung im Rechtshilfeweg kein anfechtbarer Beschluss ist. \n*   **Differenzierung:** Hier wird jedoch nicht die Anordnung bekämpft, sondern die **Zurückweisung eines Einspruchs** gegen die Wirksamkeit der bereits vollzogenen Zustellung. Da das BG Traun über die Wirksamkeit abgesprochen hat, ist dies eine Entscheidung über die Rechtmäßigkeit des Zustellvorgangs, die den Rechtsschutz des Betroffenen (Art 6 EMRK, **RS0111369**) berührt. Die Verletzung des rechtlichen Gehörs durch eine Schein-Zustellung begründet Nichtigkeit (**RS0117067**, **RS0126357**).\n\n### Zusammenfassung der Erfolgsaussichten\n| Argument | Erfolgsaussicht | Begründung |\n| :--- | :--- | :--- |\n| **Falsche Adresse** | **Hoch** | ZMR-Abmeldung 14 Monate vor Zustellung belegt fehlende Abgabestelle. |\n| **Fehlende Übersetzung** | **Hoch** | Verstoß gegen § 163 Geo iVm Art 6 EMRK (RS0110261). |\n| **Beweislast** | **Günstig** | Die Gegenseite/Behörde muss die Existenz einer Abgabestelle beweisen; der ZMR-Auszug ist ein starker Gegenbeweis gegen das Zustellzeugnis. |\n\n**Empfehlung:** Der Rekurs sollte primär auf die **Nichtigkeit der Zustellung** wegen Fehlens einer Abgabestelle und die **Verletzung des rechtlichen Gehörs** (fehlende Übersetzung) gestützt werden. Das LG Linz muss als Rekursgericht prüfen, ob das BG Traun die amtswegige Prüfungspflicht der Zustellgesetzmäßigkeit (**RS0111270**) verletzt hat.",
+      "answer_chars": 3741,
+      "e2e_ms": 27498.94
+    }
+  ],
+  "synth_meta": {
+    "latency_ms": 26777.57,
+    "model": "x-ai/grok-4.1-fast",
+    "answer_chars": 6526,
+    "usage": {
+      "prompt_tokens": 21223,
+      "completion_tokens": 3545,
+      "total_tokens": 24768,
+      "cost": 0.00599445,
+      "cached_tokens": 151,
+      "reasoning_tokens": 1229
+    }
+  },
+  "citation_gate": {
+    "mode": "enforce",
+    "applied": true,
+    "before": {
+      "pass_hard": false,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": true,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": true,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0083714",
+          "RS0108130",
+          "RS0110260",
+          "RS0110261",
+          "RS0111049",
+          "RS0111270",
+          "RS0111369",
+          "RS0115027",
+          "RS0117046",
+          "RS0117067",
+          "RS0126357"
+        ],
+        "validation": {
+          "cited": 11,
+          "checked": 11,
+          "valid": 22,
+          "invalid": [],
+          "sample_valid": [
+            "RS0111049",
+            "RS0126357",
+            "RS0110261",
+            "RS0083714",
+            "RS0117067",
+            "RS0117046",
+            "RS0111270",
+            "RS0115027",
+            "RS0108130",
+            "RS0110260"
+          ]
+        },
+        "valid": [
+          "RS0083714",
+          "RS0108130",
+          "RS0110260",
+          "RS0110261",
+          "RS0111049",
+          "RS0111270",
+          "RS0115027",
+          "RS0117046",
+          "RS0117067",
+          "RS0126357"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "Art 3 HZÜ",
+          "Art 5 Abs 3 HZÜ",
+          "Art 5 HZÜ",
+          "Art 6 EMRK",
+          "Art 6 HZÜ",
+          "§ 163 Abs 4 Geo",
+          "§ 163 Abs 4+5 Geo",
+          "§ 163 Abs 5 Geo",
+          "§ 163 Abs 5+6 Geo",
+          "§ 163 Geo",
+          "§ 17 Abs 1+3 ZustG",
+          "§ 17 ZustG",
+          "§ 2 Z 4 ZustG",
+          "§ 477 Abs 1 Z 4 ZPO",
+          "§ 477 ZPO",
+          "§ 48 ZPO",
+          "§ 8 ZustG",
+          "§87 ZPO"
+        ],
+        "ungrounded": [
+          "Art 5 HZÜ",
+          "§ 163 Abs 4+5 Geo",
+          "§ 17 Abs 1+3 ZustG",
+          "§87 ZPO"
+        ],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0036936",
+          "RS0041446",
+          "RS0083644",
+          "RS0083714",
+          "RS0108130",
+          "RS0110260",
+          "RS0110261",
+          "RS0111049",
+          "RS0111270",
+          "RS0111369",
+          "RS0113956",
+          "RS0114024",
+          "RS0115027",
+          "RS0117046",
+          "RS0117067",
+          "RS0126357",
+          "RS0134642",
+          "RS0134713"
+        ],
+        "te_ogh": [
+          "1Ob168/25z",
+          "1Ob305/98d",
+          "5Ob163/25v",
+          "9Ob382/97k"
+        ],
+        "norms": [
+          "Art 6 Abs 1 EMRK",
+          "Art 6 EMRK",
+          "§ 108 Abs 3 Geo",
+          "§ 11 ZustG",
+          "§ 13 KSchG",
+          "§ 142 ZPO",
+          "§ 160 Abs 2 ZPO",
+          "§ 163 Geo",
+          "§ 17 Abs 1 ZustG",
+          "§ 17 Abs 3 ZustG",
+          "§ 17 ZustG",
+          "§ 4 ZustG",
+          "§ 477 Abs 1 Z 4 ZPO",
+          "§ 477 ZPO",
+          "§ 48 ZPO",
+          "§ 522 ZPO",
+          "§ 567 Abs 1 ZPO",
+          "§ 57 ZPO",
+          "§ 59 ZPO",
+          "§ 66 ZPO",
+          "§ 7 ZustG",
+          "§ 72 ZPO",
+          "§ 8 ZustG",
+          "§ 87 Abs 1 ZPO",
+          "§235 ZPO"
+        ],
+        "stats": {
+          "rs_count": 18,
+          "te_ogh_count": 4,
+          "norm_count": 25
+        }
+      }
+    },
+    "after": {
+      "pass_hard": true,
+      "fallback_detected": false,
+      "missing_required_citations": false,
+      "missing_postgres_judicature": false,
+      "has_forbidden_rw": false,
+      "query_requires_citations": false,
+      "has_any_citation": true,
+      "has_judicature_citation": true,
+      "quality_degraded": false,
+      "deterministic_postgres_only": false,
+      "deterministic_gate_fallback": false,
+      "likely_prompt_echo": false,
+      "norm_quality_risk": false,
+      "dismissive_citation_risk": false,
+      "rw": {
+        "cited": []
+      },
+      "rs": {
+        "cited": [
+          "RS0083714",
+          "RS0108130",
+          "RS0110260",
+          "RS0110261",
+          "RS0111049",
+          "RS0115027",
+          "RS0117046",
+          "RS0117067",
+          "RS0126357"
+        ],
+        "validation": {
+          "cited": 9,
+          "checked": 9,
+          "valid": 18,
+          "invalid": [],
+          "sample_valid": [
+            "RS0110260",
+            "RS0115027",
+            "RS0111049",
+            "RS0108130",
+            "RS0126357",
+            "RS0110261",
+            "RS0117067",
+            "RS0083714",
+            "RS0117046"
+          ]
+        },
+        "valid": [
+          "RS0083714",
+          "RS0108130",
+          "RS0110260",
+          "RS0110261",
+          "RS0111049",
+          "RS0115027",
+          "RS0117046",
+          "RS0117067",
+          "RS0126357"
+        ],
+        "ungrounded_valid": []
+      },
+      "te_ogh": {
+        "cited": [],
+        "ungrounded": []
+      },
+      "norms": {
+        "cited": [
+          "Art 6 EMRK",
+          "§ 163 Geo",
+          "§ 17 Abs 1 ZustG",
+          "§ 17 Abs 3 ZustG",
+          "§ 17 ZustG",
+          "§ 477 Abs 1 Z 4 ZPO",
+          "§ 477 ZPO",
+          "§ 48 ZPO",
+          "§ 8 ZustG"
+        ],
+        "ungrounded": [],
+        "unknown_law_code": []
+      },
+      "evidence": {
+        "rs": [
+          "RS0036936",
+          "RS0041446",
+          "RS0083644",
+          "RS0083714",
+          "RS0108130",
+          "RS0110260",
+          "RS0110261",
+          "RS0111049",
+          "RS0111270",
+          "RS0111369",
+          "RS0113956",
+          "RS0114024",
+          "RS0115027",
+          "RS0117046",
+          "RS0117067",
+          "RS0126357",
+          "RS0134642",
+          "RS0134713"
+        ],
+        "te_ogh": [
+          "1Ob168/25z",
+          "1Ob305/98d",
+          "5Ob163/25v",
+          "9Ob382/97k"
+        ],
+        "norms": [
+          "Art 6 Abs 1 EMRK",
+          "Art 6 EMRK",
+          "§ 108 Abs 3 Geo",
+          "§ 11 ZustG",
+          "§ 13 KSchG",
+          "§ 142 ZPO",
+          "§ 160 Abs 2 ZPO",
+          "§ 163 Geo",
+          "§ 17 Abs 1 ZustG",
+          "§ 17 Abs 3 ZustG",
+          "§ 17 ZustG",
+          "§ 4 ZustG",
+          "§ 477 Abs 1 Z 4 ZPO",
+          "§ 477 ZPO",
+          "§ 48 ZPO",
+          "§ 522 ZPO",
+          "§ 567 Abs 1 ZPO",
+          "§ 57 ZPO",
+          "§ 59 ZPO",
+          "§ 66 ZPO",
+          "§ 7 ZustG",
+          "§ 72 ZPO",
+          "§ 8 ZustG",
+          "§ 87 Abs 1 ZPO",
+          "§235 ZPO"
+        ],
+        "stats": {
+          "rs_count": 18,
+          "te_ogh_count": 4,
+          "norm_count": 25
+        }
+      }
+    },
+    "repair": {
+      "latency_ms": 11154.9,
+      "model": "x-ai/grok-4.1-fast",
+      "error": null,
+      "usage": {
+        "prompt_tokens": 4616,
+        "completion_tokens": 2541,
+        "total_tokens": 7157,
+        "cost": 0.0021745,
+        "cached_tokens": 128,
+        "reasoning_tokens": 1279
+      }
+    },
+    "answer": "### 1. KERNFRAGEN\n- **Wirksamkeit der Hinterlegungszustellung an abgemeldeter Adresse (§ 17 ZustG iVm § 163 Geo):** Bei längerer Abwesenheit keine Abgabestelle mehr vorhanden (RS0083714, RS0108130), daher unwirksam.\n- **Fehlende Übersetzung und Belehrung:** Verfahrenseinleitende Schriftstücke ohne Übersetzung verletzen fair trial (RS0110261, RS0110260), Zustellung nichtig.\n- **Rekurszulässigkeit gegen Einspruchsablehnung (RS0117046):** Entscheidung über Einspruch anfechtbar.\n\n### 2. RECHTSGRUNDLAGEN\nHauptanspruchsgrundlage: Rekurs gegen Beschluss über Einspruch (§ 163 Geo iVm § 48 ZPO).  \nStufenbau:  \n1. **ZustG-Stufe (§ 17 Abs 1 ZustG, § 17 Abs 3 ZustG iVm § 17 ZustG):** Hinterlegung nur bei fehlender Abgabestelle möglich; nach längerer Abwesenheit unzulässig (§ 8 ZustG).  \n2. **Geo-Stufe (§ 163 Geo):** Pflicht zur Abfrage; fehlende Übersetzung → Zustellung unwirksam.  \n3. **Nichtigkeit (§ 477 Abs 1 Z 4 ZPO iVm Art 6 EMRK):** Gehörentzug durch unwirksame Zustellung → Nichtigkeit.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0083714:** Bei längerer Ortsabwesendheit unzulässige Hinterlegung – relevant.\n- **RS0108130:** Nach längerer Abwesenheit keine Abgabestelle mehr – relevant.\n- **RS0110261:** Zustellung verfahrenseinleitender Schriftstücke ohne Übersetzung unwirksam (fair trial) – relevant.\n- **RS0110260:** Betroffener muss Inhalt verstehen können – relevant.\n- **RS0111049:** Hinterlegung nur, wenn direkte Zustellung unmöglich – relevant.\n- **RS0115027:** § 8 ZustG-Heilung nur bei Verfahrenskenntnis – relevant.\n- **RS0117046:** Rechtshilfe-Anordnung nicht anfechtbar, aber Einspruchsentscheidung ja – relevant für Rekurszulässigkeit.\n- **RS0117067:** Gehörsentzug = Nichtigkeit – relevant.\n- **RS0126357:** Nichtigkeit bei Säumnis durch mangelnde Ladung – relevant.\n\n### 4. SUBSUMTION\n**ZustG-Stufe (§ 17 ZustG):** Bei längerer Abwesenheit keine Abgabestelle; Hinterlegung unzulässig (RS0083714, RS0108130, RS0111049); keine Heilung (§ 8 ZustG, RS0115027).  \n**Geo-Stufe (§ 163 Geo):** Fehlende Abfrage und Übersetzung → Einspruch begründet (RS0110261, RS0110260).  \n**Nichtigkeits-Stufe (§ 477 Abs 1 Z 4 ZPO iVm Art 6 EMRK):** Unwirksame Zustellung = Gehörentzug (RS0117067, RS0126357) → Beschluss nichtig.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Abgabestelle fehlt:** Beweis der Abwesenheit vorliegend; Gericht muss Gegenbeweis erbringen.\n- **Keine Abfrage:** Gericht muss Abfrage nachweisen – fehlt.\n- **Fehlende Übersetzung:** Behauptung vorliegend; Gericht muss Protokoll vorlegen.\n- **Gehörentzug:** Beweis fehlender Kenntnis vorliegend; Gericht muss tatsächliches Zukommen nachweisen.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren:** Aufhebung Beschluss BG Traun, Feststellung Unwirksamkeit der Zustellung (§ 17 ZustG, § 163 Geo).  \n**Eventualbegehren 1:** Rückverweis zur Neubewertung.  \n**Eventualbegehren 2:** Feststellung Nichtigkeit (§ 477 ZPO) wg EMRK-Verstoß.  \nPriorität: ZustG-Stufe zuerst.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1: Bindungswirkung Zustellzeugnis:** **Replik (RS0117046):** Einspruch erlaubt Prüfung.\n- **Risiko 2: Heilung durch § 8 ZustG:** **Replik (RS0115027):** Nur bei Verfahrenskenntnis.\n- **Risiko 3: Abgabestelle trotz Abwesenheit:** **Replik (RS0108130):** Nach längerer Abwesenheit entfallen (RS0083714).\n- **Risiko 4: Kein Gehörentzug (Art 6 EMRK):** **Replik (RS0126357):** Verletzung = Nichtigkeit ex officio.\n\n### 8. ERFOLGSAUSSICHTEN\n- **ZustG-Stufe (§ 17 ZustG):** Hohe Chancen (RS0083714, RS0108130).\n- **Geo-Stufe (§ 163 Geo):** Hohe Chancen (RS0110261).\n- **Nichtigkeits-Stufe (§ 477 ZPO):** Gute Chancen (Art 6 EMRK).\nGesamt: Hohe Erfolgsaussichten.\n\n### 9. STRATEGISCHE DETAILS\n**FRISTEN:** Rekursfrist beachten.  \n**NÄCHSTE SCHRITTE:**  \n1. Rekurs einreichen.  \n2. Akteneinsicht beantragen."
+  },
+  "final_answer": "### 1. KERNFRAGEN\n- **Wirksamkeit der Hinterlegungszustellung an abgemeldeter Adresse (§ 17 ZustG iVm § 163 Geo):** Bei längerer Abwesenheit keine Abgabestelle mehr vorhanden (RS0083714, RS0108130), daher unwirksam.\n- **Fehlende Übersetzung und Belehrung:** Verfahrenseinleitende Schriftstücke ohne Übersetzung verletzen fair trial (RS0110261, RS0110260), Zustellung nichtig.\n- **Rekurszulässigkeit gegen Einspruchsablehnung (RS0117046):** Entscheidung über Einspruch anfechtbar.\n\n### 2. RECHTSGRUNDLAGEN\nHauptanspruchsgrundlage: Rekurs gegen Beschluss über Einspruch (§ 163 Geo iVm § 48 ZPO).  \nStufenbau:  \n1. **ZustG-Stufe (§ 17 Abs 1 ZustG, § 17 Abs 3 ZustG iVm § 17 ZustG):** Hinterlegung nur bei fehlender Abgabestelle möglich; nach längerer Abwesenheit unzulässig (§ 8 ZustG).  \n2. **Geo-Stufe (§ 163 Geo):** Pflicht zur Abfrage; fehlende Übersetzung → Zustellung unwirksam.  \n3. **Nichtigkeit (§ 477 Abs 1 Z 4 ZPO iVm Art 6 EMRK):** Gehörentzug durch unwirksame Zustellung → Nichtigkeit.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0083714:** Bei längerer Ortsabwesendheit unzulässige Hinterlegung – relevant.\n- **RS0108130:** Nach längerer Abwesenheit keine Abgabestelle mehr – relevant.\n- **RS0110261:** Zustellung verfahrenseinleitender Schriftstücke ohne Übersetzung unwirksam (fair trial) – relevant.\n- **RS0110260:** Betroffener muss Inhalt verstehen können – relevant.\n- **RS0111049:** Hinterlegung nur, wenn direkte Zustellung unmöglich – relevant.\n- **RS0115027:** § 8 ZustG-Heilung nur bei Verfahrenskenntnis – relevant.\n- **RS0117046:** Rechtshilfe-Anordnung nicht anfechtbar, aber Einspruchsentscheidung ja – relevant für Rekurszulässigkeit.\n- **RS0117067:** Gehörsentzug = Nichtigkeit – relevant.\n- **RS0126357:** Nichtigkeit bei Säumnis durch mangelnde Ladung – relevant.\n\n### 4. SUBSUMTION\n**ZustG-Stufe (§ 17 ZustG):** Bei längerer Abwesenheit keine Abgabestelle; Hinterlegung unzulässig (RS0083714, RS0108130, RS0111049); keine Heilung (§ 8 ZustG, RS0115027).  \n**Geo-Stufe (§ 163 Geo):** Fehlende Abfrage und Übersetzung → Einspruch begründet (RS0110261, RS0110260).  \n**Nichtigkeits-Stufe (§ 477 Abs 1 Z 4 ZPO iVm Art 6 EMRK):** Unwirksame Zustellung = Gehörentzug (RS0117067, RS0126357) → Beschluss nichtig.\n\n### 5. BEWEISLASTVERTEILUNG\n- **Abgabestelle fehlt:** Beweis der Abwesenheit vorliegend; Gericht muss Gegenbeweis erbringen.\n- **Keine Abfrage:** Gericht muss Abfrage nachweisen – fehlt.\n- **Fehlende Übersetzung:** Behauptung vorliegend; Gericht muss Protokoll vorlegen.\n- **Gehörentzug:** Beweis fehlender Kenntnis vorliegend; Gericht muss tatsächliches Zukommen nachweisen.\n\n### 6. PROZESSSTRATEGIE\n**Hauptbegehren:** Aufhebung Beschluss BG Traun, Feststellung Unwirksamkeit der Zustellung (§ 17 ZustG, § 163 Geo).  \n**Eventualbegehren 1:** Rückverweis zur Neubewertung.  \n**Eventualbegehren 2:** Feststellung Nichtigkeit (§ 477 ZPO) wg EMRK-Verstoß.  \nPriorität: ZustG-Stufe zuerst.\n\n### 7. RISIKEN / GEGENARGUMENTE\n- **Risiko 1: Bindungswirkung Zustellzeugnis:** **Replik (RS0117046):** Einspruch erlaubt Prüfung.\n- **Risiko 2: Heilung durch § 8 ZustG:** **Replik (RS0115027):** Nur bei Verfahrenskenntnis.\n- **Risiko 3: Abgabestelle trotz Abwesenheit:** **Replik (RS0108130):** Nach längerer Abwesenheit entfallen (RS0083714).\n- **Risiko 4: Kein Gehörentzug (Art 6 EMRK):** **Replik (RS0126357):** Verletzung = Nichtigkeit ex officio.\n\n### 8. ERFOLGSAUSSICHTEN\n- **ZustG-Stufe (§ 17 ZustG):** Hohe Chancen (RS0083714, RS0108130).\n- **Geo-Stufe (§ 163 Geo):** Hohe Chancen (RS0110261).\n- **Nichtigkeits-Stufe (§ 477 ZPO):** Gute Chancen (Art 6 EMRK).\nGesamt: Hohe Erfolgsaussichten.\n\n### 9. STRATEGISCHE DETAILS\n**FRISTEN:** Rekursfrist beachten.  \n**NÄCHSTE SCHRITTE:**  \n1. Rekurs einreichen.  \n2. Akteneinsicht beantragen.\n\n**Ergänzung aus Aktenkontext:**\n- **FRISTEN: Frist 13.07.2024; Fristablauf: 13.07.2024; bis 09.03.2026**\n- **KOSTEN: EUR 454,00**\n- **PARALLELE VERFAHREN: Case 24-02942-mg; Chapter 11; SDNY**",
+  "elapsed_ms": 82419.32
+}

@@ -20,7 +20,9 @@ Verwendung mit Gemini CLI:
 import asyncio
 import json
 import os
-from typing import Any
+import re
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
 import psycopg2
@@ -325,7 +327,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="search_kommentar_paragraph",
-            description="Sucht Kommentar-Artikel (kommentar.artikel) nach Paragraphenreferenz, bevorzugt aktuelle Fassungen (is_latest).",
+            description="Sucht Kommentar-Artikel zu einer Paragraphenreferenz quellenübergreifend: kommentar.artikel (ABGB-ON, Rummel, Lexis, WK2-StGB, ZPO-ON, EO3, UGB-ON etc.) UND public.wk_kommentare (KBB Koziol/Bydlinski/Bollenberger Kurzkommentar zum ABGB, WK²-StGB, etc.). Liefert pro Treffer Werk, Kommentator, RZ-Count.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -344,6 +346,29 @@ async def list_tools() -> list[Tool]:
                     }
                 },
                 "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_kbb_randziffer",
+            description="RZ-granulare Volltext-Suche im KBB-Kurzkommentar zum ABGB (Koziol/Bydlinski/Bollenberger, 3. Aufl. 2010) via public.wk_randziffern. Liefert pro Treffer: §, RZ-Nummer, Section, Volltext der RZ, alle erwähnten OGH-Geschäftszahlen, §-Cross-Refs. Geeignet für gezielte juristische Stichwort-Recherche.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Suchbegriff(e) für FTS-Volltextsuche, z.B. 'culpa in contrahendo', 'Schutzwirkung Dritter'"
+                    },
+                    "paragraph": {
+                        "type": "string",
+                        "description": "Optional: §-Filter, z.B. '§ 1295 ABGB' für RZ nur aus diesem §"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximale Anzahl RZ-Treffer (default: 10, max: 50)",
+                        "default": 10
+                    }
+                },
+                "required": ["query"]
             }
         ),
         Tool(
@@ -368,7 +393,239 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["keyword"]
             }
-        )
+        ),
+        Tool(
+            name="search_lehrbuch",
+            description="Durchsucht Lehrbuch-Inhalte (PSK Perner/Spitzer/Kodek + Riedler Schuldrecht) via Volltextsuche. Liefert Kapitel, Abschnitt, §-Referenzen und Textauszug.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Suchbegriff(e) für die Volltextsuche, z.B. 'Gutgläubiger Erwerb', 'Bereicherung Kondiktionstypen'"
+                    },
+                    "rechtsgebiet": {
+                        "type": "string",
+                        "description": "Optional: Filter nach Rechtsgebiet (SCHADENERSATZ, SACHENRECHT, BEREICHERUNGSRECHT, VERTRAEGE, SCHULDRECHT_AT, MEHRPERSONAL, FAMILIENRECHT, INTERNATIONALE_BEZUEGE, GOA, SCHULDRECHT_BT)"
+                    },
+                    "werk": {
+                        "type": "string",
+                        "description": "Optional: Filter nach Werk (PSK oder RIEDLER)"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximale Anzahl der Ergebnisse (default: 5, max: 20)",
+                        "default": 5
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
+        Tool(
+            name="get_klang_artikel",
+            description="Ruft einen vollständigen Klang³-Großkommentar-Artikel ab (alle Randziffern + Übersicht + Literatur). Klang³ = Fenyves/Kerschner/Vonkilch, 3. Aufl. Deckt ABGB (26 Bände, ~24.000 Rz), KSchG, EheG/EPG und AHG ab.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {
+                        "type": "string",
+                        "description": "Paragraph, z.B. '364', '§ 364', '364a', '§ 12a KSchG', '§ 1 ABGB'"
+                    },
+                    "law": {
+                        "type": "string",
+                        "description": "Gesetz: 'ABGB' (default), 'KSchG', 'EheG_EPG', 'AHG'. Wird ignoriert wenn im paragraph-String enthalten.",
+                        "default": "ABGB"
+                    }
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_klang_randziffer",
+            description="Ruft eine einzelne Randziffer aus dem Klang³-Kommentar ab (Volltext + OGH-Zitate + RS-Zitate + Seitenangaben).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {
+                        "type": "string",
+                        "description": "Paragraph, z.B. '364', '§ 364 ABGB', '12a', '§ 12a KSchG'"
+                    },
+                    "rz_num": {
+                        "type": "integer",
+                        "description": "Randziffer-Nummer (positiver Integer)"
+                    },
+                    "law": {
+                        "type": "string",
+                        "description": "Gesetz: 'ABGB' (default), 'KSchG', 'EheG_EPG', 'AHG'",
+                        "default": "ABGB"
+                    }
+                },
+                "required": ["paragraph", "rz_num"]
+            }
+        ),
+        Tool(
+            name="search_klang_by_paragraph",
+            description="Liefert Kurzübersicht eines Klang³-Artikels: Rz-Count, Autoren, Stand-Datum, erste 200 Zeichen jeder Rz (kein Volltext). Für initiale Orientierung vor get_klang_artikel.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {
+                        "type": "string",
+                        "description": "Paragraph, z.B. '364', '§ 364 ABGB', '12a KSchG'"
+                    },
+                    "law": {
+                        "type": "string",
+                        "description": "Gesetz: 'ABGB' (default), 'KSchG', 'EheG_EPG', 'AHG'",
+                        "default": "ABGB"
+                    }
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_klang_keyword",
+            description="Volltextsuche über alle Randziffern im Klang³-Großkommentar-Korpus (ABGB + KSchG + EheG_EPG + AHG). Case-insensitive Substring-Match; liefert §-Ref, Rz-Nummer, Snippet und Score (Anzahl Treffer).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {
+                        "type": "string",
+                        "description": "Suchbegriff, z.B. 'Laesio enormis', 'culpa in contrahendo', 'Eigentumsfreiheitsklage'"
+                    },
+                    "korpora": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Optional: Korpus-Filter, z.B. ['ABGB', 'KSchG']. Default: alle vier Korpora."
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximale Ergebnisanzahl (default: 50, max: 200)",
+                        "default": 50
+                    }
+                },
+                "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="get_leipziger_artikel",
+            description="Ruft einen vollständigen Leipziger-Kommentar-zum-StGB Artikel ab (alle Randnummern + alle Fußnoten). LK-StGB 13. Aufl. de Gruyter (Cirener/Radtke/Rissing-van Saan/Rönnau). 18 Bände 13. Aufl. + 2 Bände 12. Aufl. (Ersatz für §§ 263-266b u. §§ 331-358).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "Paragraph, z.B. '211', '§ 211', '263a', '§ 218a StGB'"},
+                    "law": {"type": "string", "default": "StGB"},
+                    "edition": {"type": "integer", "description": "Auflage (13 oder 12). Default: automatisch — 13. Aufl. bevorzugt, Fallback 12.", "default": None}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_leipziger_randziffer",
+            description="Ruft eine einzelne Randnummer aus dem Leipziger-StGB ab (Volltext + Fußnoten + Zitiervorschlag).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "Paragraph, z.B. '211', '§ 263a'"},
+                    "rn_num": {"type": "integer", "description": "Randnummer-Nummer"},
+                    "law": {"type": "string", "default": "StGB"},
+                    "edition": {"type": "integer", "default": None},
+                    "include_footnotes": {"type": "boolean", "description": "Fußnoten mit Volltext mitliefern (default true)", "default": True}
+                },
+                "required": ["paragraph", "rn_num"]
+            }
+        ),
+        Tool(
+            name="search_leipziger_by_paragraph",
+            description="Kurzübersicht eines Leipziger-StGB-Artikels: rn_count, Autoren, Edition, 200-char-Snippet je Rn + Fußnoten-Anzahl. Für Orientierung vor get_leipziger_artikel.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "law": {"type": "string", "default": "StGB"},
+                    "edition": {"type": "integer", "default": None}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_leipziger_keyword",
+            description="Volltextsuche über alle Leipziger-StGB-Randnummern. Optional inkl. Fußnoten-Texte (in_footnotes=true).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string"},
+                    "max_results": {"type": "integer", "default": 50},
+                    "in_footnotes": {"type": "boolean", "description": "Auch Fußnoten-Texte durchsuchen", "default": False},
+                    "edition": {"type": "integer", "default": None}
+                },
+                "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="get_vvg_artikel",
+            description="Ruft einen vollständigen Bruck/Möller-VVG-Großkommentar Artikel ab (alle Randnummern + alle Fußnoten). 10. Aufl. (de Gruyter, Beckmann/Koch) für §§ 1-73 + 100-124; 9. Aufl. (A9) als Ersatz für §§ 74-99 + 125-216. 210 §§ extrahiert (97.2% Coverage von §§ 1-216), 11.766 Rn, 99.5% enriched.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "Paragraph, z.B. '100', '§ 100', '§ 28 VVG', '7a'"},
+                    "edition": {"type": "integer", "description": "Auflage (10 oder 9). Default: 10 bevorzugt, Fallback 9.", "default": None}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_vvg_randziffer",
+            description="Ruft eine einzelne Randnummer aus dem Bruck/Möller VVG-Großkommentar ab (Volltext + Fußnoten + Zitiervorschlag).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "rn_num": {"type": "integer"},
+                    "edition": {"type": "integer", "default": None},
+                    "include_footnotes": {"type": "boolean", "default": True}
+                },
+                "required": ["paragraph", "rn_num"]
+            }
+        ),
+        Tool(
+            name="search_vvg_by_paragraph",
+            description="Kurzübersicht eines VVG-Großkommentar-Artikels: rn_count, Autoren, Edition, 200-char-Snippet je Rn + Schlagworte. Für Orientierung vor get_vvg_artikel.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "edition": {"type": "integer", "default": None}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_vvg_keyword",
+            description="Volltextsuche über alle Bruck/Möller VVG-Großkommentar Randnummern. Optional inkl. Fußnoten-Texte. Deckt §§ 1-216 VVG + Bedingungswerke (AHB 2016, ARB 2010/2012, AKB 2015).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string"},
+                    "max_results": {"type": "integer", "default": 50},
+                    "in_footnotes": {"type": "boolean", "default": False},
+                    "edition": {"type": "integer", "default": None},
+                    "include_bedingungen": {"type": "boolean", "description": "Auch AHB/ARB/AKB-Bedingungswerke durchsuchen", "default": True}
+                },
+                "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="get_vvg_bedingung",
+            description="Ruft eine Klausel aus den VVG-Bedingungswerken ab (AHB 2016 / ARB 2010/2012 / AKB 2015). Werk + Klausel-ID nötig.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "werk": {"type": "string", "description": "AHB_2016 | ARB_2010 | AKB_2015", "enum": ["AHB_2016", "ARB_2010", "AKB_2015"]},
+                    "klausel_id": {"type": "string", "description": "Klausel-ID, z.B. 'Ziff. 1', 'Ziff. 7.1', '§ 5' (ARB), 'A.1.2' (AKB)"}
+                },
+                "required": ["werk", "klausel_id"]
+            }
+        ),
     ]
 
 
@@ -441,8 +698,182 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
+    elif name == "search_lehrbuch":
+        result = search_lehrbuch(
+            arguments.get("query", ""),
+            arguments.get("rechtsgebiet", ""),
+            arguments.get("werk", ""),
+            arguments.get("limit", 5),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_kbb_randziffer":
+        result = search_kbb_randziffer(
+            arguments.get("query", ""),
+            arguments.get("paragraph", ""),
+            arguments.get("limit", 10),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_klang_artikel":
+        result = get_klang_artikel(
+            arguments.get("paragraph", ""),
+            arguments.get("law", "ABGB"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_klang_randziffer":
+        result = search_klang_randziffer(
+            arguments.get("paragraph", ""),
+            arguments.get("rz_num", 1),
+            arguments.get("law", "ABGB"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_klang_by_paragraph":
+        result = search_klang_by_paragraph(
+            arguments.get("paragraph", ""),
+            arguments.get("law", "ABGB"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_klang_keyword":
+        result = search_klang_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("korpora", None),
+            arguments.get("max_results", 50),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_leipziger_artikel":
+        result = get_leipziger_artikel(
+            arguments.get("paragraph", ""),
+            arguments.get("law", "StGB"),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_leipziger_randziffer":
+        result = search_leipziger_randziffer(
+            arguments.get("paragraph", ""),
+            arguments.get("rn_num", 1),
+            arguments.get("law", "StGB"),
+            arguments.get("edition"),
+            arguments.get("include_footnotes", True),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_leipziger_by_paragraph":
+        result = search_leipziger_by_paragraph(
+            arguments.get("paragraph", ""),
+            arguments.get("law", "StGB"),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_leipziger_keyword":
+        result = search_leipziger_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("max_results", 50),
+            arguments.get("in_footnotes", False),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_vvg_artikel":
+        result = get_vvg_artikel(
+            arguments.get("paragraph", ""),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_vvg_randziffer":
+        result = search_vvg_randziffer(
+            arguments.get("paragraph", ""),
+            arguments.get("rn_num", 1),
+            arguments.get("edition"),
+            arguments.get("include_footnotes", True),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_vvg_by_paragraph":
+        result = search_vvg_by_paragraph(
+            arguments.get("paragraph", ""),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_vvg_keyword":
+        result = search_vvg_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("max_results", 50),
+            arguments.get("in_footnotes", False),
+            arguments.get("edition"),
+            arguments.get("include_bedingungen", True),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_vvg_bedingung":
+        result = get_vvg_bedingung(
+            arguments.get("werk", ""),
+            arguments.get("klausel_id", ""),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
     else:
         return [TextContent(type="text", text=f"Unknown tool: {name}")]
+
+
+def search_kbb_randziffer(query: str, paragraph: str = "", limit: int = 10) -> dict:
+    """RZ-granulare Volltext-Suche im KBB-Kurzkommentar via public.wk_randziffern FTS."""
+    query = clamp_query(query, 300)
+    paragraph = clamp_query(paragraph, 100)
+    limit = clamp_limit(limit, default=10, max_value=50)
+    if not query:
+        return {"query": query, "paragraph": paragraph or None, "count": 0, "results": []}
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Build websearch_to_tsquery for forgiving search (handles phrases, AND-tokens)
+        para_filter = ""
+        extra_params: list[Any] = []
+        if paragraph:
+            para_filter = " AND k.paragraph_ref = %s"
+            extra_params.append(paragraph)
+
+        cursor.execute(
+            f"""
+            SELECT k.paragraph_ref, k.kommentator, rz.rz_raw, rz.section,
+                   rz.text, rz.ogh_cases, rz.paragraphen_refs,
+                   ts_rank(rz.text_tsvector, websearch_to_tsquery('german', %s)) AS rank
+            FROM public.wk_randziffern rz
+            JOIN public.wk_kommentare k ON k.id = rz.kommentar_id
+            WHERE k.werk = 'KBB'
+              AND rz.text_tsvector @@ websearch_to_tsquery('german', %s)
+              {para_filter}
+            ORDER BY rank DESC, k.paragraph_ref
+            LIMIT %s
+            """,
+            tuple([query, query] + extra_params + [limit]),
+        )
+        rows = cursor.fetchall()
+        results = [
+            {
+                "paragraph_ref": r[0],
+                "kommentator": r[1],
+                "rz": r[2],
+                "section": r[3],
+                "text": (r[4] or "")[:1500],
+                "ogh_cases": r[5] or [],
+                "paragraphen_refs": r[6] or [],
+                "relevance": float(r[7]) if r[7] is not None else None,
+            }
+            for r in rows
+        ]
+        return {"query": query, "paragraph": paragraph or None, "count": len(results), "results": results}
+    finally:
+        cursor.close()
 
 
 async def ask_gemini(question: str, context: str = "") -> str:
@@ -999,6 +1430,7 @@ def search_kommentar_paragraph(paragraph: str, law: str = "", limit: int = 10) -
 
         results = [
             {
+                "source": "kommentar.artikel",
                 "artikel_id": r[0],
                 "werk_id": r[1],
                 "paragraph_ref": r[2],
@@ -1013,6 +1445,44 @@ def search_kommentar_paragraph(paragraph: str, law: str = "", limit: int = 10) -
             }
             for r in rows
         ]
+
+        # Also query public.wk_kommentare (KBB, WK²)
+        wk_law_filter = ""
+        wk_params: list[Any] = [paragraph]
+        if law:
+            wk_law_filter = " AND lower(coalesce(k.law, '')) = lower(%s)"
+            wk_params.append(law)
+        wk_params.append(limit)
+        cursor.execute(
+            f"""
+            SELECT k.id, k.werk, k.paragraph_ref, k.title, k.law, k.doc_type,
+                   k.rechtsgebiet_primary, k.kommentator, k.auflage, k.rz_count,
+                   coalesce((SELECT count(*) FROM public.wk_randziffern rz WHERE rz.kommentar_id = k.id), 0) AS rz_actual
+            FROM public.wk_kommentare k
+            WHERE k.paragraph_ref = %s
+              {wk_law_filter}
+            ORDER BY k.werk, k.id
+            LIMIT %s
+            """,
+            tuple(wk_params),
+        )
+        wk_rows = cursor.fetchall()
+        for r in wk_rows:
+            results.append({
+                "source": "public.wk_kommentare",
+                "kommentar_id": r[0],
+                "werk": r[1],
+                "paragraph_ref": r[2],
+                "title": r[3],
+                "law": r[4],
+                "doc_type": r[5],
+                "rechtsgebiet": r[6],
+                "kommentator": r[7],
+                "auflage": r[8],
+                "rz_count": r[9],
+                "rz_actual": r[10],
+            })
+
         return {"paragraph": paragraph, "law": law or None, "count": len(results), "results": results}
     finally:
         cursor.close()
@@ -1091,6 +1561,1171 @@ def search_kommentar_keyword(keyword: str, law: str = "", limit: int = 10) -> di
         return {"keyword": keyword, "law": law or None, "count": len(results), "results": results}
     finally:
         cursor.close()
+
+
+# ============================================================================
+# LEHRBUCH SEARCH
+# ============================================================================
+
+def search_lehrbuch(query: str, rechtsgebiet: str = "", werk: str = "", limit: int = 5) -> dict:
+    """Search lehrbuch sections via FTS, return kapitel, titel, excerpt, §-refs."""
+    query = clamp_query(query)
+    limit = clamp_limit(limit, 5, 20)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        where_clauses = ["fts_vector @@ plainto_tsquery('german', %s)"]
+        params: list = [query]
+        if rechtsgebiet:
+            where_clauses.append("rechtsgebiet = %s")
+            params.append(rechtsgebiet.upper())
+        if werk:
+            where_clauses.append("werk = %s")
+            params.append(werk.upper())
+        where = " AND ".join(where_clauses)
+        params.append(limit)
+
+        cursor.execute(f"""
+            SELECT id, werk, kapitel, rechtsgebiet, abschnitt_nr, titel,
+                   seite_von, seite_bis, paragraph_refs, char_count,
+                   ts_rank(fts_vector, plainto_tsquery('german', %s)) as rank,
+                   ts_headline('german', text, plainto_tsquery('german', %s),
+                               'StartSel=**,StopSel=**,MaxWords=60,MinWords=20') as excerpt
+            FROM lehrbuch.abschnitt
+            WHERE {where}
+            ORDER BY rank DESC
+            LIMIT %s
+        """, [query, query] + params)
+
+        results = []
+        for row in cursor.fetchall():
+            results.append({
+                "id": row[0],
+                "werk": row[1],
+                "kapitel": row[2],
+                "rechtsgebiet": row[3],
+                "abschnitt_nr": row[4],
+                "titel": row[5],
+                "seite_von": row[6],
+                "seite_bis": row[7],
+                "paragraph_refs": row[8],
+                "char_count": row[9],
+                "rank": round(row[10], 4),
+                "excerpt": row[11],
+            })
+
+        return {"query": query, "rechtsgebiet": rechtsgebiet or None, "werk": werk or None,
+                "count": len(results), "results": results}
+    finally:
+        cursor.close()
+
+
+# ============================================================================
+# KLANG3 GROSSKOMMENTAR — FILE-BASED TOOLS
+# ============================================================================
+
+# Corpus root directories (keyed by canonical law token used in filenames)
+_KLANG3_CORPUS_DIRS: dict[str, Path] = {
+    "ABGB":      Path("/Users/reinhardberger/HCS/Kommentare/AT/ABGB/klang3/extracted"),
+    "KSchG":     Path("/Users/reinhardberger/HCS/Kommentare/AT/KSCHG/klang3/extracted"),
+    "EheG_EPG":  Path("/Users/reinhardberger/HCS/Kommentare/AT/EHEG_EPG/klang3/extracted"),
+    "AHG":       Path("/Users/reinhardberger/HCS/Kommentare/AT/AHG/klang3/extracted"),
+}
+
+# Aliases: normalised user input → canonical filename law token
+_LAW_ALIASES: dict[str, str] = {
+    "abgb": "ABGB",
+    "kschg": "KSchG",
+    "kscg": "KSchG",
+    "eheg_epg": "EheG_EPG",
+    "eheg": "EheG_EPG",
+    "epg": "EheG_EPG",
+    "eheg/epg": "EheG_EPG",
+    "ahg": "AHG",
+}
+
+# Module-level keyword search cache: law_token -> list of (paragraph_ref, rz_num, rz_text, authors, page_from)
+_klang3_cache: dict[str, list[tuple]] = {}
+
+
+def _resolve_law(law_input: str) -> Optional[str]:
+    """Normalise user-supplied law string to canonical filename token, or None if unknown."""
+    return _LAW_ALIASES.get(law_input.lower().strip(), None)
+
+
+def _parse_paragraph_input(paragraph: str, default_law: str = "ABGB") -> Tuple[str, str, str]:
+    """Parse varied paragraph inputs to (law_token, num_str, suffix).
+
+    Handles: '364', '§ 364', '364a', '§ 364a', '§ 1 ABGB', '§ 12a KSchG'.
+    Returns canonical law_token (for filename lookup), numeric string, and lowercase suffix.
+    """
+    text = paragraph.strip()
+
+    # Strip leading '§' and whitespace
+    text = re.sub(r"^§\s*", "", text).strip()
+
+    # Try to extract trailing law token (e.g. "364 ABGB", "12a KSchG", "100 EheG_EPG")
+    law_from_input: Optional[str] = None
+    m = re.match(r"^(\d+[a-z]*)\s+(.+)$", text, re.IGNORECASE)
+    if m:
+        candidate_law = m.group(2).strip()
+        resolved = _resolve_law(candidate_law)
+        if resolved:
+            law_from_input = resolved
+            text = m.group(1).strip()
+        # else: the trailing part might not be a law name — keep full text for num+suffix parsing
+
+    # Now text should be just the number (possibly with suffix), e.g. '364', '364a', '1216c'
+    m2 = re.match(r"^(\d+)([a-z]*)$", text, re.IGNORECASE)
+    if not m2:
+        # last fallback: extract first digit sequence
+        m3 = re.search(r"(\d+)([a-z]*)", text, re.IGNORECASE)
+        if m3:
+            num_str = m3.group(1)
+            suffix = m3.group(2).lower()
+        else:
+            num_str = text
+            suffix = ""
+    else:
+        num_str = m2.group(1)
+        suffix = m2.group(2).lower()
+
+    # Resolve law: explicit > default_law
+    if law_from_input:
+        law_token = law_from_input
+    else:
+        law_token = _resolve_law(default_law) or "ABGB"
+
+    return law_token, num_str, suffix
+
+
+def _find_klang3_file(law_token: str, num_str: str, suffix: str) -> Optional[Path]:
+    """Locate the JSON file for a given paragraph in the appropriate corpus directory.
+
+    Filename pattern: __{num_str}{suffix}_{law_token}__{Author}__Klang3.json
+    Tries exact num+suffix first, then falls back to num-only if suffix is empty.
+    """
+    corpus_dir = _KLANG3_CORPUS_DIRS.get(law_token)
+    if not corpus_dir or not corpus_dir.exists():
+        return None
+
+    # Build the prefix we need: __<num><suffix>_<law>__
+    para_part = f"{num_str}{suffix}"
+    prefix = f"__{para_part}_{law_token}__"
+    # Note: filenames use single underscore between num/law, double-underscore around
+    # Actual pattern observed: __364_ABGB__Author__Klang3.json
+    # i.e. __{para}_{law}__{author}__Klang3.json
+    # So prefix = f"__{para_part}_{law_token}__"
+
+    for p in corpus_dir.glob(f"__{para_part}_{law_token}__*__Klang3.json"):
+        return p
+
+    # Also try the case where suffix letter is uppercase (defensive)
+    if suffix:
+        for p in corpus_dir.glob(f"__{num_str}{suffix.upper()}_{law_token}__*__Klang3.json"):
+            return p
+
+    return None
+
+
+def _load_klang_file(path: Path) -> Optional[dict]:
+    """Load and return parsed JSON from a Klang3 file; None on any error."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _load_klang_corpus_cache(law_token: str) -> List[tuple]:
+    """Load all RZ tuples for a corpus into the module cache (lazy, one-shot per law).
+
+    Each tuple: (paragraph_ref, law, rz_num, rz_text, authors, page_from)
+    """
+    if law_token in _klang3_cache:
+        return _klang3_cache[law_token]
+
+    corpus_dir = _KLANG3_CORPUS_DIRS.get(law_token)
+    if not corpus_dir or not corpus_dir.exists():
+        _klang3_cache[law_token] = []
+        return []
+
+    entries: List[tuple] = []
+    for json_path in sorted(corpus_dir.glob("*__Klang3.json")):
+        data = _load_klang_file(json_path)
+        if not data:
+            continue
+        meta = _leipziger_meta(data)
+        paragraph_ref = meta.get("paragraph_ref", "")
+        law = meta.get("law", law_token)
+        authors = meta.get("authors", [])
+        for rz in data.get("randziffern", []):
+            entries.append((
+                paragraph_ref,
+                law,
+                rz.get("rz_num"),
+                rz.get("rz_text", ""),
+                authors,
+                rz.get("page_from"),
+            ))
+
+    _klang3_cache[law_token] = entries
+    return entries
+
+
+def get_klang_artikel(paragraph: str, law: str = "ABGB") -> dict:
+    """Return full Klang³ article for a paragraph: meta + uebersicht + literatur + all randziffern."""
+    paragraph = clamp_query(paragraph, 100)
+    law = clamp_query(law, 30)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+
+    law_token, num_str, suffix = _parse_paragraph_input(paragraph, law)
+    file_path = _find_klang3_file(law_token, num_str, suffix)
+    if not file_path:
+        return {
+            "found": False,
+            "paragraph": paragraph,
+            "law": law_token,
+            "reason": "paragraph_not_found_in_klang3_corpus",
+        }
+
+    data = _load_klang_file(file_path)
+    if not data:
+        return {"found": False, "reason": "file_load_error", "file": str(file_path)}
+
+    return {
+        "found": True,
+        "source": "Klang3",
+        "meta": data.get("meta", {}),
+        "uebersicht": data.get("uebersicht", ""),
+        "literatur": data.get("literatur", ""),
+        "stammfassung": data.get("stammfassung", ""),
+        "randziffern": data.get("randziffern", []),
+        "citations_summary": data.get("citations_summary", {}),
+        "stats": data.get("stats", {}),
+    }
+
+
+def search_klang_randziffer(paragraph: str, rz_num: int, law: str = "ABGB") -> dict:
+    """Return a single Klang³ Randziffer with full text, citations, and Zitiervorschlag."""
+    paragraph = clamp_query(paragraph, 100)
+    law = clamp_query(law, 30)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+
+    try:
+        rz_num = int(rz_num)
+    except (TypeError, ValueError):
+        return {"found": False, "reason": "invalid_rz_num"}
+
+    law_token, num_str, suffix = _parse_paragraph_input(paragraph, law)
+    file_path = _find_klang3_file(law_token, num_str, suffix)
+    if not file_path:
+        return {
+            "found": False,
+            "paragraph": paragraph,
+            "law": law_token,
+            "reason": "paragraph_not_found_in_klang3_corpus",
+        }
+
+    data = _load_klang_file(file_path)
+    if not data:
+        return {"found": False, "reason": "file_load_error"}
+
+    meta = _leipziger_meta(data)
+    for rz in data.get("randziffern", []):
+        if rz.get("rz_num") == rz_num:
+            # Build a concrete Zitiervorschlag with the actual Rz number
+            zitier_base = meta.get("zitiervorschlag", "")
+            zitiervorschlag = zitier_base.replace(" Rz N", f" Rz {rz_num}")
+            return {
+                "found": True,
+                "source": "Klang3",
+                "paragraph_ref": meta.get("paragraph_ref", ""),
+                "law": meta.get("law", law_token),
+                "authors": meta.get("authors", []),
+                "stand_date": meta.get("stand_date", ""),
+                "volume_id": meta.get("volume_id", ""),
+                "zitiervorschlag": zitiervorschlag,
+                "rz_num": rz.get("rz_num"),
+                "rz_text": rz.get("rz_text", ""),
+                "ogh_zitate": rz.get("ogh_zitate", []),
+                "rs_zitate": rz.get("rs_zitate", []),
+                "page_from": rz.get("page_from"),
+                "page_to": rz.get("page_to"),
+                "anchor_side": rz.get("anchor_side"),
+                "char_count": rz.get("char_count"),
+            }
+
+    return {
+        "found": False,
+        "paragraph_ref": meta.get("paragraph_ref", ""),
+        "rz_num": rz_num,
+        "reason": "rz_not_found",
+        "rz_count": data.get("stats", {}).get("rz_count"),
+    }
+
+
+def search_klang_by_paragraph(paragraph: str, law: str = "ABGB") -> dict:
+    """Return short overview of a Klang³ article: rz_count, authors, stand_date, 200-char snippet per Rz."""
+    paragraph = clamp_query(paragraph, 100)
+    law = clamp_query(law, 30)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+
+    law_token, num_str, suffix = _parse_paragraph_input(paragraph, law)
+    file_path = _find_klang3_file(law_token, num_str, suffix)
+    if not file_path:
+        return {
+            "found": False,
+            "paragraph": paragraph,
+            "law": law_token,
+            "reason": "paragraph_not_found_in_klang3_corpus",
+        }
+
+    data = _load_klang_file(file_path)
+    if not data:
+        return {"found": False, "reason": "file_load_error"}
+
+    meta = _leipziger_meta(data)
+    stats = data.get("stats", {})
+    rz_overview = [
+        {
+            "rz_num": rz.get("rz_num"),
+            "snippet": (rz.get("rz_text", "") or "")[:200],
+            "ogh_zitate_count": len(rz.get("ogh_zitate", [])),
+            "rs_zitate_count": len(rz.get("rs_zitate", [])),
+            "page_from": rz.get("page_from"),
+        }
+        for rz in data.get("randziffern", [])
+    ]
+
+    return {
+        "found": True,
+        "source": "Klang3",
+        "paragraph_ref": meta.get("paragraph_ref", ""),
+        "law": meta.get("law", law_token),
+        "authors": meta.get("authors", []),
+        "stand_date": meta.get("stand_date", ""),
+        "volume_id": meta.get("volume_id", ""),
+        "zitiervorschlag": meta.get("zitiervorschlag", ""),
+        "rz_count": stats.get("rz_count", len(rz_overview)),
+        "page_from": stats.get("page_from"),
+        "page_to": stats.get("page_to"),
+        "total_chars": stats.get("total_chars"),
+        "citations_summary": data.get("citations_summary", {}),
+        "rz_overview": rz_overview,
+    }
+
+
+def search_klang_keyword(keyword: str, korpora: Optional[List[str]] = None, max_results: int = 50) -> dict:
+    """Case-insensitive keyword search over all Klang³ Randziffern; scored by occurrence count."""
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=50, max_value=200)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+
+    # Normalise corpus list
+    valid_tokens = list(_KLANG3_CORPUS_DIRS.keys())
+    if korpora:
+        selected = []
+        for k in korpora:
+            resolved = _resolve_law(str(k))
+            if resolved and resolved in valid_tokens:
+                selected.append(resolved)
+        if not selected:
+            selected = valid_tokens
+    else:
+        selected = valid_tokens
+
+    kw_lower = keyword.lower()
+    matches: List[dict] = []
+
+    for law_token in selected:
+        entries = _load_klang_corpus_cache(law_token)
+        for paragraph_ref, law, rz_num, rz_text, authors, page_from in entries:
+            if not rz_text:
+                continue
+            score = rz_text.lower().count(kw_lower)
+            if score == 0:
+                continue
+            # Build a 300-char snippet around the first occurrence
+            idx = rz_text.lower().find(kw_lower)
+            start = max(0, idx - 80)
+            end = min(len(rz_text), idx + 220)
+            snippet = ("..." if start > 0 else "") + rz_text[start:end] + ("..." if end < len(rz_text) else "")
+            matches.append({
+                "paragraph_ref": paragraph_ref,
+                "law": law,
+                "rz_num": rz_num,
+                "snippet": snippet,
+                "author": authors[0] if authors else "",
+                "page_from": page_from,
+                "score": score,
+            })
+
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    total_found = len(matches)
+    return {
+        "keyword": keyword,
+        "korpora": selected,
+        "total_found": total_found,
+        "count": min(total_found, max_results),
+        "results": matches[:max_results],
+    }
+
+
+# ============================================================================
+# LEIPZIGER KOMMENTAR StGB — FILE-BASED TOOLS
+# ============================================================================
+
+_LEIPZIGER_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/DE/StGB/leipziger")
+# V2 production paths (extracted_v2 + enriched_v2 with §-membership-voting)
+_LEIPZIGER_EXTRACTED: Path = _LEIPZIGER_BASE / "extracted_v2"
+_LEIPZIGER_ENRICHED: Path = _LEIPZIGER_BASE / "enriched_v2"
+# V1 fallback (deprecated — boundary-bleed not fully resolved)
+_LEIPZIGER_EXTRACTED_V1: Path = _LEIPZIGER_BASE / "extracted"
+_LEIPZIGER_ENRICHED_V1: Path = _LEIPZIGER_BASE / "enriched"
+
+# Cache: edition -> list of (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count)
+_leipziger_cache: dict[int, list[tuple]] = {}
+
+
+def _resolve_leipziger_dir(prefer_enriched: bool = True) -> Path:
+    """Prefer enriched dir if it has files, fall back to extracted."""
+    if prefer_enriched and _LEIPZIGER_ENRICHED.exists():
+        if any(_LEIPZIGER_ENRICHED.glob("__*.json")):
+            return _LEIPZIGER_ENRICHED
+    return _LEIPZIGER_EXTRACTED
+
+
+def _parse_stgb_paragraph(paragraph: str) -> Tuple[str, str]:
+    """Parse paragraph input to (num_str, suffix).
+
+    Handles: '211', '§ 211', '263a', '§ 263a StGB', '§ 218a'.
+    """
+    text = paragraph.strip()
+    text = re.sub(r"^§\s*", "", text).strip()
+    text = re.sub(r"\s+StGB\s*$", "", text, flags=re.IGNORECASE).strip()
+    m = re.match(r"^(\d+)([a-z]?)$", text, re.IGNORECASE)
+    if m:
+        return m.group(1), m.group(2).lower()
+    m2 = re.search(r"(\d+)([a-z]?)", text, re.IGNORECASE)
+    if m2:
+        return m2.group(1), m2.group(2).lower()
+    return text, ""
+
+
+def _find_leipziger_file(num_str: str, suffix: str, edition: Optional[int] = None) -> Optional[Path]:
+    """Locate a Leipziger §-JSON file.
+
+    Lookup order (prefers higher-quality source):
+      1. enriched_v2/  (V2 with enrichment) — if § has been enriched
+      2. extracted_v2/ (V2 without enrichment) — fallback for non-enriched V2 §§
+      3. enriched/     (V1 with enrichment) — V1 fallback when V2 missing
+      4. extracted/    (V1 raw)
+    """
+    para_part = f"{num_str}{suffix}"
+    editions_to_try = [edition] if edition else [13, 12]
+    v2_prefix = f"__{para_part}_StGB__"
+
+    def _best_match(candidates: list) -> Optional[Path]:
+        """Prefer author-named files over generic LK_StGB; if tied, prefer file with most Rn."""
+        if not candidates:
+            return None
+        # Sort: non-LK_StGB first, then by Rn-count desc
+        def sort_key(p: Path):
+            is_generic = '__LK_StGB__' in p.name
+            # Quick Rn-count via JSON read (cheap)
+            try:
+                d = json.loads(p.read_text(encoding="utf-8"))
+                rn_count = len(d.get("randnummern", []))
+            except Exception:
+                rn_count = 0
+            return (is_generic, -rn_count)
+        return sorted(candidates, key=sort_key)[0]
+
+    # Try each dir in order
+    for search_dir in [_LEIPZIGER_ENRICHED, _LEIPZIGER_EXTRACTED]:
+        if not search_dir.exists():
+            continue
+        for ed in editions_to_try:
+            cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}_v2.json"))
+            if cands:
+                return _best_match(cands)
+        cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*_v2.json"))
+        if cands:
+            return _best_match(cands)
+    # V1 fallback
+    for search_dir in [_LEIPZIGER_ENRICHED_V1, _LEIPZIGER_EXTRACTED_V1]:
+        if not search_dir.exists():
+            continue
+        for ed in editions_to_try:
+            cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}.json"))
+            if cands:
+                return _best_match(cands)
+        cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*.json"))
+        if cands:
+            return _best_match(cands)
+    return None
+
+
+def _load_leipziger_file(path: Path) -> Optional[dict]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _leipziger_meta(data: dict) -> dict:
+    """Return unified meta dict for V1 (nested 'meta') and V2 (flat) schemas."""
+    if "meta" in data and isinstance(data["meta"], dict):
+        return data["meta"]
+    # V2 flat schema — synthesize meta
+    return {
+        "paragraph_ref": data.get("paragraph_ref", ""),
+        "law": data.get("law", "StGB"),
+        "edition": data.get("edition"),
+        "edition_label": data.get("edition_label"),
+        "is_replacement": data.get("is_replacement", False),
+        "authors": data.get("authors", []),
+        "volume_id": data.get("volume_id", ""),
+        "zitiervorschlag": data.get("zitiervorschlag", ""),
+        "para_from": data.get("para_num"),
+        "title": data.get("title", ""),
+    }
+
+
+def _load_leipziger_corpus_cache(edition: int = 13) -> List[tuple]:
+    """Load all Rn tuples for keyword search (lazy). Supports both V2 (flat) and V1 (nested meta) schemas."""
+    if edition in _leipziger_cache:
+        return _leipziger_cache[edition]
+    src_dir = _resolve_leipziger_dir()
+    entries: List[tuple] = []
+    # V2 (preferred) + V1 fallback
+    patterns = [f"*__Leipziger_aufl{edition}_v2.json", f"*__Leipziger_aufl{edition}.json"]
+    seen_paragraphs: set = set()
+    for pattern in patterns:
+        for json_path in sorted(src_dir.glob(pattern)):
+            # Also try V1 dir if src_dir is V2
+            pass
+        # Iterate both V2 and V1 dirs
+        for search_dir in [src_dir, _LEIPZIGER_ENRICHED_V1 if _LEIPZIGER_ENRICHED_V1.exists() else _LEIPZIGER_EXTRACTED_V1]:
+            if search_dir == src_dir and not pattern.endswith("_v2.json"):
+                continue  # V1 pattern only in V1 dir
+            if search_dir != src_dir and pattern.endswith("_v2.json"):
+                continue  # V2 pattern only in V2 dir
+            for json_path in sorted(search_dir.glob(pattern)):
+                data = _load_leipziger_file(json_path)
+                if not data:
+                    continue
+                # V2: flat schema; V1: nested 'meta'
+                paragraph_ref = data.get("paragraph_ref") or data.get("meta", {}).get("paragraph_ref", "")
+                if paragraph_ref in seen_paragraphs:
+                    continue  # prefer V2 (loaded first)
+                seen_paragraphs.add(paragraph_ref)
+                authors = data.get("authors") or data.get("meta", {}).get("authors", [])
+                vol_edition = data.get("edition") or data.get("meta", {}).get("edition", edition)
+                for rn in data.get("randnummern", []):
+                    entries.append((
+                        paragraph_ref,
+                        rn.get("rn_num"),
+                        rn.get("rn_text", ""),
+                        authors or rn.get("page_authors", []),
+                        rn.get("page_from"),
+                        len(rn.get("fussnoten", [])),
+                        rn.get("fussnoten", []),
+                        rn.get("stable_key", ""),
+                        vol_edition,
+                    ))
+    _leipziger_cache[edition] = entries
+    return entries
+
+
+def get_leipziger_artikel(paragraph: str, law: str = "StGB", edition: Optional[int] = None) -> dict:
+    """Vollständiger Leipziger-StGB-Artikel: Meta + alle Randnummern + alle Fußnoten."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_stgb_paragraph(paragraph)
+    file_path = _find_leipziger_file(num_str, suffix, edition)
+    if not file_path:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_leipziger_corpus"}
+    data = _load_leipziger_file(file_path)
+    if not data:
+        return {"found": False, "reason": "file_load_error", "file": str(file_path)}
+    return {
+        "found": True,
+        "source": "Leipziger Kommentar StGB",
+        "meta": _leipziger_meta(data),
+        "header_excerpt": data.get("header_excerpt", ""),
+        "randnummern": data.get("randnummern", []),
+        "stats": data.get("stats", {}),
+        "file": file_path.name,
+        "extractor_version": "v2" if "_v2.json" in file_path.name else "v1",
+    }
+
+
+def search_leipziger_randziffer(paragraph: str, rn_num: int, law: str = "StGB",
+                                  edition: Optional[int] = None, include_footnotes: bool = True) -> dict:
+    """Einzelne Leipziger-Randnummer mit Volltext + Fußnoten + Zitiervorschlag."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    try:
+        rn_num = int(rn_num)
+    except (TypeError, ValueError):
+        return {"found": False, "reason": "invalid_rn_num"}
+    num_str, suffix = _parse_stgb_paragraph(paragraph)
+    file_path = _find_leipziger_file(num_str, suffix, edition)
+    if not file_path:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_leipziger_corpus"}
+    data = _load_leipziger_file(file_path)
+    if not data:
+        return {"found": False, "reason": "file_load_error"}
+    meta = _leipziger_meta(data)
+    for rn in data.get("randnummern", []):
+        if rn.get("rn_num") == rn_num:
+            zitier_base = meta.get("zitiervorschlag", "")
+            zit = zitier_base.replace(" Rn. N", f" Rn. {rn_num}")
+            fns = rn.get("fussnoten", []) if include_footnotes else []
+            return {
+                "found": True,
+                "source": "Leipziger Kommentar StGB",
+                "paragraph_ref": meta.get("paragraph_ref", ""),
+                "law": meta.get("law", "StGB"),
+                "edition": meta.get("edition"),
+                "edition_label": meta.get("edition_label"),
+                "is_replacement": meta.get("is_replacement", False),
+                "authors": meta.get("authors", []) or rn.get("page_authors", []),
+                "page_authors": rn.get("page_authors", []),
+                "volume_id": meta.get("volume_id", ""),
+                "zitiervorschlag": zit,
+                "rn_num": rn["rn_num"],
+                "rn_text": rn.get("rn_text", ""),
+                "page_from": rn.get("page_from"),
+                "page_to": rn.get("page_to"),
+                "char_count": rn.get("char_count"),
+                "anchor_side": rn.get("anchor_side"),
+                "fussnote_refs": rn.get("fussnote_refs", []),
+                "fussnoten": fns,
+                "fn_count": len(rn.get("fussnoten", [])),
+            }
+    return {
+        "found": False,
+        "paragraph_ref": meta.get("paragraph_ref", ""),
+        "rn_num": rn_num,
+        "reason": "rn_not_found",
+        "rn_count_in_paragraph": data.get("stats", {}).get("rn_count"),
+    }
+
+
+def search_leipziger_by_paragraph(paragraph: str, law: str = "StGB", edition: Optional[int] = None) -> dict:
+    """Übersicht eines Leipziger-Artikels: rn_count, Autoren, edition, 200-char-Snippet pro Rn."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_stgb_paragraph(paragraph)
+    file_path = _find_leipziger_file(num_str, suffix, edition)
+    if not file_path:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_leipziger_corpus"}
+    data = _load_leipziger_file(file_path)
+    if not data:
+        return {"found": False, "reason": "file_load_error"}
+    meta = _leipziger_meta(data)
+    stats = data.get("stats", {})
+    rn_overview = [
+        {
+            "rn_num": rn.get("rn_num"),
+            "snippet": (rn.get("rn_text", "") or "")[:200],
+            "fn_count": len(rn.get("fussnoten", [])),
+            "page_from": rn.get("page_from"),
+            "char_count": rn.get("char_count"),
+        }
+        for rn in data.get("randnummern", [])
+    ]
+    return {
+        "found": True,
+        "source": "Leipziger Kommentar StGB",
+        "paragraph_ref": meta.get("paragraph_ref", ""),
+        "law": meta.get("law", "StGB"),
+        "edition": meta.get("edition"),
+        "edition_label": meta.get("edition_label"),
+        "is_replacement": meta.get("is_replacement", False),
+        "authors": meta.get("authors", []),
+        "volume_id": meta.get("volume_id", ""),
+        "zitiervorschlag": meta.get("zitiervorschlag", ""),
+        "rn_count": stats.get("rn_count", len(rn_overview)),
+        "page_from": stats.get("page_from"),
+        "page_to": stats.get("page_to"),
+        "fn_total": stats.get("fn_total"),
+        "rn_with_fn": stats.get("rn_with_fn"),
+        "rn_overview": rn_overview,
+    }
+
+
+def search_leipziger_keyword(keyword: str, max_results: int = 50, in_footnotes: bool = False,
+                              edition: Optional[int] = None) -> dict:
+    """Volltextsuche über Leipziger Randnummern; optional inkl. Fußnoten-Texte."""
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=50, max_value=200)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+    editions = [edition] if edition else [13, 12]
+    kw_lower = keyword.lower()
+    matches: List[dict] = []
+    for ed in editions:
+        entries = _load_leipziger_corpus_cache(ed)
+        for (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count, fussnoten,
+             stable_key, ent_edition) in entries:
+            score = 0
+            if rn_text:
+                score += rn_text.lower().count(kw_lower)
+            if in_footnotes:
+                for fn in fussnoten:
+                    fn_text = fn.get("fn_text_raw", "")
+                    if fn_text:
+                        score += fn_text.lower().count(kw_lower)
+            if score == 0:
+                continue
+            # Build snippet
+            haystack = rn_text or ""
+            idx = haystack.lower().find(kw_lower)
+            if idx == -1 and in_footnotes:
+                # Find first FN with hit
+                for fn in fussnoten:
+                    fn_t = fn.get("fn_text_raw", "")
+                    if kw_lower in fn_t.lower():
+                        haystack = f"[FN {fn['fn_num']}] " + fn_t
+                        idx = haystack.lower().find(kw_lower)
+                        break
+            if idx >= 0:
+                start = max(0, idx - 80)
+                end = min(len(haystack), idx + 220)
+                snippet = ("..." if start > 0 else "") + haystack[start:end] + ("..." if end < len(haystack) else "")
+            else:
+                snippet = haystack[:300]
+            matches.append({
+                "paragraph_ref": paragraph_ref,
+                "rn_num": rn_num,
+                "stable_key": stable_key,
+                "snippet": snippet,
+                "author": authors[0] if authors else "",
+                "edition": ent_edition,
+                "page_from": page_from,
+                "fn_count": fn_count,
+                "score": score,
+            })
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    total_found = len(matches)
+    return {
+        "keyword": keyword,
+        "in_footnotes": in_footnotes,
+        "total_found": total_found,
+        "count": min(total_found, max_results),
+        "results": matches[:max_results],
+    }
+
+
+# ============================================================================
+# BRUCK/MÖLLER VVG GROSSKOMMENTAR — FILE-BASED TOOLS
+# ============================================================================
+
+_VVG_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/DE/VVG/grosskommentar")
+_VVG_EXTRACTED: Path = _VVG_BASE / "extracted_v2"
+_VVG_ENRICHED: Path = _VVG_BASE / "enriched_v2"
+_VVG_BED_EXTRACTED: Path = _VVG_BASE / "extracted_v2_bedingungen"
+_VVG_BED_ENRICHED: Path = _VVG_BASE / "enriched_v2_bedingungen"
+
+_VVG_GENERIC_AUTHOR_SLUGS = {"VVG_BM", "Generic", "VVG"}
+_vvg_cache: dict[int, list[tuple]] = {}
+
+
+def _parse_vvg_paragraph(paragraph: str) -> Tuple[str, str]:
+    """Parse paragraph input to (num_str, suffix). Handles '100', '§ 100', '§ 7a VVG'."""
+    text = paragraph.strip()
+    text = re.sub(r"^§\s*", "", text).strip()
+    text = re.sub(r"\s+VVG\s*$", "", text, flags=re.IGNORECASE).strip()
+    m = re.match(r"^(\d+)([a-z]?)$", text, re.IGNORECASE)
+    if m:
+        return m.group(1), m.group(2).lower()
+    m2 = re.search(r"(\d+)([a-z]?)", text, re.IGNORECASE)
+    if m2:
+        return m2.group(1), m2.group(2).lower()
+    return text, ""
+
+
+def _find_vvg_file(num_str: str, suffix: str, edition: Optional[int] = None) -> Optional[Path]:
+    """Lookup VVG §-File. Reihenfolge: enriched_v2 → extracted_v2.
+
+    Author-Files vor VVG_BM-Generic, dann mehr Rn first.
+    """
+    para_part = f"{num_str}{suffix}"
+    editions_to_try = [edition] if edition else [10, 9]
+    v2_prefix = f"__{para_part}_VVG__"
+
+    def _best_match(candidates: list[Path]) -> Optional[Path]:
+        if not candidates:
+            return None
+
+        def sort_key(p: Path):
+            is_generic = any(g in p.name.split("__") for g in _VVG_GENERIC_AUTHOR_SLUGS)
+            try:
+                d = json.loads(p.read_text(encoding="utf-8"))
+                rn_count = len(d.get("randnummern", []))
+            except Exception:
+                rn_count = 0
+            return (is_generic, -rn_count)
+
+        return sorted(candidates, key=sort_key)[0]
+
+    for search_dir in [_VVG_ENRICHED, _VVG_EXTRACTED]:
+        if not search_dir.exists():
+            continue
+        for ed in editions_to_try:
+            cands = list(search_dir.glob(f"{v2_prefix}*__VVG_aufl{ed}_v2.json"))
+            if cands:
+                return _best_match(cands)
+        cands = list(search_dir.glob(f"{v2_prefix}*__VVG_aufl*_v2.json"))
+        if cands:
+            return _best_match(cands)
+    return None
+
+
+def _vvg_meta(data: dict) -> dict:
+    """V2 flat schema → unified meta dict."""
+    if "meta" in data and isinstance(data["meta"], dict):
+        return data["meta"]
+    return {
+        "paragraph_ref": data.get("paragraph_ref", ""),
+        "law": "VVG",
+        "edition": data.get("edition"),
+        "main_author": data.get("main_author", ""),
+        "volume_id": data.get("volume_id", ""),
+        "para_from": data.get("para_num"),
+        "page_start": data.get("page_start"),
+        "page_end": data.get("page_end"),
+        "schema_version": data.get("schema_version", ""),
+        "korpus": "Bruck/Möller VVG Großkommentar",
+    }
+
+
+def _load_vvg_corpus_cache(edition: int = 10) -> list[tuple]:
+    """Cache (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count, fussnoten,
+    stable_key, ent_edition) tuples for keyword search."""
+    if edition in _vvg_cache:
+        return _vvg_cache[edition]
+    entries: list[tuple] = []
+    for search_dir in [_VVG_ENRICHED, _VVG_EXTRACTED]:
+        if not search_dir.exists():
+            continue
+        for f in sorted(search_dir.glob(f"__*_VVG__*aufl{edition}_v2.json")):
+            try:
+                d = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            paragraph_ref = d.get("paragraph_ref", "")
+            main_author = d.get("main_author", "")
+            for rn in d.get("randnummern", []):
+                stable_key = f"vvg-bm|VVG|{paragraph_ref}|rn{rn.get('rn_num')}|aufl{edition}"
+                entries.append((
+                    paragraph_ref,
+                    rn.get("rn_num"),
+                    rn.get("rn_text", ""),
+                    rn.get("page_authors") or [main_author],
+                    rn.get("page_from"),
+                    len(rn.get("fussnoten", [])),
+                    rn.get("fussnoten", []),
+                    stable_key,
+                    edition,
+                ))
+        # Brake — wenn enriched gefunden, nicht nochmal extracted scannen
+        if entries:
+            break
+    _vvg_cache[edition] = entries
+    return entries
+
+
+def _load_vvg_bedingungen_cache() -> list[tuple]:
+    """Bedingungswerke (AHB/ARB/AKB) cache. Returns (klausel_ref, werk, rn_num, rn_text,
+    page_from, fn_count, stable_key, edition)."""
+    cached: list[tuple] = []
+    src = _VVG_BED_ENRICHED if _VVG_BED_ENRICHED.exists() else _VVG_BED_EXTRACTED
+    if not src.exists():
+        return cached
+    for f in sorted(src.glob("__*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        werk = d.get("werk", "")
+        klausel_ref = d.get("klausel_ref", "")
+        klausel_id = d.get("klausel_id", "")
+        edition = d.get("edition", 10)
+        for rn in d.get("randnummern", []):
+            stable_key = (
+                f"vvg-bm|{werk}|{klausel_id.replace(' ', '_').replace('.', '-')}"
+                f"|rn{rn.get('rn_num')}|aufl{edition}"
+            )
+            cached.append((
+                klausel_ref,
+                werk,
+                rn.get("rn_num"),
+                rn.get("rn_text", ""),
+                rn.get("page_from"),
+                0,
+                stable_key,
+                edition,
+            ))
+    return cached
+
+
+def get_vvg_artikel(paragraph: str, edition: Optional[int] = None) -> dict:
+    """Vollständiger Bruck/Möller VVG-Artikel: Meta + alle Rn."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_vvg_file(num_str, suffix, edition)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"found": False, "reason": "file_load_error", "error": str(e)}
+    meta = _vvg_meta(data)
+    return {
+        "found": True,
+        "source": "Bruck/Möller VVG Großkommentar",
+        "meta": meta,
+        "rn_count": len(data.get("randnummern", [])),
+        "randnummern": data.get("randnummern", []),
+        "file": f.name,
+    }
+
+
+def search_vvg_randziffer(paragraph: str, rn_num: int, edition: Optional[int] = None,
+                          include_footnotes: bool = True) -> dict:
+    """Spezifische VVG-Rn mit Volltext + Fußnoten."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    try:
+        rn_num = int(rn_num)
+    except (TypeError, ValueError):
+        return {"found": False, "reason": "invalid_rn_num"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_vvg_file(num_str, suffix, edition)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {"found": False, "reason": "file_load_error"}
+    meta = _vvg_meta(data)
+    for rn in data.get("randnummern", []):
+        if rn.get("rn_num") == rn_num:
+            zit = (
+                f"Bruck/Möller/{meta.get('main_author', '')} "
+                f"{meta.get('edition', 10)}. Aufl. VVG {meta.get('paragraph_ref', '')} Rn. {rn_num}"
+            )
+            fns = rn.get("fussnoten", []) if include_footnotes else []
+            return {
+                "found": True,
+                "source": "Bruck/Möller VVG Großkommentar",
+                "paragraph_ref": meta.get("paragraph_ref"),
+                "law": "VVG",
+                "edition": meta.get("edition"),
+                "main_author": meta.get("main_author"),
+                "page_authors": rn.get("page_authors", []),
+                "volume_id": meta.get("volume_id"),
+                "zitiervorschlag": zit,
+                "rn_num": rn["rn_num"],
+                "rn_text": rn.get("rn_text", ""),
+                "page_from": rn.get("page_from"),
+                "page_to": rn.get("page_to"),
+                "char_count": rn.get("char_count"),
+                "paragraph_ref_corrected": rn.get("paragraph_ref_corrected"),
+                "enrichment": rn.get("enrichment", {}),
+                "fussnote_refs": rn.get("fussnote_refs", []),
+                "fussnoten": fns,
+                "fn_count": len(rn.get("fussnoten", [])),
+            }
+    return {
+        "found": False,
+        "paragraph_ref": meta.get("paragraph_ref"),
+        "rn_num": rn_num,
+        "reason": "rn_not_found",
+        "rn_count_in_paragraph": len(data.get("randnummern", [])),
+    }
+
+
+def search_vvg_by_paragraph(paragraph: str, edition: Optional[int] = None) -> dict:
+    """Übersicht eines VVG-Artikels: Snippets + Schlagworte je Rn."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_vvg_file(num_str, suffix, edition)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {"found": False, "reason": "file_load_error"}
+    meta = _vvg_meta(data)
+    rns = data.get("randnummern", [])
+    overview = [
+        {
+            "rn_num": rn.get("rn_num"),
+            "snippet": (rn.get("rn_text", "") or "")[:200],
+            "schlagworte": (rn.get("enrichment") or {}).get("schlagworte", []),
+            "rechtsgebiet_sub": (rn.get("enrichment") or {}).get("rechtsgebiet_sub"),
+            "fn_count": len(rn.get("fussnoten", [])),
+            "page_from": rn.get("page_from"),
+            "char_count": rn.get("char_count"),
+        }
+        for rn in rns
+    ]
+    return {
+        "found": True,
+        "source": "Bruck/Möller VVG Großkommentar",
+        "paragraph_ref": meta.get("paragraph_ref"),
+        "law": "VVG",
+        "edition": meta.get("edition"),
+        "main_author": meta.get("main_author"),
+        "volume_id": meta.get("volume_id"),
+        "rn_count": len(rns),
+        "rn_overview": overview,
+    }
+
+
+def search_vvg_keyword(keyword: str, max_results: int = 50, in_footnotes: bool = False,
+                      edition: Optional[int] = None, include_bedingungen: bool = True) -> dict:
+    """Volltextsuche VVG-Korpus + optional Bedingungswerke."""
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=50, max_value=200)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+    editions = [edition] if edition else [10, 9]
+    kw_lower = keyword.lower()
+    matches: list[dict] = []
+
+    # VVG-§§
+    for ed in editions:
+        for (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count, fussnoten,
+             stable_key, ent_edition) in _load_vvg_corpus_cache(ed):
+            score = (rn_text or "").lower().count(kw_lower)
+            if in_footnotes:
+                for fn in fussnoten:
+                    fn_text = fn.get("fn_text_raw", "")
+                    score += (fn_text or "").lower().count(kw_lower)
+            if score == 0:
+                continue
+            hay = rn_text or ""
+            idx = hay.lower().find(kw_lower)
+            if idx == -1 and in_footnotes:
+                for fn in fussnoten:
+                    ft = fn.get("fn_text_raw", "")
+                    if kw_lower in (ft or "").lower():
+                        hay = f"[FN {fn.get('fn_num')}] " + ft
+                        idx = hay.lower().find(kw_lower)
+                        break
+            if idx >= 0:
+                start = max(0, idx - 80)
+                end = min(len(hay), idx + 220)
+                snippet = ("..." if start > 0 else "") + hay[start:end] + ("..." if end < len(hay) else "")
+            else:
+                snippet = hay[:300]
+            matches.append({
+                "source": "VVG-§§",
+                "paragraph_ref": paragraph_ref,
+                "rn_num": rn_num,
+                "stable_key": stable_key,
+                "snippet": snippet,
+                "author": authors[0] if authors else "",
+                "edition": ent_edition,
+                "page_from": page_from,
+                "fn_count": fn_count,
+                "score": score,
+            })
+
+    # Bedingungswerke
+    if include_bedingungen:
+        for (klausel_ref, werk, rn_num, rn_text, page_from, fn_count,
+             stable_key, ent_edition) in _load_vvg_bedingungen_cache():
+            score = (rn_text or "").lower().count(kw_lower)
+            if score == 0:
+                continue
+            hay = rn_text or ""
+            idx = hay.lower().find(kw_lower)
+            if idx >= 0:
+                start = max(0, idx - 80)
+                end = min(len(hay), idx + 220)
+                snippet = ("..." if start > 0 else "") + hay[start:end] + ("..." if end < len(hay) else "")
+            else:
+                snippet = hay[:300]
+            matches.append({
+                "source": "VVG-Bedingungen",
+                "werk": werk,
+                "klausel_ref": klausel_ref,
+                "rn_num": rn_num,
+                "stable_key": stable_key,
+                "snippet": snippet,
+                "edition": ent_edition,
+                "page_from": page_from,
+                "score": score,
+            })
+
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "keyword": keyword,
+        "in_footnotes": in_footnotes,
+        "include_bedingungen": include_bedingungen,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "results": matches[:max_results],
+    }
+
+
+def get_vvg_bedingung(werk: str, klausel_id: str) -> dict:
+    """Liefert die Kommentierung einer Klausel aus AHB/ARB/AKB."""
+    if werk not in {"AHB_2016", "ARB_2010", "AKB_2015"}:
+        return {"found": False, "reason": "invalid_werk", "werk": werk}
+    klausel_id = clamp_query(klausel_id, 50)
+    if not klausel_id:
+        return {"found": False, "reason": "missing_klausel_id"}
+    src = _VVG_BED_ENRICHED if _VVG_BED_ENRICHED.exists() else _VVG_BED_EXTRACTED
+    if not src.exists():
+        return {"found": False, "reason": "bedingungen_dir_missing"}
+    # Slug
+    slug = (
+        klausel_id.replace("Ziff.", "Ziff").replace("§", "")
+        .strip().replace(" ", "_").replace(".", "-")
+    )
+    slug = re.sub(r"[^\w\-]", "", slug)
+    cands = list(src.glob(f"__{slug}_{werk}__*.json"))
+    if not cands:
+        return {"found": False, "reason": "klausel_not_found", "werk": werk, "klausel_id": klausel_id, "slug": slug}
+    f = cands[0]
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"found": False, "reason": "file_load_error", "error": str(e)}
+    return {
+        "found": True,
+        "source": f"Bruck/Möller VVG Großkommentar — {werk}",
+        "werk": d.get("werk"),
+        "werk_label": d.get("werk_label"),
+        "klausel_ref": d.get("klausel_ref"),
+        "klausel_id": d.get("klausel_id"),
+        "klausel_title": d.get("klausel_title"),
+        "edition": d.get("edition"),
+        "main_author": d.get("main_author"),
+        "rn_count": len(d.get("randnummern", [])),
+        "randnummern": d.get("randnummern", []),
+        "file": f.name,
+    }
 
 
 # ============================================================================

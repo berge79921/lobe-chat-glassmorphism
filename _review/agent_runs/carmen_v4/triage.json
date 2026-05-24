@@ -1,0 +1,53 @@
+{
+  "deadlines": [],
+  "urgency": "HIGH",
+  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i) gegen Mandantin mit AMS-Leistungen; Anträge auf Aufschub (§42 EO), Einstellung (§40/39 EO) und Aufhebung VB (§7 Abs3 EO) erst kürzlich (26.02.2026) eingereicht; SV-Abfrage negativ, aber Risiko erneuter Durchführung.",
+  "silent_risks": [
+    {
+      "risk": "Untätigkeit nach Antragseingang",
+      "consequence": "Fortsetzung Exekution, Pfändung AMS-Leistungen, Zins- und Kostenansammlung bis Rechtskraft."
+    },
+    {
+      "risk": "Nichtbeachtung Akzessorietät (§14 IO) oder Überbefriedigung",
+      "consequence": "Mandantin zahlt trotz erloschener Hauptschuld (100% Insolvenzerfüllung); fehlende Interzession führt zu irreversibler Zahlung."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Priorisierung der Anträge: §7 Abs3 EO (unwirksame Zustellung) vs. §40 EO (Befriedigung durch Hauptschuldner)?",
+      "options": [
+        "Zuerst §7 Abs3 EO (absolut unwirksam, ZMR-Beweis)",
+        "Parallel §40 EO (Überbefriedigung, §14 IO Akzessorietät)"
+      ]
+    },
+    {
+      "question": "Interzessionsanspruch (§25c KSchG, §35/42 EO) einbeziehen?",
+      "options": [
+        "Ja, als Ergänzung für Rückzahlung",
+        "Nein, priorisiere Aufhebung VB"
+      ]
+    },
+    {
+      "question": "RS/TE-Absicherung: Welche Beweismittel vertiefen?",
+      "options": [
+        "ZMR-Auszug + KSV1870-Bestätigung priorisieren",
+        "Insolvenzakte BG Gänserndorf einholen"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "Aufhebung VB (§7 Abs3 EO) erfolgreich (unwirksame Zustellung bewiesen)",
+      "then": "Exekution eingestellt (§39 Abs1 Z9 EO), Weiterleitung BG Gänserndorf; volle Absicherung."
+    },
+    {
+      "if": "Befriedigung durch Hauptschuldner anerkannt (§40 EO, §14 IO)",
+      "then": "Einstellung Exekution; Interzessionsanspruch auf Rückzahlung Überbefriedigung."
+    },
+    {
+      "if": "Gericht lehnt Anträge ab (z.B. Zustellung angefochten)",
+      "then": "Beschwerde (§42 EO Aufschub verlängern), Klage auf Feststellung Erlöschens Bürgschaft."
+    }
+  ],
+  "response_type_hint": "recommendation"
+}

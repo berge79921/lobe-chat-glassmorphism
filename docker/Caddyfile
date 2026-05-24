@@ -6,15 +6,90 @@ www.legalchat.net {
   redir https://legalchat.net{uri} 308
 }
 
+openlaw.cc, www.openlaw.cc {
+  encode zstd gzip
+
+  handle /mail* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /mailbox* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /login* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /logout* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /signout* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle /api/auth* {
+    reverse_proxy openlaw-auth:3210
+  }
+
+  handle {
+    reverse_proxy openlaw-site:80
+  }
+}
+
+mail.openlaw.cc {
+  respond 204
+}
+
+www.geotracer.cc {
+  redir https://geotracer.cc{uri} 308
+}
+
+geotracer.cc {
+  encode zstd gzip
+  reverse_proxy geotracer-landing:80
+}
+
+app.geotracer.cc {
+  encode zstd gzip
+  reverse_proxy geotracer-proxy:3210
+}
+
+auth.geotracer.cc {
+  encode zstd gzip
+  reverse_proxy geotracer-proxy:3210
+}
+
+s3.geotracer.cc {
+  encode zstd gzip
+  reverse_proxy geotracer-minio:9000
+}
+
+mail.geotracer.cc {
+  respond 204
+}
+
 legalchat.net {
   encode zstd gzip
-  reverse_proxy login-proxy:3210
+
+  handle /zivilrecht* {
+    reverse_proxy 172.18.0.1:8090
+  }
+
+  handle {
+    reverse_proxy lobe-login-proxy:3210
+  }
+}
+
+s3.legalchat.net {
+  encode zstd gzip
+  reverse_proxy lobe-minio:9000
 }
 
 auth.legalchat.net {
   encode zstd gzip
-  # Route through login-proxy so hosted Logto pages can be themed consistently.
-  reverse_proxy login-proxy:3210
+  reverse_proxy lobe-login-proxy:3210
 }
 
 admin-auth.legalchat.net {

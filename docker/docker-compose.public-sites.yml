@@ -1,0 +1,76 @@
+services:
+  openlaw-auth:
+    profiles: ["public-sites"]
+    build: ./openlaw-auth
+    container_name: openlaw-auth
+    expose:
+      - "3210"
+    environment:
+      PORT: 3210
+      APP_PUBLIC_URL: https://www.openlaw.cc
+      APP_NAME: OpenLaw
+      SESSION_SECRET: ${NEXT_AUTH_SECRET:-openlaw-change-me}
+      LOGTO_ENDPOINT: https://ov6at4.logto.app
+      AUTH_LOGTO_ID: ${AUTH_LOGTO_ID:-}
+      AUTH_LOGTO_SECRET: ${AUTH_LOGTO_SECRET:-}
+      MAIL_ENABLED: ${MAIL_ENABLED:-1}
+      MAIL_ACCOUNTS_JSON: ${MAIL_ACCOUNTS_JSON:-}
+      MAIL_ACCOUNT_ACCESS_JSON: ${MAIL_ACCOUNT_ACCESS_JSON:-}
+      MAIL_CONTACTS_JSON: ${MAIL_CONTACTS_JSON:-}
+      MAIL_DEFAULT_ACCOUNT: ${MAIL_DEFAULT_ACCOUNT:-}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-OpenLaw}
+      MAIL_IMAP_HOST: ${MAIL_IMAP_HOST:-mail.geotracer.cc}
+      MAIL_IMAP_PORT: ${MAIL_IMAP_PORT:-993}
+      MAIL_SMTP_HOST: ${MAIL_SMTP_HOST:-mail.geotracer.cc}
+      MAIL_SMTP_PORT: ${MAIL_SMTP_PORT:-465}
+      MAIL_TLS_SERVERNAME: ${MAIL_TLS_SERVERNAME:-mail.geotracer.cc}
+    restart: unless-stopped
+
+  caddy:
+    profiles: ["public-sites"]
+    image: caddy:2.8
+    container_name: legalchat-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - login-proxy
+      - logto
+      - openlaw-auth
+      - openlaw-site
+      - geotracer-landing
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - /opt/schelli-akte:/srv/schelli-akte:ro
+    restart: unless-stopped
+
+  openlaw-site:
+    profiles: ["public-sites"]
+    image: nginx:1.27-alpine
+    container_name: openlaw-site
+    volumes:
+      - ${OPENLAW_SITE_ROOT:-./openlaw-site}:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+    restart: unless-stopped
+
+  geotracer-landing:
+    profiles: ["public-sites"]
+    image: nginx:1.27-alpine
+    container_name: geotracer-landing
+    volumes:
+      - ${GEOTRACER_LANDING_ROOT:-/opt/geotracer/landingpage}/index.html:/usr/share/nginx/html/index.html:ro
+      - ${GEOTRACER_LANDING_ROOT:-/opt/geotracer/landingpage}/legal-disclaimer.html:/usr/share/nginx/html/legal-disclaimer.html:ro
+      - ${GEOTRACER_LANDING_ROOT:-/opt/geotracer/landingpage}/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${GEOTRACER_LANDING_ROOT:-/opt/geotracer/landingpage}/assets:/usr/share/nginx/html/assets:ro
+    expose:
+      - "80"
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

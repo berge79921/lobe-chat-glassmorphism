@@ -1,0 +1,50 @@
+{
+  "deadlines": [],
+  "urgency": "HIGH",
+  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i seit 23.12.2025) gegen AMS-Leistungen der Mandantin trotz unwirksamer Zustellung (ZMR-Auszug) und erloschener Hauptschuld (100% Insolvenzerfüllung per 07.01.2026); Anträge (26.02.2026) ausstehend, SV negativ aber Risiko erneuter Durchführung.",
+  "silent_risks": [
+    {
+      "risk": "Untätigkeit bei Aufhebungsantrag §7 Abs3 EO",
+      "consequence": "Praeklusion des Anspruchs auf Aufhebung der Vollstreckbarkeitsbestätigung (potenzielle 14-Tage-Frist ab Kenntnis), Fortbestand der Exekution auf unwirksamer Grundlage."
+    },
+    {
+      "risk": "Nichtverfolgung §40/42 EO",
+      "consequence": "Fortgesetzte Überbefriedigung der Bank trotz erloschener Hauptschuld (§14 IO Akzessorietät), Pfändung von Sozialleistungen, Verzugszinsenakkumulation."
+    },
+    {
+      "risk": "Verzögerte Interzession §25c KSchG / §35 EO",
+      "consequence": "Rechtskraft der Exekutionsbewilligung, Verlust von Rückforderungsansprüchen gegen Bank."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Priorisierung der Anträge: §7 Abs3 EO (Zustellung) vs. §40 EO (Befriedigung/Akzessorietät)?",
+      "options": [
+        "Zuerst §7 Abs3 EO (unwirksame VB aufheben, dann Weiterleitung §39 Abs4 EO)",
+        "Parallel §40/42 EO (sofortige Einstellung/Aufschub erzwingen)"
+      ]
+    },
+    {
+      "question": "Klageerhebung oder nur EO-Mittel?",
+      "options": [
+        "EO-Anträge priorisieren (schnell, kostengünstig)",
+        "Feststellungsklage §14 IO / Interzession ergänzen (langfristige Absicherung)"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "Gericht akzeptiert ZMR-Auszug als Beweis unwirksamer Zustellung",
+      "then": "Aufhebung VB (§7 Abs3 EO), automatische Einstellung Exekution (§39 Abs1 Z9 EO), Weiterleitung an BG Gänserndorf."
+    },
+    {
+      "if": "Bank leugnet Erlöschen Hauptschuld trotz KSV-Bestätigung",
+      "then": "§40 EO Einstellung + §42 EO Aufschub beantragen; ggf. §25c KSchG Interzession oder §35 EO Rückforderung."
+    },
+    {
+      "if": "SV-Abfrage positiv wird (erneute Prüfung)",
+      "then": "Sofort §42 Abs1 EO Aufschub + Notfeststellung, parallel Klage auf Nichthaftung (§14 IO)."
+    }
+  ],
+  "response_type_hint": "recommendation"
+}

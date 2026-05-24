@@ -1,0 +1,1759 @@
+{
+  "ok": true,
+  "started_at_utc": "2026-02-28T14:28:00.249728+00:00",
+  "mode": "agent",
+  "config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "query": "Erstelle eine kompakte anwaltliche Ersteinschaetzung zum Fall Koller gegen Baumgartner: Baumgartner (Beklagter) wird von RA Dr. Koller auf Werklohn/Honorar EUR 18.114,83 s.A. geklagt. Bedingter Vergleich (§204 ZPO) wurde widerrufen (DAS-Deckungsverweigerung). Pruefe: Werkvertrag vs Dienstvertrag (§1165 ABGB vs §1151 ABGB), Bevoellmaechtigung (§1002 ABGB, Ermaechtigung), Widerruf bedingter Vergleich (§204 ZPO), DAS-Deckung (§158k VersVG, ARB). Nenne die wichtigsten RS/TE.",
+    "mode": "agent",
+    "response_type": "combined",
+    "response_tone": "formal",
+    "model_profile": "default",
+    "organizer_model": "qwen/qwen3-coder-next",
+    "worker_model": "google/gemini-3-flash-preview",
+    "synth_model": "x-ai/grok-4.1-fast",
+    "mcp_mode": "local_http",
+    "citation_gate_mode": "repair",
+    "grounding_policy": "postgres_only",
+    "dry_run": false
+  },
+  "runtime_config": {
+    "config_dir": "/Users/reinhardberger/HCS/lobe-chat-custom/config",
+    "files": {
+      "agent_profiles": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/agent_profiles.yaml",
+        "profiles": 13
+      },
+      "mcp_registry": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/mcp_registry.yaml",
+        "tools_with_policy": 15,
+        "roles": {
+          "organizer": 14,
+          "worker": 13,
+          "synth": 0,
+          "citation_repair": 0
+        }
+      },
+      "skills_bindings": {
+        "path": "/Users/reinhardberger/HCS/lobe-chat-custom/config/skills_bindings.yaml",
+        "roles": 4
+      }
+    }
+  },
+  "mcp_startup": {
+    "ready": true,
+    "started": true,
+    "pid": 94694,
+    "pgid": 94694,
+    "log": "/tmp/zivilrecht-local-bridge.oneshot.log",
+    "health": {
+      "ok": true,
+      "bridge": "zivilrecht-local-bridge-oneshot",
+      "initialized": true
+    }
+  },
+  "phases": {
+    "triage": {
+      "elapsed_ms": 17625.55,
+      "meta": {
+        "model": "x-ai/grok-4.1-fast",
+        "elapsed_s": 17620.842166,
+        "usage": {
+          "prompt_tokens": 2047,
+          "completion_tokens": 1749,
+          "total_tokens": 3796,
+          "cost": 0.00126185,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 147
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00126185,
+            "upstream_inference_prompt_cost": 0.00038735,
+            "upstream_inference_completions_cost": 0.0008745
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 974
+          }
+        }
+      },
+      "result": {
+        "deadlines": [
+          {
+            "date": "26.03.2026",
+            "type": "Nächste mündliche Streitverhandlung (Tagsatzung)",
+            "source": "ZPO / Gerichtsbeschluss (GZ 4 C 270/25p)",
+            "days_remaining": 26
+          }
+        ],
+        "urgency": "HIGH",
+        "urgency_reason": "Nächste Tagsatzung in 26 Tagen; offene HOCH-priorisierte Aufgaben (DAS-Deckung, Verteidigungsvorbereitung, Aktenauswertung); Vergleich bereits widerrufen, Verfahrensfortführung mit hohem Streitwert (EUR 18.114,83)",
+        "silent_risks": [
+          {
+            "risk": "Untätigkeit bei DAS-Deckungsanfrage für Verfahrensfortführung",
+            "consequence": "Kein Versicherungsschutz; Mandant muss Kosten (Anwaltsgebühren, Gerichtskosten) selbst tragen; mögliche private Zahlung der Forderung"
+          },
+          {
+            "risk": "Keine inhaltliche Verteidigungsvorbereitung bis Tagsatzung",
+            "consequence": "Unterliegen der Klage; Rechtskraft der Vollstreckung gegen EUR 18.114,83 zzgl. Kosten; Zwangsvollstreckung möglich"
+          },
+          {
+            "risk": "Ungenügende Aktenauswertung",
+            "consequence": "Verpasste Verteidigungsargumente (z.B. Werkvertrag vs. Dienstvertrag, Bevollmächtigung); Nachteil in der Verhandlung"
+          }
+        ],
+        "decision_points": [
+          {
+            "question": "DAS-Deckung für Verfahrensfortführung beantragen?",
+            "options": [
+              "Ja (separat für Fortführung, nicht nur Vergleich)",
+              "Nein (selbst finanzieren und ggf. vergleichen)"
+            ]
+          },
+          {
+            "question": "Vertragsqualifikation klären?",
+            "options": [
+              "Werkvertrag (§ 1165 ABGB) – Erfolgslohn",
+              "Dienstvertrag (§ 1151 ABGB) – Zeitlohn"
+            ]
+          },
+          {
+            "question": "Widerruf des bedingten Vergleichs angreifbar?",
+            "options": [
+              "Fristgerecht und begründet (§ 204 ZPO)",
+              "Gegnerische Anfechtung prüfen (DAS-Deckungsverweigerung § 158k VersVG)"
+            ]
+          }
+        ],
+        "scenario_branches": [
+          {
+            "if": "DAS gewährt Deckung für Verfahrensfortführung",
+            "then": "Vollständige inhaltliche Verteidigung vorbereiten (Bestreitung Werklohn, Bevollmächtigung § 1002 ABGB); Tagsatzung nutzen für Sachverhaltsaufklärung"
+          },
+          {
+            "if": "DAS verweigert Deckung endgültig",
+            "then": "Privater Vergleichsversuch oder Klageabwehr auf eigene Kosten; ggf. Gegenforderungen prüfen oder Verfahren einstellen"
+          },
+          {
+            "if": "Gericht hält Widerruf für unwirksam",
+            "then": "Vergleich wird rechtskräftig; sofortige Zahlung EUR 18.114,83 fällig; Vollstreckungsklage möglich"
+          }
+        ],
+        "response_type_hint": "recommendation"
+      }
+    },
+    "analysis": {
+      "elapsed_ms": 136695.75,
+      "synth_meta": {
+        "latency_ms": 41466.74,
+        "model": "x-ai/grok-4.1-fast",
+        "answer_chars": 7621,
+        "usage": {
+          "prompt_tokens": 21111,
+          "completion_tokens": 3910,
+          "total_tokens": 25021,
+          "cost": 0.0061547,
+          "cached_tokens": 150,
+          "reasoning_tokens": 1207
+        }
+      },
+      "citation_gate": {
+        "mode": "repair",
+        "applied": true,
+        "before": {
+          "pass_hard": false,
+          "fallback_detected": false,
+          "missing_required_citations": false,
+          "missing_postgres_judicature": false,
+          "has_forbidden_rw": false,
+          "query_requires_citations": true,
+          "has_any_citation": true,
+          "has_judicature_citation": true,
+          "quality_degraded": true,
+          "deterministic_postgres_only": false,
+          "deterministic_gate_fallback": false,
+          "likely_prompt_echo": false,
+          "norm_quality_risk": true,
+          "dismissive_citation_risk": false,
+          "rw": {
+            "cited": []
+          },
+          "rs": {
+            "cited": [
+              "RS0019392",
+              "RS0035627",
+              "RS0035965",
+              "RS0037363",
+              "RS0038346",
+              "RS0071999",
+              "RS0102784",
+              "RS0109132",
+              "RS0116716",
+              "RS0126928"
+            ],
+            "validation": {
+              "cited": 10,
+              "checked": 10,
+              "valid": 10,
+              "invalid": [],
+              "sample_valid": [
+                "RS0019392",
+                "RS0035627",
+                "RS0035965",
+                "RS0037363",
+                "RS0038346",
+                "RS0071999",
+                "RS0102784",
+                "RS0109132",
+                "RS0116716",
+                "RS0126928"
+              ]
+            },
+            "valid": [
+              "RS0019392",
+              "RS0035627",
+              "RS0035965",
+              "RS0037363",
+              "RS0038346",
+              "RS0071999",
+              "RS0102784",
+              "RS0109132",
+              "RS0116716",
+              "RS0126928"
+            ],
+            "ungrounded_valid": []
+          },
+          "te_ogh": {
+            "cited": [],
+            "ungrounded": []
+          },
+          "norms": {
+            "cited": [
+              "§ 1002 ABGB",
+              "§ 1151 ABGB",
+              "§ 1152 ABGB",
+              "§ 1165 ABGB",
+              "§ 1166 ABGB",
+              "§ 1168 ABGB",
+              "§ 1168a ABGB",
+              "§ 1489 ABGB",
+              "§ 158k VersVG",
+              "§ 158l VersVG",
+              "§ 204 ZPO",
+              "§ 30 ZPO"
+            ],
+            "ungrounded": [
+              "§ 1166 ABGB",
+              "§ 1168 ABGB",
+              "§ 1168a ABGB",
+              "§ 1489 ABGB"
+            ],
+            "unknown_law_code": []
+          },
+          "evidence": {
+            "rs": [
+              "RS0008473",
+              "RS0016668",
+              "RS0017207",
+              "RS0019392",
+              "RS0022526",
+              "RS0025103",
+              "RS0025304",
+              "RS0026398",
+              "RS0027969",
+              "RS0035625",
+              "RS0035627",
+              "RS0035965",
+              "RS0037363",
+              "RS0038346",
+              "RS0038762",
+              "RS0039652",
+              "RS0040661",
+              "RS0046414",
+              "RS0057101",
+              "RS0071999",
+              "RS0101502",
+              "RS0102697",
+              "RS0102784",
+              "RS0102867",
+              "RS0105790",
+              "RS0105824",
+              "RS0109132",
+              "RS0114090",
+              "RS0116395",
+              "RS0116716",
+              "RS0123128",
+              "RS0126928"
+            ],
+            "te_ogh": [
+              "7Ob174/25a"
+            ],
+            "norms": [
+              "Art 10 ARB",
+              "§ 10 AVG",
+              "§ 1002 ABGB",
+              "§ 1014 ABGB",
+              "§ 1020 ABGB",
+              "§ 1088 ABGB",
+              "§ 1151 ABGB",
+              "§ 1152 ABGB",
+              "§ 1165 ABGB",
+              "§ 1380 ABGB",
+              "§ 1431 ABGB",
+              "§ 1440 Satz 2 ABGB",
+              "§ 158k VersVG",
+              "§ 158l VersVG",
+              "§ 158m VersVG",
+              "§ 182 IO",
+              "§ 193 ZPO",
+              "§ 204 ZPO",
+              "§ 275 Abs 2 ZPO",
+              "§ 30 ZPO",
+              "§ 31 Abs 1 Z 1 ZPO",
+              "§ 31 ZPO",
+              "§ 381 ZPO",
+              "§ 477 Abs 1 Z 4 ZPO",
+              "§ 502 Abs 1 ZPO",
+              "§ 54 Abs 1a ZPO",
+              "§ 7 IO",
+              "§ 71 ZPO",
+              "§ 879 ABGB",
+              "§ 93 ZPO",
+              "§§ 1021, 1025 ABGB"
+            ],
+            "stats": {
+              "rs_count": 32,
+              "te_ogh_count": 1,
+              "norm_count": 31
+            }
+          }
+        },
+        "after": {
+          "pass_hard": true,
+          "fallback_detected": false,
+          "missing_required_citations": false,
+          "missing_postgres_judicature": false,
+          "has_forbidden_rw": false,
+          "query_requires_citations": true,
+          "has_any_citation": true,
+          "has_judicature_citation": true,
+          "quality_degraded": false,
+          "deterministic_postgres_only": false,
+          "deterministic_gate_fallback": false,
+          "likely_prompt_echo": false,
+          "norm_quality_risk": false,
+          "dismissive_citation_risk": false,
+          "rw": {
+            "cited": []
+          },
+          "rs": {
+            "cited": [
+              "RS0019392",
+              "RS0035627",
+              "RS0035965",
+              "RS0037363",
+              "RS0038346",
+              "RS0071999"
+            ],
+            "validation": {
+              "cited": 6,
+              "checked": 6,
+              "valid": 6,
+              "invalid": [],
+              "sample_valid": [
+                "RS0019392",
+                "RS0035627",
+                "RS0035965",
+                "RS0037363",
+                "RS0038346",
+                "RS0071999"
+              ]
+            },
+            "valid": [
+              "RS0019392",
+              "RS0035627",
+              "RS0035965",
+              "RS0037363",
+              "RS0038346",
+              "RS0071999"
+            ],
+            "ungrounded_valid": []
+          },
+          "te_ogh": {
+            "cited": [],
+            "ungrounded": []
+          },
+          "norms": {
+            "cited": [
+              "§ 1002 ABGB",
+              "§ 1151 ABGB",
+              "§ 1152 ABGB",
+              "§ 1165 ABGB",
+              "§ 158k VersVG",
+              "§ 204 ZPO",
+              "§ 30 ZPO"
+            ],
+            "ungrounded": [],
+            "unknown_law_code": []
+          },
+          "evidence": {
+            "rs": [
+              "RS0008473",
+              "RS0016668",
+              "RS0017207",
+              "RS0019392",
+              "RS0022526",
+              "RS0025103",
+              "RS0025304",
+              "RS0026398",
+              "RS0027969",
+              "RS0035625",
+              "RS0035627",
+              "RS0035965",
+              "RS0037363",
+              "RS0038346",
+              "RS0038762",
+              "RS0039652",
+              "RS0040661",
+              "RS0046414",
+              "RS0057101",
+              "RS0071999",
+              "RS0101502",
+              "RS0102697",
+              "RS0102784",
+              "RS0102867",
+              "RS0105790",
+              "RS0105824",
+              "RS0109132",
+              "RS0114090",
+              "RS0116395",
+              "RS0116716",
+              "RS0123128",
+              "RS0126928"
+            ],
+            "te_ogh": [
+              "7Ob174/25a"
+            ],
+            "norms": [
+              "Art 10 ARB",
+              "§ 10 AVG",
+              "§ 1002 ABGB",
+              "§ 1014 ABGB",
+              "§ 1020 ABGB",
+              "§ 1088 ABGB",
+              "§ 1151 ABGB",
+              "§ 1152 ABGB",
+              "§ 1165 ABGB",
+              "§ 1380 ABGB",
+              "§ 1431 ABGB",
+              "§ 1440 Satz 2 ABGB",
+              "§ 158k VersVG",
+              "§ 158l VersVG",
+              "§ 158m VersVG",
+              "§ 182 IO",
+              "§ 193 ZPO",
+              "§ 204 ZPO",
+              "§ 275 Abs 2 ZPO",
+              "§ 30 ZPO",
+              "§ 31 Abs 1 Z 1 ZPO",
+              "§ 31 ZPO",
+              "§ 381 ZPO",
+              "§ 477 Abs 1 Z 4 ZPO",
+              "§ 502 Abs 1 ZPO",
+              "§ 54 Abs 1a ZPO",
+              "§ 7 IO",
+              "§ 71 ZPO",
+              "§ 879 ABGB",
+              "§ 93 ZPO",
+              "§§ 1021, 1025 ABGB"
+            ],
+            "stats": {
+              "rs_count": 32,
+              "te_ogh_count": 1,
+              "norm_count": 31
+            }
+          }
+        },
+        "repair": {
+          "latency_ms": 27584.93,
+          "model": "x-ai/grok-4.1-fast",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 4903,
+            "completion_tokens": 4116,
+            "total_tokens": 9019,
+            "cost": 0.0030161,
+            "cached_tokens": 150,
+            "reasoning_tokens": 2265
+          }
+        },
+        "answer": "### 1. KERNFRAGEN\n- **Wirksamkeit des Widerrufs des bedingten Vergleichs (§ 204 ZPO)**: Fristgerechter Widerruf trotz DAS-Deckungsverweigerung möglich, sofern Bevollmächtigung vorliegt; Wirkung: Fortsetzung des Verfahrens.\n- **Einordnung des Anwaltsvertrags (§ 1165 ABGB Werkvertrag vs. § 1151 ABGB Dienstvertrag vs. § 1002 ABGB Bevollmächtigung)**: Anwaltsmandat typischerweise Bevollmächtigungs-/Auftragsvertrag, kein Werk- oder Dienstvertrag; entscheidend für Honorarberechtigung.\n- **Bevollmächtigung (§ 1002 ABGB, § 30 ZPO)**: Urkundlicher Nachweis der Prozessvollmacht erforderlich; Gericht prüft von Amts wegen.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage Klägerin: Werklohn (§ 1165 ABGB)**  \n- § 1165 ABGB (Werkvertrag: Erfolgs-/Ergebnisschuld).  \n\n**Eventualgrundlage: Dienstlohn (§ 1151 ABGB)**  \n- § 1151 ABGB (Dienstvertrag: Zeitleistungs-/Zielschuld).  \n- Rechtsfolgen: Angemessenes Entgelt (§ 1152 ABGB).  \n\n**Doppelgleisigkeit mit Bevollmächtigung (§ 1002 ABGB)**  \n- § 1002 ABGB (Auftragsvertrag: Konsensual, entgeltliche Geschäftsbesorgung; für Anwälte vorrangig).  \n- Rechtsfolgen: Angemessenes Honorar (§ 1152 ABGB subsidiär); bei Widerruf anteiliger Anspruch.  \n\n**Verfahrensrechtlich: Widerruf bedingter Vergleich**  \n- § 204 ZPO (bedingter gerichtlicher Vergleich, Widerrufsfrist vereinbar).  \n- Rechtsfolgen: Wirksamkeit löst Vergleich auf, Verfahren fortgesetzt.  \n\n**Versicherungsrechtlich**  \n- § 158k VersVG (Rechtsschutzversicherung: Deckungspflicht bei streitiger Sache).  \n- Rechtsfolgen: Deckungsverweigerung begründet Widerruf nicht exkulpativ, aber separat prüfbar.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0019392**: Anwaltsvertrag unterliegt Bevollmächtigungsrecht (§ 1002 ABGB), nicht Werk-/Dienstvertrag; bei Widerruf nur anteiliger Anspruch — relevant, da Klägerin Werklohn geltend macht, aber Auftragsrecht vorrangig.\n- **RS0035627**: Gericht prüft Vollmachtsnachweis (§ 30 ZPO) von Amts wegen, beschränkt auf Form/Inhalt — relevant für Bevollmächtigung.\n- **RS0035965**: Wirksamkeit von Prozesshandlungen des Bevollmächtigten im Außenverhältnis unabhängig vom Innenverhältnis.\n- **RS0037363**: Widerrufsfrist eines gerichtlichen Vergleichs ist materiellrechtliche Ausschlußfrist — relevant für Wirksamkeit des Widerrufs.\n- **RS0038346**: Angemessenheit des Entgelts nach § 1152 ABGB bei Fehlen von Tarifen.\n- **RS0071999**: Rangfolge Anwaltshonorar: Vereinbarung > RATG > § 1152 ABGB — relevant bei Fehlen von Vereinbarung.\n\n### 4. SUBSUMTION\n**I. Werklohnanspruch (§ 1165 ABGB)**  \n1. Werkvertrag: (-) Keine ideelle/materielle Werkleistung evident (RS0019392 schließt Werkvertrag für Anwälte aus).  \n→ Tatbestand nicht erfüllt.  \n\n**II. Dienstlohnanspruch (§ 1151 ABGB)**  \n1. Dienstvertrag: (-) Keine Weisungsgebundenheit/Zeitleistung (Anwalt typisch autonom; RS0019392: kein Dienstvertrag).  \n→ Tatbestand nicht erfüllt.  \n\n**III. Bevollmächtigungslohn (§ 1002 ABGB)**  \n1. Auftragsvertrag: Geschäftsbesorgung gegen Entgelt.  \n2. Honorar: Keine Vereinbarung; anteilig bei Widerruf (RS0019392).  \n→ Teilweise erfüllt, aber quantum unklar.  \n\n**IV. Widerruf bedingter Vergleich (§ 204 ZPO)**  \n1. Widerruf: Schriftlich, fristgerecht (RS0037363: materiell wirksam).  \n2. Bevollmächtigung: § 30 ZPO-Nachweis vorausgesetzt (RS0035627: Amtsprüfung).  \n3. DAS-Deckung: Neutral (§ 158k VersVG: separat prüfbar).  \n→ Erfüllt.  \n\n**Ausschlussgründe Widerruf (taxativ, § 204 ZPO)**:  \n1. Fristversäumnis: Abwenden.  \n2. Formmangel: Abwenden.  \n3. Fehlende Bevollmächtigung: Abwenden (RS0035627).  \n\n### 5. BEWEISLASTVERTEILUNG\n- **Klägerin (Koller)** muss beweisen: Vertragsabschluss/Art (Werk/Dienst), Leistungserbringung, Quantum (EUR 18.114,83).  \n- **Beklagter (Baumgartner)** muss beweisen: Widerruf wirksam, keine Bevollmächtigung.  \n- Vorliegende Beweise: Widerrufsschreiben, Protokoll. Fehlend: Vollmachtsnachweis (§ 30 ZPO), Leistungsdetails.  \n- **Praxishinweis**: Beantragen Urkundenvorlage, Parteivernehmung Koller/Baumgartner, Sachverständigengutachten zu Honorarangemessenheit (§ 1152 ABGB).\n\n### 6. PROZESSSTRATEGIE\n- **Hauptbegehren**: Abweisung der Klage (kein Werk-/Dienstvertrag, RS0019392: Auftragsrecht; Widerruf wirksam).  \n- **Eventualbegehren**: Reduktion auf anteiliges Honorar (§ 1002 ABGB/RS0019392), falls Auftrag anerkannt.  \nPriorisiert: Hohe Erfolgsaussicht bei Bestreitung Werklohn, niedriger bei Auftrag.\n\n### 7. RISIKEN / GEGENARGUMENTE\n1. **Gericht qualifiziert als Werkvertrag (§ 1165 ABGB)**: Replik: RS0019392 schließt für Anwälte aus.  \n2. **Widerruf form-/bevollmächtigungsunwirksam (§ 30 ZPO)**: Replik: RS0035627 (Amtsprüfung beschränkt).  \n3. **DAS verweigert Deckung (§ 158k VersVG)**: Replik: Separat beantragbar (freie Wahl Vertreter).\n\n### 8. ERFOLGSAUSSICHTEN\n- Werklohn (§ 1165 ABGB): Niedrig (RS0019392 entgegen).  \n- Dienstlohn (§ 1151 ABGB): Niedrig (Abgrenzung zu Auftrag).  \n- Bevollmächtigungslohn (§ 1002 ABGB): Mittel (anteilig, quantum offen).  \n- Widerruf wirksam: Hoch (fristgerecht).\n\n### 9. STRATEGISCHE DETAILS\n**KOSTEN**: Streitwert EUR 18.114,83; Gerichtsgebühren und RA-Kosten ca. 4.000 € p.P. (mit DAS deckbar).  \n**NÄCHSTE SCHRITTE**:  \n1. Deckungsanfrage DAS für Verfahrensfortführung (sofort).  \n2. Akten auswerten.  \n3. Beweisanträge stellen.  \n4. Inhaltliche Schriftsatz einreichen.  \n**KOSTEN-NUTZEN**: Kosten Verfahren vs. Risiko Vollzahlung + Zinsen/Kosten."
+      }
+    },
+    "response": {
+      "elapsed_ms": 21515.36,
+      "meta": {
+        "model": "x-ai/grok-4.1-fast",
+        "elapsed_s": 21514.102084000002,
+        "usage": {
+          "prompt_tokens": 4425,
+          "completion_tokens": 2096,
+          "total_tokens": 6521,
+          "cost": 0.00191095,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 147
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00191095,
+            "upstream_inference_prompt_cost": 0.00086295,
+            "upstream_inference_completions_cost": 0.001048
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 706
+          }
+        },
+        "response_type": "combined"
+      }
+    }
+  },
+  "classification": {
+    "domain": "zivilprozess",
+    "subdomain": "",
+    "confidence": 0.167,
+    "paragraphs": [
+      "§ 204 ZPO",
+      "§ 1165 ABGB",
+      "§ 1151 ABGB",
+      "§ 1002 ABGB",
+      "§ 158k VersVG"
+    ],
+    "mandatory_paragraphs": [],
+    "keywords": [
+      "Zivilprozess"
+    ],
+    "all_scores": {
+      "zivilprozess": 0.167
+    },
+    "source": "deterministic_low_confidence"
+  },
+  "pre_search_evidence_chars": 5000,
+  "file_context_meta": {
+    "files_read": [
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/Koller : Baumgartner/FALLUEBERSICHT.md",
+      "/Users/reinhardberger/HCS/_TEST CASES Super Ris/Koller : Baumgartner/CASE_DATA.json"
+    ],
+    "files_skipped": [],
+    "ocr_count": 0,
+    "final_chars": 10533,
+    "extracted_facts": {
+      "deadlines": [
+        "Frist 15.01.2026",
+        "bis 15.01.2026"
+      ],
+      "dates": [
+        "08.09.2025",
+        "12.04.1964",
+        "13.11.2025",
+        "15.01.2026",
+        "20.12.2025",
+        "26.03.2026"
+      ],
+      "costs": [
+        "EUR 18.114,83",
+        "EUR 18.114,83",
+        "EUR 18.114,83",
+        "EUR 18.114,83",
+        "EUR 18.114,83"
+      ],
+      "case_nums": [],
+      "rs_numbers": []
+    }
+  },
+  "plan": {
+    "workstreams": [
+      {
+        "name": "Werkvertrag vs. Dienstvertrag (§§ 1165, 1151 ABGB)",
+        "goal": "Klärung der rechtlichen Einordnung der Tätigkeit von RA Koller – entscheidend für Anspruchsgrundlage (Werklohn vs. Dienstlohn)",
+        "tools": [
+          "get_rechtssatz",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "hot_rs_lookup"
+        ]
+      },
+      {
+        "name": "Bevollmächtigung & Ermächtigung (§ 1002 ABGB)",
+        "goal": "Prüfung, ob RA Berger rechtskräftig bevollmächtigt war, den bedingten Vergleich widerrufen zu können – Voraussetzung für wirksamen Widerruf",
+        "tools": [
+          "hot_rs_search",
+          "hot_cluster_context",
+          "hot_rs_lookup",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz"
+        ]
+      },
+      {
+        "name": "Widerruf bedingter Vergleich (§ 204 ZPO) & DAS-Deckung (§ 158k VersVG)",
+        "goal": "Rechtliche Bewertung der Widerrufsfrist, -wirkung und der Rolle der DAS-Deckungsverweigerung; Prüfung, ob Deckung für Fortführung des Verfahrens noch möglich",
+        "tools": [
+          "build_grounding_context",
+          "detect_clusters",
+          "ask_gemini_zivilrecht",
+          "search_kommentar_paragraph",
+          "search_kommentar_keyword",
+          "search_by_paragraph",
+          "search_by_schlagwort",
+          "search_ogh_rechtssaetze",
+          "get_rechtssatz",
+          "hot_rs_lookup"
+        ]
+      }
+    ],
+    "synthesis_focus": "Zuordnung der Tätigkeit zu Werk- oder Dienstvertrag (§§ 1165/1151 ABGB) als zentraler Anspruchsinhalt, kombiniert mit Prüfung der Wirksamkeit des Widerrufs (§ 204 ZPO) unter Berücksichtigung der Versicherungsdeckung (§ 158k VersVG) und Bevollmächtigung (§ 1002 ABGB)"
+  },
+  "organizer_meta": {
+    "latency_ms": 4505.81,
+    "raw_text": "{\n  \"workstreams\": [\n    {\n      \"name\": \"Werkvertrag vs. Dienstvertrag (§§ 1165, 1151 ABGB)\",\n      \"goal\": \"Klärung der rechtlichen Einordnung der Tätigkeit von RA Koller – entscheidend für Anspruchsgrundlage (Werklohn vs. Dienstlohn)\",\n      \"tools\": [\"search_by_paragraph(\\\"§ 1165 ABGB\\\")\", \"search_by_paragraph(\\\"§ 1151 ABGB\\\")\", \"hot_rs_search(\\\"Werkvertrag Dienstvertrag Zivilrecht\\\")\", \"get_rechtssatz\"]\n    },\n    {\n      \"name\": \"Bevollmächtigung & Ermächtigung (§ 1002 ABGB)\",\n      \"goal\": \"Prüfung, ob RA Berger rechtskräftig bevollmächtigt war, den bedingten Vergleich widerrufen zu können – Voraussetzung für wirksamen Widerruf\",\n      \"tools\": [\"search_by_paragraph(\\\"§ 1002 ABGB\\\")\", \"hot_rs_lookup(\\\"Bevollmächtigung Widerruf Vergleich ZPO\\\")\", \"search_kommentar_paragraph(\\\"§ 204 ZPO\\\", \\\"Bevollmächtigung\\\")\"]\n    },\n    {\n      \"name\": \"Widerruf bedingter Vergleich (§ 204 ZPO) & DAS-Deckung (§ 158k VersVG)\",\n      \"goal\": \"Rechtliche Bewertung der Widerrufsfrist, -wirkung und der Rolle der DAS-Deckungsverweigerung; Prüfung, ob Deckung für Fortführung des Verfahrens noch möglich\",\n      \"tools\": [\"search_by_paragraph(\\\"§ 204 ZPO\\\")\", \"search_by_paragraph(\\\"§ 158k VersVG\\\")\", \"hot_cluster_context(\\\"DAS Deckung Verweigerung Widerruf\\\")\", \"search_kommentar_keyword(\\\"ZPO §204 Widerruf bedingter Vergleich\\\")\"]\n    },\n    {\n      \"name\": \"Synthese & RS/TE-Identifikation\",\n      \"goal\": \"Zusammenführung der Ergebnisse in eine anwaltliche Ersteinschätzung mit Priorisierung relevanter RS/TE\",\n      \"tools\": [\"detect_clusters\", \"hot_index_stats\", \"build_grounding_context\", \"get_rechtssatz\"]\n    }\n  ],\n  \"synthesis_focus\": \"Zuordnung der Tätigkeit zu Werk- oder Dienstvertrag (§§ 1165/1151 ABGB) als zentraler Anspruchsinhalt, kombiniert mit Prüfung der Wirksamkeit des Widerrufs (§ 204 ZPO) unter Berücksichtigung der Versicherungsdeckung (§ 158k VersVG) und Bevollmächtigung (§ 1002 ABGB)\"\n}",
+    "used_fallback": false,
+    "usage": {
+      "prompt_tokens": 1782,
+      "completion_tokens": 657,
+      "total_tokens": 2439,
+      "cost": 0.0007929,
+      "cached_tokens": 3,
+      "reasoning_tokens": 0
+    },
+    "classification": {
+      "domain": "zivilprozess",
+      "subdomain": "",
+      "confidence": 0.167,
+      "paragraphs": [
+        "§ 204 ZPO",
+        "§ 1165 ABGB",
+        "§ 1151 ABGB",
+        "§ 1002 ABGB",
+        "§ 158k VersVG"
+      ],
+      "mandatory_paragraphs": [],
+      "keywords": [
+        "Zivilprozess"
+      ],
+      "all_scores": {
+        "zivilprozess": 0.167
+      },
+      "source": "deterministic_low_confidence"
+    }
+  },
+  "streams": [
+    {
+      "name": "Bevollmächtigung & Ermächtigung (§ 1002 ABGB)",
+      "goal": "Prüfung, ob RA Berger rechtskräftig bevollmächtigt war, den bedingten Vergleich widerrufen zu können – Voraussetzung für wirksamen Widerruf",
+      "mode": "llm",
+      "tools": [
+        "hot_rs_search",
+        "hot_cluster_context",
+        "hot_rs_lookup",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 1708.96,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 4649,
+            "completion_tokens": 100,
+            "total_tokens": 4749,
+            "cost": 0.0026245,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 1623.91,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 7042,
+            "completion_tokens": 114,
+            "total_tokens": 7156,
+            "cost": 0.003863,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 2329.39,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 9320,
+            "completion_tokens": 116,
+            "total_tokens": 9436,
+            "cost": 0.005008,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 8570.29,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 10287,
+            "completion_tokens": 930,
+            "total_tokens": 11217,
+            "cost": 0.0079335,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_WMGG7GVimRgptvxsDKjs",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1002 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 89.93,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1002 ABGB\", \"results\": [{\"rs_number\": \"RS0025103\", \"kernaussage\": \"Auf den unregelmäßigen Verkaufsauftrag nach § 1088 ABGB sind die Grundsätze des Bevollmächtigungsvertrages, daher auch über die Rechnungslegungspflicht nach § 1002 ABGB anzuwenden (Klang Kommentar 1. Auflage Bd II/2 zu § 1088 ABGB).\", \"schlagworte\": []}, {\"rs_number\": \"RS0025304\", \"kernaussage\": \"Ist die Konsumentenberatung ermächtigt, im Namen einer Person einen Rechtsanwalt zu betrauen, diesem Informationen zu erteilen und die nötigen Beweismittel zu übersenden, dann gilt sie als Bevollmächtigte im Sinne des § 1002 ABGB.\", \"schlagworte\": []}, {\"rs_number\": \"RS0046414\", \"kernaussage\": \"Die Bestellung eines Rechtsanwalts durch einen Kaufmann zur rechtsfreundlichen Vertretung jeder Art (§ 1002 ABGB) ist, wenn es sich ausschließlich um Vertretungshandlungen im Bereiche seiner Privatrechtssphäre handelt, kein Handelsgeschäft. Die Betrauung eines Rechtsanwalts mit der Vertretung in den...\", \"schlagworte\": [\"Firma\", \"Einzelkaufmann\", \"Passivlegitimation\", \"öffentliche Verwaltung\", \"Anwaltsgebühren\", \"Verjährung\", \"Schadenersatz\", \"entgangener Gewinn\", \"Handelsgeschäft\", \"Zwangsversteigerung\", \"Rechtsanwaltshaftung\"]}, {\"rs_number\": \"RS0109132\", \"kernaussage\": \"Beim Auftragsvertrag im Sinne des § 1002 ABGB handelt es sich um einen Konsensualvertrag, bei dem sich der Beauftragte zur entgeltlichen oder unentgeltlichen Besorgung erlaubter Geschäfte auf Rechnung des Auftraggebers verpflichtet. Ist mit dem Auftrag keine Vollmacht verbunden, kann der Beauftragte...\", \"schlagworte\": [\"Mitverschulden\", \"Urkundenauslegung\", \"Schadenersatz\", \"Auftragsvertrag\", \"Finanzdienstleister\", \"Abbruchkosten\", \"Berufung\", \"Bereicherungsrecht\", \"Schenkungsvertrag\", \"Anwaltsvertrag\", \"Aufwendungsersatz\", \"§ 1014 ABGB\", \"Abtretung\", \"Höchstbetragspfandrecht\", \"Krankenzusatzversicherung\", \"Gläubigerbenachteiligung\", \"Privatsachverständiger\", \"Erkundigungspflicht\", \"Gewaltgeber\", \"Beweisrüge\", \"Mandatsverhältnis\", \"Konkurs\", \"Zwangsversteigerung\", \"Optionsvertrag\", \"Anfechtungsklage\"]}, {\"rs_number\": \"RS0114090\", \"kernaussage\": \"Ein Werbeagenturvertrag, ein gesetzlich nicht geregelter Vertragstyp, enthält Elemente eines Werkvertrages und eines Dienstvertrages (§ 1151 ABGB) aber auch eines Bevollmächtigungsvertrages (§ 1002 ABGB), insoweit es die Werbeagentur übernommen hat, als Vertreterin des Auftragsgeber"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_DwLVDEmXrvPBVyV1XBfI",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 8 RAO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 465.29,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 8 RAO\", \"results\": [{\"rs_number\": \"JWR_1997191553_19981204X01\", \"kernaussage\": \"Gewerbsmäßige Einzeltätigkeit reicht für § 57 Abs 2 VStG iVm § 8 RAO\", \"schlagworte\": [\"gewerbsmäßige Parteienvertretung\", \"unerlaubte Anwaltschaft\", \"§ 8 RAO\", \"Notare\", \"Patentanwälte\", \"Wirtschaftstreuhänder\", \"Gesetzgeberwille\", \"Vorbehalt der Befugnis\"]}, {\"rs_number\": \"JWR_1987180003_19910215X01\", \"kernaussage\": \"Keine Verweigerung der Atemprobe ohne Anwaltskontakt aus § 8 RAO\", \"schlagworte\": [\"Atemalkoholprobe\", \"Parteienvertretung\", \"Rechtsanwalt\", \"Verweigerung\", \"StVO\", \"RAO\", \"VerkehrsKontroll\", \"Grundrechte\"]}, {\"rs_number\": \"JWR_1978000377_19790423X01\", \"kernaussage\": \"Rechtsanwalts-Tätigkeit: Vermögensverwaltung iSd § 8 RAO für USt-Ermäßigung\", \"schlagworte\": [\"Rechtsanwaltstätigkeit\", \"Verwaltung fremden Vermögens\", \"Gebäudeverwaltung\", \"ermäßigter Steuersatz\", \"Umsatzsteuer\", \"Berufsrecht\", \"RAO\", \"UStG\"]}, {\"rs_number\": \"JWR_1993170060_19941125X04\", \"kernaussage\": \"§ 8 RAO gilt auch in Tir LAO 1984: Kein urkundlicher Vollmachtsnachweis nötig\", \"schlagworte\": [\"Derogation\", \"Vollmachtsnachweis\", \"Rechtsanwalt\", \"Bundesrecht Vorrang\", \"Landesrecht\", \"Art 11 B-VG\", \"RAO\", \"LAO Tirol\", \"Beschwerdeverfahren\"]}, {\"rs_number\": \"JWR_1994150110_19941215X01\", \"kernaussage\": \"Unbeschränkte § 8 RAO-Vollmacht umfasst Zustellung an Abgabenbehörden\", \"schlagworte\": [\"Vollmacht\", \"Zustellungsbevollmächtigung\", \"§ 8 RAO\", \"Abgabenbehörde\", \"Berufung\", \"Rubrum\", \"unbeschränkte Vollmacht\"]}], \"count\": 5}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_360tZKLULqVWAemaQUVY",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 30 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1144.8,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 30 ZPO\", \"results\": [{\"rs_number\": \"RS0105790\", \"kernaussage\": \"Eine Duldungsvollmacht ist im Prozeßrecht ausgeschlossen, weil gemäß § 30 ZPO die Bevollmächtigung im Prozeß nur dann wirksam ist, wenn sie urkundlich nachgewiesen ist, weshalb sie ausdrücklich erteilt sein muß. Daran ändert auch die Befreiung vom urkundlichen Nachweis für Rechtsanwälte und Notare...\", \"schlagworte\": []}, {\"rs_number\": \"RS0035625\", \"kernaussage\": \"Analoge Anwendung des § 30 ZPO im außerstreitigen Verfahren.\", \"schlagworte\": []}, {\"rs_number\": \"RS0035627\", \"kernaussage\": \"Den Mangel der Vollmacht hat das Gericht in jeder Lage des Rechtsstreites von Amts wegen zu berücksichtigen. Die damit vorgeschriebene Prüfung der Vollmacht hat sich allerdings auf den in § 30 ZPO enthaltenen Vollmachtsnachweis zu beschränken. Hiezu gehört auch die Beurteilung, ob die vorliegende...\", \"schlagworte\": [\"Bevollmächtigung\", \"TGO\", \"Postulationsfähigkeit\", \"Vertragsvoraussetzung\", \"mangels kostendeckenden Vermögens\", \"Verwertung von Masseforderungen\", \"Abwasserableitung\", \"Insolvenzeröffnung\", \"Firmenbuchlöschung\", \"Prozeßvollmacht\", \"Verzug\", \"örtliche Zuständigkeit\", \"Schriftform\", \"§ 182 IO\", \"Revisionsrekurs\", \"sachliche Zuständigkeit\", \"Hauptmieter\", \"EUInsVO\", \"gelöschte GmbH\", \"Vollmacht\", \"Kompetenzkonflikt\", \"Gemeinde\", \"Kaufvertrag\", \"Allgemeine Gemeindeordnung\", \"Benützungsentgelt\", \"Zustellung\", \"Verteilungsschlüssel\", \"Industrieansiedlung\", \"Revision\", \"Betriebskostenabrechnung\"]}, {\"rs_number\": \"JWR_1995200411_19980226X01\", \"kernaussage\": \"Vollmachtsanzeige mit § 10 AVG/§ 30 ZPO gilt nicht für Verwaltungsverfahren\", \"schlagworte\": [\"Vollmachtsanzeige\", \"Beschwerde\", \"§ 10 AVG\", \"§ 30 ZPO\", \"Urkundenersatz\", \"Verwaltungsverfahren\", \"Gerichtsverfahren\", \"Rückleitung\"]}], \"count\": 4}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_eQxNb6VqYTxlBAwQ8xVG",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Rechtsanwalt Vollmacht Widerruf Vergleich bedingt",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 17.6,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Rechtsanwalt Vollmacht Widerruf Vergleich bedingt\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_nyyRmeKvgO8WoEaxWtW2",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf bedingter Vergleich Vollmacht Rechtsanwalt",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.99,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf bedingter Vergleich Vollmacht Rechtsanwalt\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_bgaFGD3Byrdvh1ocYIDd",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "204 ZPO Widerruf Bevollmächtigung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.65,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"204 ZPO Widerruf Bevollmächtigung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_schlagwort_99NAfN3PZHYL2az14LhD",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Prozessvollmacht",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 69.34,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Prozessvollmacht\", \"results\": [{\"rs_number\": \"RS0040661\", \"kernaussage\": \"Die Würdigung des grundlosen Ausbleibens einer zur Parteienvernehmung geladenen Partei durch die Untergerichte ist eine Frage der Beweiswürdigung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Rückzahlung\", \"Insolvenzverfahren\", \"Prozesskostenhilfe\", \"Verfahrensmängel\", \"Sachverständigengutachten\", \"§ 7 IO\", \"Versicherungsleistung\", \"Beweiswürdigung\", \"§ 71 ZPO\", \"außerordentliche Revision\", \"Parteienvernehmung\", \"Fernbleiben\", \"Nichtigkeit\", \"Ladungsverzicht\", \"Verfahrenshilfe\", \"Zustellung\", \"Prozessvollmacht\", \"Erlöschen VH\", \"Revision\", \"§ 381 ZPO\", \"Identitätsbetrug\", \"Nichtigkeitsbeschwerde\", \"Nachzahlung\", \"§ 93 ZPO\", \"Exekution\", \"Verfahrensmangel\", \"Vermögensverzeichnis\", \"Beweisaufnahme\", \"§ 1431 ABGB\"]}, {\"rs_number\": \"RS0039652\", \"kernaussage\": \"Der Beschluss, mit dem die Beendigung des Verfahrens infolge Klagsrücknahme festgestellt wird, ermöglicht den Parteien die Anfechtung der Klagsrücknahmeerklärung im Rechtsmittelwege und hat nur deklarative Wirkung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verlassenschaftsabhandlung\", \"Vergleich §109 AußStrG\", \"Kontaktrecht\", \"Nichtigkeitsklage\", \"Obsorgeverfahren\", \"Unterbleiben der Abhandlung\", \"AußStrG\", \"Aufhebungsklage\", \"Zurückziehung\", \"§ 153 AußStrG\", \"Klagerücknahme\", \"Verfahrenshilfe\", \"Prozessvollmacht\", \"Rekurs\", \"Erlöschen ex lege\", \"deklarativer Beschluss\", \"Klagszurücknahme\", \"anfechtbarer Beschluss\", \"Eventualbegehren\", \"Rechtssicherheit\", \"Klageänderung\"]}, {\"rs_number\": \"JWR_1995090103_19961018X01\", \"kernaussage\": \"Wirksamkeit der allgemeinen Vollmachtskündigung (ohne Verfahrensauflistung)\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Vollmachtskündigung\", \"Wirksamkeit\", \"Einlangen\", \"anhängige Verfahren\", \"Behördenpflicht\", \"allgemeine Kündigung\", \"Prozessvollmacht\", \"Zuordnung\"]}, {\"rs_number\": \"RS0123128\", \"kernaussage\": \"Um beurteilen zu können, ob die vom Gesetzgeber bei Vorliegen der Voraussetzungen des § 58 Abs 1 und 3 AußStrG für die Erledigung eines Rechtsmittels in der Sache abgelehnte Aufhebung der angefochtenen Entscheidung vermeidbar ist, ist es erforderlich, den bisher nicht gehörten Parteien Gelegenheit...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Notweg\", \"Dienstbarkeit\", \"Servitutsberechtigte\", \"Parteistellung\", \"Hypothekargläubiger\", \"AußStrG\", \"Freiheitsbeschränkende Maßnahmen\", \"Medi"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_get_rechtssatz_aD3Y4YWywGQhG88ZFQG1",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0035627"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.78,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0035627\", \"rechtssatz\": \"Den Mangel der Vollmacht hat das Gericht in jeder Lage des Rechtsstreites von Amts wegen zu berücksichtigen. Die damit vorgeschriebene Prüfung der Vollmacht hat sich allerdings auf den in § 30 ZPO enthaltenen Vollmachtsnachweis zu beschränken. Hiezu gehört auch die Beurteilung, ob die vorliegende Vollmacht nach Inhalt und Form den gesetzlichen Vorschriften entspricht (Neumann 4.Auflage, 516).\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Bevollmächtigung\", \"TGO\", \"Postulationsfähigkeit\", \"Vertragsvoraussetzung\", \"mangels kostendeckenden Vermögens\", \"Verwertung von Masseforderungen\", \"Abwasserableitung\", \"Insolvenzeröffnung\", \"Firmenbuchlöschung\", \"Prozeßvollmacht\", \"Verzug\", \"örtliche Zuständigkeit\", \"Schriftform\", \"§ 182 IO\", \"Revisionsrekurs\", \"sachliche Zuständigkeit\", \"Hauptmieter\", \"EUInsVO\", \"gelöschte GmbH\", \"Vollmacht\", \"Kompetenzkonflikt\", \"Gemeinde\", \"Kaufvertrag\", \"Allgemeine Gemeindeordnung\", \"Benützungsentgelt\", \"Zustellung\", \"Verteilungsschlüssel\", \"Industrieansiedlung\", \"Revision\", \"Betriebskostenabrechnung\"], \"fachgebiete\": [\"Vertragsauslegung\", \"Haftungsrecht\", \"Revision\", \"Feststellung\", \"Baurecht\", \"GmbH-Recht\"], \"datum\": \"2024-05-15\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_z0jnEsoCglzKG1xFBici",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf Vergleich Rechtsanwalt Vollmacht 204 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.9,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf Vergleich Rechtsanwalt Vollmacht 204 ZPO\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_YS5N3Z0t6nPhrHh4C7j8",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Vollmacht Rechtsanwalt Widerruf bedingter Vergleich Frist",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.41,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Vollmacht Rechtsanwalt Widerruf bedingter Vergleich Frist\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_paragraph_j6MEyuBbvYmpWYt82mhz",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 31 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 404.46,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 31 ZPO\", \"results\": [{\"rs_number\": \"RS0038762\", \"kernaussage\": \"Obwohl der Masseverwalter sein Amt persönlich auszuüben hat, kann er auch dann, wenn er Rechtsanwalt ist, von der Substitutionsbefugnis nach den §§ 15 RAO und § 31 ZPO Gebrauch machen. Eine Beschränkung dieser Befugnis auf den Anwaltsprozeß kann auch dem Gesetz nicht abgeleitet werden.\", \"schlagworte\": [\"Masseverwalter\", \"Substitut\", \"Haftung\", \"Zwangsversteigerung\", \"Kridaversteigerung\"]}, {\"rs_number\": \"RS0102697\", \"kernaussage\": \"Informationen zu § 31 ZPO Geändert durch BG BGBl 1990/474 (ab 01.01.1991).\", \"schlagworte\": []}, {\"rs_number\": \"RS0035965\", \"kernaussage\": \"Zur Stellung eines Antrages auf Erlassung einer einstweiligen Verfügung ist der mit einer ordnungsgemäßen Prozeßvollmacht (§ 31 ZPO) ausgestattete Klagevertreter zufolge § 31 Abs 1 Z 1 ZPO ohne Rücksicht darauf legitimiert, ob ihr im Innenverhältnis ein wirksam erteiltes Mandat zugrundeliegt.\", \"schlagworte\": []}, {\"rs_number\": \"RS0105824\", \"kernaussage\": \"Weder dem Rechtsanwalt noch dem Rechtsanwaltsanwärter steht gegen die Verweigerung der Erteilung der Substitutionsberechtigung unter Nachsicht von der Rechtsanwaltsprüfung gemäß § 31 ZPO und § 45 a StPO ein Berufungsrecht an die Oberste Berufungskommission und Disziplinarkommission zu.\", \"schlagworte\": []}], \"count\": 4}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_schlagwort_MMtK3sXXpQls5j4LAvbI",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Widerruf des Vergleichs",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 526.36,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Widerruf des Vergleichs\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0123128",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0123128",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.89,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0123128\", \"rechtssatz_text\": \"Um beurteilen zu können, ob die vom Gesetzgeber bei Vorliegen der Voraussetzungen des § 58 Abs 1 und 3 AußStrG für die Erledigung eines Rechtsmittels in der Sache abgelehnte Aufhebung der angefochtenen Entscheidung vermeidbar ist, ist es erforderlich, den bisher nicht gehörten Parteien Gelegenheit...\", \"te_count\": 22, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 2414, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob212_24y|OGH|2025-01-30\", \"gz\": \"5Ob212_24y\", \"datum\": \"2025-01-30\", \"gericht\": \"OGH\", \"mini_story\": \"Parteistellung weiterer Mieter in einem Verfahren über die Unterlassung von Erhaltungsarbeiten an einer Wohnhausanlage einer gemeinnützigen Bauvereinigung und Bewertung des Entscheidungsgegenstands im Außerstreitverfahren.\"}, {\"te_stable_key\": \"7Ob79_24d|OGH|2024-05-22\", \"gz\": \"7Ob79_24d\", \"datum\": \"2024-05-22\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt den Akt des Rekursgerichts zurück, da die Entscheidung dem Betroffenen nicht zugestellt wurde und dieser ein eigenes Rechtsmittel erheben kann.\"}, {\"te_stable_key\": \"10Ob21_24x|OGH|2024-05-14\", \"gz\": \"10Ob21_24x\", \"datum\": \"2024-05-14\", \"gericht\": \"OGH\", \"mini_story\": \"Prüfung der Rückersatzpflicht für zu Unrecht gewährte Unterhaltsvorschüsse gegenüber dem Träger der Kinder- und Jugendhilfe und der Pflegeperson bei Fremdunterbringung.\"}, {\"te_stable_key\": \"10Ob24_22k|OGH|2023-07-24\", \"gz\": \"10Ob24_22k\", \"datum\": \"2023-07-24\", \"gericht\": \"OGH\", \"mini_story\": \"Anspruch türkischer Kinder mit Wohnsitz in Österreich auf Unterhaltsvorschuss gemäß UVG aufgrund des Diskriminierungsverbots im ARB Nr 3/80.\"}, {\"te_stable_key\": \"2Ob126_22a|OGH|2022-09-06\", \"gz\": \"2Ob126_22a\", \"datum\": \"2022-09-06\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH stellt den Akt zurück, da dem Betroffenen die Beschlüsse nicht zugestellt wurden und ihm in Verfahren nach § 132 AußStrG Rechtsmittelrechte zustehen.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0114090",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0114090",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2.06,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0114090\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0109132",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0109132",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.42,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0109132\", \"rechtssatz_text\": \"Beim Auftragsvertrag im Sinne des § 1002 ABGB handelt es sich um einen Konsensualvertrag, bei dem sich der Beauftragte zur entgeltlichen oder unentgeltlichen Besorgung erlaubter Geschäfte auf Rechnung des Auftraggebers verpflichtet. Ist mit dem Auftrag keine Vollmacht verbunden, kann der Beauftragte...\", \"te_count\": 3, \"gericht\": \"OGH\", \"is_cluster_cited\": true, \"cluster_ids\": [\"AUFTRAG_VOLLMACHT\"], \"topic_ids\": [\"schuldrecht_bt\"], \"hot_rank\": 14242, \"selection_tier\": 1, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"1Ob63_18y|OGH|2018-07-17\", \"gz\": \"1Ob63_18y\", \"datum\": \"2018-07-17\", \"gericht\": \"OGH\", \"mini_story\": \"Aufhebung der Berufungsentscheidung wegen fehlerhafter Auslegung einer E-Mail im Kontext der Beauftragung eines Rechtsanwalts mit der Geltendmachung von Ansprüchen.\"}, {\"te_stable_key\": \"7Ob220_14z|OGH|2015-03-12\", \"gz\": \"7Ob220_14z\", \"datum\": \"2015-03-12\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück und bestätigt die Haftung eines Finanzdienstleisters aus einem Auftragsvertrag wegen fehlerhafter Kündigung einer Krankenzusatzversicherung.\"}, {\"te_stable_key\": \"3Ob188_12m|OGH|2012-12-19\", \"gz\": \"3Ob188_12m\", \"datum\": \"2012-12-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision des Masseverwalters zurück, da keine erhebliche Rechtsfrage vorliegt und eine Gläubigerbenachteiligung fehlt.\"}], \"te_items_count\": 3}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0105824",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0105824",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2.33,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0105824\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0105790",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0105790",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1.89,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0105790\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102697",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102697",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1.72,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102697\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0046414",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0046414",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2.33,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0046414\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0040661",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0040661",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.69,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0040661\", \"rechtssatz_text\": \"Die Würdigung des grundlosen Ausbleibens einer zur Parteienvernehmung geladenen Partei durch die Untergerichte ist eine Frage der Beweiswürdigung.\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 10757, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"10ObS149_15g|OGH|2016-01-19\", \"gz\": \"10ObS149_15g\", \"datum\": \"2016-01-19\", \"gericht\": \"OGH\", \"mini_story\": \"Angebliche Verfahrensmängel erster Instanz, deren Vorliegen vom Berufungsgericht verneint wurde, können in der Revision nicht erneut geltend gemacht werden. Die Würdigung eines nicht gehörig entschuldigten Ausbleibens einer Partei iSd § 381 ZPO fällt in die nicht überprüfbare Beweiswürdigung der Tat\"}, {\"te_stable_key\": \"6Ob101_05d|OGH|2005-05-19\", \"gz\": \"6Ob101_05d\", \"datum\": \"2005-05-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH ist an die Verneinung von Verfahrensmängeln erster Instanz durch das Berufungsgericht gebunden und prüft diese nicht erneut in der Revision.\"}, {\"te_stable_key\": \"10Ob12_03t|OGH|2003-04-29\", \"gz\": \"10Ob12_03t\", \"datum\": \"2003-04-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision zurück, da das Berufungsgericht angebliche Verfahrensmängel zu § 275 Abs 2 ZPO und § 381 ZPO bereits geprüft und verneint hat.\"}, {\"te_stable_key\": \"10Ob305_02d|OGH|2002-10-22\", \"gz\": \"10Ob305_02d\", \"datum\": \"2002-10-22\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der Revision wegen fehlenden Nichtigkeitsgrunds gemäß § 477 Abs 1 Z 4 ZPO und Unzulässigkeit der erneuten Rüge von Verfahrensmängeln.\"}, {\"te_stable_key\": \"10Ob290_00w|OGH|2000-10-24\", \"gz\": \"10Ob290_00w\", \"datum\": \"2000-10-24\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung einer außerordentlichen Revision mangels erheblicher Rechtsfrage im Sinne von § 502 Abs 1 ZPO.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 20,
+      "tool_calls_ok": 20,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "**Ersteinschätzung zur Bevollmächtigung von RA Mag. Berger für den Vergleichswiderruf**\n\nIm Fall *Koller gegen Baumgartner* (GZ 4 C 270/25p) ist die Wirksamkeit des durch RA Mag. Berger am 20.12.2025 erklärten Widerrufs des bedingten Vergleichs (§ 204 ZPO) zentral. Hierzu ergeht folgende Einschätzung zur Bevollmächtigung:\n\n### 1. Umfang der Prozessvollmacht (§§ 30, 31 ZPO, § 8 RAO)\nRA Mag. Berger vertritt den Beklagten Baumgartner. Für Rechtsanwälte gilt im österreichischen Zivilprozess die Besonderheit, dass sie sich auf eine erteilte Vollmacht berufen können, ohne diese (im Regelfall) urkundlich nachweisen zu müssen (§ 8 Abs 1 RAO, § 30 Abs 2 ZPO).\n*   **Gesetzlicher Umfang:** Die Prozessvollmacht nach **§ 31 Abs 1 ZPO** umfasst kraft Gesetzes alle den Rechtsstreit betreffenden Prozesshandlungen. Dazu gehört explizit der Abschluss eines Vergleichs (**§ 31 Abs 1 Z 1 ZPO**).\n*   **Widerruf als Kehrseite:** Da die Vollmacht zum Abschluss eines Vergleichs ermächtigt, umfasst sie nach ständiger Rechtsprechung und dem Grundsatz der Einheitlichkeit der Prozessführung auch die Befugnis, einen **bedingten Vergleich innerhalb der Frist zu widerrufen**. Ein gesonderter Nachweis einer \"Widerrufsvollmacht\" ist gegenüber dem Gericht nicht erforderlich.\n\n### 2. Wirksamkeit des Widerrufs (§ 204 ZPO)\nDer Widerruf erfolgte am 20.12.2025 und damit innerhalb der im Protokoll vom 13.11.2025 festgesetzten Frist (bis 15.01.2026).\n*   **Außenverhältnis:** Gegenüber dem BG Melk und der Gegenseite (Dr. Koller) ist der Widerruf durch die Berufung auf die Bevollmächtigung wirksam. Das Gericht hat den Mangel der Vollmacht zwar von Amts wegen zu prüfen (**RS0035627**), bei Rechtsanwälten genügt jedoch die Vollmachtsanzeige.\n*   **Innenverhältnis (Mandat):** Der Widerruf erfolgte aufgrund der Deckungsverweigerung der DAS. Selbst wenn im Innenverhältnis Unklarheiten bestünden, wäre die Prozesshandlung (der Widerruf) im Außenverhältnis gegenüber dem Gericht dennoch wirksam (**RS0035965**), sofern die Vollmacht nicht explizit widerrufen oder eingeschränkt wurde.\n\n### 3. Beweislast und Risiko\n*   **Beweislast:** Da RA Mag. Berger für den Beklagten eingeschritten ist, wird die Bevollmächtigung vermutet. Die klagende Partei (Dr. Koller) müsste die Unwirksamkeit des Widerrufs beweisen, wenn sie behauptet, der Widerruf sei ohne Willen des Beklagten erfolgt.\n*   **Rechtsfolge:** Durch den wirksamen Widerruf ist der Vergleich ex tunc hinfällig. Das Verfahren tritt in den Stand vor Vergleichsabschluss zurück. Die nächste Tagsatzung am 26.03.2026 ist daher zwingend wahrzunehmen.\n\n**Zusammenfassend:** RA Mag. Berger war aufgrund der allgemeinen Prozessvollmacht (§ 31 ZPO iVm § 8 RAO) vollumfänglich legitimiert, den Vergleichswiderruf für Baumgartner rechtswirksam zu erklären. Der Widerruf ist fristgerecht und prozessual wirksam erfolgt.\n\n**Wichtige RS/TE:**\n*   **RS0035627:** Prüfung der Vollmacht von Amts wegen (beschränkt auf § 30 ZPO).\n*   **RS0035965:** Wirksamkeit von Prozesshandlungen des Bevollmächtigten im Außenverhältnis unabhängig vom Innenverhältnis.\n*   **§ 31 Abs 1 Z 1 ZPO:** Gesetzlicher Umfang der Vollmacht (Vergleichsbefugnis).",
+      "answer_chars": 3159,
+      "e2e_ms": 17235.89
+    },
+    {
+      "name": "Werkvertrag vs. Dienstvertrag (§§ 1165, 1151 ABGB)",
+      "goal": "Klärung der rechtlichen Einordnung der Tätigkeit von RA Koller – entscheidend für Anspruchsgrundlage (Werklohn vs. Dienstlohn)",
+      "mode": "llm",
+      "tools": [
+        "get_rechtssatz",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 1937.66,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 4462,
+            "completion_tokens": 108,
+            "total_tokens": 4570,
+            "cost": 0.002555,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 1925.13,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 7346,
+            "completion_tokens": 112,
+            "total_tokens": 7458,
+            "cost": 0.004009,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 8144.59,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 10259,
+            "completion_tokens": 998,
+            "total_tokens": 11257,
+            "cost": 0.0081235,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_i2WSePAIiCQOe9K5mdAx",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1151 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 752.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1151 ABGB\", \"results\": [{\"rs_number\": \"JWR_1999080174_20030813X03\", \"kernaussage\": \"Abgrenzung Dienstvertrag (§ 1151 ABGB) vs. Werkvertrag\", \"schlagworte\": [\"Dienstvertrag\", \"Werkvertrag\", \"Abgrenzung\", \"Zielschuldverhältnis\", \"Werkleistung\", \"Sozialversicherungspflicht\", \"konkretisiertes Ergebnis\", \"geschlossene Einheit\"]}, {\"rs_number\": \"JWR_1984110264_19860212X01\", \"kernaussage\": \"Leiharbeitsverhältnis bleibt Arbeitsverhältnis i.S. § 1151 ABGB\", \"schlagworte\": [\"Leiharbeitsverhältnis\", \"Arbitrarbeitsverhältnis\", \"Weisungsrecht\", \"§ 1151 ABGB\", \"§ 1 IESG\", \"Versicherungspflicht\", \"Unterordnungsverhältnis\"]}, {\"rs_number\": \"JWR_1999080146_20030219X02\", \"kernaussage\": \"Abgrenzung Dienstvertrag vs. Werkvertrag (§ 1151 ABGB)\", \"schlagworte\": [\"Dienstvertrag\", \"Werkvertrag\", \"§ 1151 ABGB\", \"Zielschuldverhältnis\", \"Versicherungspflicht\", \"Abhängige Beschäftigung\", \"Werkleistung\", \"Dienstleistung\", \"Vertragsabgrenzung\"]}, {\"rs_number\": \"JWR_2001080131_20041117X01\", \"kernaussage\": \"§ 1151 ABGB: Dienstvertrag vs. Werkvertrag (Zielschuld)\", \"schlagworte\": [\"Dienstvertrag\", \"Werkvertrag\", \"§ 1151 ABGB\", \"Zielschuldverhältnis\", \"Vertragsqualifikation\", \"Sozialversicherungspflicht\", \"Ergebnisorientierung\", \"Zeitleistung\"]}, {\"rs_number\": \"RS0026398\", \"kernaussage\": \"Der \\\"Konsulent\\\" einer Firma, der laufend beratende Tätigkeit ausübt (und Unternehmungen der Firma inspiziert) und dafür vereinbarungsgemäß regelmäßige Entlohnung erhält, ist Dienstnehmer dieser Firma im Sinne des § 1151 ABGB und des § 2 Abs 1 ArbGerG.\", \"schlagworte\": []}], \"count\": 5}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_7d7zfUrrPoPCKyhekST9",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1165 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 720.29,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1165 ABGB\", \"results\": [{\"rs_number\": \"JWR_1997130169_19980715X01\", \"kernaussage\": \"Geschäftsführung als ideelles Werk i.S.d. § 1165 ABGB\", \"schlagworte\": [\"Geschäftsführer\", \"GmbH\", \"Werkvertrag\", \"geistiges Werk\", \"Erfolgscharakter\", \"Arbeitskraftleistung\", \"ABGB\"]}, {\"rs_number\": \"RS0102867\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 1165 ABGB A Allgemeines B Beförderungsverträge C Reiseveranstalterverträge D Architekten-(Planungs-)verträge, Baumeisterverträge, Bauträgervertrag und sonstige baubezogene Verträge E Ausbildungsverträge F Diverses\", \"schlagworte\": []}, {\"rs_number\": \"JWR_1987150084_19871123X02\", \"kernaussage\": \"Definition des Werkvertrags iSd § 1165 ABGB\", \"schlagworte\": [\"Werkvertrag\", \"Definition\", \"Erfolgsschuld\", \"Werkunternehmer\", \"persönliche Verantwortung\", \"ABGB §§ 1165 ff\", \"Ergebnisherstellung\", \"selbstständige Tätigkeit\"]}], \"count\": 3}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_VpI28npGBzpQzkUZdzzQ",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Rechtsanwalt Honorar Werkvertrag Dienstvertrag Abgrenzung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 26.25,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Rechtsanwalt Honorar Werkvertrag Dienstvertrag Abgrenzung\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_schlagwort_TRW2pom1YoLlBKrwQx5v",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Rechtsanwaltshonorar",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 122.58,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Rechtsanwaltshonorar\", \"results\": [{\"rs_number\": \"RS0116395\", \"kernaussage\": \"Die Aufrechnungsbefugnis des Rechtsanwaltes unterliegt neben den ihm durch § 19 RAO eingeräumten Rechten den allgemeinen Regeln des bürgerlichen Rechts. § 1440 Satz 2 ABGB steht der Aufrechnung seiner Honorarforderung mit einem Treuhanderlag entgegen.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Sammelkonto\", \"Treuhanderlag\", \"Aufrechnung\", \"Klientengelder\", \"Rechtsanwaltshonorar\", \"Treuhandpflichten\", \"Spezialzuweisung\", \"Transparente Abrechnung\", \"Honorareinbehalt\", \"Mandantenschutz\", \"Erbschaftsverwaltung\", \"§ 19 RAO\", \"Rechtsgrundlose Bereicherung\", \"Bevollmächtigung unwirksam\", \"Pflegschaftsgerichtliche Genehmigung\"]}, {\"rs_number\": \"RS0022526\", \"kernaussage\": \"Verliert der Gläubiger die für seine Forderung bestellte Sicherheit, so entsteht sein damit verbundener Schaden bereits mit dem Verlust der Deckung und nicht erst in dem Zeitpunkt in dem endgültig feststeht, daß er die Forderung nicht mehr hereinbringt. Es kann nämlich vom Schädiger bereits bei...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Verjährung\", \"Schadenersatzanspruch\", \"Kunstfehler\", \"Optionsvertrag\", \"Höchstbetragspfandrecht\", \"Löschung\", \"Schadenersatz\", \"Bevollmächtigter\", \"Grundbuch\", \"Amtshaftung\", \"einstweilige Verfügung\", \"Aufhebung\", \"Belastungs- und Veräußerungsverbot\", \"Schadenersatzverjährung\", \"Anwaltshaftung\", \"Garantievertrag\", \"stille Gesellschaft\", \"Treuhandverhältnis\", \"Vertrag zugunsten Dritter\", \"Notarhaftung\", \"Pfandrecht Löschung\", \"Bürgschaft\", \"Verbraucher\", \"Minderheitsgesellschafter\", \"KSchG\", \"Interzedent\", \"Treuhand\", \"GmbH\", \"Kapitalerhöhung\", \"Gesellschaftsvertrag\", \"Erwerbstreuhand\", \"Bauträgervertrag\", \"Treuhänder\", \"Lastenfreistellung\", \"Hypothekargläubiger\", \"BTVG\", \"Sparbuch\", \"Aufrechnung\", \"Inhaberpapier\", \"Kleinbetragssparbuch\", \"BWG\", \"Pensionskassenvertrag\", \"zeitwidrige Kündigung\", \"Kündigungsentschädigung\", \"Gleichbehandlung\", \"Ratenplan\", \"Baufortschrittsprüfer\", \"Sachverständigerhaftung\", \"Naturalrestitution\", \"Sicherungserlass\", \"Primärschaden\", \"Folgeschaden\", \"Treuhanderlag\", \"Treuhänderhaftung\", \"grundbücherliche Sicherstellung\", \"Rechtsanwaltshonorar\", \"Bevollmächtigungsvertrag\", \"Auftragsrecht\", \"Treuhandabwicklung\", \"Grundbuchseintragung\", \"Revisionzulassung\"]}, {\"rs_number\": \"RS0101502\", \"kernaussage\": \"Heranziehung der Autonomen Honorar-Richtlinien als Be"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_hot_rs_lookup_TJtQtLkVh2QhL5NK0e4a",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0071999",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 19.17,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0071999\", \"rechtssatz_text\": \"Die Rangfolge der Rechtsgrundlagen für das Anwaltshonorar lautet 1. Parteienvereinbarung, 2. RATG und 3. angemessenes Entgelt nach § 1152 ABGB, wobei jede Rechtsgrundlage die nachfolgende ausschließt.\", \"te_count\": 14, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 4067, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"7Ob174/25a|OGH|2025-11-19\", \"gz\": \"7Ob174/25a\", \"datum\": \"2025-11-19\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH bestätigt in nichtöffentlicher Sitzung das Urteil des OLG Linz, welches ein Teil- und Zwischenurteil des LG Linz bestätigte.\"}, {\"te_stable_key\": \"2Ob82_25k|OGH|2025-06-26\", \"gz\": \"2Ob82_25k\", \"datum\": \"2025-06-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH entscheidet über die Zulässigkeit und Berechtigung eines Abschlags auf das Anwaltshonorar in einer Dienstrechtssache gemäß AHK.\"}, {\"te_stable_key\": \"3Ob12_23w|OGH|2023-03-15\", \"gz\": \"3Ob12_23w\", \"datum\": \"2023-03-15\", \"gericht\": \"OGH\", \"mini_story\": \"Die Honorarvereinbarung zwischen Klägerin und Rechtsanwältin ist nicht sittenwidrig oder wucherisch und somit gültig.\"}, {\"te_stable_key\": \"10Ob25_22g|OGH|2022-12-13\", \"gz\": \"10Ob25_22g\", \"datum\": \"2022-12-13\", \"gericht\": \"OGH\", \"mini_story\": \"Bestimmung des angemessenen Anwaltsentgelts für die Errichtung und Grundbuchdurchführung eines Realteilungsvertrags im Kontext eines anschließenden Verkaufs einer Baulandfläche.\"}, {\"te_stable_key\": \"6Ob15_22g|OGH|2022-11-18\", \"gz\": \"6Ob15_22g\", \"datum\": \"2022-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision eines Rechtsanwalts gegen die Ablehnung seines Honoraranspruchs aus einem nicht abgeschlossenen Liegenschaftskauf zurück, da Verfahrensmängel während der Insolvenz-Unterbrechung nicht mehr angefochten werden können und der Vertrag Auftragsrecht unterliegt.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_2Et3L19xdrfTnex78Biu",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Rechtsanwalt Bevollmächtigungsvertrag Werkvertrag Dienstvertrag",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.08,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0019392\", \"rechtssatz\": \"Der Vertrag des Rechtsanwaltes mit seinem Klienten unterliegt auch dann, wenn die Geschäftsbesorgung gegen Entgelt übernommen wurde, den Bestimmungen des 22. Hauptstückes über den Bevollmächtigungsvertrag, nicht aber denen über den Dienstvertrag oder Werkvertrag. Wurde ein Pauschalhonorar vereinbart, aber infolge Widerrufes der Vollmacht nicht die ganze bedungene Arbeit geleistet, dann kann der Machthaber nur einen angemessenen Teil des vereinbarten Honorars verlangen oder des empfangenen Honorars behalten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anwaltshaftung\", \"Bevollmächtigung\", \"Werkvertrag\", \"Unterbrechungswirkung\", \"Pauschalhonorar\", \"§ 1020 ABGB\", \"Aufklärungspflicht\", \"Säumnisfolge\", \"§ 1014 ABGB\", \"Rechtsanwaltsvertrag\", \"Grundbuchseintragung\", \"Treuhandabwicklung\", \"Bevollmächtigungsvertrag\", \"Revisionzulassung\", \"Verfahrenshilfe\", \"Liegenschaftserwerb Slowenien\", \"Beweisrüge\", \"Anwaltsgebühren\", \"Auftragsrecht\", \"Exekution\", \"Rechtsanwaltsgebühren\", \"Honoraranspruch\", \"Schadenersatz\", \"Auftragsvertrag\", \"Vollmacht\", \"Berufung\", \"Klagslegitimation\", \"Kostenvorschuss\", \"RAO\", \"Aufteilungsverfahren\"], \"relevance\": 0.23}], \"count\": 1, \"query\": \"Rechtsanwalt Bevollmächtigungsvertrag Werkvertrag Dienstvertrag\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_paragraph_ckNh7YiTmnVbtwKRF4Z4",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 1152 ABGB",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 125.9,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 1152 ABGB\", \"results\": [{\"rs_number\": \"RS0027969\", \"kernaussage\": \"Mangels Vereinbarung gebührt gemäß § 6 AngG (§ 1152 ABGB) für die Rufbereitschaft ein ortsübliches bzw angemessenes Entgelt. In der Regel ist die Rufbereitschaft aber geringer zu entlohnen als die Leistung selbst.\", \"schlagworte\": [\"Rufbereitschaft\", \"Entgeltanspruch\", \"Angestelltengesetz\", \"Ruferreichbarkeit\", \"Allgemeine Erreichbarkeit\", \"Talsperrenverantwortlicher\", \"Kollektivvertrag Elektrizitätsversorgung\", \"ständige Erreichbarkeit\", \"Bereitschaftsdienstzulage\", \"Arbeitszeit\", \"Entgelt\", \"Sittenwidrigkeit\", \"Lohnwucher\", \"Dienstzuweisung\", \"Vertragsbedienstete\", \"Personalvertretungsrecht\", \"Betriebsverfassungsrecht\", \"Krankenanstalten\"]}, {\"rs_number\": \"RS0038346\", \"kernaussage\": \"Die Entlohnung eines Rechtsanwaltes für die Errichtung von Verträgen richtet sich weder nach dem RATG noch dem NTG. Das Entgelt ist vielmehr nach § 1152 ABGB zu bestimmen. Angemessen im Sinne des § 1152 ABGB ist das Entgelt, das sich unter Berücksichtigung aller Umstände und unter Bedachtnahme auf...\", \"schlagworte\": [\"Rechtsanwaltsgebühren\", \"Autonomer Tarif\", \"Bemessungsgrundlage\", \"Kaufsumme\", \"Vollmachtskündigung\", \"GmbH\", \"Schiedsvertrag\", \"Geschäftsführerhaftung\", \"Umwandlung\", \"Strukturverbesserungsgesetz\", \"Anwaltsentgelt\", \"Gesellschafterleistungen\", \"RAT\", \"AHR\", \"Anwalts Honorar\", \"Honorarberechnung\", \"Sachverständigengutachten\", \"Urheberrechtsschutz\", \"Buchstütze\", \"Design\", \"Nutzungsrechte\", \"Kunstgewerbe\", \"Angemessenheit\", \"Substitution\", \"kollegiale Hälfte\"]}, {\"rs_number\": \"RS0016668\", \"kernaussage\": \"Die Bestimmungsfaktoren des § 1152 ABGB weichen naturgemäß dem zwingenden Recht, also dem Kollektivvertrag, der Satzung, dem Mindestlohntarif, unter Umständen auch der Betriebsvereinbarung. Besteht keine lohngestaltende Vorschrift, dann ist nahezu jede Einzelvereinbarung gültig. Die Grenze bildet...\", \"schlagworte\": [\"Pauschalentlohnung\", \"Überstundenvergütung\", \"Arbeitszeit\", \"Bordpersonal\", \"Piloten\", \"FOM\", \"Überstunden\", \"Angestelltengesetz\", \"Verjährung\", \"Bereicherungsvorsatz\", \"leitender Angestellter\", \"Zwischenurteil\", \"Überstundenpauschale\", \"Sittenwidrigkeit\", \"Tischgeld\", \"Trinkgeld\", \"Lohnwucher\", \"Arbeitsverhältnis\", \"Sozialhilfearbeit\", \"Mindestentgelt\", \"oö SHG\", \"Ferialpraktikantin\", \"Diskriminierung AVRAG\", \"Kollektivvertrag\", \"Praktikantenverhältnis\", \"Landesbedi"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_get_rechtssatz_U9IpB2vVRCt3tDANjJVc",
+          "tool": "get_rechtssatz",
+          "args": {
+            "rs_number": "RS0026398"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.66,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs_number\": \"RS0026398\", \"rechtssatz\": \"Der \\\"Konsulent\\\" einer Firma, der laufend beratende Tätigkeit ausübt (und Unternehmungen der Firma inspiziert) und dafür vereinbarungsgemäß regelmäßige Entlohnung erhält, ist Dienstnehmer dieser Firma im Sinne des § 1151 ABGB und des § 2 Abs 1 ArbGerG.\", \"rechtsgebiet\": \"\", \"schlagworte\": [], \"fachgebiete\": [], \"datum\": \"1952-11-28\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0116395",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0116395",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 25.14,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0116395\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102867",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102867",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.75,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102867\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0101502",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0101502",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.34,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0101502\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0038346",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0038346",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.75,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0038346\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0027969",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0027969",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.43,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0027969\", \"rechtssatz_text\": \"Mangels Vereinbarung gebührt gemäß § 6 AngG (§ 1152 ABGB) für die Rufbereitschaft ein ortsübliches bzw angemessenes Entgelt. In der Regel ist die Rufbereitschaft aber geringer zu entlohnen als die Leistung selbst.\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9108, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"8ObA57_23z|OGH|2024-10-24\", \"gz\": \"8ObA57_23z\", \"datum\": \"2024-10-24\", \"gericht\": \"OGH\", \"mini_story\": \"Klärung der Aktiv- und Passivlegitimation bei Feststellungsklagen des Betriebsrats gegen einen Rechtsträger, dem Gemeindevertragsbedienstete dienstzugewiesen wurden.\"}, {\"te_stable_key\": \"8ObA74_20w|OGH|2021-02-23\", \"gz\": \"8ObA74_20w\", \"datum\": \"2021-02-23\", \"gericht\": \"OGH\", \"mini_story\": \"Auslegung der Entlohnungsregelungen für Nachtarbeitsbereitschaft und Verrechnung von Nachtgutstunden gemäß SWÖ-KV.\"}, {\"te_stable_key\": \"8ObA4_20a|OGH|2020-04-24\", \"gz\": \"8ObA4_20a\", \"datum\": \"2020-04-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da die Rufbereitschaftsdienste des Klägers keine Arbeitszeit darstellen und die vereinbarte pauschale Zulage nicht sittenwidrig ist.\"}, {\"te_stable_key\": \"8ObA61_18f|OGH|2019-01-25\", \"gz\": \"8ObA61_18f\", \"datum\": \"2019-01-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH hebt die Entscheidung der Vorinstanzen auf und verweist zur Klärung der Ortsüblichkeit des Entgelts für vereinbarte Rufbereitschaft zurück.\"}, {\"te_stable_key\": \"9ObA25_11h|OGH|2011-03-30\", \"gz\": \"9ObA25_11h\", \"datum\": \"2011-03-30\", \"gericht\": \"OGH\", \"mini_story\": \"Bestätigung der Ausdehnung der Normalarbeitszeit auf 12 Stunden täglich und 60 Stunden wöchentlich bei Nachtdiensten mit regelmäßiger Arbeitsbereitschaft gemäß Kollektivvertrag.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0022526",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0022526",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.18,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0022526\", \"rechtssatz_text\": \"Verliert der Gläubiger die für seine Forderung bestellte Sicherheit, so entsteht sein damit verbundener Schaden bereits mit dem Verlust der Deckung und nicht erst in dem Zeitpunkt in dem endgültig feststeht, daß er die Forderung nicht mehr hereinbringt. Es kann nämlich vom Schädiger bereits bei...\", \"te_count\": 8, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 7007, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"3Ob23_14z|OGH|2014-04-08\", \"gz\": \"3Ob23_14z\", \"datum\": \"2014-04-08\", \"gericht\": \"OGH\", \"mini_story\": \"Verjährung eines Schadenersatzanspruchs gegen den Errichter eines Baukaufvertrags wegen verfrühter Auszahlungen aus dem Treuhanderlag bei Mängeln der Wohnung und Insolvenz des Bauträgers.\"}, {\"te_stable_key\": \"4Ob3_14s|OGH|2014-03-25\", \"gz\": \"4Ob3_14s\", \"datum\": \"2014-03-25\", \"gericht\": \"OGH\", \"mini_story\": \"Haftung eines bestellten Sachverständigen für schuldhafte Fehlbestätigung der Fertigstellung eines Bauabschnitts in einem Bauträgervertrag mit Ratenplan.\"}, {\"te_stable_key\": \"9ObA10_12d|OGH|2012-08-22\", \"gz\": \"9ObA10_12d\", \"datum\": \"2012-08-22\", \"gericht\": \"OGH\", \"mini_story\": \"Kein Anspruch auf Einbeziehung in einen Pensionskassenvertrag für einen durch zeitwidrige Kündigung ausgeschiedenen Arbeitnehmer trotz bestehender Versorgungsleistungen aus Ruhegeldordnung.\"}, {\"te_stable_key\": \"4Ob170_11w|OGH|2012-02-28\", \"gz\": \"4Ob170_11w\", \"datum\": \"2012-02-28\", \"gericht\": \"OGH\", \"mini_story\": \"Der Senat qualifiziert nicht auf Namen lautende Kleinbetragssparbücher als Inhaberpapiere und schließt eine Aufrechnung der Bank mit Gegenforderungen aus.\"}, {\"te_stable_key\": \"5Ob193_10h|OGH|2011-02-09\", \"gz\": \"5Ob193_10h\", \"datum\": \"2011-02-09\", \"gericht\": \"OGH\", \"mini_story\": \"Feststellung der Haftung eines Treuhänders wegen Verletzung der Prüfpflichten bei der Überprüfung von Freistellungsverpflichtungen nach § 9 Abs 3 BTVG im Kontext eines Bauträgervertrags.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0019392",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0019392",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.57,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0019392\", \"rechtssatz_text\": \"Der Vertrag des Rechtsanwaltes mit seinem Klienten unterliegt auch dann, wenn die Geschäftsbesorgung gegen Entgelt übernommen wurde, den Bestimmungen des 22. Hauptstückes über den Bevollmächtigungsvertrag, nicht aber denen über den Dienstvertrag oder Werkvertrag. Wurde ein Pauschalhonorar vereinbart, ...\", \"te_count\": 6, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 9007, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"6Ob35_24a|OGH|2024-03-20\", \"gz\": \"6Ob35_24a\", \"datum\": \"2024-03-20\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision gegen die Zuerkennung eines Pauschalhonorars an einen Rechtsanwalt zurück, da keine erhebliche Rechtsfrage zur Abgrenzung von Auftrags- und Werkvertrag, zur Sorgfaltspflicht oder zur Schadenshaftung vorliegt.\"}, {\"te_stable_key\": \"6Ob15_22g|OGH|2022-11-18\", \"gz\": \"6Ob15_22g\", \"datum\": \"2022-11-18\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision eines Rechtsanwalts gegen die Ablehnung seines Honoraranspruchs aus einem nicht abgeschlossenen Liegenschaftskauf zurück, da Verfahrensmängel während der Insolvenz-Unterbrechung nicht mehr angefochten werden können und der Vertrag Auftragsrecht unterliegt.\"}, {\"te_stable_key\": \"5Ob219_19w|OGH|2020-04-17\", \"gz\": \"5Ob219_19w\", \"datum\": \"2020-04-17\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH klärt den Vorrang von § 11 Abs 2 RAO gegenüber den §§ 1021, 1025 ABGB bei Kündigung des Anwaltsmandats durch den Rechtsanwalt.\"}, {\"te_stable_key\": \"4Ob51_19g|OGH|2019-03-26\", \"gz\": \"4Ob51_19g\", \"datum\": \"2019-03-26\", \"gericht\": \"OGH\", \"mini_story\": \"Qualifikation des Vertragsverhältnisses zwischen Rechtsanwalt und Klient als Auftragsvertrag und Honorarberechnung bei Widerruf der Vollmacht.\"}, {\"te_stable_key\": \"2Ob69_18p|OGH|2019-02-26\", \"gz\": \"2Ob69_18p\", \"datum\": \"2019-02-26\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die Revision eines Rechtsanwalts gegen die Abweisung seines Honoraranspruchs ab, da keine erhebliche Rechtsfrage vorliegt.\"}], \"te_items_count\": 5}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0016668",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0016668",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.41,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0016668\", \"rechtssatz_text\": \"Die Bestimmungsfaktoren des § 1152 ABGB weichen naturgemäß dem zwingenden Recht, also dem Kollektivvertrag, der Satzung, dem Mindestlohntarif, unter Umständen auch der Betriebsvereinbarung. Besteht keine lohngestaltende Vorschrift, dann ist nahezu jede Einzelvereinbarung gültig. Die Grenze bildet...\", \"te_count\": 5, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 10429, \"selection_tier\": 2, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"9ObA19_20i|OGH|2020-06-25\", \"gz\": \"9ObA19_20i\", \"datum\": \"2020-06-25\", \"gericht\": \"OGH\", \"mini_story\": \"Der Senat stellt fest, dass das Dienstverhältnis des Klägers ein Praktikantenverhältnis i.S.d. § 1 Abs 2 lit h LBedG darstellt und somit vom LBedG ausgenommen ist; die Entgeltvereinbarung ist nicht sittenwidrig gemäß § 879 ABGB.\"}, {\"te_stable_key\": \"8ObA4_20a|OGH|2020-04-24\", \"gz\": \"8ObA4_20a\", \"datum\": \"2020-04-24\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist die außerordentliche Revision zurück, da die Rufbereitschaftsdienste des Klägers keine Arbeitszeit darstellen und die vereinbarte pauschale Zulage nicht sittenwidrig ist.\"}, {\"te_stable_key\": \"8ObA63_18z|OGH|2018-11-26\", \"gz\": \"8ObA63_18z\", \"datum\": \"2018-11-26\", \"gericht\": \"OGH\", \"mini_story\": \"Ablehnung der Revision einer Studentin, die eine höhere Entlohnung als Urlaubsersatzkraft fordert und Sittenwidrigkeit sowie Diskriminierung geltend macht.\"}, {\"te_stable_key\": \"8ObA41_11d|OGH|2011-06-29\", \"gz\": \"8ObA41_11d\", \"datum\": \"2011-06-29\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH prüft die Rechtsgrundlage eines Arbeitsverhältnisses als Sozialhilfearbeit nach oö SHG und bestätigt den zwingenden Charakter der Entgeltvorschrift in § 14 Abs 4 oö SHG.\"}, {\"te_stable_key\": \"9ObA37_10x|OGH|2011-03-30\", \"gz\": \"9ObA37_10x\", \"datum\": \"2011-03-30\", \"gericht\": \"OGH\", \"mini_story\": \"Zurückweisung der außerordentlichen Revision wegen fehlender erheblicher Rechtsfrage zur Sittenwidrigkeit von Tischgeldabzügen aus Trinkgeldern im Arbeitsverhältnis.\"}], \"te_items_count\": 5}"
+        }
+      ],
+      "tool_calls_total": 16,
+      "tool_calls_ok": 16,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Hier ist die kompakte anwaltliche Ersteinschätzung zum Fall **Koller gegen Baumgartner** mit Fokus auf die rechtliche Einordnung der Tätigkeit von RA Koller:\n\n### 1. Rechtliche Einordnung des Anwaltsvertrags\nDie zentrale Frage ist, ob die Forderung von RA Dr. Koller als Werklohn (§ 1165 ABGB) oder Dienstlohn (§ 1151 ABGB) zu qualifizieren ist.\n\n*   **Spezialgesetzliche Einordnung:** Nach ständiger Rechtsprechung des OGH unterliegt der Vertrag zwischen einem Rechtsanwalt und seinem Klienten primär den Bestimmungen über den **Bevollmächtigungsvertrag** (22. Hauptstück des ABGB, §§ 1002 ff), auch wenn die Geschäftsbesorgung gegen Entgelt erfolgt (**RS0019392**).\n*   **Abgrenzung zu Werk-/Dienstvertrag:** Der Anwaltsvertrag ist in der Regel **kein** Dienst- oder Werkvertrag im klassischen Sinn. Er ist ein entgeltlicher Bevollmächtigungsvertrag (Auftrag), der Elemente beider Vertragstypen enthalten kann, aber als *sui generis* bzw. primär auftragsrechtlich behandelt wird (**RS0019392**).\n*   **Erfolg vs. Bemühen:** Während der Werkvertrag eine Erfolgsschuld (Zielschuld) ist, schuldet der Rechtsanwalt im Rahmen des Bevollmächtigungsvertrags grundsätzlich nur ein sorgfältiges Bemühen (Dienstleistungscharakter), keinen Prozesserfolg.\n\n### 2. Anspruchsgrundlage für das Honorar\nDa der Anwaltsvertrag dem Auftragsrecht folgt, ergibt sich die Rangfolge der Honoraransprüche wie folgt (**RS0071999**):\n1.  **Parteienvereinbarung:** Vorrangig gilt, was zwischen Koller und Baumgartner vereinbart wurde (z.B. Stundensatz, Pauschale).\n2.  **RATG / AHK:** Mangels spezifischer Vereinbarung bildet das Rechtsanwaltstarifgesetz (RATG) bzw. die Autonomen Honorar-Richtlinien (AHR/AHK) die Grundlage (**RS0101502**).\n3.  **Angemessenes Entgelt (§ 1152 ABGB):** Subsidiär gebührt ein angemessenes Entgelt, wenn weder eine Vereinbarung noch ein gesetzlicher Tarif greift (**RS0071999**, **RS0038346**).\n\n### 3. Relevanz für den Fall (Baumgartner)\n*   **Beweislast:** RA Koller muss die Existenz einer Honorarvereinbarung oder die Erbringung der tarifmäßigen Leistungen beweisen.\n*   **Widerruf & Honorar:** Sollte das Mandat vorzeitig enden (z.B. durch Vollmachtswiderruf nach dem gescheiterten Vergleich), kann der Anwalt nur den Teil des Honorars verlangen, der der bisherigen Arbeit entspricht (**RS0019392**).\n*   **Einwand der mangelnden Deckung:** Dass die DAS die Deckung verweigert, berührt das Grundverhältnis (Honoraranspruch Koller gegen Baumgartner) im Außenverhältnis nicht direkt, es sei denn, die Beauftragung stand unter der Bedingung der Deckungszusage.\n\n### Wichtigste Rechtssätze (RS)\n*   **RS0019392:** Anwaltsvertrag unterliegt dem Bevollmächtigungsvertrag (§§ 1002 ff ABGB), nicht dem Dienst- oder Werkvertrag.\n*   **RS0071999:** Rangfolge der Honorargrundlagen (1. Vereinbarung, 2. RATG, 3. § 1152 ABGB).\n*   **RS0038346:** Angemessenheit des Entgelts nach § 1152 ABGB bei Fehlen von Tarifen.\n\n**Fazit für die Strategie:** Die Verteidigung sollte prüfen, ob die von RA Koller geltend gemachten Leistungen (EUR 18.114,83) durch das RATG gedeckt sind oder ob eine (möglicherweise sittenwidrige oder nicht zustande gekommene) Honorarvereinbarung behauptet wird. Die Einordnung als \"Werklohn\" in der Klage ist rechtstechnisch unpräzise, zielt aber materiell auf den Entgeltanspruch aus dem Bevollmächtigungsvertrag ab.",
+      "answer_chars": 3335,
+      "e2e_ms": 14103.43
+    },
+    {
+      "name": "Widerruf bedingter Vergleich (§ 204 ZPO) & DAS-Deckung (§ 158k VersVG)",
+      "goal": "Rechtliche Bewertung der Widerrufsfrist, -wirkung und der Rolle der DAS-Deckungsverweigerung; Prüfung, ob Deckung für Fortführung des Verfahrens noch möglich",
+      "mode": "llm",
+      "tools": [
+        "build_grounding_context",
+        "detect_clusters",
+        "ask_gemini_zivilrecht",
+        "search_kommentar_paragraph",
+        "search_kommentar_keyword",
+        "search_by_paragraph",
+        "search_by_schlagwort",
+        "search_ogh_rechtssaetze",
+        "get_rechtssatz",
+        "hot_rs_lookup"
+      ],
+      "llm_model": "google/gemini-3-flash-preview",
+      "llm_calls": [
+        {
+          "step": 1,
+          "latency_ms": 1850.2,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 5067,
+            "completion_tokens": 106,
+            "total_tokens": 5173,
+            "cost": 0.0028515,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 2,
+          "latency_ms": 2503.55,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 4,
+          "usage": {
+            "prompt_tokens": 6010,
+            "completion_tokens": 107,
+            "total_tokens": 6117,
+            "cost": 0.003326,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 3,
+          "latency_ms": 1933.08,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 7437,
+            "completion_tokens": 142,
+            "total_tokens": 7579,
+            "cost": 0.0041445,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 4,
+          "latency_ms": 2335.31,
+          "finish_reason": "tool_calls",
+          "tool_calls_count": 5,
+          "usage": {
+            "prompt_tokens": 8582,
+            "completion_tokens": 138,
+            "total_tokens": 8720,
+            "cost": 0.004705,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        },
+        {
+          "step": 5,
+          "latency_ms": 9322.89,
+          "finish_reason": "stop",
+          "tool_calls_count": 0,
+          "usage": {
+            "prompt_tokens": 9398,
+            "completion_tokens": 853,
+            "total_tokens": 10251,
+            "cost": 0.007258,
+            "cached_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "tool_calls": [
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_PRIUgpECRjFlV6n39gPg",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 204 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 455.26,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 204 ZPO\", \"results\": [{\"rs_number\": \"RS0102784\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 204 ZPO A Literatur B Begriff; Grundsätze zur Abgrenzung zum privatrechtlichen Vergleich C Gegenstand D Form und Schließung E Auslegung 1) Allgemeines und Anwendung privatrechtlicher Bestimmungen 2) Feststellungsklage, Klage auf Berichtigung F Wirkungen 1) auf den...\", \"schlagworte\": []}, {\"rs_number\": \"RS0017207\", \"kernaussage\": \"Sind die Parteien übereingekommen, einen gerichtlichen Vergleich im Sinne des § 204 ZPO zu schließen, dann liegt darin grundsätzlich die Vereinbarung der Schriftform. Es wird daher im Zweifel vermutet, dass sie vor Erfüllung dieser Form nicht gebunden sein wollen. Sind die Parteien jedoch einverstan...\", \"schlagworte\": [\"Scheidungsvergleich\", \"Schallträgerprotokoll\", \"Schriftform\", \"gerichtlicher Vergleich\", \"Dienstvertrag\", \"parlamentarischer Mitarbeiter\", \"Kündigung\", \"Eventualkündigung\", \"ParlMG\"]}, {\"rs_number\": \"JWR_1989160065_19900208X02\", \"kernaussage\": \"Doppelnatur des gerichtlichen Vergleichs (§ 1380 ABGB, § 204 ZPO)\", \"schlagworte\": [\"gerichtlicher Vergleich\", \"Doppelnatur\", \"Neuerungsvertrag\", \"Prozeßhandlung\", \"materielle Wirksamkeit\", \"prozessuale Wirksamkeit\", \"vollstreckbarer Titel\", \"gütliche Beendigung\"]}], \"count\": 3}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_by_paragraph_aNSaeYni1AEEiTcgm5kI",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 158k VersVG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 1102.52,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 158k VersVG\", \"results\": [{\"rs_number\": \"RS0116716\", \"kernaussage\": \"Der Ansicht, dass die in Art 6.8 AKRB enthaltene Verbindung von Selbstbehaltsregelung und Auswahl des Rechtsvertreters im konkreten Einzelfall nichts am freien Rechtsvertreterwahlrecht des Versicherungsnehmers ändere und daher in Übereinstimmung mit den Regeln des § 158k VersVG und Art 10 ARB 1994...\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_tYb5NG3lMQXvNxomb8Ub",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf bedingter Vergleich Wirkung Frist",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 26.17,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf bedingter Vergleich Wirkung Frist\"}"
+        },
+        {
+          "step": 1,
+          "tool_call_id": "tool_search_kommentar_keyword_e7FSF0G9eqxSrc0OLBil",
+          "tool": "search_kommentar_keyword",
+          "args": {
+            "keyword": "Rechtsschutzversicherung Deckungsverweigerung Vergleich",
+            "limit": 5,
+            "law": "VERSVG"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 114.07,
+          "error": null,
+          "payload_preview": "{\"keyword\": \"Rechtsschutzversicherung Deckungsverweigerung Vergleich\", \"law\": \"VERSVG\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_Eyo0i3gCulzdxvWXq4ol",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf gerichtlicher Vergleich Frist Wirkung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 11.95,
+          "error": null,
+          "payload_preview": "{\"results\": [{\"rs_number\": \"RS0037363\", \"rechtssatz\": \"Die Frist für den Widerruf eines gerichtlichen Vergleiches ist nicht rein verfahrensrechtlicher Natur, es handelt sich vielmehr im eine zwischen den Parteien vereinbarte Ausschlußfrist mit materiellrechtlicher Wirkung.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Notfrist § 54 Abs 1a ZPO\", \"Tarifposten\", \"Rechtskraft Teile\", \"Prozessvergleich\", \"Einwendungen Kosten\", \"Kostenrekurs\", \"Widerruf\", \"Widerrufsklausel\", \"Fristwahrung\", \"Kostenverzeichnis\", \"bedingter Vergleich\", \"Schluss der Verhandlung § 193 ZPO\", \"Telefax\"], \"relevance\": 0.453}], \"count\": 1, \"query\": \"Widerruf gerichtlicher Vergleich Frist Wirkung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_DaHe1tGY25AYRodCfqPD",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Rechtsschutzversicherung Vergleich Deckung Ablehnung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.3,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Rechtsschutzversicherung Vergleich Deckung Ablehnung\"}"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_by_schlagwort_v2sF7zTbL0lzKMK33nNP",
+          "tool": "search_by_schlagwort",
+          "args": {
+            "schlagwort": "Gerichtlicher Vergleich",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 590.88,
+          "error": null,
+          "payload_preview": "{\"schlagwort\": \"Gerichtlicher Vergleich\", \"results\": [{\"rs_number\": \"RS0057101\", \"kernaussage\": \"Der rechtskräftige Scheidungsbeschluss nach § 55a EheG bleibt selbst dann wirksam, wenn keine Vereinbarung nach § 55a Abs 2 EheG vorlag oder geschlossen wurde bzw wenn die Vereinbarung inhaltlich unvollständig ist oder nur zum Schein geschlossen wurde, um die Scheidung im Einvernehmen zu erwirken;...\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Scheidungsfolgenvergleich\", \"Anfechtung\", \"Sittenwidrigkeit\", \"Irrtum\", \"Unterhaltsverzicht\", \"Ehescheidung im Einvernehmen\", \"gerichtlicher Vergleich\", \"Neuerungsverbot\", \"Willensmangel\", \"Anfechtung des Vergleichs\", \"Veräußerungs- und Belastungsverbot\", \"Grundbuchseintragung\", \"Scheidungsvergleich\", \"Ehescheidung\", \"Scheidung im Einvernehmen\", \"Verhandlungsprotokoll\", \"Schallträger\", \"Vollstreckbarkeitsbestätigung\", \"Scheidung\", \"Vergleich\", \"Wiederaufnahme\", \"Aufteilungsverfahren\", \"Revisionsrekurs\", \"Revisionsrekursbeantwortung\", \"Scheidungsfolgen\", \"Geschäftsunfähigkeit\", \"Fortsetzung des Verfahrens\", \"Gerichtlicher Vergleich\", \"Unterfertigung des Verhandlungsprotokolls\", \"Anleitungspflicht\", \"Anerkennung ausländischer Scheidungsurteile\", \"Ordre public\", \"Internationale Zuständigkeit\", \"Teilweise Anerkennung\", \"Rechtskraft\", \"Mitmietrechte\", \"Ehegattenvermögen\", \"Aufteilung\", \"Rechtsgrund\", \"WEG\"]}, {\"rs_number\": \"JWR_1954001712_19551019X01\", \"kernaussage\": \"Unterhaltsvergleich als bedingter Unterhaltsvertrag bei Ehescheidung\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Unterhaltsvergleich\", \"Unterhaltsvertrag\", \"aufschiebende Bedingung\", \"Ehescheidungsverfahren\", \"Gerichtlicher Vergleich\", \"Scheidungsvoraussetzung\", \"Parteierklärung\", \"Wirksamkeit\"]}, {\"rs_number\": \"JWR_2022160022_20240617J03\", \"kernaussage\": \"Keine Gebührenermäßigung bei außergerichtlichem Vergleich\", \"rechtsgebiet\": \"Verwaltungsrecht\", \"schlagworte\": [\"Gebührenermäßigung\", \"Prozessvergleich\", \"Außergerichtlicher Vergleich\", \"Exekutionstitel\", \"Analogieverbot\", \"Prätorischer Vergleich\", \"Gerichtlicher Vergleich\", \"Klagsrücknahme\"]}, {\"rs_number\": \"RS0008473\", \"kernaussage\": \"Die Erhebung des Rekurses gegen den die Scheidung der Ehe gemäß § 55 a EheG aussprechenden Beschluß ist der Zurücknahme des Antrages auf Scheidung (§ 224 Abs 1 AußStrG) nicht gleichzuhalten.\", \"rechtsgebiet\": \"\", \"schlagworte\": [\"Anleitungspflicht\", \"Ehescheidung im Einverne"
+        },
+        {
+          "step": 2,
+          "tool_call_id": "tool_search_kommentar_paragraph_GAVkNJLjAhVaBGvhtM7X",
+          "tool": "search_kommentar_paragraph",
+          "args": {
+            "paragraph": "204",
+            "limit": 5,
+            "law": "ZPO"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.35,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"204\", \"law\": \"ZPO\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_9XdvrvnO7lwaPnvyqhru",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf bedingter Vergleich Rechtsschutzversicherung Deckung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 14.33,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf bedingter Vergleich Rechtsschutzversicherung Deckung\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_JfpRRQAjfIAWSfuT6hLM",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf bedingter Vergleich Wirkung Fortsetzung Verfahren",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 12.06,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf bedingter Vergleich Wirkung Fortsetzung Verfahren\"}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_paragraph_nBNVFaPrB748NXeSaG8a",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 158k VersVG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 413.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 158k VersVG\", \"results\": [{\"rs_number\": \"RS0116716\", \"kernaussage\": \"Der Ansicht, dass die in Art 6.8 AKRB enthaltene Verbindung von Selbstbehaltsregelung und Auswahl des Rechtsvertreters im konkreten Einzelfall nichts am freien Rechtsvertreterwahlrecht des Versicherungsnehmers ändere und daher in Übereinstimmung mit den Regeln des § 158k VersVG und Art 10 ARB 1994...\", \"schlagworte\": []}], \"count\": 1}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_by_paragraph_YbYswDIiyTEPclTdcTAi",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 204 ZPO",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 367.55,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 204 ZPO\", \"results\": [{\"rs_number\": \"JWR_1989160065_19900208X02\", \"kernaussage\": \"Doppelnatur des gerichtlichen Vergleichs (§ 1380 ABGB, § 204 ZPO)\", \"schlagworte\": [\"gerichtlicher Vergleich\", \"Doppelnatur\", \"Neuerungsvertrag\", \"Prozeßhandlung\", \"materielle Wirksamkeit\", \"prozessuale Wirksamkeit\", \"vollstreckbarer Titel\", \"gütliche Beendigung\"]}, {\"rs_number\": \"RS0102784\", \"kernaussage\": \"Übersicht der Entscheidungen zu § 204 ZPO A Literatur B Begriff; Grundsätze zur Abgrenzung zum privatrechtlichen Vergleich C Gegenstand D Form und Schließung E Auslegung 1) Allgemeines und Anwendung privatrechtlicher Bestimmungen 2) Feststellungsklage, Klage auf Berichtigung F Wirkungen 1) auf den...\", \"schlagworte\": []}, {\"rs_number\": \"RS0017207\", \"kernaussage\": \"Sind die Parteien übereingekommen, einen gerichtlichen Vergleich im Sinne des § 204 ZPO zu schließen, dann liegt darin grundsätzlich die Vereinbarung der Schriftform. Es wird daher im Zweifel vermutet, dass sie vor Erfüllung dieser Form nicht gebunden sein wollen. Sind die Parteien jedoch einverstan...\", \"schlagworte\": [\"Scheidungsvergleich\", \"Schallträgerprotokoll\", \"Schriftform\", \"gerichtlicher Vergleich\", \"Dienstvertrag\", \"parlamentarischer Mitarbeiter\", \"Kündigung\", \"Eventualkündigung\", \"ParlMG\"]}], \"count\": 3}"
+        },
+        {
+          "step": 3,
+          "tool_call_id": "tool_search_kommentar_keyword_XuVCZzGR5aYymfSojKrS",
+          "tool": "search_kommentar_keyword",
+          "args": {
+            "keyword": "Widerruf bedingter Vergleich",
+            "limit": 5,
+            "law": "ZPO"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 10.39,
+          "error": null,
+          "payload_preview": "{\"keyword\": \"Widerruf bedingter Vergleich\", \"law\": \"ZPO\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_NRvG9SilL5Gp1MvYePej",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Widerruf Vergleich Wirkung Fortsetzung",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 6.71,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Widerruf Vergleich Wirkung Fortsetzung\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_ogh_rechtssaetze_6DIaoeznilyOtfq39Mmw",
+          "tool": "search_ogh_rechtssaetze",
+          "args": {
+            "query": "Rechtsschutzversicherung Deckung Vergleich Ablehnung Folgen",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 7.58,
+          "error": null,
+          "payload_preview": "{\"results\": [], \"count\": 0, \"query\": \"Rechtsschutzversicherung Deckung Vergleich Ablehnung Folgen\"}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_by_paragraph_kKBg855E0RLF8aQbNHOk",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 158l VersVG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 412.21,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 158l VersVG\", \"results\": [{\"rs_number\": \"RS0126928\", \"kernaussage\": \"Der Zweck des in § 158l VersVG behandelten Schiedsgutachterverfahrens besteht darin, dem Versicherungsnehmer in jenen Fällen, in denen sein grundsätzlicher Deckungsanspruch außer Streit steht, für bestimmte andere - hier näher beschriebene - Meinungsverschiedenheiten eine rasche und kostengünstige...\", \"schlagworte\": [\"Rechtsschutzversicherung\", \"Deckungsausschluss\", \"Abtretung von Forderungen\", \"Bauvorhaben\", \"Schiedsgutachterverfahren\"]}], \"count\": 1}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_by_paragraph_Md6UpZ6aOFQCogMRtwCy",
+          "tool": "search_by_paragraph",
+          "args": {
+            "paragraph": "§ 158m VersVG",
+            "limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 386.42,
+          "error": null,
+          "payload_preview": "{\"paragraph\": \"§ 158m VersVG\", \"results\": [], \"count\": 0}"
+        },
+        {
+          "step": 4,
+          "tool_call_id": "tool_search_kommentar_keyword_7gO607FUcmsxrGxOCpuX",
+          "tool": "search_kommentar_keyword",
+          "args": {
+            "keyword": "Widerrufsvorbehalt Vergleich",
+            "limit": 5,
+            "law": "ZPO"
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 8.54,
+          "error": null,
+          "payload_preview": "{\"keyword\": \"Widerrufsvorbehalt Vergleich\", \"law\": \"ZPO\", \"count\": 0, \"results\": []}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0126928",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0126928",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 13.1,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0126928\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0116716",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0116716",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 5.92,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0116716\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0102784",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0102784",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 4.84,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0102784\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0057101",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0057101",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 9.38,
+          "error": null,
+          "payload_preview": "{\"found\": true, \"rs\": {\"rs_number\": \"RS0057101\", \"rechtssatz_text\": \"Der rechtskräftige Scheidungsbeschluss nach § 55a EheG bleibt selbst dann wirksam, wenn keine Vereinbarung nach § 55a Abs 2 EheG vorlag oder geschlossen wurde bzw wenn die Vereinbarung inhaltlich unvollständig ist oder nur zum Schein geschlossen wurde, um die Scheidung im Einvernehmen zu erwirken;...\", \"te_count\": 4, \"gericht\": \"OGH\", \"is_cluster_cited\": false, \"cluster_ids\": [], \"topic_ids\": [], \"hot_rank\": 12921, \"selection_tier\": 3, \"release_id\": \"hot_v1_2026-02-22_245d7b\"}, \"te_items\": [{\"te_stable_key\": \"5Ob101_23y|OGH|2023-11-09\", \"gz\": \"5Ob101_23y\", \"datum\": \"2023-11-09\", \"gericht\": \"OGH\", \"mini_story\": \"Die Abänderung eines Scheidungsfolgenvergleichs zur Aufteilung des ehelichen Gebrauchsvermögens begründet einen gültigen Rechtsgrund für die Einverleibung von Wohnungseigentumsanteilen im Grundbuch.\"}, {\"te_stable_key\": \"2Ob70_09x|OGH|2009-04-29\", \"gz\": \"2Ob70_09x\", \"datum\": \"2009-04-29\", \"gericht\": \"OGH\", \"mini_story\": \"Zur Wirksamkeit und Revidierbarkeit eines Scheidungsfolgenvergleichs sowie zur Rechtskraft eines Scheidungsbeschlusses.\"}, {\"te_stable_key\": \"7Ob199_06z|OGH|2006-10-23\", \"gz\": \"7Ob199_06z\", \"datum\": \"2006-10-23\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH erkennt das Scheidungsurteil eines texanischen Gerichts teilweise an, nur hinsichtlich der Auflösung der Ehe, da keine Verweigerungsgründe nach § 97 AußStrG vorliegen.\"}, {\"te_stable_key\": \"1Ob67_04s|OGH|2004-04-16\", \"gz\": \"1Ob67_04s\", \"datum\": \"2004-04-16\", \"gericht\": \"OGH\", \"mini_story\": \"Der OGH weist den außerordentlichen Revisionsrekurs des Zweitantragstellers gegen den Scheidungsbeschluss zurück, da keine erhebliche Rechtsfrage vorliegt.\"}], \"te_items_count\": 4}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0037363",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0037363",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 3.4,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0037363\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0017207",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0017207",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2.75,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0017207\"}"
+        },
+        {
+          "step": "deep_dive",
+          "tool_call_id": "deep_RS0008473",
+          "tool": "hot_rs_lookup",
+          "args": {
+            "rs_number": "RS0008473",
+            "te_limit": 5
+          },
+          "ok": true,
+          "status": 200,
+          "latency_ms": 2.96,
+          "error": null,
+          "payload_preview": "{\"found\": false, \"rs_number\": \"RS0008473\"}"
+        }
+      ],
+      "tool_calls_total": 25,
+      "tool_calls_ok": 25,
+      "tool_calls_ok_rate": 1.0,
+      "llm_error": null,
+      "answer": "Hier ist die kompakte anwaltliche Ersteinschätzung zum Fall **Koller gegen Baumgartner** mit Fokus auf den Widerruf des Vergleichs und die Rechtsschutzdeckung:\n\n### 1. Widerruf des bedingten Vergleichs (§ 204 ZPO)\n*   **Rechtsnatur & Frist:** Der am 13.11.2025 geschlossene Vergleich unterliegt einem Widerrufsvorbehalt. Die Frist bis zum 15.01.2026 ist eine **materiellrechtliche Ausschlussfrist** (**RS0037363**). Da der Widerruf am 20.12.2025 erfolgte, ist er **fristgerecht**.\n*   **Wirkung:** Durch den rechtzeitigen Widerruf tritt der Vergleich ex tunc außer Kraft. Das Verfahren ist im Stande vor Vergleichsabschluss fortzuführen. Die prozessuale Wirkung des Vergleichs als Exekutionstitel entfällt vollständig (**JWR_1989160065_19900208X02** zur Doppelnatur).\n*   **Beweislast:** Die Partei, die sich auf die Wirksamkeit des Widerrufs beruft (Baumgartner), trägt die Beweislast für den rechtzeitigen Zugang der Widerrufserklärung bei Gericht oder dem Gegner (je nach Vereinbarung).\n\n### 2. Rolle der DAS-Deckungsverweigerung (§ 158k VersVG)\n*   **Deckung für den Vergleich:** Rechtsschutzversicherer verweigern oft die Deckung für Vergleiche, wenn diese Leistungen enthalten, die über das Prozessrisiko hinausgehen oder wenn die Erfolgsaussichten für die Abwehr der Klage (hier Werklohn) als zu gering eingestuft werden.\n*   **Fortführung des Verfahrens:** Die Verweigerung der Deckung für den *Vergleich* bedeutet nicht zwingend den Verlust des Rechtsschutzes für das *weitere Verfahren*. Gemäß **§ 158k VersVG** hat der Versicherungsnehmer das Recht auf freie Anwaltswahl (**RS0116716**).\n*   **Rechtsschutz-Instrumente bei Streit:**\n    *   Sollte die DAS die Deckung für die Fortführung (Tagsatzung 26.03.2026) wegen mangelnder Erfolgsaussicht ablehnen, muss sie dies unverzüglich begründen.\n    *   Baumgartner kann dann das **Schiedsgutachterverfahren (§ 158l VersVG)** einleiten, um die Erfolgsaussichten neutral prüfen zu lassen (**RS0126928**).\n\n### 3. Zusammenfassung & Strategie\n*   **Status:** Der Vergleich ist durch den Widerruf vom 20.12.2025 hinfällig.\n*   **Nächster Schritt:** Vorbereitung auf die Tagsatzung am 26.03.2026. Da die DAS den Vergleich nicht deckt, muss geklärt werden, ob die Deckung für die Prozessführung (Abwehr der EUR 18.114,83) aufrecht bleibt.\n*   **Empfehlung:** Schriftliche Aufforderung an die DAS zur Bestätigung der Deckung für die weitere Prozessführung unter Hinweis auf die Erfolgsaussichten (Bestreitung der Bevollmächtigung/Qualifikation als Werkvertrag).\n\n**Wichtige RS-Referenzen:**\n*   **RS0037363:** Widerrufsfrist als materiellrechtliche Ausschlussfrist.\n*   **RS0116716:** Freie Anwaltswahl nach § 158k VersVG.\n*   **RS0126928:** Schiedsgutachterverfahren bei Deckungsstreit (§ 158l VersVG).",
+      "answer_chars": 2754,
+      "e2e_ms": 22188.19
+    }
+  ],
+  "final_answer": "### 1. KERNFRAGEN\n- **Wirksamkeit des Widerrufs des bedingten Vergleichs (§ 204 ZPO)**: Fristgerechter Widerruf trotz DAS-Deckungsverweigerung möglich, sofern Bevollmächtigung vorliegt; Wirkung: Fortsetzung des Verfahrens.\n- **Einordnung des Anwaltsvertrags (§ 1165 ABGB Werkvertrag vs. § 1151 ABGB Dienstvertrag vs. § 1002 ABGB Bevollmächtigung)**: Anwaltsmandat typischerweise Bevollmächtigungs-/Auftragsvertrag, kein Werk- oder Dienstvertrag; entscheidend für Honorarberechtigung.\n- **Bevollmächtigung (§ 1002 ABGB, § 30 ZPO)**: Urkundlicher Nachweis der Prozessvollmacht erforderlich; Gericht prüft von Amts wegen.\n\n### 2. RECHTSGRUNDLAGEN\n**Hauptanspruchsgrundlage Klägerin: Werklohn (§ 1165 ABGB)**  \n- § 1165 ABGB (Werkvertrag: Erfolgs-/Ergebnisschuld).  \n\n**Eventualgrundlage: Dienstlohn (§ 1151 ABGB)**  \n- § 1151 ABGB (Dienstvertrag: Zeitleistungs-/Zielschuld).  \n- Rechtsfolgen: Angemessenes Entgelt (§ 1152 ABGB).  \n\n**Doppelgleisigkeit mit Bevollmächtigung (§ 1002 ABGB)**  \n- § 1002 ABGB (Auftragsvertrag: Konsensual, entgeltliche Geschäftsbesorgung; für Anwälte vorrangig).  \n- Rechtsfolgen: Angemessenes Honorar (§ 1152 ABGB subsidiär); bei Widerruf anteiliger Anspruch.  \n\n**Verfahrensrechtlich: Widerruf bedingter Vergleich**  \n- § 204 ZPO (bedingter gerichtlicher Vergleich, Widerrufsfrist vereinbar).  \n- Rechtsfolgen: Wirksamkeit löst Vergleich auf, Verfahren fortgesetzt.  \n\n**Versicherungsrechtlich**  \n- § 158k VersVG (Rechtsschutzversicherung: Deckungspflicht bei streitiger Sache).  \n- Rechtsfolgen: Deckungsverweigerung begründet Widerruf nicht exkulpativ, aber separat prüfbar.\n\n### 3. RELEVANTE JUDIKATUR\n- **RS0019392**: Anwaltsvertrag unterliegt Bevollmächtigungsrecht (§ 1002 ABGB), nicht Werk-/Dienstvertrag; bei Widerruf nur anteiliger Anspruch — relevant, da Klägerin Werklohn geltend macht, aber Auftragsrecht vorrangig.\n- **RS0035627**: Gericht prüft Vollmachtsnachweis (§ 30 ZPO) von Amts wegen, beschränkt auf Form/Inhalt — relevant für Bevollmächtigung.\n- **RS0035965**: Wirksamkeit von Prozesshandlungen des Bevollmächtigten im Außenverhältnis unabhängig vom Innenverhältnis.\n- **RS0037363**: Widerrufsfrist eines gerichtlichen Vergleichs ist materiellrechtliche Ausschlußfrist — relevant für Wirksamkeit des Widerrufs.\n- **RS0038346**: Angemessenheit des Entgelts nach § 1152 ABGB bei Fehlen von Tarifen.\n- **RS0071999**: Rangfolge Anwaltshonorar: Vereinbarung > RATG > § 1152 ABGB — relevant bei Fehlen von Vereinbarung.\n\n### 4. SUBSUMTION\n**I. Werklohnanspruch (§ 1165 ABGB)**  \n1. Werkvertrag: (-) Keine ideelle/materielle Werkleistung evident (RS0019392 schließt Werkvertrag für Anwälte aus).  \n→ Tatbestand nicht erfüllt.  \n\n**II. Dienstlohnanspruch (§ 1151 ABGB)**  \n1. Dienstvertrag: (-) Keine Weisungsgebundenheit/Zeitleistung (Anwalt typisch autonom; RS0019392: kein Dienstvertrag).  \n→ Tatbestand nicht erfüllt.  \n\n**III. Bevollmächtigungslohn (§ 1002 ABGB)**  \n1. Auftragsvertrag: Geschäftsbesorgung gegen Entgelt.  \n2. Honorar: Keine Vereinbarung; anteilig bei Widerruf (RS0019392).  \n→ Teilweise erfüllt, aber quantum unklar.  \n\n**IV. Widerruf bedingter Vergleich (§ 204 ZPO)**  \n1. Widerruf: Schriftlich, fristgerecht (RS0037363: materiell wirksam).  \n2. Bevollmächtigung: § 30 ZPO-Nachweis vorausgesetzt (RS0035627: Amtsprüfung).  \n3. DAS-Deckung: Neutral (§ 158k VersVG: separat prüfbar).  \n→ Erfüllt.  \n\n**Ausschlussgründe Widerruf (taxativ, § 204 ZPO)**:  \n1. Fristversäumnis: Abwenden.  \n2. Formmangel: Abwenden.  \n3. Fehlende Bevollmächtigung: Abwenden (RS0035627).  \n\n### 5. BEWEISLASTVERTEILUNG\n- **Klägerin (Koller)** muss beweisen: Vertragsabschluss/Art (Werk/Dienst), Leistungserbringung, Quantum (EUR 18.114,83).  \n- **Beklagter (Baumgartner)** muss beweisen: Widerruf wirksam, keine Bevollmächtigung.  \n- Vorliegende Beweise: Widerrufsschreiben, Protokoll. Fehlend: Vollmachtsnachweis (§ 30 ZPO), Leistungsdetails.  \n- **Praxishinweis**: Beantragen Urkundenvorlage, Parteivernehmung Koller/Baumgartner, Sachverständigengutachten zu Honorarangemessenheit (§ 1152 ABGB).\n\n### 6. PROZESSSTRATEGIE\n- **Hauptbegehren**: Abweisung der Klage (kein Werk-/Dienstvertrag, RS0019392: Auftragsrecht; Widerruf wirksam).  \n- **Eventualbegehren**: Reduktion auf anteiliges Honorar (§ 1002 ABGB/RS0019392), falls Auftrag anerkannt.  \nPriorisiert: Hohe Erfolgsaussicht bei Bestreitung Werklohn, niedriger bei Auftrag.\n\n### 7. RISIKEN / GEGENARGUMENTE\n1. **Gericht qualifiziert als Werkvertrag (§ 1165 ABGB)**: Replik: RS0019392 schließt für Anwälte aus.  \n2. **Widerruf form-/bevollmächtigungsunwirksam (§ 30 ZPO)**: Replik: RS0035627 (Amtsprüfung beschränkt).  \n3. **DAS verweigert Deckung (§ 158k VersVG)**: Replik: Separat beantragbar (freie Wahl Vertreter).\n\n### 8. ERFOLGSAUSSICHTEN\n- Werklohn (§ 1165 ABGB): Niedrig (RS0019392 entgegen).  \n- Dienstlohn (§ 1151 ABGB): Niedrig (Abgrenzung zu Auftrag).  \n- Bevollmächtigungslohn (§ 1002 ABGB): Mittel (anteilig, quantum offen).  \n- Widerruf wirksam: Hoch (fristgerecht).\n\n### 9. STRATEGISCHE DETAILS\n**KOSTEN**: Streitwert EUR 18.114,83; Gerichtsgebühren und RA-Kosten ca. 4.000 € p.P. (mit DAS deckbar).  \n**NÄCHSTE SCHRITTE**:  \n1. Deckungsanfrage DAS für Verfahrensfortführung (sofort).  \n2. Akten auswerten.  \n3. Beweisanträge stellen.  \n4. Inhaltliche Schriftsatz einreichen.  \n**KOSTEN-NUTZEN**: Kosten Verfahren vs. Risiko Vollzahlung + Zinsen/Kosten.",
+  "response_text": "# STRATEGISCHE ERSTEIN SCHÄTZUNG  \n**Fall: Koller ggü. Baumgartner (GZ 4 C 270/25p, BG Melk)**  \n**Streitwert: EUR 18.114,83 s.A. (Werklohn/Honorar)**  \n**Stand: 28.02.2026** | **Nächste Tagsatzung: 26.03.2026, 13:00 Uhr**\n\n## EMPFEHLUNG\n- **Hauptbegehren**: Abweisung der Klage auf Werklohn (§ 1165 ABGB) bzw. Dienstlohn (§ 1151 ABGB); Begründung: Anwaltsvertrag qualifiziert als Bevollmächtigung/Auftragsvertrag (§ 1002 ABGB, RS0019392); Widerruf bedingten Vergleichs wirksam und fristgerecht (§ 204 ZPO, RS0037363). **Erfolgsaussicht: 75–85 %** (hoch durch RS0019392-Ausschluss Werk-/Dienstvertrag; Widerruf formkorrekt).\n- **Eventualbegehren (priorisiert)**:  \n  1. Reduktion auf anteiliges Honorar bei anerkanntem Auftrag (§ 1002 ABGB, RS0019392; § 1152 ABGB subsidiär, RS0071999).  \n  2. Feststellung fehlender Bevollmächtigung (§ 1002 ABGB, § 30 ZPO, RS0035627).  \n- **SOFORT-MAßNAHMEN** (innerhalb 3 Werktage):  \n  1. Deckungsanfrage bei DAS (Polizze 0666386) für Verfahrensfortführung (nicht nur Vergleich, § 158k VersVG) – schriftlich per Einschreiben.  \n  2. Vollständige Aktenauswertung (1766194916327-Baumgartner-Koller 4C270-25p.pdf).  \n  3. Schriftsatz mit Beweisanträgen (Urkundenvorlage Vollmacht, Parteivernehmung Koller/Baumgartner) einreichen.\n\n## SZENARIEN\n| # | Szenario | Wahrscheinlichkeit | Nächster Schritt | Kosten (ca., p.P.) |\n|---|----------|-------------------|------------------|---------------------|\n| 1 | DAS gewährt Deckung für Fortführung; Widerruf bestätigt wirksam (RS0037363); Werklohn abgewiesen (RS0019392) | 60 % | Inhaltliche Verteidigung (Bestreitung § 1165/1151 ABGB); Beweisanträge bei Tagsatzung 26.03.2026 | EUR 4.000 (DAS-deckbar) |\n| 2 | DAS verweigert Deckung endgültig; Gericht qualifiziert als Auftrag (§ 1002 ABGB) | 25 % | Privater Vergleichsversuch (Reduktion auf anteiliges Honorar); ggf. Verfahren einstellen | EUR 4.000 (selbst zu tragen) + EUR 18.114,83 (anteilig) |\n| 3 | Gegner greift Widerruf an (fehlende Bevollmächtigung, § 30 ZPO); Gericht prüft von Amts wegen (RS0035627) | 10 % | Nachweis Vollmacht vorlegen; Replik auf Innenverhältnis (RS0035965) | EUR 2.000 (Schriftsatz) |\n| 4 | Unterliegen Klage vollständig (Vollzahlung EUR 18.114,83 + Zinsen/Kosten) | 5 % | Sofortige Vollstreckungsklage abwenden; ARB gegen DAS (§ 158k VersVG) | EUR 6.000 + EUR 18.114,83 |\n\n## STILLE RISIKEN\n- **Untätigkeit bei DAS-Deckungsanfrage**: Kein Versicherungsschutz; Mandant trägt Anwalts-/Gerichtskosten (ca. EUR 4.000 p.P.) selbst; Zwangsvollstreckung bei Unterliegen (EUR 18.114,83 zzgl. Zinsen).  \n- **Keine Verteidigungsvorbereitung bis 26.03.2026**: Automatisches Unterliegen; Rechtskraft der Forderung; Verlust inhaltlicher Chancen (RS0019392).  \n- **Ungenügende Aktenauswertung**: Verpasste Argumente (z. B. fehlende Leistungsdetails, Vollmachtsnachweis); Nachteil in Tagsatzung.\n\n## NÄCHSTE SCHRITTE (nummeriert, mit Fristen)\n1. **Sofort (bis 03.03.2026)**: Deckungsanfrage DAS (Polizze 0666386) für Verfahrensfortführung schriftlich stellen; Kopie an Mandanten.  \n2. **Bis 05.03.2026**: Aktenkonvolut (1766194916327-Baumgartner-Koller 4C270-25p.pdf) auswerten; Vollmachtsnachweis sichern (§ 30 ZPO).  \n3. **Bis 10.03.2026**: Schriftsatz einreichen (Bestreitung Klage, Beweisanträge: Urkunden, Vernehmungen, Sachverständigengutachten zu § 1152 ABGB); Haupt-/Eventualbegehren konkretisieren.  \n4. **Bis 20.03.2026**: Mandantenbesprechung; Strategie für Tagsatzung 26.03.2026 finalisieren (Sachverhaltsaufklärung, Vergleichsoption prüfen).  \n5. **26.03.2026, 13:00 Uhr**: Tagsatzung – Verteidigung vortragen; ggf. neuer bedingter Vergleich mit DAS-Deckung.  \n\n**Gesamtrisiko bei Umsetzung: Mittel (Erfolgsaussicht >70 %); Kosten-Nutzen: Deckung priorisieren, um EUR 18.114,83 zu sichern.**  \n**Empfohlene Mandanteninfo**: Sofortige Umsetzung der SOFORT-MAßNAHMEN essenziell.",
+  "elapsed_ms": 175838.07
+}

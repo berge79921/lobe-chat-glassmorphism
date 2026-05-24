@@ -6,10 +6,11 @@ Supported inputs:
 - Optional HTML files referenced via JSON keys (file/filepath/dateiname)
 - Optional inline HTML fragments (kopf_html/spruch/begruendung/rechtliche_beurteilung)
 
-Target table:
+Target table (current schema, minimal upsert subset):
   super_ris.te(
-    stable_key, normalized_gz, geschaeftszahl, datum, entscheidungsdatum,
-    summary, source_json, original_html
+    stable_key, normalized_gz, gericht, entscheidungsdatum, year,
+    summary, ecli, source_file, enrichment_file, source_bucket, corpus,
+    enrichment_raw
   )
 """
 
@@ -70,6 +71,36 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Verbose logging",
     )
+    parser.add_argument(
+        "--dedup-canonical-overlap",
+        action="store_true",
+        help=(
+            "After import, delete raw-bucket overlap rows that already exist as non-raw rows "
+            "for same court/year-range based on canonicalized normalized_gz + entscheidungsdatum"
+        ),
+    )
+    parser.add_argument(
+        "--dedup-court",
+        default="VfGH",
+        help="Court filter used by --dedup-canonical-overlap (default: VfGH)",
+    )
+    parser.add_argument(
+        "--dedup-raw-bucket",
+        default="vfgh_te_raw",
+        help="Raw source_bucket marker to deduplicate against non-raw rows (default: vfgh_te_raw)",
+    )
+    parser.add_argument(
+        "--dedup-year-from",
+        type=int,
+        default=None,
+        help="Optional lower year bound for overlap dedup; defaults to min imported year",
+    )
+    parser.add_argument(
+        "--dedup-year-to",
+        type=int,
+        default=None,
+        help="Optional upper year bound for overlap dedup; defaults to max imported year",
+    )
     return parser.parse_args()
 
 
@@ -94,6 +125,50 @@ def _parse_date(value: Any) -> date | None:
             return datetime.fromisoformat(raw.replace("Z", "+00:00")).date()
         except ValueError:
             return None
+    return None
+
+
+def _parse_date_from_filename(path: Path) -> date | None:
+    # Many raw VfGH files encode the decision date in the filename prefix: JFT_YYYYMMDD_...
+    m = re.match(r"^[A-Za-z]+_(\d{8})_", path.name)
+    if not m:
+        return None
+    return _parse_date(m.group(1))
+
+
+def _parse_date_from_ocr_text(payload: dict[str, Any]) -> date | None:
+    basic = payload.get("basic")
+    ocr_text = None
+    if isinstance(basic, dict):
+        ocr_text = basic.get("ocr_text")
+    if not isinstance(ocr_text, str) or not ocr_text.strip():
+        ocr_text = payload.get("ocr_text")
+    if not isinstance(ocr_text, str) or not ocr_text.strip():
+        return None
+
+    # Prefer explicit label to avoid accidentally picking publication dates.
+    m = re.search(r"Entscheidungsdatum\W+(\d{2}\.\d{2}\.\d{4})", ocr_text, flags=re.IGNORECASE)
+    if m:
+        return _parse_date(m.group(1))
+
+    # Fallback for OCR-only VfGH pages that start with a RIS header block like:
+    # RIS\n[:]\nVerfassungsgerichtshof\nDD.MM.YYYY\n...
+    m = re.search(
+        r"^\s*RIS(?:\s*[:]\s*)?\s*\n+\s*Verfassungsgerichtshof\s*\n+\s*(\d{2}\.\d{2}\.\d{4})\b",
+        ocr_text,
+        flags=re.IGNORECASE,
+    )
+    if m:
+        return _parse_date(m.group(1))
+
+    # Some OCR dumps start mid-document/page and still contain a later RIS header.
+    m = re.search(
+        r"Verfassungsgerichtshof\s*\n+\s*(\d{2}\.\d{2}\.\d{4})\b",
+        ocr_text,
+        flags=re.IGNORECASE,
+    )
+    if m:
+        return _parse_date(m.group(1))
     return None
 
 
@@ -325,6 +400,22 @@ def _collect_json_files(root: Path, pattern: str, limit: int) -> list[Path]:
     return sorted(root.rglob(pattern))
 
 
+def _canonical_store_path(path: Path, root: Path) -> str:
+    """Store env-agnostic provenance paths (relative to the import root)."""
+    try:
+        return path.resolve().relative_to(root).as_posix()
+    except Exception:
+        return path.name
+
+
+def _derive_source_bucket(path: Path, gericht: str) -> str:
+    upper_name = path.name.upper()
+    upper_path = str(path).upper()
+    kind = "te_enriched" if "ENRICHED" in upper_name or "ENRICHED" in upper_path else "te_raw"
+    court = (gericht or "unknown").strip().lower()
+    return f"{court}_{kind}"
+
+
 def _build_conn() -> psycopg2.extensions.connection:
     cfg = {
         "host": os.getenv("MCP_ZIVILRECHT_DB_HOST", "mcp-super-ris-postgres"),
@@ -344,35 +435,131 @@ def _build_conn() -> psycopg2.extensions.connection:
     return conn
 
 
+def _run_canonical_overlap_dedup(
+    conn: psycopg2.extensions.connection,
+    court: str,
+    year_from: int,
+    year_to: int,
+    raw_bucket: str,
+) -> tuple[int, int, int]:
+    """
+    Delete raw rows that are canonical duplicates of non-raw rows.
+
+    Important: if multiple raw rows share the same canonical pair
+    (normalized_gz + entscheidungsdatum), keep the surplus rows and only delete
+    as many raw rows as there are matching non-raw rows. This avoids collapsing
+    legitimate multi-document variants counted separately in RIS.
+
+    Returns (raw_before, deleted, raw_after).
+    """
+    sql_before_after = """
+        SELECT count(*)
+        FROM super_ris.te
+        WHERE gericht = %(court)s
+          AND year BETWEEN %(year_from)s AND %(year_to)s
+          AND source_bucket = %(raw_bucket)s
+    """
+    sql_delete = """
+        WITH raw_rows AS (
+            SELECT
+                t.ctid,
+                t.entscheidungsdatum,
+                UPPER(REGEXP_REPLACE(REPLACE(REPLACE(COALESCE(t.normalized_gz, ''), '/', '_'), '-', '_'), '_+', '_', 'g')) AS norm_gz,
+                row_number() OVER (
+                    PARTITION BY t.entscheidungsdatum,
+                                 UPPER(REGEXP_REPLACE(REPLACE(REPLACE(COALESCE(t.normalized_gz, ''), '/', '_'), '-', '_'), '_+', '_', 'g'))
+                    ORDER BY t.ctid
+                ) AS raw_rn
+            FROM super_ris.te t
+            WHERE t.gericht = %(court)s
+              AND t.year BETWEEN %(year_from)s AND %(year_to)s
+              AND t.source_bucket = %(raw_bucket)s
+        ),
+        non_raw_counts AS (
+            SELECT
+                o.entscheidungsdatum,
+                UPPER(REGEXP_REPLACE(REPLACE(REPLACE(COALESCE(o.normalized_gz, ''), '/', '_'), '-', '_'), '_+', '_', 'g')) AS norm_gz,
+                count(*)::int AS non_raw_cnt
+            FROM super_ris.te o
+            WHERE o.gericht = %(court)s
+              AND o.year BETWEEN %(year_from)s AND %(year_to)s
+              AND COALESCE(o.source_bucket, '') <> %(raw_bucket)s
+            GROUP BY 1, 2
+        ),
+        del_candidates AS (
+            SELECT r.ctid
+            FROM raw_rows r
+            JOIN non_raw_counts n
+              ON n.entscheidungsdatum = r.entscheidungsdatum
+             AND n.norm_gz = r.norm_gz
+            WHERE r.raw_rn <= n.non_raw_cnt
+        ),
+        del AS (
+            DELETE FROM super_ris.te t
+            USING del_candidates d
+            WHERE t.ctid = d.ctid
+            RETURNING 1
+        )
+        SELECT count(*) FROM del
+    """
+    params = {
+        "court": court,
+        "year_from": year_from,
+        "year_to": year_to,
+        "raw_bucket": raw_bucket,
+    }
+    with conn.cursor() as cur:
+        cur.execute(sql_before_after, params)
+        raw_before = int(cur.fetchone()[0])
+        cur.execute(sql_delete, params)
+        deleted = int(cur.fetchone()[0])
+        cur.execute(sql_before_after, params)
+        raw_after = int(cur.fetchone()[0])
+    conn.commit()
+    return raw_before, deleted, raw_after
+
+
 UPSERT_SQL = """
 INSERT INTO super_ris.te (
   stable_key,
   normalized_gz,
-  geschaeftszahl,
-  datum,
+  gericht,
   entscheidungsdatum,
+  year,
+  ecli,
   summary,
-  source_json,
-  original_html
+  source_file,
+  enrichment_file,
+  source_bucket,
+  corpus,
+  enrichment_raw
 ) VALUES (
   %(stable_key)s,
   %(normalized_gz)s,
-  %(geschaeftszahl)s,
-  %(datum)s,
+  %(gericht)s,
   %(entscheidungsdatum)s,
+  %(year)s,
+  %(ecli)s,
   %(summary)s,
-  %(source_json)s,
-  %(original_html)s
+  %(source_file)s,
+  %(enrichment_file)s,
+  %(source_bucket)s,
+  %(corpus)s,
+  %(enrichment_raw)s
 )
 ON CONFLICT (stable_key)
 DO UPDATE SET
-  normalized_gz = EXCLUDED.normalized_gz,
-  geschaeftszahl = EXCLUDED.geschaeftszahl,
-  datum = EXCLUDED.datum,
-  entscheidungsdatum = EXCLUDED.entscheidungsdatum,
-  summary = EXCLUDED.summary,
-  source_json = EXCLUDED.source_json,
-  original_html = EXCLUDED.original_html
+  normalized_gz = COALESCE(EXCLUDED.normalized_gz, super_ris.te.normalized_gz),
+  gericht = COALESCE(EXCLUDED.gericht, super_ris.te.gericht),
+  entscheidungsdatum = COALESCE(EXCLUDED.entscheidungsdatum, super_ris.te.entscheidungsdatum),
+  year = COALESCE(EXCLUDED.year, super_ris.te.year),
+  ecli = COALESCE(EXCLUDED.ecli, super_ris.te.ecli),
+  summary = COALESCE(EXCLUDED.summary, super_ris.te.summary),
+  source_file = COALESCE(EXCLUDED.source_file, super_ris.te.source_file),
+  enrichment_file = COALESCE(EXCLUDED.enrichment_file, super_ris.te.enrichment_file),
+  source_bucket = COALESCE(EXCLUDED.source_bucket, super_ris.te.source_bucket),
+  corpus = COALESCE(EXCLUDED.corpus, super_ris.te.corpus),
+  enrichment_raw = COALESCE(EXCLUDED.enrichment_raw, super_ris.te.enrichment_raw)
 RETURNING (xmax = 0) AS inserted;
 """
 
@@ -410,6 +597,7 @@ def main() -> int:
     failed = 0
     with_html = 0
     upserted_since_commit = 0
+    imported_years: set[int] = set()
 
     conn = None
     cur = None
@@ -432,28 +620,46 @@ def main() -> int:
                     or payload.get("datum")
                     or _get_nested(payload, "metadata", "date")
                     or _get_nested(payload, "meta", "entscheidungsdatum")
-                )
-                datum = _parse_date(
-                    payload.get("datum")
-                    or payload.get("entscheidungsdatum")
-                    or _get_nested(payload, "metadata", "date")
-                    or _get_nested(payload, "meta", "entscheidungsdatum")
+                    or _parse_date_from_filename(path)
+                    or _parse_date_from_ocr_text(payload)
                 )
                 summary = _extract_summary(payload)
                 original_html = _resolve_original_html(payload, path, html_roots)
                 if original_html:
                     with_html += 1
+                if entscheidungsdatum is None:
+                    raise ValueError("missing entscheidungsdatum (current super_ris.te schema requires NOT NULL)")
+
+                gericht = (
+                    _as_text([
+                        payload.get("gericht"),
+                        _get_nested(payload, "meta", "court"),
+                        _get_nested(payload, "metadata", "court"),
+                    ])
+                    or "VfGH"
+                )
+                ecli = _as_text([
+                    payload.get("ecli"),
+                    _get_nested(payload, "meta", "ecli"),
+                    _get_nested(payload, "metadata", "ecli"),
+                ])
+                normalized_gz = normalized_gz or geschaeftszahl or stable_key
 
                 row = {
                     "stable_key": stable_key,
                     "normalized_gz": normalized_gz,
-                    "geschaeftszahl": geschaeftszahl,
-                    "datum": datum,
+                    "gericht": gericht,
                     "entscheidungsdatum": entscheidungsdatum,
+                    "year": int(entscheidungsdatum.year),
+                    "ecli": ecli,
                     "summary": summary,
-                    "source_json": Json(payload),
-                    "original_html": original_html,
+                    "source_file": _canonical_store_path(path, json_root),
+                    "enrichment_file": _canonical_store_path(path, json_root),
+                    "source_bucket": _derive_source_bucket(path, gericht),
+                    "corpus": gericht,
+                    "enrichment_raw": Json(payload),
                 }
+                imported_years.add(int(entscheidungsdatum.year))
 
                 if args.dry_run:
                     if args.verbose:
@@ -501,6 +707,25 @@ def main() -> int:
 
         if not args.dry_run and conn is not None:
             conn.commit()
+            if args.dedup_canonical_overlap:
+                if imported_years:
+                    dedup_year_from = args.dedup_year_from if args.dedup_year_from is not None else min(imported_years)
+                    dedup_year_to = args.dedup_year_to if args.dedup_year_to is not None else max(imported_years)
+                    raw_before, deleted, raw_after = _run_canonical_overlap_dedup(
+                        conn=conn,
+                        court=args.dedup_court,
+                        year_from=dedup_year_from,
+                        year_to=dedup_year_to,
+                        raw_bucket=args.dedup_raw_bucket,
+                    )
+                    print(
+                        "[import] overlap-dedup "
+                        f"court={args.dedup_court} years={dedup_year_from}-{dedup_year_to} "
+                        f"raw_bucket={args.dedup_raw_bucket} raw_before={raw_before} "
+                        f"deleted={deleted} raw_after={raw_after}"
+                    )
+                else:
+                    print("[import] overlap-dedup skipped (no imported rows)")
 
     except Exception as exc:
         if conn is not None:

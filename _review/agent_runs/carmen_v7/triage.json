@@ -1,0 +1,58 @@
+{
+  "deadlines": [],
+  "urgency": "HIGH",
+  "urgency_reason": "Laufende Gehaltsexekution (BG Melk 25 E 1939/25i) gegen AMS-Leistungen ab 23.12.2025; Anträge (§7 Abs3, §40, §42 EO) erst kürzlich eingebracht (26.02.2026), drohender Vollzug trotz unwirksamer Zustellung und Überbefriedigung.",
+  "silent_risks": [
+    {
+      "risk": "Fortsetzung Exekution bei Untätigkeit",
+      "consequence": "Pfändung AMS-Leistungen, irreversible Überbefriedigung der Bank um EUR 3.599,44."
+    },
+    {
+      "risk": "Fristversäumnis §7 Abs3 EO (Aufhebung VB)",
+      "consequence": "Recht auf Aufhebung verjährt, Zahlungsbefehl bleibt vollstreckbar."
+    },
+    {
+      "risk": "Keine Interzession/Akzessorietät geltend gemacht",
+      "consequence": "Verlust Rückforderungsanspruchs gegen Hauptschuldner/Bank per §14 IO/§25c KSchG."
+    }
+  ],
+  "decision_points": [
+    {
+      "question": "Priorisierung EO-Anträge",
+      "options": [
+        "§7 Abs3 EO (unwirkame Zustellung via ZMR-Auszug)",
+        "§40 EO (Befriedigung durch Hauptschuldner)",
+        "§42 EO (Aufschiebung bis Klärung)"
+      ]
+    },
+    {
+      "question": "Akzessorietät vs. Interzession",
+      "options": [
+        "§14 IO (Erlöschen Bürgschaft mit Hauptschuld)",
+        "§25c KSchG (Rücktritt Interzession)"
+      ]
+    },
+    {
+      "question": "Rechtsmittelstrategie",
+      "options": [
+        "§35 EO Beschwerde",
+        "§42 EO Klage auf Feststellungsverfahren"
+      ]
+    }
+  ],
+  "scenario_branches": [
+    {
+      "if": "Gericht akzeptiert unwirksame Zustellung (ZMR-Auszug)",
+      "then": "Aufhebung VB §7 Abs3 EO, Weiterleitung §39 Abs4 EO, Exekution endet."
+    },
+    {
+      "if": "100%-Befriedigung Hauptschuld anerkannt (KSV1870)",
+      "then": "Einstellung §40 EO, Rückzahlung Überbefriedigung, ggf. §14 IO Akzessorietät."
+    },
+    {
+      "if": "Anträge abgewiesen",
+      "then": "Rechtsmittel §35 EO, parallele Klage §42 EO, Interzessionsrücktritt §25c KSchG."
+    }
+  ],
+  "response_type_hint": "recommendation"
+}
