@@ -561,6 +561,71 @@ async def list_tools() -> list[Tool]:
                 "required": ["keyword"]
             }
         ),
+        Tool(
+            name="get_vvg_artikel",
+            description="Ruft einen vollständigen Bruck/Möller-VVG-Großkommentar Artikel ab (alle Randnummern + alle Fußnoten). 10. Aufl. (de Gruyter, Beckmann/Koch) für §§ 1-73 + 100-124; 9. Aufl. (A9) als Ersatz für §§ 74-99 + 125-216. 210 §§ extrahiert (97.2% Coverage von §§ 1-216), 11.766 Rn, 99.5% enriched.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "Paragraph, z.B. '100', '§ 100', '§ 28 VVG', '7a'"},
+                    "edition": {"type": "integer", "description": "Auflage (10 oder 9). Default: 10 bevorzugt, Fallback 9.", "default": None}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_vvg_randziffer",
+            description="Ruft eine einzelne Randnummer aus dem Bruck/Möller VVG-Großkommentar ab (Volltext + Fußnoten + Zitiervorschlag).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "rn_num": {"type": "integer"},
+                    "edition": {"type": "integer", "default": None},
+                    "include_footnotes": {"type": "boolean", "default": True}
+                },
+                "required": ["paragraph", "rn_num"]
+            }
+        ),
+        Tool(
+            name="search_vvg_by_paragraph",
+            description="Kurzübersicht eines VVG-Großkommentar-Artikels: rn_count, Autoren, Edition, 200-char-Snippet je Rn + Schlagworte. Für Orientierung vor get_vvg_artikel.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "edition": {"type": "integer", "default": None}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="search_vvg_keyword",
+            description="Volltextsuche über alle Bruck/Möller VVG-Großkommentar Randnummern. Optional inkl. Fußnoten-Texte. Deckt §§ 1-216 VVG + Bedingungswerke (AHB 2016, ARB 2010/2012, AKB 2015).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string"},
+                    "max_results": {"type": "integer", "default": 50},
+                    "in_footnotes": {"type": "boolean", "default": False},
+                    "edition": {"type": "integer", "default": None},
+                    "include_bedingungen": {"type": "boolean", "description": "Auch AHB/ARB/AKB-Bedingungswerke durchsuchen", "default": True}
+                },
+                "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="get_vvg_bedingung",
+            description="Ruft eine Klausel aus den VVG-Bedingungswerken ab (AHB 2016 / ARB 2010/2012 / AKB 2015). Werk + Klausel-ID nötig.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "werk": {"type": "string", "description": "AHB_2016 | ARB_2010 | AKB_2015", "enum": ["AHB_2016", "ARB_2010", "AKB_2015"]},
+                    "klausel_id": {"type": "string", "description": "Klausel-ID, z.B. 'Ziff. 1', 'Ziff. 7.1', '§ 5' (ARB), 'A.1.2' (AKB)"}
+                },
+                "required": ["werk", "klausel_id"]
+            }
+        ),
     ]
 
 
@@ -712,6 +777,46 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             arguments.get("max_results", 50),
             arguments.get("in_footnotes", False),
             arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_vvg_artikel":
+        result = get_vvg_artikel(
+            arguments.get("paragraph", ""),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_vvg_randziffer":
+        result = search_vvg_randziffer(
+            arguments.get("paragraph", ""),
+            arguments.get("rn_num", 1),
+            arguments.get("edition"),
+            arguments.get("include_footnotes", True),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_vvg_by_paragraph":
+        result = search_vvg_by_paragraph(
+            arguments.get("paragraph", ""),
+            arguments.get("edition"),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_vvg_keyword":
+        result = search_vvg_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("max_results", 50),
+            arguments.get("in_footnotes", False),
+            arguments.get("edition"),
+            arguments.get("include_bedingungen", True),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_vvg_bedingung":
+        result = get_vvg_bedingung(
+            arguments.get("werk", ""),
+            arguments.get("klausel_id", ""),
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
@@ -1923,25 +2028,45 @@ def _find_leipziger_file(num_str: str, suffix: str, edition: Optional[int] = Non
     para_part = f"{num_str}{suffix}"
     editions_to_try = [edition] if edition else [13, 12]
     v2_prefix = f"__{para_part}_StGB__"
-    v2_pat_ed = "_v2.json"
+
+    def _best_match(candidates: list) -> Optional[Path]:
+        """Prefer author-named files over generic LK_StGB; if tied, prefer file with most Rn."""
+        if not candidates:
+            return None
+        # Sort: non-LK_StGB first, then by Rn-count desc
+        def sort_key(p: Path):
+            is_generic = '__LK_StGB__' in p.name
+            # Quick Rn-count via JSON read (cheap)
+            try:
+                d = json.loads(p.read_text(encoding="utf-8"))
+                rn_count = len(d.get("randnummern", []))
+            except Exception:
+                rn_count = 0
+            return (is_generic, -rn_count)
+        return sorted(candidates, key=sort_key)[0]
+
     # Try each dir in order
     for search_dir in [_LEIPZIGER_ENRICHED, _LEIPZIGER_EXTRACTED]:
         if not search_dir.exists():
             continue
         for ed in editions_to_try:
-            for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}_v2.json"):
-                return p
-        for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*_v2.json"):
-            return p
+            cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}_v2.json"))
+            if cands:
+                return _best_match(cands)
+        cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*_v2.json"))
+        if cands:
+            return _best_match(cands)
     # V1 fallback
     for search_dir in [_LEIPZIGER_ENRICHED_V1, _LEIPZIGER_EXTRACTED_V1]:
         if not search_dir.exists():
             continue
         for ed in editions_to_try:
-            for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}.json"):
-                return p
-        for p in search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*.json"):
-            return p
+            cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl{ed}.json"))
+            if cands:
+                return _best_match(cands)
+        cands = list(search_dir.glob(f"{v2_prefix}*__Leipziger_aufl*.json"))
+        if cands:
+            return _best_match(cands)
     return None
 
 
@@ -2199,6 +2324,407 @@ def search_leipziger_keyword(keyword: str, max_results: int = 50, in_footnotes: 
         "total_found": total_found,
         "count": min(total_found, max_results),
         "results": matches[:max_results],
+    }
+
+
+# ============================================================================
+# BRUCK/MÖLLER VVG GROSSKOMMENTAR — FILE-BASED TOOLS
+# ============================================================================
+
+_VVG_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/DE/VVG/grosskommentar")
+_VVG_EXTRACTED: Path = _VVG_BASE / "extracted_v2"
+_VVG_ENRICHED: Path = _VVG_BASE / "enriched_v2"
+_VVG_BED_EXTRACTED: Path = _VVG_BASE / "extracted_v2_bedingungen"
+_VVG_BED_ENRICHED: Path = _VVG_BASE / "enriched_v2_bedingungen"
+
+_VVG_GENERIC_AUTHOR_SLUGS = {"VVG_BM", "Generic", "VVG"}
+_vvg_cache: dict[int, list[tuple]] = {}
+
+
+def _parse_vvg_paragraph(paragraph: str) -> Tuple[str, str]:
+    """Parse paragraph input to (num_str, suffix). Handles '100', '§ 100', '§ 7a VVG'."""
+    text = paragraph.strip()
+    text = re.sub(r"^§\s*", "", text).strip()
+    text = re.sub(r"\s+VVG\s*$", "", text, flags=re.IGNORECASE).strip()
+    m = re.match(r"^(\d+)([a-z]?)$", text, re.IGNORECASE)
+    if m:
+        return m.group(1), m.group(2).lower()
+    m2 = re.search(r"(\d+)([a-z]?)", text, re.IGNORECASE)
+    if m2:
+        return m2.group(1), m2.group(2).lower()
+    return text, ""
+
+
+def _find_vvg_file(num_str: str, suffix: str, edition: Optional[int] = None) -> Optional[Path]:
+    """Lookup VVG §-File. Reihenfolge: enriched_v2 → extracted_v2.
+
+    Author-Files vor VVG_BM-Generic, dann mehr Rn first.
+    """
+    para_part = f"{num_str}{suffix}"
+    editions_to_try = [edition] if edition else [10, 9]
+    v2_prefix = f"__{para_part}_VVG__"
+
+    def _best_match(candidates: list[Path]) -> Optional[Path]:
+        if not candidates:
+            return None
+
+        def sort_key(p: Path):
+            is_generic = any(g in p.name.split("__") for g in _VVG_GENERIC_AUTHOR_SLUGS)
+            try:
+                d = json.loads(p.read_text(encoding="utf-8"))
+                rn_count = len(d.get("randnummern", []))
+            except Exception:
+                rn_count = 0
+            return (is_generic, -rn_count)
+
+        return sorted(candidates, key=sort_key)[0]
+
+    for search_dir in [_VVG_ENRICHED, _VVG_EXTRACTED]:
+        if not search_dir.exists():
+            continue
+        for ed in editions_to_try:
+            cands = list(search_dir.glob(f"{v2_prefix}*__VVG_aufl{ed}_v2.json"))
+            if cands:
+                return _best_match(cands)
+        cands = list(search_dir.glob(f"{v2_prefix}*__VVG_aufl*_v2.json"))
+        if cands:
+            return _best_match(cands)
+    return None
+
+
+def _vvg_meta(data: dict) -> dict:
+    """V2 flat schema → unified meta dict."""
+    if "meta" in data and isinstance(data["meta"], dict):
+        return data["meta"]
+    return {
+        "paragraph_ref": data.get("paragraph_ref", ""),
+        "law": "VVG",
+        "edition": data.get("edition"),
+        "main_author": data.get("main_author", ""),
+        "volume_id": data.get("volume_id", ""),
+        "para_from": data.get("para_num"),
+        "page_start": data.get("page_start"),
+        "page_end": data.get("page_end"),
+        "schema_version": data.get("schema_version", ""),
+        "korpus": "Bruck/Möller VVG Großkommentar",
+    }
+
+
+def _load_vvg_corpus_cache(edition: int = 10) -> list[tuple]:
+    """Cache (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count, fussnoten,
+    stable_key, ent_edition) tuples for keyword search."""
+    if edition in _vvg_cache:
+        return _vvg_cache[edition]
+    entries: list[tuple] = []
+    for search_dir in [_VVG_ENRICHED, _VVG_EXTRACTED]:
+        if not search_dir.exists():
+            continue
+        for f in sorted(search_dir.glob(f"__*_VVG__*aufl{edition}_v2.json")):
+            try:
+                d = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            paragraph_ref = d.get("paragraph_ref", "")
+            main_author = d.get("main_author", "")
+            for rn in d.get("randnummern", []):
+                stable_key = f"vvg-bm|VVG|{paragraph_ref}|rn{rn.get('rn_num')}|aufl{edition}"
+                entries.append((
+                    paragraph_ref,
+                    rn.get("rn_num"),
+                    rn.get("rn_text", ""),
+                    rn.get("page_authors") or [main_author],
+                    rn.get("page_from"),
+                    len(rn.get("fussnoten", [])),
+                    rn.get("fussnoten", []),
+                    stable_key,
+                    edition,
+                ))
+        # Brake — wenn enriched gefunden, nicht nochmal extracted scannen
+        if entries:
+            break
+    _vvg_cache[edition] = entries
+    return entries
+
+
+def _load_vvg_bedingungen_cache() -> list[tuple]:
+    """Bedingungswerke (AHB/ARB/AKB) cache. Returns (klausel_ref, werk, rn_num, rn_text,
+    page_from, fn_count, stable_key, edition)."""
+    cached: list[tuple] = []
+    src = _VVG_BED_ENRICHED if _VVG_BED_ENRICHED.exists() else _VVG_BED_EXTRACTED
+    if not src.exists():
+        return cached
+    for f in sorted(src.glob("__*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        werk = d.get("werk", "")
+        klausel_ref = d.get("klausel_ref", "")
+        klausel_id = d.get("klausel_id", "")
+        edition = d.get("edition", 10)
+        for rn in d.get("randnummern", []):
+            stable_key = (
+                f"vvg-bm|{werk}|{klausel_id.replace(' ', '_').replace('.', '-')}"
+                f"|rn{rn.get('rn_num')}|aufl{edition}"
+            )
+            cached.append((
+                klausel_ref,
+                werk,
+                rn.get("rn_num"),
+                rn.get("rn_text", ""),
+                rn.get("page_from"),
+                0,
+                stable_key,
+                edition,
+            ))
+    return cached
+
+
+def get_vvg_artikel(paragraph: str, edition: Optional[int] = None) -> dict:
+    """Vollständiger Bruck/Möller VVG-Artikel: Meta + alle Rn."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_vvg_file(num_str, suffix, edition)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"found": False, "reason": "file_load_error", "error": str(e)}
+    meta = _vvg_meta(data)
+    return {
+        "found": True,
+        "source": "Bruck/Möller VVG Großkommentar",
+        "meta": meta,
+        "rn_count": len(data.get("randnummern", [])),
+        "randnummern": data.get("randnummern", []),
+        "file": f.name,
+    }
+
+
+def search_vvg_randziffer(paragraph: str, rn_num: int, edition: Optional[int] = None,
+                          include_footnotes: bool = True) -> dict:
+    """Spezifische VVG-Rn mit Volltext + Fußnoten."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    try:
+        rn_num = int(rn_num)
+    except (TypeError, ValueError):
+        return {"found": False, "reason": "invalid_rn_num"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_vvg_file(num_str, suffix, edition)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {"found": False, "reason": "file_load_error"}
+    meta = _vvg_meta(data)
+    for rn in data.get("randnummern", []):
+        if rn.get("rn_num") == rn_num:
+            zit = (
+                f"Bruck/Möller/{meta.get('main_author', '')} "
+                f"{meta.get('edition', 10)}. Aufl. VVG {meta.get('paragraph_ref', '')} Rn. {rn_num}"
+            )
+            fns = rn.get("fussnoten", []) if include_footnotes else []
+            return {
+                "found": True,
+                "source": "Bruck/Möller VVG Großkommentar",
+                "paragraph_ref": meta.get("paragraph_ref"),
+                "law": "VVG",
+                "edition": meta.get("edition"),
+                "main_author": meta.get("main_author"),
+                "page_authors": rn.get("page_authors", []),
+                "volume_id": meta.get("volume_id"),
+                "zitiervorschlag": zit,
+                "rn_num": rn["rn_num"],
+                "rn_text": rn.get("rn_text", ""),
+                "page_from": rn.get("page_from"),
+                "page_to": rn.get("page_to"),
+                "char_count": rn.get("char_count"),
+                "paragraph_ref_corrected": rn.get("paragraph_ref_corrected"),
+                "enrichment": rn.get("enrichment", {}),
+                "fussnote_refs": rn.get("fussnote_refs", []),
+                "fussnoten": fns,
+                "fn_count": len(rn.get("fussnoten", [])),
+            }
+    return {
+        "found": False,
+        "paragraph_ref": meta.get("paragraph_ref"),
+        "rn_num": rn_num,
+        "reason": "rn_not_found",
+        "rn_count_in_paragraph": len(data.get("randnummern", [])),
+    }
+
+
+def search_vvg_by_paragraph(paragraph: str, edition: Optional[int] = None) -> dict:
+    """Übersicht eines VVG-Artikels: Snippets + Schlagworte je Rn."""
+    paragraph = clamp_query(paragraph, 100)
+    if not paragraph:
+        return {"found": False, "reason": "missing_paragraph"}
+    num_str, suffix = _parse_vvg_paragraph(paragraph)
+    f = _find_vvg_file(num_str, suffix, edition)
+    if not f:
+        return {"found": False, "paragraph": paragraph, "reason": "paragraph_not_found_in_vvg_corpus"}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {"found": False, "reason": "file_load_error"}
+    meta = _vvg_meta(data)
+    rns = data.get("randnummern", [])
+    overview = [
+        {
+            "rn_num": rn.get("rn_num"),
+            "snippet": (rn.get("rn_text", "") or "")[:200],
+            "schlagworte": (rn.get("enrichment") or {}).get("schlagworte", []),
+            "rechtsgebiet_sub": (rn.get("enrichment") or {}).get("rechtsgebiet_sub"),
+            "fn_count": len(rn.get("fussnoten", [])),
+            "page_from": rn.get("page_from"),
+            "char_count": rn.get("char_count"),
+        }
+        for rn in rns
+    ]
+    return {
+        "found": True,
+        "source": "Bruck/Möller VVG Großkommentar",
+        "paragraph_ref": meta.get("paragraph_ref"),
+        "law": "VVG",
+        "edition": meta.get("edition"),
+        "main_author": meta.get("main_author"),
+        "volume_id": meta.get("volume_id"),
+        "rn_count": len(rns),
+        "rn_overview": overview,
+    }
+
+
+def search_vvg_keyword(keyword: str, max_results: int = 50, in_footnotes: bool = False,
+                      edition: Optional[int] = None, include_bedingungen: bool = True) -> dict:
+    """Volltextsuche VVG-Korpus + optional Bedingungswerke."""
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=50, max_value=200)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+    editions = [edition] if edition else [10, 9]
+    kw_lower = keyword.lower()
+    matches: list[dict] = []
+
+    # VVG-§§
+    for ed in editions:
+        for (paragraph_ref, rn_num, rn_text, authors, page_from, fn_count, fussnoten,
+             stable_key, ent_edition) in _load_vvg_corpus_cache(ed):
+            score = (rn_text or "").lower().count(kw_lower)
+            if in_footnotes:
+                for fn in fussnoten:
+                    fn_text = fn.get("fn_text_raw", "")
+                    score += (fn_text or "").lower().count(kw_lower)
+            if score == 0:
+                continue
+            hay = rn_text or ""
+            idx = hay.lower().find(kw_lower)
+            if idx == -1 and in_footnotes:
+                for fn in fussnoten:
+                    ft = fn.get("fn_text_raw", "")
+                    if kw_lower in (ft or "").lower():
+                        hay = f"[FN {fn.get('fn_num')}] " + ft
+                        idx = hay.lower().find(kw_lower)
+                        break
+            if idx >= 0:
+                start = max(0, idx - 80)
+                end = min(len(hay), idx + 220)
+                snippet = ("..." if start > 0 else "") + hay[start:end] + ("..." if end < len(hay) else "")
+            else:
+                snippet = hay[:300]
+            matches.append({
+                "source": "VVG-§§",
+                "paragraph_ref": paragraph_ref,
+                "rn_num": rn_num,
+                "stable_key": stable_key,
+                "snippet": snippet,
+                "author": authors[0] if authors else "",
+                "edition": ent_edition,
+                "page_from": page_from,
+                "fn_count": fn_count,
+                "score": score,
+            })
+
+    # Bedingungswerke
+    if include_bedingungen:
+        for (klausel_ref, werk, rn_num, rn_text, page_from, fn_count,
+             stable_key, ent_edition) in _load_vvg_bedingungen_cache():
+            score = (rn_text or "").lower().count(kw_lower)
+            if score == 0:
+                continue
+            hay = rn_text or ""
+            idx = hay.lower().find(kw_lower)
+            if idx >= 0:
+                start = max(0, idx - 80)
+                end = min(len(hay), idx + 220)
+                snippet = ("..." if start > 0 else "") + hay[start:end] + ("..." if end < len(hay) else "")
+            else:
+                snippet = hay[:300]
+            matches.append({
+                "source": "VVG-Bedingungen",
+                "werk": werk,
+                "klausel_ref": klausel_ref,
+                "rn_num": rn_num,
+                "stable_key": stable_key,
+                "snippet": snippet,
+                "edition": ent_edition,
+                "page_from": page_from,
+                "score": score,
+            })
+
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "keyword": keyword,
+        "in_footnotes": in_footnotes,
+        "include_bedingungen": include_bedingungen,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "results": matches[:max_results],
+    }
+
+
+def get_vvg_bedingung(werk: str, klausel_id: str) -> dict:
+    """Liefert die Kommentierung einer Klausel aus AHB/ARB/AKB."""
+    if werk not in {"AHB_2016", "ARB_2010", "AKB_2015"}:
+        return {"found": False, "reason": "invalid_werk", "werk": werk}
+    klausel_id = clamp_query(klausel_id, 50)
+    if not klausel_id:
+        return {"found": False, "reason": "missing_klausel_id"}
+    src = _VVG_BED_ENRICHED if _VVG_BED_ENRICHED.exists() else _VVG_BED_EXTRACTED
+    if not src.exists():
+        return {"found": False, "reason": "bedingungen_dir_missing"}
+    # Slug
+    slug = (
+        klausel_id.replace("Ziff.", "Ziff").replace("§", "")
+        .strip().replace(" ", "_").replace(".", "-")
+    )
+    slug = re.sub(r"[^\w\-]", "", slug)
+    cands = list(src.glob(f"__{slug}_{werk}__*.json"))
+    if not cands:
+        return {"found": False, "reason": "klausel_not_found", "werk": werk, "klausel_id": klausel_id, "slug": slug}
+    f = cands[0]
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"found": False, "reason": "file_load_error", "error": str(e)}
+    return {
+        "found": True,
+        "source": f"Bruck/Möller VVG Großkommentar — {werk}",
+        "werk": d.get("werk"),
+        "werk_label": d.get("werk_label"),
+        "klausel_ref": d.get("klausel_ref"),
+        "klausel_id": d.get("klausel_id"),
+        "klausel_title": d.get("klausel_title"),
+        "edition": d.get("edition"),
+        "main_author": d.get("main_author"),
+        "rn_count": len(d.get("randnummern", [])),
+        "randnummern": d.get("randnummern", []),
+        "file": f.name,
     }
 
 
