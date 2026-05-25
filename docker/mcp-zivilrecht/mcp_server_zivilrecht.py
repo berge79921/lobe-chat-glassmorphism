@@ -663,13 +663,50 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
+            name="search_at_praxis_keyword",
+            description="Volltextsuche in AT-Versicherungsrechts-Praxisliteratur (9 Werke, 6.894 Chunks): Kainz/Michtner/Reisinger Kfz, Hartjes/Janker/Reisinger Haftpflicht, Kronsteiner Rechtsschutz, Maitz Unfall, Bührer/Nigl D&O+Cyber, Gisch/Reisinger Versicherungsvertragsrecht, Haslwanter Deckungsanspruch Haftpflicht, Jeremias § 12 VersVG, FS Fenyves. Schließt die AT-Spezialwerk-Lücke des BK/Bruck-Möller-Korpus.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string"},
+                    "source_work": {"type": "string", "description": "Nur dieses Werk (z.B. 'jeremias_p12', 'kronsteiner_rs'); leer für alle"},
+                    "max_results": {"type": "integer", "default": 30}
+                },
+                "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="find_at_praxis_by_paragraph",
+            description="Reverse-Lookup: alle Chunks aus AT-Praxisliteratur die einen bestimmten § referenzieren. Z.B. 'find_at_praxis_by_paragraph(\"§ 12 VersVG\")' → alle Werke die § 12 zitieren (vor allem Jeremias).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string", "description": "§ N + Gesetz, z.B. '§ 12 VersVG', '§ 6 VersVG'"},
+                    "max_results": {"type": "integer", "default": 30}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="get_at_praxis_chunk",
+            description="Liefert einen vollständigen Chunk aus AT-Praxisliteratur per stable_key.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "stable_key": {"type": "string", "description": "z.B. 'at-praxis|jeremias_p12|chunk_0042'"}
+                },
+                "required": ["stable_key"]
+            }
+        ),
+        Tool(
             name="compare_vvg_kommentare",
-            description="Vergleicht Berliner Kommentar VVG (Honsell 1999, DE+AT, pre-Reform) mit Bruck/Möller (DE n.F., post-Reform-2008). Mit auto-Mapping AT↔DE: § 6 VersVG (AT) ≡ § 28 VVG (DE), § 69 VersVG (AT) ≡ § 95 VVG (DE), § 158k VersVG (AT) ≡ § 127 VVG (DE) usw. Liefert beide Kommentierungen parallel — perfekt für Rechtsvergleich AT/DE in Versicherungsfällen.",
+            description="Vergleicht Berliner Kommentar VVG (Honsell 1999, DE+AT, pre-Reform) mit Bruck/Möller (DE n.F., post-Reform-2008) — plus optional AT-Praxisliteratur (9 Werke). Mit auto-Mapping AT↔DE: § 6 VersVG (AT) ≡ § 28 VVG (DE), § 69 VersVG (AT) ≡ § 95 VVG (DE), § 158k VersVG (AT) ≡ § 127 VVG (DE) usw. Mit include_at_praxis=true (default) wird zusätzlich der AT-Praxis-Korpus durchsucht — perfekt für Rechtsvergleich AT/DE + AT-Spezialliteratur.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "paragraph": {"type": "string", "description": "§ N (mit/ohne 'VersVG'/'VVG'-Suffix)"},
-                    "source_law": {"type": "string", "description": "AT|DE|auto (default 'auto', versucht beide)", "enum": ["AT", "DE", "auto"], "default": "auto"}
+                    "source_law": {"type": "string", "description": "AT|DE|auto", "enum": ["AT", "DE", "auto"], "default": "auto"},
+                    "include_at_praxis": {"type": "boolean", "description": "AT-Praxisliteratur einbeziehen (default true)", "default": True}
                 },
                 "required": ["paragraph"]
             }
@@ -887,10 +924,30 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
+    elif name == "search_at_praxis_keyword":
+        result = search_at_praxis_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("source_work", ""),
+            arguments.get("max_results", 30),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "find_at_praxis_by_paragraph":
+        result = find_at_praxis_by_paragraph(
+            arguments.get("paragraph", ""),
+            arguments.get("max_results", 30),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_at_praxis_chunk":
+        result = get_at_praxis_chunk(arguments.get("stable_key", ""))
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
     elif name == "compare_vvg_kommentare":
         result = compare_vvg_kommentare(
             arguments.get("paragraph", ""),
             arguments.get("source_law", "auto"),
+            arguments.get("include_at_praxis", True),
         )
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
@@ -3055,13 +3112,14 @@ AT_DE_VVG_MAPPING = {
 DE_AT_VVG_MAPPING = {v: k for k, v in AT_DE_VVG_MAPPING.items()}
 
 
-def compare_vvg_kommentare(paragraph: str, source_law: str = "auto") -> dict:
-    """Vergleicht BK VVG (Honsell 1999, DE+AT) mit Bruck/Möller (DE n.F.).
+def compare_vvg_kommentare(paragraph: str, source_law: str = "auto",
+                            include_at_praxis: bool = True) -> dict:
+    """Vergleicht BK VVG (Honsell 1999, DE+AT) + Bruck/Möller (DE n.F.) + optional AT-Praxis.
 
     source_law: "AT", "DE", oder "auto" (default — versucht beide).
+    include_at_praxis: True (default) — ergänzt AT-Praxisliteratur-Treffer.
 
     Bei AT-§ wird auto-mapped auf DE-§ via AT_DE_VVG_MAPPING.
-    z.B. compare_vvg_kommentare("§ 6 VersVG") → BK § 6 + Bruck/Möller § 28.
     """
     # Parse paragraph
     paragraph = clamp_query(paragraph, 100)
@@ -3103,7 +3161,7 @@ def compare_vvg_kommentare(paragraph: str, source_law: str = "auto") -> dict:
             return ""
         return (rns[0].get("rn_text", "") or "")[:n]
 
-    return {
+    result = {
         "query_paragraph": paragraph,
         "source_law": source_law,
         "mapping_note": mapping_note,
@@ -3130,6 +3188,163 @@ def compare_vvg_kommentare(paragraph: str, source_law: str = "auto") -> dict:
             f"({bm.get('meta', {}).get('main_author', '?') if bm.get('found') else '?'})."
         ),
     }
+
+    if include_at_praxis:
+        at_hits = find_at_praxis_by_paragraph(f"§ {full_key} VersVG", max_results=20)
+        result["at_praxisliteratur"] = {
+            "scope": "AT-Spezialwerke (9 Werke, 6.894 chunks)",
+            "found": at_hits.get("count", 0) > 0,
+            "total_chunks": at_hits.get("count", 0),
+            "works_mentioning": at_hits.get("works", []),
+            "top_chunks": at_hits.get("results", [])[:5],
+        }
+
+    return result
+
+
+# ============================================================================
+# AT-PRAXISLITERATUR — 9 Werke, Chunk-basiert
+# ============================================================================
+
+_AT_PRAXIS_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/AT/VersVG/praxisliteratur")
+_AT_PRAXIS_ENRICHED: Path = _AT_PRAXIS_BASE / "enriched_chunks"
+_AT_PRAXIS_EXTRACTED: Path = _AT_PRAXIS_BASE / "extracted_chunks"
+_at_praxis_cache: list[dict] = []
+
+
+def _load_at_praxis_cache() -> list[dict]:
+    """Lädt Cache: bevorzugt enriched, aber komplettiert mit extracted für ungelabelte Chunks.
+
+    Strategie: extracted ist die Master-Liste (alle 6.894). enriched hat Subset
+    mit enrichment-Field. Beim Lookup verwenden wir enriched wenn da, sonst extracted.
+    """
+    global _at_praxis_cache
+    if _at_praxis_cache:
+        return _at_praxis_cache
+    # Index by file name: enriched hat Priorität
+    by_name: dict[str, dict] = {}
+    if _AT_PRAXIS_EXTRACTED.exists():
+        for f in sorted(_AT_PRAXIS_EXTRACTED.glob("*.json")):
+            try:
+                by_name[f.name] = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+    if _AT_PRAXIS_ENRICHED.exists():
+        for f in sorted(_AT_PRAXIS_ENRICHED.glob("*.json")):
+            try:
+                by_name[f.name] = json.loads(f.read_text(encoding="utf-8"))  # Override with enriched
+            except Exception:
+                continue
+    _at_praxis_cache = list(by_name.values())
+    return _at_praxis_cache
+
+
+def search_at_praxis_keyword(keyword: str, source_work: str = "", max_results: int = 30) -> dict:
+    """Volltextsuche AT-Praxisliteratur."""
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=30, max_value=100)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+    kw_lower = keyword.lower()
+    chunks = _load_at_praxis_cache()
+    matches: list[dict] = []
+
+    for c in chunks:
+        if source_work and c.get("source_work") != source_work:
+            continue
+        text = c.get("chunk_text", "")
+        score = (text or "").lower().count(kw_lower)
+        if score == 0:
+            continue
+        idx = text.lower().find(kw_lower)
+        if idx >= 0:
+            start = max(0, idx - 80)
+            end = min(len(text), idx + 220)
+            snippet_text = ("..." if start > 0 else "") + text[start:end] + ("..." if end < len(text) else "")
+        else:
+            snippet_text = text[:300]
+        matches.append({
+            "stable_key": c["stable_key"],
+            "source_work": c.get("source_work"),
+            "source_label": c.get("source_label"),
+            "work_zitiervorschlag": c.get("work_zitiervorschlag", ""),
+            "section_path": c.get("section_path", []),
+            "page_from": c.get("page_from"),
+            "snippet": snippet_text,
+            "referenced_paragraphs": c.get("referenced_paragraphs", [])[:10],
+            "schlagworte": (c.get("enrichment") or {}).get("schlagworte", []),
+            "score": score,
+        })
+
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "keyword": keyword,
+        "source_work_filter": source_work or None,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "results": matches[:max_results],
+    }
+
+
+def find_at_praxis_by_paragraph(paragraph: str, max_results: int = 30) -> dict:
+    """Reverse-Lookup: alle Chunks die diesen § referenzieren."""
+    paragraph = clamp_query(paragraph, 50)
+    if not paragraph:
+        return {"paragraph": paragraph, "count": 0, "results": []}
+    chunks = _load_at_praxis_cache()
+    matches: list[dict] = []
+    works_set: set = set()
+
+    # Normalize query — match auf "§ X GESETZ"
+    para_norm = paragraph.strip()
+    if not para_norm.startswith("§"):
+        para_norm = f"§ {para_norm}"
+
+    for c in chunks:
+        refs = c.get("referenced_paragraphs", [])
+        if any(para_norm in r or r in para_norm for r in refs):
+            works_set.add(c.get("source_work", "?"))
+            matches.append({
+                "stable_key": c["stable_key"],
+                "source_work": c.get("source_work"),
+                "source_label": c.get("source_label"),
+                "section_path": c.get("section_path", []),
+                "page_from": c.get("page_from"),
+                "snippet": (c.get("chunk_text", "") or "")[:300],
+                "all_paragraphs_in_chunk": refs[:10],
+                "schlagworte": (c.get("enrichment") or {}).get("schlagworte", []),
+            })
+
+    return {
+        "paragraph": para_norm,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "works": sorted(works_set),
+        "results": matches[:max_results],
+    }
+
+
+def get_at_praxis_chunk(stable_key: str) -> dict:
+    """Liefert kompletten Chunk per stable_key."""
+    stable_key = clamp_query(stable_key, 200)
+    if not stable_key.startswith("at-praxis|"):
+        return {"error": "invalid_stable_key"}
+    # Parse: at-praxis|<slug>|chunk_NNNN
+    parts = stable_key.split("|")
+    if len(parts) < 3:
+        return {"error": "invalid_format"}
+    slug = parts[1]
+    chunk_part = parts[2]  # chunk_NNNN
+    fname = f"{slug}__{chunk_part}.json"
+    for d in [_AT_PRAXIS_ENRICHED, _AT_PRAXIS_EXTRACTED]:
+        f = d / fname
+        if f.exists():
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+                return {"found": True, **data}
+            except Exception as e:
+                return {"error": "load_error", "detail": str(e)}
+    return {"found": False, "stable_key": stable_key, "tried_file": fname}
 
 
 # ============================================================================
