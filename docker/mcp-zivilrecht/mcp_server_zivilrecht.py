@@ -711,6 +711,53 @@ async def list_tools() -> list[Tool]:
                 "required": ["paragraph"]
             }
         ),
+        Tool(
+            name="search_at_lehrbuch_keyword",
+            description="Volltextsuche in der AT-Lehrbücher-Sammlung (46 Werke, 84.374 Chunks): ABGB (Bydlinski/Perner/Spitzer Kurzkommentar), UGB (Artmann), ZPO (Rechberger), AußStrG, FSG, GewO, TKG, DSGVO, DSGVO+BDSG+TTDSG, Sachverständigenrecht, Berufsrecht (RAO, Anwaltsrecht), Erbrecht (Eccher, Winkler), Familienrecht (Gewaltschutz Deixler/Mayrhofer, Unterhalt), Insolvenzrecht (Buchegger), Verfassungsrecht (Berka, Grundrechte), Baurecht (Pabel), Sozialrecht (Grillberger), HandelsvertreterG (Nocker), Vereinsrecht, IT-Recht (Heißl), Kostenrecht (Ziehensack), Anlegerschaden, Schmerzengeld (Kerschner), Zustellrecht u.v.m. Optional Filter auf subject_area (z.B. erbrecht, familienrecht, datenschutz) oder source_work.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string"},
+                    "subject_area": {"type": "string", "description": "Filter: zivilrecht | erbrecht | familienrecht | wirtschaftsrecht_ugb | prozessrecht_zpo | datenschutz | telekomrecht | IT-recht | verfassungsrecht | verwaltungsrecht_gewerbe | gesellschaftsrecht | sachverstaendigenrecht | berufsrecht | ..."},
+                    "source_work": {"type": "string", "description": "Filter: ein konkretes Werk (z.B. 'abgb_bydlinski_perner_spitzer', 'zpo_rechberger', 'fsg_grubmann')"},
+                    "max_results": {"type": "integer", "default": 30}
+                },
+                "required": ["keyword"]
+            }
+        ),
+        Tool(
+            name="find_at_lehrbuch_by_paragraph",
+            description="Reverse-Lookup: alle Chunks aus AT-Lehrbücher-Sammlung, die einen bestimmten § referenzieren. Funktioniert über die ganze 46-Werke-Sammlung (15.779 §-Refs gesamt). Z.B. 'find_at_lehrbuch_by_paragraph(\"§ 152 ABGB\")' findet alle Werke die § 152 ABGB zitieren.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "paragraph": {"type": "string"},
+                    "max_results": {"type": "integer", "default": 30}
+                },
+                "required": ["paragraph"]
+            }
+        ),
+        Tool(
+            name="get_at_lehrbuch_chunk",
+            description="Liefert vollständigen Chunk aus AT-Lehrbücher-Sammlung per stable_key (z.B. 'at-lit|zpo_rechberger|chunk_0421').",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "stable_key": {"type": "string"}
+                },
+                "required": ["stable_key"]
+            }
+        ),
+        Tool(
+            name="list_at_lehrbuecher_werke",
+            description="Listet alle 46 Werke der AT-Lehrbücher-Sammlung mit Metadaten (slug, autor, subject_area, page_count). Optional Filter auf subject_area.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "subject_area": {"type": "string"}
+                }
+            }
+        ),
     ]
 
 
@@ -949,6 +996,30 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             arguments.get("source_law", "auto"),
             arguments.get("include_at_praxis", True),
         )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "search_at_lehrbuch_keyword":
+        result = search_at_lehrbuch_keyword(
+            arguments.get("keyword", ""),
+            arguments.get("subject_area", ""),
+            arguments.get("source_work", ""),
+            arguments.get("max_results", 30),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "find_at_lehrbuch_by_paragraph":
+        result = find_at_lehrbuch_by_paragraph(
+            arguments.get("paragraph", ""),
+            arguments.get("max_results", 30),
+        )
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "get_at_lehrbuch_chunk":
+        result = get_at_lehrbuch_chunk(arguments.get("stable_key", ""))
+        return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
+
+    elif name == "list_at_lehrbuecher_werke":
+        result = list_at_lehrbuecher_werke(arguments.get("subject_area", ""))
         return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
     else:
@@ -3345,6 +3416,187 @@ def get_at_praxis_chunk(stable_key: str) -> dict:
             except Exception as e:
                 return {"error": "load_error", "detail": str(e)}
     return {"found": False, "stable_key": stable_key, "tried_file": fname}
+
+
+# ============================================================================
+# AT-LEHRBÜCHER-SAMMLUNG — 46 Werke, Chunk-basiert
+# ============================================================================
+
+_AT_LIT_BASE: Path = Path("/Users/reinhardberger/HCS/Kommentare/AT/lehrbuecher_sammlung")
+_AT_LIT_ENRICHED: Path = _AT_LIT_BASE / "enriched_chunks"
+_AT_LIT_EXTRACTED: Path = _AT_LIT_BASE / "extracted_chunks"
+_AT_LIT_MANIFEST: Path = _AT_LIT_BASE / "at_lehrbuecher_volumes.json"
+_at_lit_cache: list[dict] = []
+_at_lit_works_meta: dict[str, dict] = {}
+
+
+def _load_at_lit_cache() -> list[dict]:
+    """Lade Cache (merged enriched + extracted; enriched hat Vorrang)."""
+    global _at_lit_cache, _at_lit_works_meta
+    if _at_lit_cache:
+        return _at_lit_cache
+    # Load manifest (works-meta)
+    if _AT_LIT_MANIFEST.exists():
+        try:
+            m = json.loads(_AT_LIT_MANIFEST.read_text(encoding="utf-8"))
+            for w in m.get("works", []):
+                _at_lit_works_meta[w["slug"]] = w
+        except Exception:
+            pass
+    by_name: dict[str, dict] = {}
+    if _AT_LIT_EXTRACTED.exists():
+        for f in sorted(_AT_LIT_EXTRACTED.glob("*.json")):
+            try:
+                by_name[f.name] = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+    if _AT_LIT_ENRICHED.exists():
+        for f in sorted(_AT_LIT_ENRICHED.glob("*.json")):
+            try:
+                by_name[f.name] = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+    # Augment chunks with subject_area from manifest
+    for d in by_name.values():
+        slug = d.get("source_work")
+        if slug in _at_lit_works_meta:
+            d.setdefault("subject_area", _at_lit_works_meta[slug].get("subject_area", ""))
+    _at_lit_cache = list(by_name.values())
+    return _at_lit_cache
+
+
+def search_at_lehrbuch_keyword(keyword: str, subject_area: str = "",
+                               source_work: str = "", max_results: int = 30) -> dict:
+    keyword = clamp_query(keyword, 300)
+    max_results = clamp_limit(max_results, default=30, max_value=100)
+    if not keyword:
+        return {"keyword": keyword, "count": 0, "results": []}
+    kw_lower = keyword.lower()
+    chunks = _load_at_lit_cache()
+    matches: list[dict] = []
+
+    for c in chunks:
+        if source_work and c.get("source_work") != source_work:
+            continue
+        if subject_area and c.get("subject_area") != subject_area:
+            continue
+        text = c.get("chunk_text", "")
+        score = (text or "").lower().count(kw_lower)
+        if score == 0:
+            continue
+        idx = text.lower().find(kw_lower)
+        if idx >= 0:
+            start = max(0, idx - 80)
+            end = min(len(text), idx + 220)
+            snippet_text = ("..." if start > 0 else "") + text[start:end] + ("..." if end < len(text) else "")
+        else:
+            snippet_text = text[:300]
+        matches.append({
+            "stable_key": c["stable_key"],
+            "source_work": c.get("source_work"),
+            "source_label": c.get("source_label"),
+            "subject_area": c.get("subject_area"),
+            "section_path": c.get("section_path", []),
+            "page_from": c.get("page_from"),
+            "snippet": snippet_text,
+            "referenced_paragraphs": c.get("referenced_paragraphs", [])[:10],
+            "schlagworte": (c.get("enrichment") or {}).get("schlagworte", []),
+            "score": score,
+        })
+
+    matches.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "keyword": keyword,
+        "subject_area_filter": subject_area or None,
+        "source_work_filter": source_work or None,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "results": matches[:max_results],
+    }
+
+
+def find_at_lehrbuch_by_paragraph(paragraph: str, max_results: int = 30) -> dict:
+    paragraph = clamp_query(paragraph, 50)
+    if not paragraph:
+        return {"paragraph": paragraph, "count": 0, "results": []}
+    chunks = _load_at_lit_cache()
+    matches: list[dict] = []
+    works_set: set = set()
+    para_norm = paragraph.strip()
+    if not para_norm.startswith("§"):
+        para_norm = f"§ {para_norm}"
+
+    for c in chunks:
+        refs = c.get("referenced_paragraphs", [])
+        if any(para_norm in r or r in para_norm for r in refs):
+            works_set.add(c.get("source_work", "?"))
+            matches.append({
+                "stable_key": c["stable_key"],
+                "source_work": c.get("source_work"),
+                "source_label": c.get("source_label"),
+                "subject_area": c.get("subject_area"),
+                "section_path": c.get("section_path", []),
+                "page_from": c.get("page_from"),
+                "snippet": (c.get("chunk_text", "") or "")[:300],
+                "all_paragraphs_in_chunk": refs[:10],
+                "schlagworte": (c.get("enrichment") or {}).get("schlagworte", []),
+            })
+
+    return {
+        "paragraph": para_norm,
+        "total_found": len(matches),
+        "count": min(len(matches), max_results),
+        "works": sorted(works_set),
+        "results": matches[:max_results],
+    }
+
+
+def get_at_lehrbuch_chunk(stable_key: str) -> dict:
+    stable_key = clamp_query(stable_key, 200)
+    if not stable_key.startswith("at-lit|"):
+        return {"error": "invalid_stable_key"}
+    parts = stable_key.split("|")
+    if len(parts) < 3:
+        return {"error": "invalid_format"}
+    slug = parts[1]
+    chunk_part = parts[2]
+    fname = f"{slug}__{chunk_part}.json"
+    for d in [_AT_LIT_ENRICHED, _AT_LIT_EXTRACTED]:
+        f = d / fname
+        if f.exists():
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+                return {"found": True, **data}
+            except Exception as e:
+                return {"error": "load_error", "detail": str(e)}
+    return {"found": False, "stable_key": stable_key, "tried_file": fname}
+
+
+def list_at_lehrbuecher_werke(subject_area: str = "") -> dict:
+    if not _at_lit_works_meta:
+        _load_at_lit_cache()  # populates works_meta
+    works = []
+    subject_areas: dict[str, int] = {}
+    for slug, w in sorted(_at_lit_works_meta.items()):
+        sa = w.get("subject_area", "")
+        subject_areas[sa] = subject_areas.get(sa, 0) + 1
+        if subject_area and sa != subject_area:
+            continue
+        works.append({
+            "slug": slug,
+            "title": w.get("title"),
+            "autoren": w.get("autoren"),
+            "year": w.get("year"),
+            "page_count": w.get("page_count"),
+            "subject_area": sa,
+            "layout_typ": w.get("layout_typ"),
+        })
+    return {
+        "filter_subject_area": subject_area or None,
+        "total_works": len(works),
+        "subject_areas_summary": dict(sorted(subject_areas.items())),
+        "works": works,
+    }
 
 
 # ============================================================================
